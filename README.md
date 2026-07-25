@@ -2,6 +2,20 @@
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.13.
 
+## Deploy with Dokploy and Nixpacks
+
+This repository includes a `nixpacks.toml` file that installs the locked npm
+dependencies with Node.js 22 and creates the Angular production build.
+
+Create an Application in Dokploy and configure:
+
+- **Build Type:** `Nixpacks`
+- **Publish Directory:** `dist/mbbs-front-end-01/browser`
+- **Container Port:** `80`
+
+Then connect the Git repository and deploy. Dokploy serves the publish directory
+with its optimized NGINX image. No custom start command is required.
+
 ## Development server
 
 To start a local development server, run:

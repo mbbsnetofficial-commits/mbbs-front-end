@@ -1,0 +1,13 @@
+# Force the Node provider because public/ and dist/ can otherwise be detected
+# as an already-built static application.
+providers = ["node"]
+
+[variables]
+NODE_ENV = "production"
+NIXPACKS_NODE_VERSION = "22"
+
+[phases.install]
+cmds = ["npm ci"]
+
+[phases.build]
+cmds = ["npm run build"]
