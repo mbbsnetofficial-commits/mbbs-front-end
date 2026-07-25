@@ -1,0 +1,51 @@
+<app-qod></app-qod>
+
+<section class="neet-actions" aria-label="NEET test options">
+  <article class="test-card">
+    <div class="test-icon" aria-hidden="true">&#9998;</div>
+    <div class="test-copy">
+      <p class="eyebrow">Personalised practice</p>
+      <h2>Create Your Own Test</h2>
+      <p>Choose subjects and chapters, set the question count and duration, then start practising.</p>
+    </div>
+    <a class="create-button" routerLink="/dynamic/neet/quick-test">
+      Create Test
+      <span aria-hidden="true">&rarr;</span>
+    </a>
+  </article>
+
+  <article class="test-card">
+    <div class="test-icon papers-icon" aria-hidden="true">&#128214;</div>
+    <div class="test-copy">
+      <p class="eyebrow">Exam-pattern practice</p>
+      <h2>Previous Year Papers</h2>
+      <p>Choose a mapped NEET paper, set your duration, and attempt it in a timed test environment.</p>
+    </div>
+    <a class="create-button papers-button" routerLink="/dynamic/neet/previous-year-tests">
+      View Papers
+      <span aria-hidden="true">&rarr;</span>
+    </a>
+  </article>
+
+  <article class="test-card">
+    <div class="test-icon leaderboard-icon" aria-hidden="true">&#127942;</div>
+    <div class="test-copy">
+      <p class="eyebrow">Student rankings</p>
+      <h2>Test Leaderboard</h2>
+      <p>Compare top test performances and see your current leaderboard rank.</p>
+    </div>
+    <a
+      class="create-button leaderboard-button"
+      routerLink="/dynamic/neet/leaderboard"
+      [queryParams]="{
+        test_type: 'Previous Year',
+        previous_year_paper_id: 15,
+        period: 'ALL'
+      }"
+    >
+      View Rankings
+      <span aria-hidden="true">&rarr;</span>
+    </a>
+  </article>
+</section>
+   

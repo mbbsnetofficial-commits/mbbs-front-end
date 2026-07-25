@@ -1,0 +1,90 @@
+.neet-actions {
+  display: grid;
+  gap: 18px;
+  margin-top: 24px;
+}
+
+.test-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 22px;
+  padding: 28px 32px;
+  border: 1px solid #dbe5f2;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.07);
+}
+
+.test-icon {
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  background: #eaf3ff;
+  color: #1368ce;
+  font-size: 30px;
+}
+
+.eyebrow {
+  margin-bottom: 6px;
+  color: #1677e8;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.test-copy h2 {
+  margin-bottom: 7px;
+  color: #17233c;
+  font-size: 23px;
+}
+
+.test-copy > p:last-child {
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.create-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 22px;
+  border-radius: 10px;
+  background: #1677e8;
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.papers-icon {
+  background: #ecfdf5;
+  color: #07883d;
+}
+
+.papers-button {
+  background: #07883d;
+}
+
+.leaderboard-icon {
+  background: #fff7ed;
+  color: #c56a12;
+}
+
+.leaderboard-button {
+  background: #c56a12;
+}
+
+@media (max-width: 760px) {
+  .test-card {
+    grid-template-columns: auto 1fr;
+    padding: 22px;
+  }
+
+  .create-button {
+    grid-column: 1 / -1;
+    justify-content: center;
+  }
+}

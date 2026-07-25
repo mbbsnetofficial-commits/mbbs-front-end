@@ -1,0 +1,175 @@
+<main class="leaderboard-page">
+  <header class="page-header">
+    <div>
+      <a class="back-link" routerLink="/dynamic/neet">&larr; NEET dashboard</a>
+      <p class="eyebrow">Student rankings</p>
+      <h1>Test Leaderboard</h1>
+      <p>Students are ranked by their best completed test performance.</p>
+    </div>
+    <div class="board-context">
+      <span>{{ period() }}</span>
+      <strong>{{ testType() }}</strong>
+      <small>Paper #{{ paperId() }}</small>
+    </div>
+  </header>
+
+  <section class="my-rank-section" aria-label="Your leaderboard rank">
+    <div class="section-label">
+      <span aria-hidden="true">&#9733;</span>
+      <div>
+        <p>Your best performance</p>
+        <h2>My Rank</h2>
+      </div>
+    </div>
+
+    @if (isLoadingMyRank()) {
+      <div class="rank-loading">
+        <span class="spinner" aria-hidden="true"></span>
+        Loading your rank...
+      </div>
+    } @else if (myRankError()) {
+      <div class="inline-error" role="alert">
+        <span>{{ myRankError() }}</span>
+        <button type="button" (click)="loadMyRank()">Retry</button>
+      </div>
+    } @else if (myRank(); as rank) {
+      <div class="my-rank-card">
+        <div class="rank-position">
+          <small>Rank</small>
+          <strong>{{ rankLabel(rank.rank) }}</strong>
+        </div>
+        <div class="student-identity">
+          <span class="avatar">{{ initials(rank.student_name) }}</span>
+          <div>
+            <strong>{{ rank.student_name }}</strong>
+            <small>{{ rank.student_id }}</small>
+          </div>
+        </div>
+        <div class="rank-stat">
+          <span>Score</span>
+          <strong>{{ rank.score }}</strong>
+        </div>
+        <div class="rank-stat">
+          <span>Accuracy</span>
+          <strong>{{ rank.accuracy }}%</strong>
+        </div>
+        <div class="rank-stat">
+          <span>Normalized</span>
+          <strong>{{ rank.normalized_score }}</strong>
+        </div>
+        <div class="rank-test">
+          <span>{{ rank.test_type }}</span>
+          @if (rank.previous_year_paper_id) {
+            <small>Paper #{{ rank.previous_year_paper_id }}</small>
+          } @else {
+            <small>{{ rank.total_questions }} questions</small>
+          }
+        </div>
+      </div>
+    } @else {
+      <div class="no-rank">
+        Complete a test to earn your first leaderboard rank.
+      </div>
+    }
+  </section>
+
+  <section class="board-section" aria-label="Test leaderboard">
+    <div class="board-heading">
+      <div>
+        <p class="eyebrow">Top performers</p>
+        <h2>{{ testType() }} Rankings</h2>
+      </div>
+      <span>{{ total() }} ranked student{{ total() === 1 ? '' : 's' }}</span>
+    </div>
+
+    @if (boardError()) {
+      <div class="board-error" role="alert">
+        <span>{{ boardError() }}</span>
+        <button type="button" (click)="loadLeaderboard()">Retry</button>
+      </div>
+    }
+
+    @if (isLoadingBoard()) {
+      <div class="board-loading">
+        <span class="spinner" aria-hidden="true"></span>
+        <p>Loading student rankings...</p>
+      </div>
+    } @else if (entries().length === 0 && !boardError()) {
+      <div class="empty-board">
+        <span aria-hidden="true">&#127942;</span>
+        <h3>No rankings yet</h3>
+        <p>Complete this paper to become the first ranked student.</p>
+      </div>
+    } @else {
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Student</th>
+              <th>Score</th>
+              <th>Accuracy</th>
+              <th>Correct</th>
+              <th>Wrong</th>
+              <th>Skipped</th>
+              <th>Time</th>
+              <th>Completed</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (entry of entries(); track entry.session_id) {
+              <tr [class.current-student]="isCurrentStudent(entry)">
+                <td>
+                  <strong class="table-rank">{{ rankLabel(entry.rank) }}</strong>
+                </td>
+                <td>
+                  <div class="table-student">
+                    <span class="avatar">{{ initials(entry.student_name) }}</span>
+                    <div>
+                      <strong>{{ entry.student_name }}</strong>
+                      <small>{{ entry.student_id }}</small>
+                    </div>
+                    @if (isCurrentStudent(entry)) {
+                      <em>You</em>
+                    }
+                  </div>
+                </td>
+                <td><strong>{{ entry.score }}</strong></td>
+                <td>
+                  <span class="accuracy">{{ entry.accuracy }}%</span>
+                  <small class="normalized">Normalized {{ entry.normalized_score }}</small>
+                </td>
+                <td class="correct">{{ entry.correct }}</td>
+                <td class="wrong">{{ entry.wrong }}</td>
+                <td class="skipped">{{ entry.skipped }}</td>
+                <td>{{ formatTime(entry.total_time_spent) }}</td>
+                <td>{{ entry.submitted_at | date:'mediumDate' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <footer class="pagination">
+        <span>Showing {{ pageStart() }}–{{ pageEnd() }} of {{ total() }}</span>
+        <div>
+          <button
+            type="button"
+            [disabled]="page() === 1 || isLoadingBoard()"
+            (click)="previousPage()"
+          >
+            &larr; Previous
+          </button>
+          <strong>Page {{ page() }} of {{ totalPages() }}</strong>
+          <button
+            type="button"
+            [disabled]="page() === totalPages() || isLoadingBoard()"
+            (click)="nextPage()"
+          >
+            Next &rarr;
+          </button>
+        </div>
+      </footer>
+    }
+  </section>
+</main>

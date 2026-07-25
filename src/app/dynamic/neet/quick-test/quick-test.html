@@ -1,0 +1,573 @@
+<section class="quick-test-shell">
+
+  <ng-container *ngIf="view() === 'wizard'">
+    <header class="page-header">
+      <a routerLink="/dynamic/neet" class="back-link">&larr; Back to NEET</a>
+      <div class="title-row">
+        <div>
+          <p class="eyebrow">Create your own test</p>
+          <h1>Quick Test</h1>
+        </div>
+        <strong>{{ step() }} / 3</strong>
+      </div>
+      <div class="step-progress" aria-label="Test setup progress">
+        <span [class.active]="step() >= 1"></span>
+        <span [class.active]="step() >= 2"></span>
+        <span [class.active]="step() >= 3"></span>
+      </div>
+    </header>
+
+    <p *ngIf="errorMessage()" class="error-message">{{ errorMessage() }}</p>
+
+    <article *ngIf="step() === 1" class="setup-card">
+      <div class="card-heading">
+        <p>Step 1</p>
+        <h2>Pick Subjects</h2>
+        <span>Choose one or more subjects for your test.</span>
+      </div>
+
+      <div *ngIf="isLoading()" class="loading">Loading subjects...</div>
+
+      <div *ngIf="!isLoading()" class="subject-grid">
+        <button
+          *ngFor="let subject of subjects()"
+          type="button"
+          class="subject-card"
+          [class.selected]="selectedSubjects().includes(subject)"
+          [attr.aria-pressed]="selectedSubjects().includes(subject)"
+          (click)="toggleSubject(subject)">
+          <span class="subject-icon">{{ subject.charAt(0) }}</span>
+          <strong>{{ subject }}</strong>
+          <span class="selection-check">&#10003;</span>
+        </button>
+      </div>
+
+      <div class="wizard-actions">
+        <span>{{ selectedSubjects().length }} selected</span>
+        <button
+          type="button"
+          class="primary-button"
+          [disabled]="selectedSubjects().length === 0 || isLoading()"
+          (click)="goToChapters()">
+          Next &rarr;
+        </button>
+      </div>
+    </article>
+
+    <article *ngIf="step() === 2" class="setup-card">
+      <div class="card-heading chapter-heading">
+        <div>
+          <p>Step 2</p>
+          <h2>Pick Chapters</h2>
+          <span>{{ selectedSubjects().join(', ') }}</span>
+        </div>
+        <button
+          type="button"
+          class="secondary-button"
+          [disabled]="chapters().length === 0"
+          (click)="toggleAllChapters()">
+          {{ selectedChapters().length === chapters().length ? 'Clear All' : 'Select All' }}
+        </button>
+      </div>
+
+      <div *ngIf="isLoading()" class="loading">Loading chapters...</div>
+
+      <div *ngIf="!isLoading()" class="chapter-list">
+        <button
+          *ngFor="let chapter of chapters()"
+          type="button"
+          class="chapter-row"
+          [class.selected]="selectedChapters().includes(chapter)"
+          [attr.aria-pressed]="selectedChapters().includes(chapter)"
+          (click)="toggleChapter(chapter)">
+          <span class="checkbox">&#10003;</span>
+          <span>{{ chapter }}</span>
+        </button>
+      </div>
+
+      <div class="wizard-actions">
+        <button type="button" class="text-button" (click)="previousStep()">&larr; Back</button>
+        <span>{{ selectedChapters().length }} of {{ chapters().length }} selected</span>
+        <button
+          type="button"
+          class="primary-button"
+          [disabled]="selectedChapters().length === 0 || isLoading()"
+          (click)="goToConfiguration()">
+          Next &rarr;
+        </button>
+      </div>
+    </article>
+
+    <article *ngIf="step() === 3" class="setup-card">
+      <div class="card-heading">
+        <p>Step 3</p>
+        <h2>Configure Test</h2>
+        <span>Choose the number of questions and time limit.</span>
+      </div>
+
+      <h3>Number of Questions</h3>
+      <div class="count-grid">
+        <button
+          *ngFor="let count of questionCountOptions"
+          type="button"
+          [class.selected]="questionCount() === count"
+          (click)="setQuestionCount(count)">
+          {{ count }} Questions
+        </button>
+      </div>
+
+      <div class="duration-heading">
+        <h3>Time Limit</h3>
+        <strong>{{ duration() }} minutes</strong>
+      </div>
+      <input
+        class="duration-slider"
+        type="range"
+        min="1"
+        max="60"
+        step="1"
+        [value]="duration()"
+        (input)="setDuration($event)">
+      <div class="range-labels"><span>1 min</span><span>60 min</span></div>
+
+      <dl class="test-summary">
+        <div><dt>Subjects</dt><dd>{{ selectedSubjects().join(', ') }}</dd></div>
+        <div><dt>Chapters</dt><dd>{{ selectedChapters().length }} selected</dd></div>
+        <div><dt>Topics pool</dt><dd>{{ topicCount() }} topics</dd></div>
+        <div><dt>Questions</dt><dd>{{ questionCount() }}</dd></div>
+        <div><dt>Duration</dt><dd>{{ duration() }} minutes</dd></div>
+      </dl>
+
+      <div class="wizard-actions">
+        <button type="button" class="text-button" (click)="previousStep()">&larr; Back</button>
+        <button
+          type="button"
+          class="start-button"
+          [disabled]="isLoading()"
+          (click)="startTest()">
+          {{ isLoading() ? 'Creating Test...' : 'Start Test' }}
+        </button>
+      </div>
+    </article>
+  </ng-container>
+
+  <ng-container *ngIf="view() === 'test' && activeSession() as session">
+    <header class="test-header">
+      <div>
+        <p class="eyebrow">NEET Quick Test</p>
+        <h1>Practice Session</h1>
+      </div>
+      <div class="timer" [class.warning]="remainingSeconds() <= 60">
+        <span>Time Remaining</span>
+        <strong>{{ formattedTime() }}</strong>
+      </div>
+    </header>
+
+    <p *ngIf="errorMessage()" class="error-message test-error">
+      {{ errorMessage() }}
+      <button
+        *ngIf="remainingSeconds() === 0"
+        type="button"
+        (click)="retrySubmission()">
+        Retry submission
+      </button>
+    </p>
+
+    <div class="test-layout">
+      <aside class="question-panel">
+        <h2>Questions</h2>
+        <div class="question-palette">
+          <button
+            *ngFor="let question of session.questions; let index = index"
+            type="button"
+            [class.current]="currentQuestionIndex() === index"
+            [ngClass]="questionStatusClass(index)"
+            (click)="goToQuestion(index)">
+            {{ index + 1 }}
+          </button>
+        </div>
+
+        <div class="legend">
+          <span><i class="answered"></i>Answered</span>
+          <span><i class="marked"></i>Marked</span>
+          <span><i class="visited"></i>Not answered</span>
+        </div>
+
+        <dl class="test-stats">
+          <div><dt>Answered</dt><dd>{{ answeredCount() }}</dd></div>
+          <div><dt>Marked</dt><dd>{{ markedCount() }}</dd></div>
+          <div><dt>Visited</dt><dd>{{ visitedCount() }}</dd></div>
+        </dl>
+
+        <button
+          type="button"
+          class="submit-test-button"
+          [disabled]="isSubmitting()"
+          (click)="requestSubmit()">
+          {{ isSubmitting() ? 'Submitting...' : 'Submit Test' }}
+        </button>
+      </aside>
+
+      <article *ngIf="currentQuestion() as question" class="question-card">
+        <div class="question-toolbar">
+          <div>
+            <strong>Question {{ currentQuestionIndex() + 1 }}</strong>
+            <span>of {{ session.questions.length }}</span>
+          </div>
+          <button
+            type="button"
+            class="review-button"
+            [class.active]="currentQuestionState()?.markedForReview"
+            (click)="toggleMarkForReview()">
+            {{ currentQuestionState()?.markedForReview ? 'Marked for Review' : 'Mark for Review' }}
+          </button>
+        </div>
+
+        <div class="question-meta">
+          <span *ngIf="question.difficulty">{{ question.difficulty }}</span>
+          <span *ngIf="question.question_type">{{ question.question_type }}</span>
+        </div>
+
+        <p class="question-text">{{ question.question }}</p>
+
+        <div class="answer-options">
+          <button
+            *ngFor="let option of optionKeys"
+            type="button"
+            [class.selected]="currentQuestionState()?.selectedOption === option"
+            (click)="selectOption(option)">
+            <span class="option-letter">{{ option }}</span>
+            <span>{{ optionText(question, option) }}</span>
+          </button>
+        </div>
+
+        <div class="question-actions">
+          <button
+            type="button"
+            class="secondary-button"
+            [disabled]="currentQuestionIndex() === 0"
+            (click)="previousQuestion()">
+            &larr; Previous
+          </button>
+          <button
+            type="button"
+            class="text-button"
+            [disabled]="!currentQuestionState()?.selectedOption"
+            (click)="clearResponse()">
+            Clear response
+          </button>
+          <button
+            type="button"
+            class="primary-button"
+            [disabled]="currentQuestionIndex() === session.questions.length - 1"
+            (click)="nextQuestion()">
+            Next &rarr;
+          </button>
+        </div>
+      </article>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="view() === 'result'">
+    <div *ngIf="isLoadingResult()" class="result-loading">
+      <span class="result-spinner" aria-hidden="true"></span>
+      <h2>Preparing your result...</h2>
+      <p>We are checking your answers and building the review.</p>
+    </div>
+
+    <div *ngIf="!isLoadingResult() && errorMessage() && !testResult()" class="result-loading result-error">
+      <h2>Result unavailable</h2>
+      <p>{{ errorMessage() }}</p>
+      <button type="button" class="primary-button" (click)="loadResult()">
+        Retry Result
+      </button>
+    </div>
+
+    <section *ngIf="!isLoadingResult() && testResult() as result" class="result-view">
+      <header class="result-header">
+        <div>
+          <p class="eyebrow">Test completed</p>
+          <h1>Your Quick Test Result</h1>
+          <p>{{ result.test_type }} &middot; {{ result.total_questions }} questions</p>
+        </div>
+        <div class="result-header-actions">
+          <button
+            type="button"
+            class="gemini-button"
+            [disabled]="result.wrong === 0"
+            (click)="openChat()">
+            Ask Gemini
+          </button>
+          <button
+            type="button"
+            class="insights-button"
+            [disabled]="result.wrong === 0"
+            (click)="openInsights()">
+            Generate AI Insights
+          </button>
+          <a routerLink="/dynamic/neet" class="secondary-button">Return to NEET</a>
+        </div>
+      </header>
+
+      <div class="result-summary">
+        <article class="score-card">
+          <span>Score</span>
+          <strong>{{ result.score }}</strong>
+          <small>NEET marking</small>
+        </article>
+        <article>
+          <span>Accuracy</span>
+          <strong>{{ result.accuracy }}%</strong>
+          <small>{{ result.correct }} correct</small>
+        </article>
+        <article class="correct-stat">
+          <span>Correct</span>
+          <strong>{{ result.correct }}</strong>
+          <small>+4 each</small>
+        </article>
+        <article class="wrong-stat">
+          <span>Wrong</span>
+          <strong>{{ result.wrong }}</strong>
+          <small>-1 each</small>
+        </article>
+        <article class="skipped-stat">
+          <span>Skipped</span>
+          <strong>{{ result.skipped }}</strong>
+          <small>No penalty</small>
+        </article>
+        <article>
+          <span>Time Taken</span>
+          <strong class="time-value">{{ formatDuration(result.total_time_spent) }}</strong>
+          <small>of {{ formatDuration(result.duration) }}</small>
+        </article>
+      </div>
+
+      <p *ngIf="result.wrong === 0" class="perfect-result">
+        Excellent work! There are no attempted wrong answers to review with Gemini.
+      </p>
+
+      <section *ngIf="aiPanel() === 'chat'" class="ai-panel chat-panel">
+        <header class="ai-panel-header">
+          <div>
+            <p class="eyebrow">Gemini-powered review</p>
+            <h2>Ask About Your Wrong Answers</h2>
+          </div>
+          <button type="button" class="close-panel" (click)="closeAiPanel()">
+            Close
+          </button>
+        </header>
+
+        <p *ngIf="chatError()" class="error-message">{{ chatError() }}</p>
+        <div *ngIf="isLoadingChat()" class="ai-loading">Loading conversation...</div>
+
+        <div *ngIf="!isLoadingChat()" class="chat-messages" aria-live="polite">
+          <div *ngIf="chatMessages().length === 0" class="empty-chat">
+            Ask Gemini to explain your incorrect answers, formulas, or concepts.
+          </div>
+          <article
+            *ngFor="let message of chatMessages()"
+            class="chat-message"
+            [class.user-message]="message.role === 'user'"
+            [class.assistant-message]="message.role === 'assistant'">
+            <strong>{{ message.role === 'user' ? 'You' : 'Gemini' }}</strong>
+            <p>{{ message.content }}</p>
+            <small *ngIf="message.model">{{ message.model }}</small>
+          </article>
+        </div>
+
+        <div class="chat-composer">
+          <textarea
+            rows="3"
+            maxlength="2000"
+            placeholder="Ask Gemini about your wrong answers..."
+            [value]="chatInput()"
+            [disabled]="isLoadingChat() || isSendingMessage()"
+            (input)="updateChatInput($event)"></textarea>
+          <button
+            type="button"
+            class="gemini-button"
+            [disabled]="!chatInput().trim() || !chatSession() || isSendingMessage()"
+            (click)="sendMessage()">
+            {{ isSendingMessage() ? 'Gemini is thinking...' : 'Send Message' }}
+          </button>
+        </div>
+      </section>
+
+      <section *ngIf="aiPanel() === 'insights'" class="ai-panel insights-panel">
+        <header class="ai-panel-header">
+          <div>
+            <p class="eyebrow">AI performance analysis</p>
+            <h2>Your Focus Zones</h2>
+          </div>
+          <button type="button" class="close-panel" (click)="closeAiPanel()">
+            Close
+          </button>
+        </header>
+
+        <div *ngIf="isLoadingInsights()" class="ai-loading">
+          Gemini is analysing all your wrong answers...
+        </div>
+
+        <div *ngIf="insightsError()" class="error-message insight-error">
+          <span>{{ insightsError() }}</span>
+          <button type="button" (click)="retryInsights()">Retry</button>
+        </div>
+
+        <ng-container *ngIf="!isLoadingInsights() && zoneInsight() as insight">
+          <blockquote>{{ insight.g_phrase }}</blockquote>
+
+          <div class="insight-overview">
+            <article><span>Accuracy</span><strong>{{ insight.accuracy }}%</strong></article>
+            <article><span>Total Mark</span><strong>{{ insight.total_mark }}</strong></article>
+            <article>
+              <span>Total Time</span>
+              <strong>{{ formatDuration(insight.time_spend.total_time_spent) }}</strong>
+            </article>
+            <article>
+              <span>Incorrect Time</span>
+              <strong>{{ formatDuration(insight.time_spend.incorrect_time_spent) }}</strong>
+            </article>
+          </div>
+
+          <div class="insight-columns">
+            <section>
+              <h3>Focus Zones</h3>
+              <article
+                *ngFor="let subject of insightSubjects(insight.focus_zone)"
+                class="insight-subject">
+                <strong>{{ subject }}</strong>
+                <ul>
+                  <li *ngFor="let item of insight.focus_zone[subject]">{{ item }}</li>
+                </ul>
+              </article>
+            </section>
+
+            <section>
+              <h3>Repeated Mistakes</h3>
+              <article
+                *ngFor="let subject of insightSubjects(insight.repeated_mistake)"
+                class="insight-subject mistake-subject">
+                <strong>{{ subject }}</strong>
+                <ul>
+                  <li *ngFor="let item of insight.repeated_mistake[subject]">{{ item }}</li>
+                </ul>
+              </article>
+            </section>
+          </div>
+
+          <section class="checkpoints">
+            <h3>Your Next Steps</h3>
+            <ol>
+              <li *ngFor="let checkpoint of insight.checkpoints">{{ checkpoint }}</li>
+            </ol>
+          </section>
+        </ng-container>
+      </section>
+
+      <div class="review-heading">
+        <div>
+          <p class="eyebrow">Answer analysis</p>
+          <h2>Question Review</h2>
+        </div>
+        <div class="review-filters" aria-label="Filter reviewed questions">
+          <button
+            type="button"
+            [class.active]="resultFilter() === 'all'"
+            (click)="setResultFilter('all')">
+            All {{ result.total_questions }}
+          </button>
+          <button
+            type="button"
+            [class.active]="resultFilter() === 'correct'"
+            (click)="setResultFilter('correct')">
+            Correct {{ result.correct }}
+          </button>
+          <button
+            type="button"
+            [class.active]="resultFilter() === 'wrong'"
+            (click)="setResultFilter('wrong')">
+            Wrong {{ result.wrong }}
+          </button>
+          <button
+            type="button"
+            [class.active]="resultFilter() === 'skipped'"
+            (click)="setResultFilter('skipped')">
+            Skipped {{ result.skipped }}
+          </button>
+        </div>
+      </div>
+
+      <div class="review-list">
+        <article
+          *ngFor="let question of filteredReview(); let index = index"
+          class="review-card"
+          [class.correct-review]="question.is_correct"
+          [class.wrong-review]="!question.is_correct && !question.is_skipped"
+          [class.skipped-review]="question.is_skipped">
+          <div class="review-card-header">
+            <div>
+              <span class="review-number">Question {{ index + 1 }}</span>
+              <span
+                class="review-status"
+                [class.correct]="question.is_correct"
+                [class.wrong]="!question.is_correct && !question.is_skipped"
+                [class.skipped]="question.is_skipped">
+                {{ resultStatus(question) }}
+              </span>
+            </div>
+            <div class="review-metrics">
+              <span>{{ question.marks_awarded > 0 ? '+' : '' }}{{ question.marks_awarded }} marks</span>
+              <span>{{ question.time_spent }}s</span>
+            </div>
+          </div>
+
+          <div class="question-meta">
+            <span *ngIf="question.difficulty">{{ question.difficulty }}</span>
+            <span *ngIf="question.question_type">{{ question.question_type }}</span>
+          </div>
+
+          <p class="review-question">{{ question.question }}</p>
+
+          <div class="review-options">
+            <div
+              *ngFor="let option of optionKeys"
+              [ngClass]="reviewOptionClass(question, option)">
+              <span class="option-letter">{{ option }}</span>
+              <span class="review-option-text">{{ optionText(question, option) }}</span>
+              <small *ngIf="option === question.correct_answer">Correct answer</small>
+              <small *ngIf="option === question.selected_option && option !== question.correct_answer">
+                Your answer
+              </small>
+            </div>
+          </div>
+
+          <div class="answer-summary">
+            <span>
+              Your answer:
+              <strong>{{ question.is_skipped ? 'Not answered' : question.selected_option }}</strong>
+            </span>
+            <span>Correct answer: <strong>{{ question.correct_answer }}</strong></span>
+          </div>
+
+          <div class="explanation">
+            <strong>Explanation</strong>
+            <p>{{ question.explanation }}</p>
+          </div>
+
+          <button
+            *ngIf="!question.is_correct && !question.is_skipped"
+            type="button"
+            class="ask-question-button"
+            (click)="openChat(question.id)">
+            Ask Gemini About This Question
+          </button>
+        </article>
+
+        <div *ngIf="filteredReview().length === 0" class="empty-review">
+          No questions match this filter.
+        </div>
+      </div>
+    </section>
+  </ng-container>
+
+</section>

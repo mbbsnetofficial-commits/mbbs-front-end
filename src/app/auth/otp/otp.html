@@ -1,0 +1,32 @@
+<form (ngSubmit)="verifyOtp()">
+
+  <h2>Verify OTP</h2>
+
+  <input
+    type="text"
+    name="phoneNumber"
+    [(ngModel)]="otpData.phoneNumber"
+    placeholder="Phone Number"
+    maxlength="10"
+    required
+  />
+
+  <input
+    type="text"
+    name="otp"
+    [(ngModel)]="otpData.otp"
+    placeholder="Enter 6-Digit OTP"
+    maxlength="6"
+    required
+  />
+
+  <button type="submit">
+    Verify OTP
+  </button>
+
+  <p class="back-link">
+    Already verified?
+    <a routerLink="/auth/login">Login</a>
+  </p>
+
+</form>

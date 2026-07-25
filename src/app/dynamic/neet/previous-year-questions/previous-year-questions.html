@@ -1,0 +1,566 @@
+<main class="previous-year-page">
+  @if (view() === 'papers') {
+    <header class="page-header">
+      <div>
+        <a class="back-link" routerLink="/dynamic/neet">&larr; NEET dashboard</a>
+        <p class="eyebrow">Official examination practice</p>
+        <h1>Previous Year Tests</h1>
+        <p>Attempt mapped NEET papers in a focused, timed test environment.</p>
+      </div>
+      @if (papers().length > 0) {
+        <div class="paper-count">
+          <strong>{{ availablePaperCount() }}</strong>
+          <span>papers available</span>
+        </div>
+      }
+    </header>
+
+    @if (errorMessage()) {
+      <div class="alert" role="alert">
+        <span>{{ errorMessage() }}</span>
+        <button type="button" (click)="loadPapers()">Retry</button>
+      </div>
+    }
+
+    @if (isLoading()) {
+      <div class="loading-state">
+        <span class="spinner" aria-hidden="true"></span>
+        <p>Loading previous year papers...</p>
+      </div>
+    } @else if (papers().length === 0 && !errorMessage()) {
+      <div class="empty-state">
+        <span aria-hidden="true">&#128196;</span>
+        <h2>No papers available</h2>
+        <p>Previous year NEET papers will appear here when they are published.</p>
+      </div>
+    } @else {
+      <section class="paper-grid" aria-label="Previous year papers">
+        @for (paper of papers(); track paper.id) {
+          <article
+            class="paper-card"
+            [class.unavailable]="!isPaperAvailable(paper)"
+          >
+            <div class="paper-card-top">
+              <span class="paper-icon" aria-hidden="true">&#128214;</span>
+              <span
+                class="availability"
+                [class.ready]="isPaperAvailable(paper)"
+              >
+                {{ isPaperAvailable(paper) ? 'Available' : 'Unavailable' }}
+              </span>
+            </div>
+            <p class="exam-type">{{ paper.exam_type | uppercase }}</p>
+            <h2>{{ paper.name }}</h2>
+            <div class="paper-meta">
+              <span><strong>{{ paper.question_count }}</strong> questions</span>
+              <span><strong>{{ paper.mapped_question_count }}</strong> mapped</span>
+            </div>
+            <button
+              type="button"
+              [disabled]="!isPaperAvailable(paper) || isLoading()"
+              (click)="selectPaper(paper)"
+            >
+              {{ isPaperAvailable(paper) ? 'View Paper' : 'Mapping unavailable' }}
+              @if (isPaperAvailable(paper)) {
+                <span aria-hidden="true">&rarr;</span>
+              }
+            </button>
+          </article>
+        }
+      </section>
+    }
+  }
+
+  @if (view() === 'configure' && selectedPaper(); as paper) {
+    <header class="compact-header">
+      <button type="button" class="back-button" (click)="backToPapers()">
+        &larr;
+      </button>
+      <div>
+        <p class="eyebrow">Configure paper</p>
+        <h1>{{ paper.name }}</h1>
+      </div>
+    </header>
+
+    <section class="configure-card">
+      <div class="paper-summary">
+        <div class="summary-icon" aria-hidden="true">&#128214;</div>
+        <div>
+          <p class="exam-type">{{ paper.exam_type | uppercase }}</p>
+          <h2>{{ paper.name }}</h2>
+          <p>{{ paper.mapped_question_count }} mapped questions are ready.</p>
+        </div>
+      </div>
+
+      <div class="instruction-box">
+        <h3>Before you begin</h3>
+        <ul>
+          <li>The timer starts immediately after the paper loads.</li>
+          <li>You can navigate, clear answers and mark questions for review.</li>
+          <li>The test submits automatically when the selected time ends.</li>
+        </ul>
+      </div>
+
+      <label class="duration-field" for="paper-duration">
+        <span>Test duration</span>
+        <div>
+          <input
+            id="paper-duration"
+            type="number"
+            min="1"
+            max="300"
+            [value]="duration()"
+            (input)="updateDuration($event)"
+          />
+          <span>minutes</span>
+        </div>
+        <small>Recommended: {{ paper.question_count }} minutes</small>
+      </label>
+
+      @if (errorMessage()) {
+        <div class="alert" role="alert">{{ errorMessage() }}</div>
+      }
+
+      <button
+        type="button"
+        class="start-button"
+        [disabled]="isStarting()"
+        (click)="startTest()"
+      >
+        {{ isStarting() ? 'Preparing Paper...' : 'Start Test' }}
+        <span aria-hidden="true">&rarr;</span>
+      </button>
+    </section>
+  }
+
+  @if (view() === 'test' && activeSession(); as session) {
+    <header class="test-header">
+      <div>
+        <p class="eyebrow">Previous year test</p>
+        <h1>{{ session.paper.name }}</h1>
+      </div>
+      <div class="test-progress">
+        <span>{{ answeredCount() }} / {{ session.totalQuestions }} answered</span>
+        <strong class="timer" [class.urgent]="remainingSeconds() <= 300">
+          <span aria-hidden="true">&#9201;</span>
+          {{ formattedTime() }}
+        </strong>
+      </div>
+    </header>
+
+    @if (errorMessage()) {
+      <div class="alert submit-alert" role="alert">
+        <span>{{ errorMessage() }}</span>
+        @if (remainingSeconds() === 0) {
+          <button type="button" (click)="retrySubmission()">Retry submit</button>
+        }
+      </div>
+    }
+
+    <div class="test-layout">
+      <section class="question-card">
+        @if (currentQuestion(); as question) {
+          <div class="question-heading">
+            <div>
+              <span>Question {{ currentQuestionIndex() + 1 }}</span>
+              <small>of {{ session.totalQuestions }}</small>
+            </div>
+            <button
+              type="button"
+              class="mark-button"
+              [class.active]="currentQuestionState()?.markedForReview"
+              (click)="toggleMarkForReview()"
+            >
+              &#9873;
+              {{ currentQuestionState()?.markedForReview ? 'Marked' : 'Mark for review' }}
+            </button>
+          </div>
+
+          <p class="question-text">{{ question.question }}</p>
+
+          <div class="options" role="radiogroup" aria-label="Answer options">
+            @for (option of optionKeys; track option) {
+              <button
+                type="button"
+                role="radio"
+                [attr.aria-checked]="currentQuestionState()?.selectedOption === option"
+                [class.selected]="currentQuestionState()?.selectedOption === option"
+                (click)="selectOption(option)"
+              >
+                <span class="option-letter">{{ option }}</span>
+                <span>{{ optionText(question, option) }}</span>
+              </button>
+            }
+          </div>
+
+          <div class="question-actions">
+            <button
+              type="button"
+              class="secondary-button"
+              [disabled]="currentQuestionIndex() === 0"
+              (click)="previousQuestion()"
+            >
+              &larr; Previous
+            </button>
+            <button
+              type="button"
+              class="clear-button"
+              [disabled]="!currentQuestionState()?.selectedOption"
+              (click)="clearResponse()"
+            >
+              Clear response
+            </button>
+            @if (currentQuestionIndex() < session.questions.length - 1) {
+              <button type="button" class="next-button" (click)="nextQuestion()">
+                Save &amp; Next &rarr;
+              </button>
+            } @else {
+              <button
+                type="button"
+                class="submit-button"
+                [disabled]="isSubmitting()"
+                (click)="requestSubmit()"
+              >
+                {{ isSubmitting() ? 'Submitting...' : 'Submit Test' }}
+              </button>
+            }
+          </div>
+        }
+      </section>
+
+      <aside class="question-panel">
+        <div class="panel-heading">
+          <div>
+            <h2>Question Palette</h2>
+            <p>Jump to any question</p>
+          </div>
+          <strong>{{ markedCount() }} marked</strong>
+        </div>
+
+        <div class="legend">
+          <span><i class="answered-dot"></i>Answered</span>
+          <span><i class="marked-dot"></i>Marked</span>
+          <span><i class="visited-dot"></i>Visited</span>
+        </div>
+
+        <div class="question-palette">
+          @for (question of session.questions; track question.id; let index = $index) {
+            <button
+              type="button"
+              [class.current]="index === currentQuestionIndex()"
+              [class.answered]="questionStatusClass(index) === 'answered'"
+              [class.marked]="questionStatusClass(index) === 'marked'"
+              [class.visited]="questionStatusClass(index) === 'visited'"
+              (click)="goToQuestion(index)"
+              [attr.aria-label]="'Go to question ' + (index + 1)"
+            >
+              {{ index + 1 }}
+            </button>
+          }
+        </div>
+
+        <button
+          type="button"
+          class="panel-submit"
+          [disabled]="isSubmitting()"
+          (click)="requestSubmit()"
+        >
+          {{ isSubmitting() ? 'Submitting...' : 'Submit Test' }}
+        </button>
+      </aside>
+    </div>
+  }
+
+  @if (view() === 'result' && result(); as testResult) {
+    <header class="result-header">
+      <div>
+        <p class="eyebrow">Test completed</p>
+        <h1>{{ activeSession()?.paper?.name }} Result</h1>
+        <p>Your result is ready. Review each attempted answer below.</p>
+      </div>
+      <div class="result-actions">
+        <button
+          type="button"
+          class="gemini-button"
+          [disabled]="testResult.wrong === 0"
+          (click)="openChat()"
+        >
+          Ask Gemini
+        </button>
+        <button
+          type="button"
+          class="insights-button"
+          [disabled]="testResult.wrong === 0"
+          (click)="openInsights()"
+        >
+          AI Insights
+        </button>
+        <button type="button" class="another-button" (click)="startAnotherPaper()">
+          Attempt another paper
+        </button>
+      </div>
+    </header>
+
+    <section class="result-summary">
+      <article class="score-card">
+        <span>Score</span>
+        <strong>{{ testResult.score }}</strong>
+      </article>
+      <article>
+        <span>Accuracy</span>
+        <strong>{{ testResult.accuracy }}%</strong>
+      </article>
+      <article class="correct-stat">
+        <span>Correct</span>
+        <strong>{{ testResult.correct }}</strong>
+      </article>
+      <article class="wrong-stat">
+        <span>Wrong</span>
+        <strong>{{ testResult.wrong }}</strong>
+      </article>
+      <article class="skipped-stat">
+        <span>Skipped</span>
+        <strong>{{ testResult.skipped }}</strong>
+      </article>
+    </section>
+
+    @if (testResult.wrong === 0) {
+      <div class="perfect-result">
+        <strong>Excellent work!</strong>
+        There are no incorrect attempted answers to review with Gemini.
+      </div>
+    }
+
+    @if (aiPanel() === 'chat') {
+      <section class="ai-panel" aria-label="Gemini answer review">
+        <header class="ai-panel-header">
+          <div>
+            <p class="eyebrow">Gemini-powered review</p>
+            <h2>Ask about your wrong answers</h2>
+          </div>
+          <button type="button" class="close-panel" (click)="closeAiPanel()">
+            Close
+          </button>
+        </header>
+
+        @if (chatError()) {
+          <div class="alert" role="alert">{{ chatError() }}</div>
+        }
+
+        @if (isLoadingChat()) {
+          <div class="ai-loading">
+            <span class="spinner" aria-hidden="true"></span>
+            <p>Opening your test review...</p>
+          </div>
+        } @else {
+          <div class="chat-messages" aria-live="polite">
+            @if (chatMessages().length === 0) {
+              <div class="empty-chat">
+                Ask Gemini to explain mistakes, concepts, or the correct approach.
+              </div>
+            }
+            @for (message of chatMessages(); track message._id) {
+              <article
+                class="chat-message"
+                [class.user-message]="message.role === 'user'"
+                [class.assistant-message]="message.role === 'assistant'"
+              >
+                <strong>{{ message.role === 'user' ? 'You' : 'Gemini' }}</strong>
+                <p>{{ message.content }}</p>
+                <small>{{ message.createdAt | date:'shortTime' }}</small>
+              </article>
+            }
+          </div>
+
+          <div class="chat-composer">
+            <textarea
+              rows="3"
+              aria-label="Message for Gemini"
+              placeholder="Ask about your incorrect answers..."
+              [value]="chatInput()"
+              (input)="updateChatInput($event)"
+            ></textarea>
+            <button
+              type="button"
+              class="gemini-button"
+              [disabled]="!chatInput().trim() || isSendingMessage() || !chatSession()"
+              (click)="sendMessage()"
+            >
+              {{ isSendingMessage() ? 'Asking...' : 'Send' }}
+            </button>
+          </div>
+        }
+      </section>
+    }
+
+    @if (aiPanel() === 'insights') {
+      <section class="ai-panel insights-panel" aria-label="AI test insights">
+        <header class="ai-panel-header">
+          <div>
+            <p class="eyebrow">Personalised analysis</p>
+            <h2>Gemini Insights</h2>
+          </div>
+          <button type="button" class="close-panel" (click)="closeAiPanel()">
+            Close
+          </button>
+        </header>
+
+        @if (insightsError()) {
+          <div class="alert insight-error" role="alert">
+            <span>{{ insightsError() }}</span>
+            <button type="button" (click)="retryInsights()">Retry</button>
+          </div>
+        } @else if (isLoadingInsights()) {
+          <div class="ai-loading">
+            <span class="spinner" aria-hidden="true"></span>
+            <p>Analysing your weak areas and learning patterns...</p>
+          </div>
+        } @else if (zoneInsight(); as insight) {
+          <blockquote>{{ insight.g_phrase }}</blockquote>
+
+          <div class="insight-overview">
+            <article><span>Accuracy</span><strong>{{ insight.accuracy }}%</strong></article>
+            <article><span>Total marks</span><strong>{{ insight.total_mark }}</strong></article>
+            <article>
+              <span>Total time</span>
+              <strong>{{ formatSeconds(insight.time_spend.total_time_spent) }}</strong>
+            </article>
+            <article>
+              <span>Incorrect time</span>
+              <strong>{{ formatSeconds(insight.time_spend.incorrect_time_spent) }}</strong>
+            </article>
+          </div>
+
+          <div class="insight-columns">
+            <section>
+              <h3>Focus zones</h3>
+              @for (subject of insightSubjects(insight.focus_zone); track subject) {
+                <div class="insight-subject">
+                  <strong>{{ subject }}</strong>
+                  <ul>
+                    @for (item of insight.focus_zone[subject]; track item) {
+                      <li>{{ item }}</li>
+                    }
+                  </ul>
+                </div>
+              }
+            </section>
+            <section>
+              <h3>Repeated mistakes</h3>
+              @for (subject of insightSubjects(insight.repeated_mistake); track subject) {
+                <div class="insight-subject">
+                  <strong>{{ subject }}</strong>
+                  <ul>
+                    @for (item of insight.repeated_mistake[subject]; track item) {
+                      <li>{{ item }}</li>
+                    }
+                  </ul>
+                </div>
+              }
+            </section>
+          </div>
+
+          <section class="checkpoints">
+            <h3>Your next checkpoints</h3>
+            <ol>
+              @for (checkpoint of insight.checkpoints; track checkpoint) {
+                <li>{{ checkpoint }}</li>
+              }
+            </ol>
+          </section>
+        }
+      </section>
+    }
+
+    <section class="review-section">
+      <div class="review-heading">
+        <div>
+          <p class="eyebrow">Answer analysis</p>
+          <h2>Review attempted questions</h2>
+          <p>The submit API returns answer details for attempted questions.</p>
+        </div>
+        <div class="result-filters" aria-label="Filter reviewed answers">
+          <button
+            type="button"
+            [class.active]="resultFilter() === 'all'"
+            (click)="setResultFilter('all')"
+          >
+            All ({{ reviewedQuestions().length }})
+          </button>
+          <button
+            type="button"
+            [class.active]="resultFilter() === 'correct'"
+            (click)="setResultFilter('correct')"
+          >
+            Correct ({{ testResult.correct }})
+          </button>
+          <button
+            type="button"
+            [class.active]="resultFilter() === 'wrong'"
+            (click)="setResultFilter('wrong')"
+          >
+            Wrong ({{ testResult.wrong }})
+          </button>
+        </div>
+      </div>
+
+      @if (filteredReview().length === 0) {
+        <div class="empty-review">No answers match this filter.</div>
+      } @else {
+        <div class="review-list">
+          @for (review of filteredReview(); track review.question.id; let index = $index) {
+            <article class="review-card">
+              <div class="review-card-header">
+                <strong>Question {{ index + 1 }}</strong>
+                <div>
+                  <span
+                    class="review-status"
+                    [class.correct]="review.result.isCorrect"
+                    [class.wrong]="!review.result.isCorrect"
+                  >
+                    {{ review.result.isCorrect ? 'Correct' : 'Wrong' }}
+                  </span>
+                  <small>{{ formatSeconds(review.timeSpent) }}</small>
+                </div>
+              </div>
+
+              <p class="review-question">{{ review.question.question }}</p>
+              <div class="review-options">
+                @for (option of optionKeys; track option) {
+                  <div [ngClass]="reviewOptionClass(review, option)">
+                    <span class="option-letter">{{ option }}</span>
+                    <span>{{ optionText(review.question, option) }}</span>
+                    @if (option === review.result.correct_answer) {
+                      <small>Correct answer</small>
+                    } @else if (option === review.result.selected) {
+                      <small>Your answer</small>
+                    }
+                  </div>
+                }
+              </div>
+
+              @if (review.question.explanation_image) {
+                <details class="explanation-image">
+                  <summary>View explanation image</summary>
+                  <img
+                    [src]="imageSource(review.question.explanation_image)"
+                    alt="Explanation for this question"
+                  />
+                </details>
+              }
+              @if (!review.result.isCorrect) {
+                <button
+                  type="button"
+                  class="ask-question-button"
+                  (click)="openChat(review.question.id)"
+                >
+                  Ask Gemini about this answer
+                </button>
+              }
+            </article>
+          }
+        </div>
+      }
+    </section>
+  }
+</main>

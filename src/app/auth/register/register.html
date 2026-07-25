@@ -1,0 +1,99 @@
+<section class="auth-page">
+  <a class="brand-link" routerLink="/static/dashboard">&larr; MBBS.NET</a>
+
+  <form #registerForm="ngForm" (ngSubmit)="register()">
+    <div class="form-heading">
+      <p>Start learning</p>
+      <h1>Create your account</h1>
+      <span>Register to access NEET practice and performance analysis.</span>
+    </div>
+
+    <div class="name-grid">
+      <label>
+        <span>First name</span>
+        <input
+          type="text"
+          name="firstName"
+          [(ngModel)]="registerData.firstName"
+          autocomplete="given-name"
+          required
+        />
+      </label>
+      <label>
+        <span>Last name</span>
+        <input
+          type="text"
+          name="lastName"
+          [(ngModel)]="registerData.lastName"
+          autocomplete="family-name"
+          required
+        />
+      </label>
+    </div>
+
+    <label>
+      <span>Email address</span>
+      <input
+        type="email"
+        name="email"
+        [(ngModel)]="registerData.email"
+        placeholder="student@example.com"
+        autocomplete="email"
+        required
+        email
+      />
+    </label>
+
+    <label>
+      <span>Phone number</span>
+      <input
+        type="tel"
+        name="phoneNumber"
+        [(ngModel)]="registerData.phoneNumber"
+        placeholder="10-digit phone number"
+        autocomplete="tel"
+        minlength="10"
+        maxlength="15"
+        required
+      />
+    </label>
+
+    <div class="name-grid">
+      <label>
+        <span>Password</span>
+        <input
+          type="password"
+          name="password"
+          [(ngModel)]="registerData.password"
+          autocomplete="new-password"
+          minlength="6"
+          required
+        />
+      </label>
+      <label>
+        <span>Confirm password</span>
+        <input
+          type="password"
+          name="confirmPassword"
+          [(ngModel)]="registerData.confirmPassword"
+          autocomplete="new-password"
+          minlength="6"
+          required
+        />
+      </label>
+    </div>
+
+    @if (errorMessage) {
+      <p class="form-error" role="alert">{{ errorMessage }}</p>
+    }
+
+    <button type="submit" [disabled]="registerForm.invalid || isSubmitting">
+      {{ isSubmitting ? 'Creating account...' : 'Register' }}
+    </button>
+
+    <p class="login-link">
+      Already registered?
+      <a routerLink="/auth/login">Log in</a>
+    </p>
+  </form>
+</section>

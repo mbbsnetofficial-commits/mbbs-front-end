@@ -1,0 +1,57 @@
+<div class="layout">
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            MBBS.NET
+        </div>
+
+        <nav>
+
+            <a
+                routerLink="/dynamic/dashboard"
+                routerLinkActive="active">
+
+                Dashboard
+
+            </a>
+
+            <a
+                routerLink="/dynamic/neet"
+                routerLinkActive="active">
+
+                NEET
+
+            </a>
+
+        </nav>
+
+        <button
+            class="logout-btn"
+            (click)="onLogout()">
+
+            Logout
+
+        </button>
+
+    </aside>
+
+    <div class="main">
+
+        <header class="header">
+
+            <h2>
+                Student Dashboard
+            </h2>
+
+        </header>
+
+        <main class="content">
+
+            <router-outlet></router-outlet>
+
+        </main>
+
+    </div>
+
+</div>
