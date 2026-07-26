@@ -49,7 +49,7 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
 
         tokenService.clearTokens();
 
-        router.navigate(['/static/dashboard']);
+        router.navigate(['/']);
 
         return throwError(() => error);
       }
@@ -83,7 +83,7 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
 
           tokenService.clearTokens();
 
-          router.navigate(['/static/dashboard']);
+          router.navigate(['/']);
 
           return throwError(() => refreshError);
 

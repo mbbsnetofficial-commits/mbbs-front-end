@@ -1,12 +1,13 @@
 import { Routes } from '@angular/router';
 
 import { authGuard } from './core/serivce/auth.guard';
+import { Dashboard } from './static/dashboard/dashboard';
 
 export const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
-    redirectTo: 'static/dashboard',
+    component: Dashboard,
   },
   {
     path: 'static',
@@ -25,6 +26,6 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: 'static/dashboard',
+    redirectTo: '',
   },
 ];

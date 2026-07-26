@@ -12,5 +12,5 @@ export const authGuard: CanMatchFn = () => {
     return true;
   }
 
-  return router.createUrlTree(['/static/dashboard']);
+  return router.createUrlTree(['/']);
 };

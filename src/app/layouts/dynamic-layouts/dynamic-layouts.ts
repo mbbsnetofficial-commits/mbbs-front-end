@@ -32,12 +32,12 @@ export class DynamicLayouts {
     this.authService.logout().subscribe({
       next: () => {
         this.tokenService.clearTokens();
-        this.router.navigate(['/static/dashboard']);
+        this.router.navigate(['/']);
       },
 
       error: () => {
         this.tokenService.clearTokens();
-        this.router.navigate(['/static/dashboard']);
+        this.router.navigate(['/']);
       }
     });
   }
