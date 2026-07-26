@@ -46,6 +46,7 @@
           [attr.aria-invalid]="loginForm.controls.password.invalid && loginForm.controls.password.touched"
           aria-describedby="login-password-error"
         >
+        
         <button class="reveal" type="button" [attr.aria-label]="passwordVisible() ? 'Hide password' : 'Show password'" (click)="passwordVisible.set(!passwordVisible())">
           <app-icon [name]="passwordVisible() ? 'close' : 'profile'" [size]="16"/>
         </button>
