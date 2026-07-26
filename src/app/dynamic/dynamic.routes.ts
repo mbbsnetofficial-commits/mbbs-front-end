@@ -1,16 +1,12 @@
 import { Routes } from '@angular/router';
 
-import { DynamicLayouts } from '../layouts/dynamic-layouts/dynamic-layouts';
-import { Dashboard } from './dashboard/dashboard';
-import { NeetComponent } from './neet/neet';
-import { PreviousYearQuestions } from './neet/previous-year-questions/previous-year-questions';
-import { QuickTest } from './neet/quick-test/quick-test';
-import { TestLeaderboard } from './neet/test-leaderboard/test-leaderboard';
-
 export const dynamicRoutes: Routes = [
   {
     path: '',
-    component: DynamicLayouts,
+    loadComponent: () =>
+      import('../layouts/dynamic-layouts/dynamic-layouts').then(
+        ({ DynamicLayouts }) => DynamicLayouts
+      ),
     children: [
       {
         path: '',
@@ -19,23 +15,101 @@ export const dynamicRoutes: Routes = [
       },
       {
         path: 'dashboard',
-        component: Dashboard,
+        loadComponent: () =>
+          import('./dashboard/dashboard').then(({ Dashboard }) => Dashboard),
+      },
+      {
+        path: 'blogs/:slug',
+        loadComponent: () =>
+          import('./blogs/blog-detail/blog-detail').then(
+            ({ BlogDetail }) => BlogDetail
+          ),
+      },
+      {
+        path: 'blogs',
+        data: { view: 'blogs' },
+        loadComponent: () =>
+          import('./student-space/student-space').then(
+            ({ StudentSpace }) => StudentSpace
+          ),
+      },
+      {
+        path: 'categories',
+        data: { view: 'categories' },
+        loadComponent: () =>
+          import('./student-space/student-space').then(
+            ({ StudentSpace }) => StudentSpace
+          ),
+      },
+      {
+        path: 'authors',
+        data: { view: 'authors' },
+        loadComponent: () =>
+          import('./student-space/student-space').then(
+            ({ StudentSpace }) => StudentSpace
+          ),
+      },
+      {
+        path: 'bookmarks',
+        data: { view: 'bookmarks' },
+        loadComponent: () =>
+          import('./student-space/student-space').then(
+            ({ StudentSpace }) => StudentSpace
+          ),
+      },
+      {
+        path: 'activity',
+        data: { view: 'activity' },
+        loadComponent: () =>
+          import('./student-space/student-space').then(
+            ({ StudentSpace }) => StudentSpace
+          ),
+      },
+      {
+        path: 'profile',
+        data: { view: 'profile' },
+        loadComponent: () =>
+          import('./student-space/student-space').then(
+            ({ StudentSpace }) => StudentSpace
+          ),
+      },
+      {
+        path: 'settings',
+        data: { view: 'settings' },
+        loadComponent: () =>
+          import('./student-space/student-space').then(
+            ({ StudentSpace }) => StudentSpace
+          ),
+      },
+      {
+        path: 'performance',
+        redirectTo: 'neet/leaderboard',
       },
       {
         path: 'neet/quick-test',
-        component: QuickTest,
+        loadComponent: () =>
+          import('./neet/quick-test/quick-test').then(
+            ({ QuickTest }) => QuickTest
+          ),
       },
       {
         path: 'neet/previous-year-tests',
-        component: PreviousYearQuestions,
+        loadComponent: () =>
+          import('./neet/previous-year-questions/previous-year-questions').then(
+            ({ PreviousYearQuestions }) => PreviousYearQuestions
+          ),
       },
       {
         path: 'neet/leaderboard',
-        component: TestLeaderboard,
+        loadComponent: () =>
+          import('./neet/test-leaderboard/test-leaderboard').then(
+            ({ TestLeaderboard }) => TestLeaderboard
+          ),
       },
       {
         path: 'neet',
-        component: NeetComponent,
+        loadComponent: () =>
+          import('./neet/neet').then(({ NeetComponent }) => NeetComponent),
       },
     ],
   },

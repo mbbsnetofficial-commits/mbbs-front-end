@@ -1,0 +1,97 @@
+<div class="reading-progress" [style.width.%]="progress()"></div>
+
+@if (loading()) {
+  <main class="reader loading-reader" aria-label="Loading article">
+    <div class="shimmer line short"></div><div class="shimmer line title"></div><div class="shimmer line title second"></div>
+    <div class="shimmer author-skeleton"></div><div class="shimmer cover-skeleton"></div>
+    <div class="shimmer line"></div><div class="shimmer line"></div><div class="shimmer line medium"></div>
+  </main>
+} @else if (notFound()) {
+  <main class="article-state">
+    <span>404</span><h1>This story isn’t available</h1>
+    <p>It may have been unpublished in the CMS or the address may have changed.</p>
+    <a routerLink="/dynamic/dashboard">Return to your dashboard</a>
+  </main>
+} @else if (blog(); as article) {
+  <article class="reader">
+    <button class="back-button" type="button" (click)="goBack()">← <span>Back to articles</span></button>
+
+    <header class="article-header">
+      <a class="category" routerLink="/dynamic/dashboard" fragment="latest">{{ article.category.categoryName }}</a>
+      <h1>{{ article.title }}</h1>
+      <p class="dek">{{ article.excerpt || article.shortDescription }}</p>
+
+      <div class="byline">
+        <span class="author-photo">
+          @if (article.author.profileImage) {
+            <img [src]="safeImageUrl(article.author.profileImage)" [alt]="article.author.fullName" (error)="imageFailed($event)">
+          }
+          <b>{{ article.author.fullName.charAt(0) }}</b>
+        </span>
+        <div>
+          <strong>{{ article.author.fullName }}</strong>
+          <span>{{ article.publishedAt | date:'MMMM d, y' }} · {{ article.readingTime }} min read</span>
+        </div>
+        <button type="button" aria-label="Bookmark article">♡</button>
+        <button type="button" aria-label="Share article" (click)="share(article)">{{ copied() ? 'Copied' : '↗' }}</button>
+      </div>
+    </header>
+
+    @if (article.featuredImage.url) {
+      <figure class="hero-image">
+        <img [src]="safeImageUrl(article.featuredImage.url)" [alt]="article.featuredImage.alt || article.title" (error)="imageFailed($event)">
+        @if (article.featuredImage.caption) { <figcaption>{{ article.featuredImage.caption }}</figcaption> }
+      </figure>
+    }
+
+    <div class="article-layout">
+      <aside class="share-rail" aria-label="Article actions">
+        <button type="button" aria-label="Bookmark article">♡</button>
+        <button type="button" aria-label="Share article" (click)="share(article)">↗</button>
+        <span>{{ article.readingTime }} min</span>
+      </aside>
+
+      <div class="article-body">
+        @for (block of article.content.blocks; track $index) {
+          @switch (block.type) {
+            @case ('heading') {
+              @if (block.level === 3) { <h3>{{ block.text }}</h3> } @else { <h2>{{ block.text }}</h2> }
+            }
+            @case ('paragraph') { <p>{{ block.text }}</p> }
+            @case ('quote') { <blockquote>{{ block.text }}</blockquote> }
+            @case ('list') {
+              <ul>@for (item of block.items ?? []; track $index) { <li>{{ item }}</li> }</ul>
+            }
+            @case ('image') {
+              @if (block.url) {
+                <figure><img [src]="safeImageUrl(block.url)" [alt]="block.alt || ''" loading="lazy" (error)="imageFailed($event)">@if (block.caption) { <figcaption>{{ block.caption }}</figcaption> }</figure>
+              }
+            }
+            @default { @if (block.text) { <p>{{ block.text }}</p> } }
+          }
+        } @empty {
+          <p>{{ article.excerpt || article.shortDescription }}</p>
+        }
+
+        @if (article.gallery?.length) {
+          <div class="gallery">
+            @for (image of article.gallery; track image.url) {
+              <figure><img [src]="safeImageUrl(image.url)" [alt]="image.alt" loading="lazy" (error)="imageFailed($event)">@if (image.caption) { <figcaption>{{ image.caption }}</figcaption> }</figure>
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <footer class="article-footer">
+      @if (article.tags?.length) {
+        <div class="tags">@for (tag of article.tags; track tag._id) { <span>{{ tag.tagName }}</span> }</div>
+      }
+      <div class="author-bio">
+        <span class="author-photo large"><b>{{ article.author.fullName.charAt(0) }}</b></span>
+        <div><small>Written by</small><h3>{{ article.author.fullName }}</h3><p>{{ article.author.bio }}</p><span>{{ article.author.designation }}</span></div>
+      </div>
+      <a class="more-link" routerLink="/dynamic/dashboard" fragment="latest">← Discover more medical stories</a>
+    </footer>
+  </article>
+}

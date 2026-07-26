@@ -6,19 +6,15 @@
         <h2>Question of the Day</h2>
       </div>
 
-      <p class="question-preview">
-        Challenge yourself with today’s NEET question.
-      </p>
-
-      <button
-        type="button"
-        class="solve-button"
-        [disabled]="isLoading()"
-        (click)="openQuestion()"
-      >
-        <span *ngIf="isLoading()" class="button-spinner" aria-hidden="true"></span>
-        {{ isLoading() ? 'Loading Question...' : 'Solve Now' }}
-      </button>
+      <ng-container *ngIf="!isLoading(); else qodSkeleton">
+        <p class="question-preview">Challenge yourself with today’s NEET question.</p>
+        <button type="button" class="solve-button" (click)="openQuestion()">Solve now</button>
+      </ng-container>
+      <ng-template #qodSkeleton>
+        <div class="qod-skeleton" role="status" aria-label="Loading question">
+          <span></span><span></span><span></span>
+        </div>
+      </ng-template>
 
       <p *ngIf="errorMessage()" class="preview-error" role="alert">
         {{ errorMessage() }}

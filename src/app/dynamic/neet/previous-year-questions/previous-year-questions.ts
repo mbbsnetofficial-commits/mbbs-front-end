@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   OnDestroy,
   OnInit,
@@ -38,6 +39,7 @@ type AiPanel = 'none' | 'chat' | 'insights';
   imports: [CommonModule, RouterLink],
   templateUrl: './previous-year-questions.html',
   styleUrl: './previous-year-questions.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PreviousYearQuestions implements OnInit, OnDestroy {
   private readonly activeStorageKey = 'activePreviousYearTest';
@@ -663,7 +665,7 @@ export class PreviousYearQuestions implements OnInit, OnDestroy {
       );
       this.remainingSeconds.set(remaining);
       if (remaining === 0) {
-        setTimeout(() => this.submitTest(true));
+        this.submitTest(true);
       } else {
         this.startTimer();
       }

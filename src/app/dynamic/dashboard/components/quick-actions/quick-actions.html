@@ -1,0 +1,17 @@
+<section aria-labelledby="quick-actions-title">
+  <app-section-header
+    eyebrow="One-click learning"
+    title="Quick actions"
+    headingId="quick-actions-title"
+    description="Jump straight into the tools and resources you use most."
+  />
+  <nav class="grid" aria-label="Quick learning actions">
+    @for (action of actions; track action.label) {
+      <a [routerLink]="action.route" [fragment]="action.fragment">
+        <span [class]="'icon ' + action.tone"><app-icon [name]="action.icon" [size]="20"/></span>
+        <span class="copy"><strong>{{ action.label }}</strong><small>{{ action.description }}</small></span>
+        <app-icon class="arrow" name="arrow-right" [size]="16"/>
+      </a>
+    }
+  </nav>
+</section>

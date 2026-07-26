@@ -1,0 +1,16 @@
+:host { display: block; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.shimmer { display: block; overflow: hidden; border-radius: 9px; background: linear-gradient(100deg, #e9eef5 20%, #f8fafc 42%, #e9eef5 64%); background-size: 220% 100%; animation: shimmer 1.45s infinite linear; }
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 13px; margin: 22px 0 44px; }
+.stat { min-height: 105px; display: flex; align-items: center; gap: 14px; padding: 18px; border: 1px solid #e8edf4; border-radius: 12px; background: white; }
+.icon { width: 44px; height: 44px; border-radius: 14px; }
+.lines { flex: 1; display: grid; gap: 9px; }.lines i { width: 75%; height: 8px; }.lines .short { width: 42%; height: 18px; }
+.feature { min-height: 380px; display: grid; grid-template-columns: 1.15fr .85fr; overflow: hidden; border: 1px solid #e8edf4; border-radius: 14px; background: white; }
+.media { border-radius: 0; }.copy { display: grid; align-content: center; gap: 14px; padding: 42px; }
+.copy i,.card i { height: 10px; }.copy .eyebrow,.card .eyebrow { width: 30%; height: 8px; }.copy .title,.card .title { height: 25px; }.copy .narrow { width: 70%; }.copy .line,.card .line { height: 9px; }.copy .button { width: 120px; height: 42px; margin-top: 10px; }
+.cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin-top: 42px; }
+.card { display: grid; gap: 13px; padding: 16px; border: 1px solid #e8edf4; border-radius: 12px; background: white; }.card .card-media { height: 180px; margin: -16px -16px 4px; border-radius: 12px 12px 0 0; }
+@keyframes shimmer { to { background-position-x: -220%; } }
+@media (max-width: 1100px) { .stats { grid-template-columns: repeat(2, 1fr); }.cards { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 720px) { .stats { gap: 9px; }.stat { min-height: 86px; padding: 12px; }.feature { grid-template-columns: 1fr; }.media { min-height: 210px; }.copy { padding: 25px; }.cards { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { .shimmer { animation: none; } }

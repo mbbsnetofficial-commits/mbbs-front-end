@@ -1,0 +1,46 @@
+<article
+  role="link"
+  tabindex="0"
+  [attr.aria-label]="'Read ' + blog().title"
+  (click)="open()"
+  (keydown)="open($event)"
+>
+  <div class="media">
+    <div class="fallback" aria-hidden="true">
+      <app-icon name="blog" [size]="29"/>
+      <span>{{ blog().category.categoryName }}</span>
+    </div>
+    @if (blog().featuredImage.url) {
+      <img appImageFallback [src]="blog().featuredImage.url | mediaUrl" [alt]="blog().featuredImage.alt || blog().title" loading="lazy">
+    }
+    <span class="category">{{ blog().category.categoryName }}</span>
+    <button
+      type="button"
+      [class.selected]="ui.isBookmarked(blog()._id)"
+      [attr.aria-pressed]="ui.isBookmarked(blog()._id)"
+      [attr.aria-label]="(ui.isBookmarked(blog()._id) ? 'Remove bookmark from ' : 'Bookmark ') + blog().title"
+      (click)="bookmark($event)"
+    ><app-icon name="bookmark" [size]="17"/></button>
+  </div>
+  <div class="body">
+    <div class="meta"><span>{{ blog().publishedAt | date:'mediumDate' }}</span><span><app-icon name="clock" [size]="13"/> {{ blog().readingTime }} min read</span></div>
+    <h3>{{ blog().title }}</h3>
+    <p>{{ blog().excerpt || blog().shortDescription }}</p>
+    <div class="author">
+      <span class="avatar">
+        <b>{{ blog().author.fullName.charAt(0) }}</b>
+        @if (blog().author.profileImage) {
+          <img appImageFallback [src]="blog().author.profileImage | mediaUrl" [alt]="blog().author.fullName" loading="lazy">
+        }
+      </span>
+      <span><strong>{{ blog().author.fullName }}</strong><small>{{ blog().author.designation }}</small></span>
+    </div>
+    <footer>
+      <span><app-icon name="like" [size]="14"/> {{ blog().totalLikes }}</span>
+      <button type="button" [attr.aria-label]="'Share ' + blog().title" (click)="share($event)">
+        @if (ui.copiedBlogSlug() === blog().slug) { <app-icon name="check" [size]="15"/> Copied } @else { <app-icon name="share" [size]="15"/> Share }
+      </button>
+      <span class="read">Read more <app-icon name="arrow-right" [size]="15"/></span>
+    </footer>
+  </div>
+</article>

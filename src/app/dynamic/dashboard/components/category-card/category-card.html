@@ -1,0 +1,25 @@
+<article>
+  <div class="media">
+    <div class="pattern" aria-hidden="true">
+      <span></span><span></span><span></span>
+      <app-icon name="categories" [size]="34"/>
+    </div>
+    @if (category().bannerImage) {
+      <img appImageFallback [src]="category().bannerImage | mediaUrl" [alt]="category().categoryName" loading="lazy">
+    }
+    <span class="category-icon">
+      <app-icon name="microscope" [size]="22"/>
+      @if (category().icon) {
+        <img appImageFallback [src]="category().icon | mediaUrl" alt="" loading="lazy">
+      }
+    </span>
+  </div>
+  <div class="body">
+    <span class="count">{{ category().totalBlogs ?? 0 }} {{ (category().totalBlogs ?? 0) === 1 ? 'article' : 'articles' }}</span>
+    <h3>{{ category().categoryName }}</h3>
+    <p>{{ category().description }}</p>
+    <a routerLink="/dynamic/dashboard" fragment="latest" [attr.aria-label]="'Explore ' + category().categoryName">
+      Explore category <app-icon name="arrow-right" [size]="15"/>
+    </a>
+  </div>
+</article>

@@ -1,0 +1,16 @@
+<div class="empty-state" [class.compact]="compact()">
+  <div class="illustration" aria-hidden="true">
+    <span class="illustration-orbit"></span>
+    <span class="illustration-card one"></span>
+    <span class="illustration-card two"></span>
+    <span class="icon-wrap"><app-icon [name]="icon()" [size]="26"/></span>
+  </div>
+  <h3>{{ title() }}</h3>
+  <p>{{ message() }}</p>
+  @if (actionLabel() && actionLink()) {
+    <a [routerLink]="actionLink()">
+      {{ actionLabel() }}
+      <app-icon name="arrow-right" [size]="16"/>
+    </a>
+  }
+</div>

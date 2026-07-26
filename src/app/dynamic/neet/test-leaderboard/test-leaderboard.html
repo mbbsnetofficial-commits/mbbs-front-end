@@ -23,10 +23,7 @@
     </div>
 
     @if (isLoadingMyRank()) {
-      <div class="rank-loading">
-        <span class="spinner" aria-hidden="true"></span>
-        Loading your rank...
-      </div>
+      <div class="rank-skeleton" role="status" aria-label="Loading your rank"><span></span><span></span><span></span><span></span></div>
     } @else if (myRankError()) {
       <div class="inline-error" role="alert">
         <span>{{ myRankError() }}</span>
@@ -90,9 +87,8 @@
     }
 
     @if (isLoadingBoard()) {
-      <div class="board-loading">
-        <span class="spinner" aria-hidden="true"></span>
-        <p>Loading student rankings...</p>
+      <div class="board-skeleton" role="status" aria-label="Loading student rankings">
+        @for (item of [1, 2, 3, 4, 5]; track item) { <span></span> }
       </div>
     } @else if (entries().length === 0 && !boardError()) {
       <div class="empty-board">

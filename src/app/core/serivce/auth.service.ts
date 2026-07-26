@@ -4,9 +4,11 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environments';
 import { API } from '../constants/api.constants';
 import {
+  AuthMutationResponse,
+  LoginRequest,
+  LoginResponse,
   RegisterRequest,
-  VerifyOtpRequest,
-  LoginRequest
+  VerifyOtpRequest
 } from '../models/auth.model';
 
 @Injectable({
@@ -21,21 +23,21 @@ export class AuthService {
   ) { }
 
   register(data: RegisterRequest) {
-    return this.http.post(
+    return this.http.post<AuthMutationResponse>(
       this.baseUrl + API.AUTH.REGISTER,
       data
     );
   }
 
   verifyOtp(data: VerifyOtpRequest) {
-    return this.http.post(
+    return this.http.post<AuthMutationResponse>(
       this.baseUrl + API.AUTH.VERIFY_OTP,
       data
     );
   }
 
   login(data: LoginRequest) {
-    return this.http.post(
+    return this.http.post<LoginResponse>(
       this.baseUrl + API.AUTH.LOGIN,
       data
     );

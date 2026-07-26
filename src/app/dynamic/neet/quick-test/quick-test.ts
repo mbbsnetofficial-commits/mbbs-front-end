@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   OnDestroy,
   OnInit,
@@ -35,6 +36,7 @@ type AiPanel = 'none' | 'chat' | 'insights';
   imports: [CommonModule, RouterLink],
   templateUrl: './quick-test.html',
   styleUrl: './quick-test.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QuickTest implements OnInit, OnDestroy {
   private readonly storageKey = 'activeQuickTest';
@@ -128,6 +130,11 @@ export class QuickTest implements OnInit, OnDestroy {
   );
 
   constructor(private readonly quickTestService: QuickTestService) {}
+
+  readonly trackByValue = (_index: number, value: string | number): string | number => value;
+  readonly trackByQuestion = (_index: number, question: TestQuestion): number => question.id;
+  readonly trackByMessage = (_index: number, message: ChatMessage): string => message._id;
+  readonly trackByReview = (_index: number, question: TestResultQuestion): number => question.id;
 
   ngOnInit(): void {
     const pendingResultSessionId = sessionStorage.getItem(this.pendingResultKey);
@@ -715,7 +722,7 @@ export class QuickTest implements OnInit, OnDestroy {
       this.remainingSeconds.set(remaining);
 
       if (remaining === 0) {
-        setTimeout(() => this.submitTest(true));
+        this.submitTest(true);
       } else {
         this.startTimer();
       }

@@ -1,82 +1,9 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+@use '../shared/auth-form';
 
-:host {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background: #f5f7fb;
-  font-family: "Poppins", sans-serif;
-}
-
-form {
-  width: 100%;
-  max-width: 450px;
-  background: #ffffff;
-  padding: 40px;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-h2 {
-  text-align: center;
-  color: #1f2937;
-  margin-bottom: 10px;
-  font-size: 28px;
-  font-weight: 600;
-}
-
-input {
-  width: 100%;
-  padding: 14px 16px;
-  border: 1px solid #d1d5db;
-  border-radius: 10px;
-  font-size: 15px;
-  outline: none;
-  transition: all 0.3s ease;
-}
-
-input:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
-}
-
-input::placeholder {
-  color: #9ca3af;
-}
-
-button {
-  width: 100%;
-  padding: 14px;
-  border: none;
-  border-radius: 10px;
-  background: #2563eb;
-  color: white;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.3s ease;
-}
-
-button:hover {
-  background: #1d4ed8;
-}
-
-button:active {
-  transform: scale(0.98);
-}
-
-@media (max-width: 500px) {
-  form {
-    margin: 20px;
-    padding: 25px;
-  }
-}
+.name-grid,.password-grid { display:grid;grid-template-columns:1fr 1fr;gap:12px }
+.strength { display:flex;align-items:center;justify-content:space-between;gap:12px;margin:-7px 0 7px;color:#8290a3;font-size:8px }
+.strength-bars { flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:4px }.strength-bars i { height:3px;border-radius:3px;background:#e4e9ef }
+.strength[data-score="1"] i:nth-child(1) { background:#d92d4f }.strength[data-score="2"] i:nth-child(-n+2) { background:#e2872d }.strength[data-score="3"] i:nth-child(-n+3) { background:#d2a520 }.strength[data-score="4"] i { background:#16825d }
+.password-help { margin:-1px 0 13px;color:#667085;font-size:8px;line-height:1.45 }.password-help.error { color:#c4324d }
+.terms { display:flex;align-items:flex-start;gap:8px;margin:4px 0 15px;color:#526078;font-size:9px;line-height:1.5;cursor:pointer }.terms input { width:15px;height:15px;flex:0 0 auto;margin:0;accent-color:#2563eb }.terms a { color:#2563eb;text-decoration:none }.terms-error { margin-top:-10px;margin-bottom:13px }
+@media(max-width:520px){.name-grid,.password-grid{grid-template-columns:1fr;gap:0}}

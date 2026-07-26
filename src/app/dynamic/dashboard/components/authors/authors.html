@@ -1,0 +1,24 @@
+<section id="authors" aria-labelledby="authors-title">
+  <app-section-header
+    eyebrow="Learn from experts"
+    title="Featured authors"
+    headingId="authors-title"
+    description="Meet the medical educators and specialists behind your learning."
+  />
+  @if (authors().length) {
+    <div class="grid">
+      @for (author of authors(); track author._id) {
+        <app-author-card [author]="author"/>
+      }
+    </div>
+  } @else {
+    <app-empty-state
+      icon="authors"
+      title="Expert voices are joining soon"
+      message="Trusted medical educators will appear here as their first articles are published."
+      actionLabel="Explore current articles"
+      actionLink="/dynamic/dashboard"
+      [compact]="true"
+    />
+  }
+</section>

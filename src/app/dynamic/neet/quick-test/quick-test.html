@@ -26,11 +26,13 @@
         <span>Choose one or more subjects for your test.</span>
       </div>
 
-      <div *ngIf="isLoading()" class="loading">Loading subjects...</div>
+      <div *ngIf="isLoading()" class="selection-skeleton subject-skeleton" role="status" aria-label="Loading subjects">
+        <span *ngFor="let item of [1, 2, 3, 4]; trackBy: trackByValue"></span>
+      </div>
 
       <div *ngIf="!isLoading()" class="subject-grid">
         <button
-          *ngFor="let subject of subjects()"
+          *ngFor="let subject of subjects(); trackBy: trackByValue"
           type="button"
           class="subject-card"
           [class.selected]="selectedSubjects().includes(subject)"
@@ -70,11 +72,13 @@
         </button>
       </div>
 
-      <div *ngIf="isLoading()" class="loading">Loading chapters...</div>
+      <div *ngIf="isLoading()" class="selection-skeleton chapter-skeleton" role="status" aria-label="Loading chapters">
+        <span *ngFor="let item of [1, 2, 3, 4, 5]; trackBy: trackByValue"></span>
+      </div>
 
       <div *ngIf="!isLoading()" class="chapter-list">
         <button
-          *ngFor="let chapter of chapters()"
+          *ngFor="let chapter of chapters(); trackBy: trackByValue"
           type="button"
           class="chapter-row"
           [class.selected]="selectedChapters().includes(chapter)"
@@ -108,7 +112,7 @@
       <h3>Number of Questions</h3>
       <div class="count-grid">
         <button
-          *ngFor="let count of questionCountOptions"
+          *ngFor="let count of questionCountOptions; trackBy: trackByValue"
           type="button"
           [class.selected]="questionCount() === count"
           (click)="setQuestionCount(count)">
@@ -178,7 +182,7 @@
         <h2>Questions</h2>
         <div class="question-palette">
           <button
-            *ngFor="let question of session.questions; let index = index"
+            *ngFor="let question of session.questions; let index = index; trackBy: trackByQuestion"
             type="button"
             [class.current]="currentQuestionIndex() === index"
             [ngClass]="questionStatusClass(index)"
@@ -232,7 +236,7 @@
 
         <div class="answer-options">
           <button
-            *ngFor="let option of optionKeys"
+            *ngFor="let option of optionKeys; trackBy: trackByValue"
             type="button"
             [class.selected]="currentQuestionState()?.selectedOption === option"
             (click)="selectOption(option)">
@@ -270,9 +274,9 @@
 
   <ng-container *ngIf="view() === 'result'">
     <div *ngIf="isLoadingResult()" class="result-loading">
-      <span class="result-spinner" aria-hidden="true"></span>
-      <h2>Preparing your result...</h2>
-      <p>We are checking your answers and building the review.</p>
+      <div class="result-skeleton" role="status" aria-label="Loading test result">
+        <span></span><span></span><span></span><span></span>
+      </div>
     </div>
 
     <div *ngIf="!isLoadingResult() && errorMessage() && !testResult()" class="result-loading result-error">
@@ -358,14 +362,14 @@
         </header>
 
         <p *ngIf="chatError()" class="error-message">{{ chatError() }}</p>
-        <div *ngIf="isLoadingChat()" class="ai-loading">Loading conversation...</div>
+        <div *ngIf="isLoadingChat()" class="inline-skeleton" role="status" aria-label="Loading conversation"><span></span><span></span><span></span></div>
 
         <div *ngIf="!isLoadingChat()" class="chat-messages" aria-live="polite">
           <div *ngIf="chatMessages().length === 0" class="empty-chat">
             Ask Gemini to explain your incorrect answers, formulas, or concepts.
           </div>
           <article
-            *ngFor="let message of chatMessages()"
+            *ngFor="let message of chatMessages(); trackBy: trackByMessage"
             class="chat-message"
             [class.user-message]="message.role === 'user'"
             [class.assistant-message]="message.role === 'assistant'">
@@ -405,7 +409,7 @@
         </header>
 
         <div *ngIf="isLoadingInsights()" class="ai-loading">
-          Gemini is analysing all your wrong answers...
+          <div class="inline-skeleton" role="status" aria-label="Loading personalised insights"><span></span><span></span><span></span></div>
         </div>
 
         <div *ngIf="insightsError()" class="error-message insight-error">
@@ -433,11 +437,11 @@
             <section>
               <h3>Focus Zones</h3>
               <article
-                *ngFor="let subject of insightSubjects(insight.focus_zone)"
+                *ngFor="let subject of insightSubjects(insight.focus_zone); trackBy: trackByValue"
                 class="insight-subject">
                 <strong>{{ subject }}</strong>
                 <ul>
-                  <li *ngFor="let item of insight.focus_zone[subject]">{{ item }}</li>
+                  <li *ngFor="let item of insight.focus_zone[subject]; trackBy: trackByValue">{{ item }}</li>
                 </ul>
               </article>
             </section>
@@ -445,11 +449,11 @@
             <section>
               <h3>Repeated Mistakes</h3>
               <article
-                *ngFor="let subject of insightSubjects(insight.repeated_mistake)"
+                *ngFor="let subject of insightSubjects(insight.repeated_mistake); trackBy: trackByValue"
                 class="insight-subject mistake-subject">
                 <strong>{{ subject }}</strong>
                 <ul>
-                  <li *ngFor="let item of insight.repeated_mistake[subject]">{{ item }}</li>
+                  <li *ngFor="let item of insight.repeated_mistake[subject]; trackBy: trackByValue">{{ item }}</li>
                 </ul>
               </article>
             </section>
@@ -458,7 +462,7 @@
           <section class="checkpoints">
             <h3>Your Next Steps</h3>
             <ol>
-              <li *ngFor="let checkpoint of insight.checkpoints">{{ checkpoint }}</li>
+              <li *ngFor="let checkpoint of insight.checkpoints; trackBy: trackByValue">{{ checkpoint }}</li>
             </ol>
           </section>
         </ng-container>
@@ -499,7 +503,7 @@
 
       <div class="review-list">
         <article
-          *ngFor="let question of filteredReview(); let index = index"
+          *ngFor="let question of filteredReview(); let index = index; trackBy: trackByReview"
           class="review-card"
           [class.correct-review]="question.is_correct"
           [class.wrong-review]="!question.is_correct && !question.is_skipped"
@@ -530,7 +534,7 @@
 
           <div class="review-options">
             <div
-              *ngFor="let option of optionKeys"
+              *ngFor="let option of optionKeys; trackBy: trackByValue"
               [ngClass]="reviewOptionClass(question, option)">
               <span class="option-letter">{{ option }}</span>
               <span class="review-option-text">{{ optionText(question, option) }}</span>

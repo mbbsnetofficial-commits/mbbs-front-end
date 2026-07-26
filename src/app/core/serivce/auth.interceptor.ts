@@ -5,94 +5,81 @@ import {
   HttpInterceptorFn
 } from '@angular/common/http';
 import { Router } from '@angular/router';
+import {
+  Observable,
+  catchError,
+  finalize,
+  shareReplay,
+  switchMap,
+  tap,
+  throwError
+} from 'rxjs';
 
-import { catchError, switchMap, throwError } from 'rxjs';
-
+import { RefreshTokenResponse } from '../models/auth.model';
 import { TokenService } from './token.service';
 import { environment } from '../../../environments/environments';
 import { API } from '../constants/api.constants';
 
-export const authInterceptor: HttpInterceptorFn = (request, next) => {
+let refreshInFlight$: Observable<RefreshTokenResponse> | null = null;
 
+export const authInterceptor: HttpInterceptorFn = (request, next) => {
   const tokenService = inject(TokenService);
   const http = inject(HttpClient);
   const router = inject(Router);
+  const refreshUrl = environment.apiBaseUrl + API.AUTH.REFRESH_TOKEN;
 
-  const accessToken = tokenService.getAccessToken();
-
-  let authRequest = request;
-
-  // Don't attach token to refresh request itself
-  if (
-    accessToken &&
-    !request.url.includes(API.AUTH.REFRESH_TOKEN)
-  ) {
-    authRequest = request.clone({
-      setHeaders: {
-        Authorization: `Bearer ${accessToken}`
-      }
-    });
+  if (request.url === refreshUrl) {
+    return next(request);
   }
 
+  const accessToken = tokenService.getAccessToken();
+  const authRequest = accessToken
+    ? request.clone({
+        setHeaders: { Authorization: `Bearer ${accessToken}` }
+      })
+    : request;
+
   return next(authRequest).pipe(
-
     catchError((error: HttpErrorResponse) => {
-
-      // Not an unauthorized error
       if (error.status !== 401) {
         return throwError(() => error);
       }
 
       const refreshToken = tokenService.getRefreshToken();
-
       if (!refreshToken) {
-
         tokenService.clearTokens();
-
-        router.navigate(['/']);
-
+        router.navigate(['/auth/login']);
         return throwError(() => error);
       }
 
-      // Request a new access token
-      return http.post<any>(
-        environment.apiBaseUrl + API.AUTH.REFRESH_TOKEN,
-        {
-          refreshToken
-        }
-      ).pipe(
-
-        switchMap((response) => {
-
-          tokenService.updateTokens(
-            response.data.accessToken,
-            response.data.refreshToken
+      if (!refreshInFlight$) {
+        refreshInFlight$ = http
+          .post<RefreshTokenResponse>(refreshUrl, { refreshToken })
+          .pipe(
+            tap(({ data }) =>
+              tokenService.updateTokens(data.accessToken, data.refreshToken)
+            ),
+            finalize(() => {
+              refreshInFlight$ = null;
+            }),
+            shareReplay({ bufferSize: 1, refCount: false })
           );
+      }
 
-          const retryRequest = request.clone({
-            setHeaders: {
-              Authorization: `Bearer ${response.data.accessToken}`
-            }
-          });
-
-          return next(retryRequest);
-
-        }),
-
-        catchError((refreshError) => {
-
+      return refreshInFlight$.pipe(
+        switchMap(({ data }) =>
+          next(
+            request.clone({
+              setHeaders: { Authorization: `Bearer ${data.accessToken}` }
+            })
+          )
+        ),
+        catchError((refreshError: unknown) => {
           tokenService.clearTokens();
-
-          router.navigate(['/']);
-
+          router.navigate(['/auth/login']);
           return throwError(() => refreshError);
-
         })
-
       );
-
     })
-
   );
-
 };

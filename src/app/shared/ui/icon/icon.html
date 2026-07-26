@@ -1,0 +1,71 @@
+<svg
+  aria-hidden="true"
+  fill="none"
+  viewBox="0 0 24 24"
+  [attr.width]="size()"
+  [attr.height]="size()"
+  [attr.stroke-width]="strokeWidth()"
+>
+  @switch (name()) {
+    @case ('dashboard') {
+      <rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/>
+      <rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/>
+    }
+    @case ('test') {
+      <path d="M9 5h10M9 12h10M9 19h10"/><path d="m3.5 5 1.3 1.3L7 4M3.5 12l1.3 1.3L7 11M3.5 19l1.3 1.3L7 18"/>
+    }
+    @case ('history') {
+      <path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/>
+    }
+    @case ('daily') {
+      <path d="M8 3v3M16 3v3M4 9h16M5 5h14a1 1 0 0 1 1 1v14H4V6a1 1 0 0 1 1-1Z"/><path d="m9 15 2 2 4-5"/>
+    }
+    @case ('chart') {
+      <path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>
+    }
+    @case ('blog') {
+      <path d="M5 3h11l3 3v15H5z"/><path d="M15 3v4h4M8 11h8M8 15h8M8 19h5"/>
+    }
+    @case ('categories') {
+      <rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/>
+      <rect x="3" y="14" width="7" height="7" rx="2"/><path d="M14 17.5h7M17.5 14v7"/>
+    }
+    @case ('authors') {
+      <circle cx="9" cy="8" r="4"/><path d="M2.5 21a6.5 6.5 0 0 1 13 0M16 7h5M18.5 4.5v5"/>
+    }
+    @case ('bookmark') {
+      <path d="M6 3h12v18l-6-4-6 4z"/>
+    }
+    @case ('activity') {
+      <path d="M3 12h4l2.5-7 5 14 2.5-7h4"/>
+    }
+    @case ('profile') {
+      <circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>
+    }
+    @case ('settings') {
+      <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.8 1.8 0 0 0 .4 2l.1.1-2.8 2.8-.1-.1a1.8 1.8 0 0 0-2-.4 1.8 1.8 0 0 0-1 1.7V21h-4v-.1a1.8 1.8 0 0 0-1-1.7 1.8 1.8 0 0 0-2 .4l-.1.1-2.8-2.8.1-.1a1.8 1.8 0 0 0 .4-2A1.8 1.8 0 0 0 3 13.8H3v-4h.1a1.8 1.8 0 0 0 1.7-1 1.8 1.8 0 0 0-.4-2l-.1-.1 2.8-2.8.1.1a1.8 1.8 0 0 0 2 .4 1.8 1.8 0 0 0 1-1.7V3h4v.1a1.8 1.8 0 0 0 1 1.7 1.8 1.8 0 0 0 2-.4l.1-.1 2.8 2.8-.1.1a1.8 1.8 0 0 0-.4 2 1.8 1.8 0 0 0 1.7 1H21v4h-.1a1.8 1.8 0 0 0-1.5 1Z"/>
+    }
+    @case ('logout') {
+      <path d="M10 17l5-5-5-5M15 12H3M15 4h5a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-5"/>
+    }
+    @case ('menu') { <path d="M4 7h16M4 12h16M4 17h16"/> }
+    @case ('close') { <path d="m5 5 14 14M19 5 5 19"/> }
+    @case ('chevron') { <path d="m8 10 4 4 4-4"/> }
+    @case ('search') { <circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/> }
+    @case ('bell') { <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/> }
+    @case ('sun') { <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/> }
+    @case ('moon') { <path d="M20 15.5A8.5 8.5 0 0 1 8.5 4 8.5 8.5 0 1 0 20 15.5Z"/> }
+    @case ('flame') { <path d="M12 22c4 0 7-2.7 7-7.2 0-3.1-1.7-6.2-5.2-9.3.2 3-1.2 4.6-2.4 5.2.1-3.2-1.7-6-3.5-7.7.2 4-3 6.1-3 10.8C5 18.9 8.1 22 12 22Z"/><path d="M9.5 17.2c0 2 1.1 3.3 2.5 3.3s2.5-1.2 2.5-3c0-1.4-.8-2.7-2-3.8-.1 1.3-.8 2-1.5 2.4-.2-1.2-.7-2-1.3-2.7.1 1.8-.2 2.4-.2 3.8Z"/> }
+    @case ('arrow-right') { <path d="M5 12h14M14 7l5 5-5 5"/> }
+    @case ('sparkles') { <path d="m12 3 1.4 4.1L17.5 8l-4.1 1.4L12 13.5l-1.4-4.1L6.5 8l4.1-1.4zM19 15l.7 2.3L22 18l-2.3.7L19 21l-.7-2.3L16 18l2.3-.7zM5 14l.7 2.3L8 17l-2.3.7L5 20l-.7-2.3L2 17l2.3-.7z"/> }
+    @case ('clock') { <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/> }
+    @case ('like') { <path d="M7 22H3V10h4M7 10l4-8c2 0 3 1.5 2.5 3.5L13 8h6a2 2 0 0 1 2 2.4l-1.8 9A2 2 0 0 1 17.3 21H7z"/> }
+    @case ('share') { <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.7 10.7 6.6-4.4M8.7 13.3l6.6 4.4"/> }
+    @case ('globe') { <circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/> }
+    @case ('retry') { <path d="M20 11a8 8 0 1 0-2.3 6M20 4v7h-7"/> }
+    @case ('check') { <path d="m5 12 4 4L19 6"/> }
+    @case ('heart') { <path d="M20.8 5.7a5.3 5.3 0 0 0-7.5 0L12 7l-1.3-1.3a5.3 5.3 0 1 0-7.5 7.5L12 22l8.8-8.8a5.3 5.3 0 0 0 0-7.5Z"/> }
+    @case ('quote') { <path d="M9 11H4c0-4 1.5-6 5-7v3c-1.5.5-2 1.4-2 2h2zM20 11h-5c0-4 1.5-6 5-7v3c-1.5.5-2 1.4-2 2h2z"/><path d="M4 11h5v7H4zM15 11h5v7h-5z"/> }
+    @case ('microscope') { <path d="m9 3 5 2-1 3-5-2zM11 7l-2 5M7 11a5 5 0 0 0 5 7h2M5 21h14M15 14h4v4h-4z"/> }
+  }
+</svg>

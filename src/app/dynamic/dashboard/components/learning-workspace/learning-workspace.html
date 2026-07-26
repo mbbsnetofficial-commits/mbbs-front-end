@@ -1,0 +1,53 @@
+<section aria-labelledby="workspace-title">
+  <header>
+    <div><span>My learning</span><h2 id="workspace-title">Your workspace</h2></div>
+    <a routerLink="/dynamic/neet/leaderboard">View performance <app-icon name="arrow-right" [size]="15"/></a>
+  </header>
+
+  <div class="grid">
+    <article>
+      <span class="card-icon blue"><app-icon name="history" [size]="18"/></span>
+      <div class="card-heading"><h3>Recent reading</h3><span>From your feed</span></div>
+      @if (articles()[0]; as article) {
+        <a class="content-link" [routerLink]="['/dynamic/blogs', article.slug]">
+          <strong>{{ article.title }}</strong>
+          <small>{{ article.category.categoryName }} · {{ article.readingTime }} min read</small>
+        </a>
+      } @else {
+        <div class="inline-empty"><p>No articles are available yet.</p><a routerLink="/dynamic/neet">Start a practice set</a></div>
+      }
+    </article>
+
+    <article>
+      <span class="card-icon rose"><app-icon name="bookmark" [size]="18"/></span>
+      <div class="card-heading"><h3>Bookmarks</h3><span>{{ saved().length }} saved</span></div>
+      @if (saved()[0]; as article) {
+        <a class="content-link" [routerLink]="['/dynamic/blogs', article.slug]">
+          <strong>{{ article.title }}</strong>
+          <small>Saved for later</small>
+        </a>
+      } @else {
+        <div class="inline-empty"><p>Save useful articles to find them quickly.</p><a routerLink="/dynamic/dashboard" fragment="latest">Browse articles</a></div>
+      }
+    </article>
+
+    <article>
+      <span class="card-icon green"><app-icon name="chart" [size]="18"/></span>
+      <div class="card-heading"><h3>Study progress</h3><span>NEET practice</span></div>
+      <div class="inline-empty"><p>Complete a practice test to start tracking accuracy and progress.</p><a routerLink="/dynamic/neet/quick-test">Create a test</a></div>
+    </article>
+
+    <article>
+      <span class="card-icon orange"><app-icon name="activity" [size]="18"/></span>
+      <div class="card-heading"><h3>Recent activity</h3><span>Content update</span></div>
+      @if (articles()[0]; as article) {
+        <a class="content-link" [routerLink]="['/dynamic/blogs', article.slug]">
+          <strong>New article: {{ article.title }}</strong>
+          <small>Published {{ article.publishedAt | date:'mediumDate' }}</small>
+        </a>
+      } @else {
+        <div class="inline-empty"><p>Your activity will appear as you learn.</p><a routerLink="/dynamic/neet">Explore NEET</a></div>
+      }
+    </article>
+  </div>
+</section>

@@ -1,7 +1,4 @@
 import { Routes } from '@angular/router';
-import { Login } from './login/login';
-import { Register } from './register/register';
-import { Otp } from './otp/otp';
 
 export const authRoutes: Routes = [
   {
@@ -11,14 +8,17 @@ export const authRoutes: Routes = [
   },
   {
     path: 'login',
-    component: Login,
+    loadComponent: () =>
+      import('./login/login').then(({ Login }) => Login),
   },
   {
     path: 'register',
-    component: Register,
+    loadComponent: () =>
+      import('./register/register').then(({ Register }) => Register),
   },
   {
     path: 'otp',
-    component: Otp
-  }
+    loadComponent: () =>
+      import('./otp/otp').then(({ Otp }) => Otp),
+  },
 ];

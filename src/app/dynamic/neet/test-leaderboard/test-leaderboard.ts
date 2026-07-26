@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
@@ -10,7 +10,8 @@ import { TestLeaderboardService } from '../../../core/serivce/test-leaderboard.s
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './test-leaderboard.html',
-  styleUrl: './test-leaderboard.scss'
+  styleUrl: './test-leaderboard.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TestLeaderboard implements OnInit {
   readonly entries = signal<TestLeaderboardEntry[]>([]);

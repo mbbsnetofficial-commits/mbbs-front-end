@@ -1,0 +1,13 @@
+<section class="stats" aria-labelledby="learning-overview-title">
+  <h2 id="learning-overview-title" class="sr-only">Learning overview</h2>
+  @for (item of items(); track item.label) {
+    <article>
+      <span [class]="'icon ' + item.tone"><app-icon [name]="item.icon" [size]="20"/></span>
+      <div class="copy">
+        <strong>{{ item.value }}{{ item.suffix }}</strong>
+        <span>{{ item.label }}</span>
+      </div>
+      <small>{{ item.hint }}</small>
+    </article>
+  }
+</section>

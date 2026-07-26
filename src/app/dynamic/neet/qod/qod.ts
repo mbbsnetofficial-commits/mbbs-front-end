@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { QodService } from '../../../core/serivce/qod.service';
@@ -12,7 +12,8 @@ import {
   standalone: true,
   imports: [CommonModule],
   templateUrl: './qod.html',
-  styleUrl: './qod.scss'
+  styleUrl: './qod.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QodComponent {
 

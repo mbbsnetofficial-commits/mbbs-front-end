@@ -1,50 +1,82 @@
-<section class="auth-page">
-  <a class="brand-link" routerLink="/">&larr; MBBS.NET</a>
+<app-auth-shell
+  eyebrow="Welcome back"
+  headline="Keep moving toward medicine."
+  description="Return to your preparation, saved reading, and performance insights in one focused workspace."
+>
+  <form [formGroup]="loginForm" (ngSubmit)="login()" novalidate>
+    <header class="form-heading">
+      <span>Student account</span>
+      <h2>Log in to MBBS.NET</h2>
+      <p>Enter your account details to continue learning.</p>
+    </header>
 
-  <form #loginForm="ngForm" (ngSubmit)="login()">
-    <div class="form-heading">
-      <p>Welcome back</p>
-      <h1>Log in to your account</h1>
-      <span>Continue to your NEET tests, results and insights.</span>
+    <div class="field">
+      <label for="login-email">Email address</label>
+      <input
+        id="login-email"
+        type="email"
+        formControlName="email"
+        placeholder="you@example.com"
+        autocomplete="email"
+        [class.invalid]="loginForm.controls.email.invalid && loginForm.controls.email.touched"
+        [attr.aria-invalid]="loginForm.controls.email.invalid && loginForm.controls.email.touched"
+        aria-describedby="login-email-error"
+      >
+      @if (loginForm.controls.email.touched && loginForm.controls.email.hasError('required')) {
+        <p id="login-email-error" class="field-error">Enter your email address.</p>
+      } @else if (loginForm.controls.email.touched && loginForm.controls.email.hasError('email')) {
+        <p id="login-email-error" class="field-error">Enter a valid email address.</p>
+      }
     </div>
 
-    <label>
-      <span>Email address</span>
-      <input
-        type="email"
-        name="email"
-        [(ngModel)]="loginData.email"
-        placeholder="student@example.com"
-        autocomplete="email"
-        required
-        email
-      />
+    <div class="field">
+      <div class="field-header">
+        <label for="login-password">Password</label>
+        <a href="mailto:contact@mbbs.net?subject=Password%20recovery">Forgot password?</a>
+      </div>
+      <div class="input-wrap">
+        <input
+          id="login-password"
+          class="password-input"
+          [type]="passwordVisible() ? 'text' : 'password'"
+          formControlName="password"
+          placeholder="Enter your password"
+          autocomplete="current-password"
+          [class.invalid]="loginForm.controls.password.invalid && loginForm.controls.password.touched"
+          [attr.aria-invalid]="loginForm.controls.password.invalid && loginForm.controls.password.touched"
+          aria-describedby="login-password-error"
+        >
+        <button class="reveal" type="button" [attr.aria-label]="passwordVisible() ? 'Hide password' : 'Show password'" (click)="passwordVisible.set(!passwordVisible())">
+          <app-icon [name]="passwordVisible() ? 'close' : 'profile'" [size]="16"/>
+        </button>
+      </div>
+      @if (loginForm.controls.password.touched && loginForm.controls.password.invalid) {
+        <p id="login-password-error" class="field-error">Enter your password (at least 6 characters).</p>
+      }
+    </div>
+
+    <label class="remember">
+      <input type="checkbox" formControlName="rememberMe">
+      <span>Keep me signed in on this device</span>
     </label>
 
-    <label>
-      <span>Password</span>
-      <input
-        type="password"
-        name="password"
-        [(ngModel)]="loginData.password"
-        placeholder="Enter your password"
-        autocomplete="current-password"
-        required
-        minlength="6"
-      />
-    </label>
-
-    @if (errorMessage) {
-      <p class="form-error" role="alert">{{ errorMessage }}</p>
+    @if (errorMessage()) {
+      <p class="form-alert" role="alert"><app-icon name="activity" [size]="16"/>{{ errorMessage() }}</p>
+    }
+    @if (successMessage()) {
+      <p class="form-alert form-success" role="status"><app-icon name="check" [size]="16"/>{{ successMessage() }}</p>
     }
 
-    <button type="submit" [disabled]="loginForm.invalid || isSubmitting">
-      {{ isSubmitting ? 'Logging in...' : 'Login' }}
+    <button class="submit-button" type="submit" [disabled]="isSubmitting()">
+      @if (isSubmitting()) { <span class="button-loader" aria-hidden="true"></span> Signing in… } @else { Log in }
     </button>
 
-    <p class="register-link">
-      Don’t have an account?
-      <a routerLink="/auth/register">Create an account</a>
-    </p>
+    <div class="divider"><span>or continue with</span></div>
+    <button class="secondary-button" type="button" disabled aria-label="Google login coming soon">
+      <span class="google-mark" aria-hidden="true">G</span>
+      Google login · Coming soon
+    </button>
+
+    <p class="switch-link">New to MBBS.NET? <a routerLink="/auth/register">Create an account</a></p>
   </form>
-</section>
+</app-auth-shell>

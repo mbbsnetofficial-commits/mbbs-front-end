@@ -1,99 +1,81 @@
-<section class="auth-page">
-  <a class="brand-link" routerLink="/">&larr; MBBS.NET</a>
-
-  <form #registerForm="ngForm" (ngSubmit)="register()">
-    <div class="form-heading">
-      <p>Start learning</p>
-      <h1>Create your account</h1>
-      <span>Register to access NEET practice and performance analysis.</span>
-    </div>
-
-    <div class="name-grid">
-      <label>
-        <span>First name</span>
-        <input
-          type="text"
-          name="firstName"
-          [(ngModel)]="registerData.firstName"
-          autocomplete="given-name"
-          required
-        />
-      </label>
-      <label>
-        <span>Last name</span>
-        <input
-          type="text"
-          name="lastName"
-          [(ngModel)]="registerData.lastName"
-          autocomplete="family-name"
-          required
-        />
-      </label>
-    </div>
-
-    <label>
-      <span>Email address</span>
-      <input
-        type="email"
-        name="email"
-        [(ngModel)]="registerData.email"
-        placeholder="student@example.com"
-        autocomplete="email"
-        required
-        email
-      />
-    </label>
-
-    <label>
-      <span>Phone number</span>
-      <input
-        type="tel"
-        name="phoneNumber"
-        [(ngModel)]="registerData.phoneNumber"
-        placeholder="10-digit phone number"
-        autocomplete="tel"
-        minlength="10"
-        maxlength="15"
-        required
-      />
-    </label>
+<app-auth-shell
+  eyebrow="Join MBBS.NET"
+  headline="Build a better study routine from day one."
+  description="Create your student workspace for focused NEET practice, medical reading, and progress tracking."
+>
+  <form [formGroup]="registerForm" (ngSubmit)="register()" novalidate>
+    <header class="form-heading">
+      <span>Student registration</span>
+      <h2>Create your account</h2>
+      <p>Use your details below. You’ll verify your phone number next.</p>
+    </header>
 
     <div class="name-grid">
-      <label>
-        <span>Password</span>
-        <input
-          type="password"
-          name="password"
-          [(ngModel)]="registerData.password"
-          autocomplete="new-password"
-          minlength="6"
-          required
-        />
-      </label>
-      <label>
-        <span>Confirm password</span>
-        <input
-          type="password"
-          name="confirmPassword"
-          [(ngModel)]="registerData.confirmPassword"
-          autocomplete="new-password"
-          minlength="6"
-          required
-        />
-      </label>
+      <div class="field">
+        <label for="register-first-name">First name</label>
+        <input id="register-first-name" type="text" formControlName="firstName" autocomplete="given-name" placeholder="First name" [class.invalid]="registerForm.controls.firstName.invalid && registerForm.controls.firstName.touched">
+        @if (registerForm.controls.firstName.invalid && registerForm.controls.firstName.touched) { <p class="field-error">Enter at least 2 characters.</p> }
+      </div>
+      <div class="field">
+        <label for="register-last-name">Last name</label>
+        <input id="register-last-name" type="text" formControlName="lastName" autocomplete="family-name" placeholder="Last name" [class.invalid]="registerForm.controls.lastName.invalid && registerForm.controls.lastName.touched">
+        @if (registerForm.controls.lastName.invalid && registerForm.controls.lastName.touched) { <p class="field-error">Enter at least 2 characters.</p> }
+      </div>
     </div>
 
-    @if (errorMessage) {
-      <p class="form-error" role="alert">{{ errorMessage }}</p>
+    <div class="field">
+      <label for="register-email">Email address</label>
+      <input id="register-email" type="email" formControlName="email" autocomplete="email" placeholder="you@example.com" [class.invalid]="registerForm.controls.email.invalid && registerForm.controls.email.touched">
+      @if (registerForm.controls.email.invalid && registerForm.controls.email.touched) { <p class="field-error">Enter a valid email address.</p> }
+    </div>
+
+    <div class="field">
+      <label for="register-phone">Phone number</label>
+      <input id="register-phone" type="tel" inputmode="tel" formControlName="phoneNumber" autocomplete="tel" placeholder="+91 98765 43210" [class.invalid]="registerForm.controls.phoneNumber.invalid && registerForm.controls.phoneNumber.touched">
+      @if (registerForm.controls.phoneNumber.invalid && registerForm.controls.phoneNumber.touched) { <p class="field-error">Enter a valid 10–15 digit phone number.</p> }
+    </div>
+
+    <div class="password-grid">
+      <div class="field">
+        <label for="register-password">Password</label>
+        <div class="input-wrap">
+          <input id="register-password" class="password-input" [type]="passwordVisible() ? 'text' : 'password'" formControlName="password" autocomplete="new-password" placeholder="Create a password" [class.invalid]="registerForm.controls.password.invalid && registerForm.controls.password.touched">
+          <button class="reveal" type="button" [attr.aria-label]="passwordVisible() ? 'Hide passwords' : 'Show passwords'" (click)="passwordVisible.set(!passwordVisible())">
+            <app-icon [name]="passwordVisible() ? 'close' : 'profile'" [size]="16"/>
+          </button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="register-confirm-password">Confirm password</label>
+        <input id="register-confirm-password" [type]="passwordVisible() ? 'text' : 'password'" formControlName="confirmPassword" autocomplete="new-password" placeholder="Repeat password" [class.invalid]="registerForm.hasError('passwordMismatch') && registerForm.controls.confirmPassword.touched">
+      </div>
+    </div>
+
+    <div class="strength" [attr.data-score]="passwordScore()">
+      <span class="strength-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+      <span>{{ passwordStrength() }}</span>
+    </div>
+    @if (registerForm.controls.password.touched && registerForm.controls.password.invalid) {
+      <p class="password-help">Use 8+ characters with upper and lowercase letters and a number.</p>
+    } @else if (registerForm.hasError('passwordMismatch') && registerForm.controls.confirmPassword.touched) {
+      <p class="password-help error">Passwords do not match.</p>
     }
 
-    <button type="submit" [disabled]="registerForm.invalid || isSubmitting">
-      {{ isSubmitting ? 'Creating account...' : 'Register' }}
-    </button>
+    <label class="terms">
+      <input type="checkbox" formControlName="termsAccepted">
+      <span>I agree to the <a href="#terms">Terms of Service</a> and <a href="#privacy">Privacy Policy</a>.</span>
+    </label>
+    @if (registerForm.controls.termsAccepted.invalid && registerForm.controls.termsAccepted.touched) {
+      <p class="field-error terms-error">Accept the terms to create your account.</p>
+    }
 
-    <p class="login-link">
-      Already registered?
-      <a routerLink="/auth/login">Log in</a>
-    </p>
+    @if (errorMessage()) {
+      <p class="form-alert" role="alert"><app-icon name="activity" [size]="16"/>{{ errorMessage() }}</p>
+    }
+
+    <button class="submit-button" type="submit" [disabled]="isSubmitting()">
+      @if (isSubmitting()) { <span class="button-loader" aria-hidden="true"></span> Creating account… } @else { Create account }
+    </button>
+    <p class="switch-link">Already have an account? <a routerLink="/auth/login">Log in</a></p>
   </form>
-</section>
+</app-auth-shell>

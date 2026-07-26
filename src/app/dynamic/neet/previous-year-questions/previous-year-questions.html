@@ -23,9 +23,10 @@
     }
 
     @if (isLoading()) {
-      <div class="loading-state">
-        <span class="spinner" aria-hidden="true"></span>
-        <p>Loading previous year papers...</p>
+      <div class="paper-skeleton" role="status" aria-label="Loading previous year papers">
+        @for (item of [1, 2, 3]; track item) {
+          <span><i></i><i></i><i></i><i></i></span>
+        }
       </div>
     } @else if (papers().length === 0 && !errorMessage()) {
       <div class="empty-state">
@@ -348,10 +349,7 @@
         }
 
         @if (isLoadingChat()) {
-          <div class="ai-loading">
-            <span class="spinner" aria-hidden="true"></span>
-            <p>Opening your test review...</p>
-          </div>
+          <div class="inline-skeleton" role="status" aria-label="Loading conversation"><span></span><span></span><span></span></div>
         } @else {
           <div class="chat-messages" aria-live="polite">
             @if (chatMessages().length === 0) {
@@ -411,10 +409,7 @@
             <button type="button" (click)="retryInsights()">Retry</button>
           </div>
         } @else if (isLoadingInsights()) {
-          <div class="ai-loading">
-            <span class="spinner" aria-hidden="true"></span>
-            <p>Analysing your weak areas and learning patterns...</p>
-          </div>
+          <div class="inline-skeleton" role="status" aria-label="Loading personalised insights"><span></span><span></span><span></span></div>
         } @else if (zoneInsight(); as insight) {
           <blockquote>{{ insight.g_phrase }}</blockquote>
 

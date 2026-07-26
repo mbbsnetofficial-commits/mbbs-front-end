@@ -1,0 +1,30 @@
+<main class="auth-shell">
+  <aside class="welcome-panel">
+    <a class="brand" routerLink="/" aria-label="MBBS.NET home">
+      <span class="brand-mark"><app-icon name="activity" [size]="21"/></span>
+      <strong>MBBS<span>.NET</span></strong>
+    </a>
+    <div class="welcome-copy">
+      <span class="eyebrow">{{ eyebrow() }}</span>
+      <h1>{{ headline() }}</h1>
+      <p>{{ description() }}</p>
+      <ul>
+        <li><app-icon name="check" [size]="15"/> Structured NEET practice</li>
+        <li><app-icon name="check" [size]="15"/> Expert medical content</li>
+        <li><app-icon name="check" [size]="15"/> Clear performance insights</li>
+      </ul>
+    </div>
+    <div class="product-note">
+      <app-icon name="microscope" [size]="21"/>
+      <div><strong>Built for future doctors</strong><span>Focused learning, without the noise.</span></div>
+    </div>
+  </aside>
+
+  <section class="form-panel">
+    <div class="mobile-brand">
+      <a routerLink="/"><span>MBBS</span>.NET</a>
+    </div>
+    <div class="form-container"><ng-content/></div>
+    <footer>© 2026 MBBS.NET · Medical education platform</footer>
+  </section>
+</main>
