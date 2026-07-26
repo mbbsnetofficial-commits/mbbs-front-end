@@ -35,6 +35,10 @@
       }
     </header>
     <section class="home-content">
+      <svg class="hero-ecg" viewBox="0 0 1200 220" preserveAspectRatio="none" aria-hidden="true">
+        <path class="hero-ecg-guide" d="M0 120H310l26-2 18-42 31 104 35-148 35 88h118l22-2 17-35 29 75 30-112 34 74h495"/>
+        <path class="hero-ecg-pulse" pathLength="1" d="M0 120H310l26-2 18-42 31 104 35-148 35 88h118l22-2 17-35 29 75 30-112 34 74h495"/>
+      </svg>
       <h1>Medical knowledge that<br>shapes your future</h1>
       <p class="home-intro">Clear guidance for MBBS students—from entrance preparation and university selection to admissions and medical learning.</p>
       <div class="hero-actions">
@@ -124,6 +128,19 @@
         <span>Recognition · Eligibility · Clinical exposure · Career pathway</span>
       </div>
       <a class="letter-link" href="#topics">Explore MBBS guidance <span>&rarr;</span></a>
+    </div>
+  </section>
+
+  <section class="layered-text-section" aria-label="Your medical journey">
+    <div #layeredHero class="layered-hero" aria-label="Your Dream, Our Guidance, Global Education, Limitless Opportunities, Start Your Journey, Today">
+      <ul>
+        @for (line of layeredHeroLines; track $index) {
+          <li>
+            <span>{{ line.top }}</span>
+            <span>{{ line.bottom }}</span>
+          </li>
+        }
+      </ul>
     </div>
   </section>
 

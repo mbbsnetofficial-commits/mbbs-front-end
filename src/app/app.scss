@@ -431,8 +431,8 @@
   border: 1px solid #dfe2e5;
   border-radius: 18px;
   display: grid;
-  height: 650px;
-  margin: 24px auto 72px;
+  height: 540px;
+  margin: 18px auto 32px;
   max-width: 1360px;
   min-height: 0;
   overflow: hidden;
@@ -447,11 +447,115 @@
   max-width: 900px;
   position: absolute;
   text-align: center;
-  top: 145px;
+  top: 125px;
   transform: translateX(-50%);
   width: calc(100% - 48px);
   z-index: 3;
 }
+
+.layered-hero {
+  cursor: pointer;
+  margin: 0 auto;
+  max-width: 820px;
+  padding: 12px 0;
+  transform: translateX(64px);
+  user-select: none;
+}
+
+.layered-text-section {
+  align-items: center;
+  background: var(--linen-bg, #eee9dd);
+  display: flex;
+  justify-content: center;
+  min-height: 580px;
+  overflow: hidden;
+  padding: 60px 24px;
+}
+
+.hero-ecg {
+  color: #c44336;
+  height: 230px;
+  left: 50%;
+  overflow: visible;
+  pointer-events: none;
+  position: absolute;
+  top: -42px;
+  transform: translateX(-50%);
+  width: min(1160px, 112vw);
+  z-index: -1;
+}
+
+.hero-ecg path {
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.hero-ecg-guide {
+  opacity: .09;
+  stroke-width: 1.4;
+}
+
+.hero-ecg-pulse {
+  animation: hero-ecg-draw 5s ease-out infinite;
+  opacity: .38;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  stroke-width: 2.4;
+}
+.layered-hero ul {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.layered-hero li {
+  color: var(--linen-ink, #2d2c2a);
+  height: 52px;
+  overflow: hidden;
+  position: relative;
+}
+
+.layered-hero li:nth-child(1) { transform: translateX(-122px) skew(60deg, -30deg) scaleY(.66667); }
+.layered-hero li:nth-child(2) { transform: translateX(-87px) skew(0deg, -30deg) scaleY(1.33333); }
+.layered-hero li:nth-child(3) { transform: translateX(-52px) skew(60deg, -30deg) scaleY(.66667); }
+.layered-hero li:nth-child(4) { transform: translateX(-17px) skew(0deg, -30deg) scaleY(1.33333); }
+.layered-hero li:nth-child(5) { transform: translateX(18px) skew(60deg, -30deg) scaleY(.66667); }
+.layered-hero li:nth-child(6) { transform: translateX(53px) skew(0deg, -30deg) scaleY(1.33333); }
+.layered-hero li:nth-child(7) { transform: translateX(88px) skew(60deg, -30deg) scaleY(.66667); }
+.layered-hero li:nth-child(8) { transform: translateX(123px) skew(0deg, -30deg) scaleY(1.33333); }
+
+.layered-hero span {
+  display: block;
+  font-family: Inter, Arial, sans-serif;
+  font-size: clamp(45px, 5.1vw, 72px);
+  font-weight: 900;
+  height: 52px;
+  letter-spacing: -.055em;
+  line-height: 47px;
+  padding: 0 64px;
+  transition: transform .3s cubic-bezier(.22, 1, .36, 1);
+  white-space: nowrap;
+}
+
+.layered-hero:hover span,
+.layered-hero:focus-within span,
+.layered-hero.is-revealed span {
+  transform: translateY(-52px);
+}
+
+.layered-hero li:nth-child(2) span { transition-delay: 20ms; }
+.layered-hero li:nth-child(3) span { transition-delay: 40ms; }
+.layered-hero li:nth-child(4) span { transition-delay: 60ms; }
+.layered-hero li:nth-child(5) span { transition-delay: 80ms; }
+.layered-hero li:nth-child(6) span { transition-delay: 100ms; }
+.layered-hero li:nth-child(7) span { transition-delay: 120ms; }
+.layered-hero li:nth-child(8) span { transition-delay: 140ms; }
 
 .home-overline,
 .section-kicker {
@@ -485,7 +589,7 @@
   display: flex;
   gap: 12px;
   justify-content: center;
-  margin-top: 28px;
+  margin-top: 22px;
 }
 
 .hero-cta {
@@ -1117,66 +1221,184 @@
 }
 
 .universities-marquee {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
   overflow: hidden;
+  padding: 4px 0 12px;
   width: 100%;
 }
 
 .universities-track {
+  animation: universities-scroll 90s linear infinite;
   display: flex;
   width: max-content;
-  animation: universities-scroll 95s linear infinite;
   will-change: transform;
 }
 
 .universities-group {
   display: flex;
   flex-shrink: 0;
-  gap: 28px;
-  padding-right: 28px;
+  gap: 38px;
+  padding-right: 38px;
 }
 
 .university-logo {
   align-items: center;
   display: flex;
   justify-content: center;
-  min-height: 150px;
+  min-height: 168px;
+  padding: 6px 0;
   text-decoration: none;
-  width: 190px;
+  width: 220px;
 }
 
 .university-mark {
   align-items: center;
   display: flex;
-  height: 132px;
+  height: 136px;
   justify-content: center;
-  width: 160px;
+  width: 184px;
 }
 
 .university-mark img {
   display: block;
+  height: 100%;
   max-height: 100%;
   max-width: 100%;
   object-fit: contain;
-  width: auto;
+  width: 100%;
 }
 
-.university-logo:first-child img {
-  filter: brightness(0) saturate(100%) invert(18%) sepia(49%) saturate(2142%) hue-rotate(190deg) brightness(83%) contrast(101%);
+.university-mark img[src*='jessenius'],
+.university-mark img[src*='comenius'],
+.university-mark img[src*='riga-stradins'] {
+  filter: brightness(0) saturate(100%) invert(13%) sepia(19%) saturate(1447%) hue-rotate(166deg) brightness(92%) contrast(93%);
 }
 
 .ucat-promo{background:#fff;border:1px solid #ddd;display:grid;grid-template-columns:minmax(0,1.08fr) minmax(360px,.92fr);margin:90px auto;max-width:1320px;overflow:hidden;width:calc(100% - 64px)}.ucat-promo-copy{align-self:center;color:#111;padding:58px 64px}.ucat-promo-copy .section-kicker{color:#111}.ucat-promo-copy h2{color:#111;font-family:Georgia,'Times New Roman',serif;font-size:clamp(40px,4vw,58px);font-weight:500;letter-spacing:-.045em;line-height:1.02;margin:16px 0 26px}.ucat-promo-copy>p:not(.section-kicker){color:#454545;font-size:15px;line-height:1.65;max-width:650px}.ucat-promo-copy strong{color:#111}.ucat-promo-copy ul{display:grid;gap:10px;list-style:none;margin:24px 0 30px;padding:0}.ucat-promo-copy li{color:#111;font-size:14px;font-weight:700}.ucat-promo-copy li::before{color:#111;content:'✓';margin-right:12px}.ucat-promo-copy>a{align-items:center;background:#111;color:#fff;display:inline-flex;font-size:13px;font-weight:700;gap:24px;padding:15px 21px;text-decoration:none}.ucat-promo-image{align-self:center;height:480px;margin:24px 24px 24px 0;overflow:hidden}.ucat-promo-image img{display:block;height:100%;object-fit:cover;width:100%}
 
 @keyframes universities-scroll {
   to {
-    transform: translateX(-50%);
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@keyframes hero-ecg-draw {
+  0% {
+    opacity: 0;
+    stroke-dashoffset: 1;
+  }
+
+  8% {
+    opacity: .38;
+  }
+
+  72% {
+    opacity: .38;
+    stroke-dashoffset: 0;
+  }
+
+  90%,
+  100% {
+    opacity: 0;
+    stroke-dashoffset: 0;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .universities-track {
-    animation-duration: 1ms;
-    animation-iteration-count: 1;
+    animation: none;
   }
+
+  .layered-hero span {
+    transition: none;
+  }
+
+  .hero-ecg-pulse {
+    animation: none;
+    opacity: .16;
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Zen Linen theme trial. Component encapsulation keeps it on the landing page. */
+:host {
+  --linen-bg: #eee9dd;
+  --linen-card: #f8f4eb;
+  --linen-soft: #d9d3c6;
+  --linen-border: #d5cebf;
+  --linen-ink: #2d2c2a;
+  --linen-copy: #655f55;
+  background: var(--linen-bg);
+  color: var(--linen-ink);
+}
+
+.page,
+.page > section,
+.home-screen,
+.benefits-section,
+.guidance-section,
+.steps-section,
+.contact-section,
+.destinations-section {
+  background-color: var(--linen-bg);
+}
+
+.site-header {
+  background: rgba(238, 233, 221, .94);
+  border-bottom: 1px solid var(--linen-border);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.header-brand,
+.header-nav button {
+  color: var(--linen-ink);
+}
+
+p {
+  color: var(--linen-copy);
+}
+
+.mega-menu,
+.help-widget,
+.ucat-promo {
+  background: var(--linen-card);
+  border-color: var(--linen-border);
+  border-radius: .5rem;
+  box-shadow: 0 8px 28px rgba(60, 54, 43, .08);
+}
+
+.login-link {
+  background: var(--linen-soft);
+  border-color: var(--linen-border);
+  border-radius: .5rem;
+  color: var(--linen-ink);
+}
+
+.signup-button,
+.help-launcher,
+.ucat-promo-copy > a,
+.help-widget-header {
+  background: var(--linen-ink);
+  border-color: var(--linen-ink);
+  border-radius: .5rem;
+  color: #fff;
+}
+
+.header-nav button::after,
+.heading-line {
+  background: var(--linen-ink);
+}
+
+.help-widget input {
+  background: var(--linen-card);
+  border-color: var(--linen-border);
+  border-radius: .5rem;
 }
 
 @media (max-width: 900px) {
@@ -1276,19 +1498,37 @@
   .mega-menu { display: none; }
   .home-screen {
     border-radius: 24px;
-    height: 720px;
+    height: 570px;
     margin-top: 12px;
     width: calc(100% - 24px);
   }
   .home-content {
     left: 50%;
-    top: 122px;
+    top: 108px;
     width: calc(100% - 34px);
   }
-  .home-content h1 {
-    font-size: 41px;
-    line-height: 1.05;
+  .layered-text-section {
+    min-height: 450px;
+    padding: 50px 10px;
   }
+  .layered-hero { transform: translateX(16px); }
+  .layered-hero li { height: 34px; }
+  .layered-hero li:nth-child(1) { transform: translateX(-70px) skew(60deg, -30deg) scaleY(.66667); }
+  .layered-hero li:nth-child(2) { transform: translateX(-50px) skew(0deg, -30deg) scaleY(1.33333); }
+  .layered-hero li:nth-child(3) { transform: translateX(-30px) skew(60deg, -30deg) scaleY(.66667); }
+  .layered-hero li:nth-child(4) { transform: translateX(-10px) skew(0deg, -30deg) scaleY(1.33333); }
+  .layered-hero li:nth-child(5) { transform: translateX(10px) skew(60deg, -30deg) scaleY(.66667); }
+  .layered-hero li:nth-child(6) { transform: translateX(30px) skew(0deg, -30deg) scaleY(1.33333); }
+  .layered-hero li:nth-child(7) { transform: translateX(50px) skew(60deg, -30deg) scaleY(.66667); }
+  .layered-hero li:nth-child(8) { transform: translateX(70px) skew(0deg, -30deg) scaleY(1.33333); }
+  .layered-hero span {
+    font-size: clamp(22px, 7.5vw, 38px);
+    height: 34px;
+    line-height: 31px;
+    padding: 0 24px;
+  }
+  .layered-hero:hover span,
+  .layered-hero:focus-within span { transform: translateY(-34px); }
   .home-intro br { display: none; }
   .hero-actions { flex-wrap: wrap; }
   .mbbs-letter-section {

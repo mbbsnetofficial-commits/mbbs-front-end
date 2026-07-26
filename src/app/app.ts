@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
 
@@ -9,13 +9,27 @@ import { Router, RouterLink, RouterOutlet } from '@angular/router';
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
-export class App {
+export class App implements AfterViewInit {
+  @ViewChild('layeredHero') private layeredHero?: ElementRef<HTMLElement>;
   protected helpOpen = false;
   protected helpTab: 'home' | 'messages' | 'help' = 'home';
   protected helpSearch = '';
   protected activeMegaMenu: 'universities' | 'neet' | 'ucat' | null = null;
 
   constructor(private readonly router: Router) {}
+
+  ngAfterViewInit(): void {
+    const element = this.layeredHero?.nativeElement;
+    if (!element) return;
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      element.classList.add('is-revealed');
+      observer.disconnect();
+    }, { threshold: 0.3 });
+
+    observer.observe(element);
+  }
 
   protected get showLandingPage(): boolean {
     const path = this.router.url.split('?')[0].split('#')[0];
@@ -74,14 +88,22 @@ export class App {
   }
 
   protected readonly featuredUniversities = [
-    { university: 'Jessenius Faculty of Medicine', logo: '/images/universities/jessenius.png' },
     { university: 'Semmelweis University', logo: '/images/universities/semmelweis.svg' },
     { university: 'University of Nicosia Medical School', logo: '/images/universities/nicosia.svg' },
     { university: 'University of Pécs Medical School', logo: '/images/universities/pecs.svg' },
     { university: 'Charles University', logo: '/images/universities/charles.svg' },
     { university: 'Lithuanian University of Health Sciences', logo: '/images/universities/lsmu.svg' },
-    { university: 'Rīga Stradiņš University', logo: '/images/universities/riga-stradins.jpg' },
+    { university: 'Rīga Stradiņš University', logo: '/images/universities/riga-stradins.svg' },
     { university: 'Palacký University Olomouc', logo: '/images/universities/palacky.svg' },
-    { university: 'Comenius University Bratislava', logo: '/images/universities/comenius.png' }
+  ];
+
+  protected readonly layeredHeroLines = [
+    { top: '\u00a0', bottom: 'YOUR DREAM' },
+    { top: 'YOUR DREAM', bottom: 'OUR GUIDANCE' },
+    { top: 'OUR GUIDANCE', bottom: 'GLOBAL EDUCATION' },
+    { top: 'GLOBAL EDUCATION', bottom: 'LIMITLESS OPPORTUNITIES' },
+    { top: 'LIMITLESS OPPORTUNITIES', bottom: 'START YOUR JOURNEY' },
+    { top: 'START YOUR JOURNEY', bottom: 'TODAY' },
+    { top: 'TODAY', bottom: '\u00a0' }
   ];
 }

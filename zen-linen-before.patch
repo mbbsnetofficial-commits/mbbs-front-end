@@ -1,0 +1,109 @@
+﻿diff --git a/src/app/app.scss b/src/app/app.scss
+index da31d25..64c5bbd 100644
+--- a/src/app/app.scss
++++ b/src/app/app.scss
+@@ -1117,65 +1117,71 @@
+ }
+ 
+ .universities-marquee {
++  -webkit-mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
++  mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
+   overflow: hidden;
++  padding: 4px 0 12px;
+   width: 100%;
+ }
+ 
+ .universities-track {
++  animation: universities-scroll 90s linear infinite;
+   display: flex;
+   width: max-content;
+-  animation: universities-scroll 95s linear infinite;
+   will-change: transform;
+ }
+ 
+ .universities-group {
+   display: flex;
+   flex-shrink: 0;
+-  gap: 28px;
+-  padding-right: 28px;
++  gap: 38px;
++  padding-right: 38px;
+ }
+ 
+ .university-logo {
+   align-items: center;
+   display: flex;
+   justify-content: center;
+-  min-height: 150px;
++  min-height: 168px;
++  padding: 6px 0;
+   text-decoration: none;
+-  width: 190px;
++  width: 220px;
+ }
+ 
+ .university-mark {
+   align-items: center;
+   display: flex;
+-  height: 132px;
++  height: 136px;
+   justify-content: center;
+-  width: 160px;
++  width: 184px;
+ }
+ 
+ .university-mark img {
+   display: block;
++  height: 100%;
+   max-height: 100%;
+   max-width: 100%;
+   object-fit: contain;
+-  width: auto;
++  width: 100%;
+ }
+ 
+-.university-logo:first-child img {
+-  filter: brightness(0) saturate(100%) invert(18%) sepia(49%) saturate(2142%) hue-rotate(190deg) brightness(83%) contrast(101%);
++.university-mark img[src*='jessenius'],
++.university-mark img[src*='comenius'],
++.university-mark img[src*='riga-stradins'] {
++  filter: brightness(0) saturate(100%) invert(13%) sepia(19%) saturate(1447%) hue-rotate(166deg) brightness(92%) contrast(93%);
+ }
+ 
+ .ucat-promo{background:#fff;border:1px solid #ddd;display:grid;grid-template-columns:minmax(0,1.08fr) minmax(360px,.92fr);margin:90px auto;max-width:1320px;overflow:hidden;width:calc(100% - 64px)}.ucat-promo-copy{align-self:center;color:#111;padding:58px 64px}.ucat-promo-copy .section-kicker{color:#111}.ucat-promo-copy h2{color:#111;font-family:Georgia,'Times New Roman',serif;font-size:clamp(40px,4vw,58px);font-weight:500;letter-spacing:-.045em;line-height:1.02;margin:16px 0 26px}.ucat-promo-copy>p:not(.section-kicker){color:#454545;font-size:15px;line-height:1.65;max-width:650px}.ucat-promo-copy strong{color:#111}.ucat-promo-copy ul{display:grid;gap:10px;list-style:none;margin:24px 0 30px;padding:0}.ucat-promo-copy li{color:#111;font-size:14px;font-weight:700}.ucat-promo-copy li::before{color:#111;content:'✓';margin-right:12px}.ucat-promo-copy>a{align-items:center;background:#111;color:#fff;display:inline-flex;font-size:13px;font-weight:700;gap:24px;padding:15px 21px;text-decoration:none}.ucat-promo-image{align-self:center;height:480px;margin:24px 24px 24px 0;overflow:hidden}.ucat-promo-image img{display:block;height:100%;object-fit:cover;width:100%}
+ 
+ @keyframes universities-scroll {
+   to {
+-    transform: translateX(-50%);
++    transform: translate3d(-50%, 0, 0);
+   }
+ }
+ 
+ @media (prefers-reduced-motion: reduce) {
+   .universities-track {
+-    animation-duration: 1ms;
+-    animation-iteration-count: 1;
++    animation: none;
+   }
+ }
+ 
+@@ -1346,4 +1352,4 @@
+   .news-side-card p {
+     -webkit-line-clamp: 2;
+   }
+-}
+\ No newline at end of file
++}
+diff --git a/src/app/app.ts b/src/app/app.ts
+index 52d89a0..c82526a 100644
+--- a/src/app/app.ts
++++ b/src/app/app.ts
+@@ -80,7 +80,7 @@ export class App {
+     { university: 'University of Pécs Medical School', logo: '/images/universities/pecs.svg' },
+     { university: 'Charles University', logo: '/images/universities/charles.svg' },
+     { university: 'Lithuanian University of Health Sciences', logo: '/images/universities/lsmu.svg' },
+-    { university: 'Rīga Stradiņš University', logo: '/images/universities/riga-stradins.jpg' },
++    { university: 'Rīga Stradiņš University', logo: '/images/universities/riga-stradins.svg' },
+     { university: 'Palacký University Olomouc', logo: '/images/universities/palacky.svg' },
+     { university: 'Comenius University Bratislava', logo: '/images/universities/comenius.png' }
+   ];

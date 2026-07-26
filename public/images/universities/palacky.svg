@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" role="img" aria-labelledby="title">
+  <title id="title">Palacký University Olomouc mark</title>
+  <path fill="#b91f45" d="M33 55h234l-20 121c-8 48-45 86-97 112-52-26-89-64-97-112L33 55Z"/>
+  <path fill="#fff" d="M75 103h42v74c0 29 11 45 33 45 12 0 22-4 29-12V89h-34V72h77v17h-20v131c0 19 4 28 13 28 6 0 12-3 18-8l7 13c-12 12-24 18-38 18-18 0-29-9-32-27-12 18-29 27-51 27-38 0-57-28-57-83v-69H75v-16Z"/>
+</svg>
