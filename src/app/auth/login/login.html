@@ -68,24 +68,8 @@
       <p class="form-alert form-success" role="status"><app-icon name="check" [size]="16"/>{{ successMessage() }}</p>
     }
 
-    <button class="submit-button" type="submit" [disabled]="isSubmitting() || isGoogleSubmitting()">
+    <button class="submit-button" type="submit" [disabled]="isSubmitting()">
       @if (isSubmitting()) { <span class="button-loader" aria-hidden="true"></span> Signing in… } @else { Log in }
-    </button>
-
-    <div class="divider"><span>or continue with</span></div>
-    <button
-      class="secondary-button"
-      type="button"
-      [disabled]="isSubmitting() || isGoogleSubmitting()"
-      (click)="loginWithGoogle()"
-    >
-      <span class="google-mark" aria-hidden="true">G</span>
-      @if (isGoogleSubmitting()) {
-        <span class="button-loader" aria-hidden="true"></span>
-        Connecting to Google…
-      } @else {
-        Continue with Google
-      }
     </button>
 
     <p class="switch-link">New to MBBS.NET? <a routerLink="/auth/register">Create an account</a></p>

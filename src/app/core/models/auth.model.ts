@@ -29,21 +29,6 @@ export interface AuthUser {
   authProviders: string[];
 }
 
-export interface GoogleLoginRequest {
-  idToken: string;
-}
-
-export interface GoogleLoginResponse {
-  status: 'success';
-  message: string;
-  data: {
-    user?: AuthUser;
-    accessToken: string;
-    refreshToken: string;
-    isNewUser?: boolean;
-  };
-}
-
 export interface LoginResponse {
   success: boolean;
   message: string;

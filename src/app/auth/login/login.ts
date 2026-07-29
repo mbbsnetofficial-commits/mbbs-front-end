@@ -23,7 +23,6 @@ export class Login {
   private readonly router = inject(Router);
 
   protected readonly isSubmitting = signal(false);
-  protected readonly isGoogleSubmitting = signal(false);
   protected readonly errorMessage = signal('');
   protected readonly successMessage = signal('');
   protected readonly passwordVisible = signal(false);
@@ -35,7 +34,7 @@ export class Login {
   });
 
   protected login(): void {
-    if (this.loginForm.invalid || this.isSubmitting() || this.isGoogleSubmitting()) {
+    if (this.loginForm.invalid || this.isSubmitting()) {
       this.loginForm.markAllAsTouched();
       return;
     }
@@ -56,32 +55,10 @@ export class Login {
             rememberMe
           );
           this.successMessage.set('Welcome back. Opening your dashboard…');
-          this.router.navigate(['/dynamic/dashboard']);
-        },
-        error: (error: unknown) => {
-          this.errorMessage.set(this.getErrorMessage(error, 'Unable to log in. Check your email and password.'));
-        }
-      });
-  }
-
-  protected loginWithGoogle(): void {
-    if (this.isSubmitting() || this.isGoogleSubmitting()) {
-      return;
-    }
-
-    this.isGoogleSubmitting.set(true);
-    this.errorMessage.set('');
-    this.successMessage.set('');
-
-    this.authService.loginWithGoogle(this.loginForm.controls.rememberMe.value)
-      .pipe(finalize(() => this.isGoogleSubmitting.set(false)))
-      .subscribe({
-        next: () => {
-          this.successMessage.set('Google sign-in successful. Opening your dashboard…');
           this.router.navigate(['/dynamic/neet']);
         },
         error: (error: unknown) => {
-          this.errorMessage.set(this.getGoogleErrorMessage(error));
+          this.errorMessage.set(this.getErrorMessage(error, 'Unable to log in. Check your email and password.'));
         }
       });
   }
@@ -92,36 +69,5 @@ export class Login {
     }
     const apiError = error as { error?: { message?: string }; message?: string };
     return apiError.error?.message ?? apiError.message ?? fallback;
-  }
-
-  private getGoogleErrorMessage(error: unknown): string {
-    if (typeof error === 'object' && error !== null) {
-      const authError = error as {
-        code?: string;
-        error?: { message?: string };
-        message?: string;
-        status?: number;
-      };
-
-      if (
-        authError.code === 'auth/popup-closed-by-user'
-        || authError.code === 'auth/cancelled-popup-request'
-      ) {
-        return 'Google sign-in cancelled.';
-      }
-      if (authError.code === 'auth/popup-blocked') {
-        return 'Google sign-in popup was blocked. Allow popups and try again.';
-      }
-      if (authError.code === 'auth/network-request-failed' || authError.status === 0) {
-        return 'Network error. Check your connection and try again.';
-      }
-      if (authError.message === 'Firebase Google sign-in is not configured.') {
-        return 'Google sign-in is not configured yet.';
-      }
-
-      return authError.error?.message ?? 'Unable to authenticate with Google.';
-    }
-
-    return 'Unable to authenticate with Google.';
   }
 }
