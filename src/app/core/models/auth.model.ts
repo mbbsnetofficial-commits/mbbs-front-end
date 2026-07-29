@@ -37,10 +37,10 @@ export interface GoogleLoginResponse {
   status: 'success';
   message: string;
   data: {
-    user: AuthUser;
+    user?: AuthUser;
     accessToken: string;
     refreshToken: string;
-    isNewUser: boolean;
+    isNewUser?: boolean;
   };
 }
 

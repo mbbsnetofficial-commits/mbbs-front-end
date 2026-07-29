@@ -68,10 +68,13 @@ export class AuthService {
         this.tokenService.saveTokens(
           data.accessToken,
           data.refreshToken,
-          data.user.student_id,
+          data.user?.student_id,
           remember
         );
-        this.tokenService.saveUser(data.user, remember);
+
+        if (data.user) {
+          this.tokenService.saveUser(data.user, remember);
+        }
       })
     );
   }
