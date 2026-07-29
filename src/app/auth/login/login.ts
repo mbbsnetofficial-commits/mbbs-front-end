@@ -55,7 +55,7 @@ export class Login {
             rememberMe
           );
           this.successMessage.set('Welcome back. Opening your dashboard…');
-          this.router.navigate(['/dynamic/neet']);
+          this.router.navigate(['/dynamic/dashboard']);
         },
         error: (error: unknown) => {
           this.errorMessage.set(this.getErrorMessage(error, 'Unable to log in. Check your email and password.'));

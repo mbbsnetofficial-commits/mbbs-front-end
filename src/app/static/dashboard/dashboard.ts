@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
@@ -8,30 +8,11 @@ import { RouterLink } from '@angular/router';
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
-export class Dashboard implements AfterViewInit {
-  @ViewChild('layeredHero') private layeredHero?: ElementRef<HTMLElement>;
+export class Dashboard {
   protected helpOpen = false;
   protected helpTab: 'home' | 'messages' | 'help' = 'home';
   protected helpSearch = '';
   protected activeMegaMenu: 'universities' | 'neet' | 'ucat' | null = null;
-
-  ngAfterViewInit(): void {
-    const element = this.layeredHero?.nativeElement;
-    if (!element) return;
-
-    if (typeof IntersectionObserver === 'undefined') {
-      element.classList.add('is-revealed');
-      return;
-    }
-
-    const observer = new IntersectionObserver(([entry]) => {
-      if (!entry.isIntersecting) return;
-      element.classList.add('is-revealed');
-      observer.disconnect();
-    }, { threshold: 0.3 });
-
-    observer.observe(element);
-  }
 
   protected readonly helpTopics = [
     'How do I contact the MBBS.net guidance team?',
@@ -94,13 +75,13 @@ export class Dashboard implements AfterViewInit {
     { university: 'Palacký University Olomouc', logo: '/images/universities/palacky.svg' },
   ];
 
-  protected readonly layeredHeroLines = [
-    { top: '\u00a0', bottom: 'YOUR DREAM' },
-    { top: 'YOUR DREAM', bottom: 'OUR GUIDANCE' },
-    { top: 'OUR GUIDANCE', bottom: 'GLOBAL EDUCATION' },
-    { top: 'GLOBAL EDUCATION', bottom: 'LIMITLESS OPPORTUNITIES' },
-    { top: 'LIMITLESS OPPORTUNITIES', bottom: 'START YOUR JOURNEY' },
-    { top: 'START YOUR JOURNEY', bottom: 'TODAY' },
-    { top: 'TODAY', bottom: '\u00a0' }
+  protected readonly creativeTeamMembers = [
+    { image: 'https://images.cnippet.dev/image/upload/v1770400411/a1.jpg', name: 'Patrick Stewart', role: 'CEO - Founder' },
+    { image: 'https://images.cnippet.dev/image/upload/v1770400411/a2.jpg', name: 'Alena Rosser', role: 'Director of Content' },
+    { image: 'https://images.cnippet.dev/image/upload/v1770400411/a3.jpg', name: 'Fletch Skinner', role: 'Tech Manager' },
+    { image: 'https://images.cnippet.dev/image/upload/v1770400411/a4.jpg', name: 'Marc Spector', role: 'Director of Content' },
+    { image: 'https://images.cnippet.dev/image/upload/v1770400411/a5.jpg', name: 'Natalia Skinner', role: 'Cnippet Researcher' },
+    { image: 'https://images.cnippet.dev/image/upload/v1770400411/a6.jpg', name: 'David Kim', role: 'Engineering Lead' }
   ];
+
 }

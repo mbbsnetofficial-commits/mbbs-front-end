@@ -130,16 +130,47 @@
     </div>
   </section>
 
-  <section class="layered-text-section" aria-label="Your medical journey">
-    <div #layeredHero class="layered-hero" aria-label="Your Dream, Our Guidance, Global Education, Limitless Opportunities, Start Your Journey, Today">
-      <ul>
-        @for (line of layeredHeroLines; track $index) {
-          <li>
-            <span>{{ line.top }}</span>
-            <span>{{ line.bottom }}</span>
-          </li>
-        }
-      </ul>
+  <section class="creative-team" aria-labelledby="creative-team-title">
+    <svg class="creative-team__corner" aria-hidden="true" fill="none" viewBox="0 0 460 154">
+      <path d="M-87.463 458.432C-102.118 348.092 -77.3418 238.841 -15.0744 188.274C57.4129 129.408 180.708 150.071 351.748 341.128C278.246 -374.233 633.954 380.602 548.123 42.7707"/>
+    </svg>
+    <div class="creative-team__inner">
+      <header class="creative-team__header">
+        <span class="creative-team__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M16.051 12.616a1 1 0 0 1 1.909.024l.737 1.452a1 1 0 0 0 .737.535l1.634.256a1 1 0 0 1 .588 1.806l-1.172 1.168a1 1 0 0 0-.282.866l.259 1.613a1 1 0 0 1-1.541 1.134l-1.465-.75a1 1 0 0 0-.912 0l-1.465.75a1 1 0 0 1-1.539-1.133l.258-1.613a1 1 0 0 0-.282-.866l-1.156-1.153a1 1 0 0 1 .572-1.822l1.633-.256a1 1 0 0 0 .737-.535z"/>
+            <path d="M8 15H7a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/>
+          </svg>
+        </span>
+        <div class="creative-team__title-wrap">
+          <h2 id="creative-team-title">Creative Cnippet Members</h2>
+          <svg class="creative-team__title-mark" aria-hidden="true" viewBox="0 0 108 86">
+            <path d="M38.8484 16.236L15 43.5793L78.2688 15L18.1218 71L93 34.1172L70.2047 65.2739"/>
+          </svg>
+        </div>
+        <p>Cnippet connects you with the most advanced tech solutions, empowering seamless communication.</p>
+      </header>
+      <div class="creative-team__marquee">
+        <div class="creative-team__fade creative-team__fade--left"></div>
+        <div class="creative-team__fade creative-team__fade--right"></div>
+        <div class="creative-team__track">
+          @for (copy of [0, 1]; track copy) {
+            <div class="creative-team__group" [attr.aria-hidden]="copy === 1">
+              @for (member of creativeTeamMembers; track member.name) {
+                <article class="team-card">
+                  <img [src]="member.image" [alt]="member.name" loading="lazy">
+                  <div class="team-card__caption"><h3>{{ member.name }}</h3><p>{{ member.role }}</p></div>
+                </article>
+              }
+            </div>
+          }
+        </div>
+      </div>
+      <figure class="creative-team__quote">
+        <blockquote>The exceptional support from Cnippet truly impressed us. We suggested an improvement, and their team implemented it with remarkable speed!</blockquote>
+        <img src="https://res.cloudinary.com/dvwtcsh5v/image/upload/v1770279333/a1.jpg" alt="Natalia Kara" loading="lazy">
+        <figcaption><strong>Natalia Kara</strong><span>CTO · Cnippet Collection</span></figcaption>
+      </figure>
     </div>
   </section>
 
