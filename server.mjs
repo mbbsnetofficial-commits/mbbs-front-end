@@ -36,6 +36,7 @@ createServer((request, response) => {
   }
 
   const pathname = decodeURIComponent(new URL(request.url ?? '/', 'http://localhost').pathname);
+
   const requestedFile = resolve(publicDir, `.${normalize(pathname)}`);
   const isInsidePublicDir =
     requestedFile === publicDir || requestedFile.startsWith(`${publicDir}\\`) || requestedFile.startsWith(`${publicDir}/`);

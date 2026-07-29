@@ -3,15 +3,13 @@ import { ReactiveFormsModule, Validators, NonNullableFormBuilder } from '@angula
 import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
-import { AuthShell } from '../shared/auth-shell/auth-shell';
 import { AuthService } from '../../core/serivce/auth.service';
 import { TokenService } from '../../core/serivce/token.service';
-import { Icon } from '../../shared/ui/icon/icon';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [AuthShell, Icon, ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './login.html',
   styleUrl: './login.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -56,7 +54,7 @@ export class Login {
             rememberMe
           );
           this.successMessage.set('Welcome back. Opening your dashboard…');
-          this.router.navigate(['/dynamic/dashboard']);
+          this.router.navigate(['/dynamic/neet']);
         },
         error: (error: unknown) => {
           this.errorMessage.set(this.getErrorMessage(error, 'Unable to log in. Check your email and password.'));
