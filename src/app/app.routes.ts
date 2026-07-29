@@ -1,13 +1,13 @@
 import { Routes } from '@angular/router';
 
 import { authGuard } from './core/serivce/auth.guard';
-import { Dashboard } from './static/dashboard/dashboard';
 
 export const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
-    component: Dashboard,
+    loadComponent: () =>
+      import('./static/dashboard/dashboard').then(({ Dashboard }) => Dashboard),
   },
   {
     path: 'static',

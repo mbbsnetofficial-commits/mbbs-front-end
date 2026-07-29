@@ -1,1 +1,231 @@
-<p>dashboard works!</p>
+<main class="page">
+  <section class="home-screen">
+    <header class="site-header" (mouseleave)="closeMegaMenu()">
+      <a class="header-brand" routerLink="/" aria-label="mbbs.net home">
+        <span>MBBS.net</span>
+      </a>
+      <nav class="header-nav" aria-label="Main navigation">
+        <button type="button" (mouseenter)="openMegaMenu('universities')" (focus)="openMegaMenu('universities')" [class.active]="activeMegaMenu === 'universities'" [attr.aria-expanded]="activeMegaMenu === 'universities'">Universities</button>
+        <button type="button" (mouseenter)="openMegaMenu('neet')" (focus)="openMegaMenu('neet')" [class.active]="activeMegaMenu === 'neet'" [attr.aria-expanded]="activeMegaMenu === 'neet'">NEET</button>
+        <button type="button" (mouseenter)="openMegaMenu('ucat')" (focus)="openMegaMenu('ucat')" [class.active]="activeMegaMenu === 'ucat'" [attr.aria-expanded]="activeMegaMenu === 'ucat'">UCAT Exam</button>
+      </nav>
+      <div class="header-actions">
+        <a class="login-link" routerLink="/auth/login">Log in</a>
+        <a class="signup-button" routerLink="/auth/register">Sign up</a>
+      </div>
+
+      @if (activeMegaMenu; as menuKey) {
+        <div class="mega-menu">
+          <div class="mega-visual">
+            <img [src]="megaMenus[menuKey].image" [alt]="megaMenus[menuKey].imageAlt">
+          </div>
+          <div class="mega-content">
+            <div class="mega-intro">
+              <h2>{{ megaMenus[menuKey].title }} <span>&rarr;</span></h2>
+              <p>{{ megaMenus[menuKey].description }}</p>
+            </div>
+            <div class="mega-links">
+              @for (link of megaMenus[menuKey].links; track link) {
+                <a href="#" (click)="closeMegaMenu()">{{ link }} <span>&rarr;</span></a>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </header>
+    <section class="home-content">
+      <h1>Medical knowledge that<br>shapes your future</h1>
+      <p class="home-intro">Clear guidance for MBBS students—from entrance preparation and university selection to admissions and medical learning.</p>
+      <div class="hero-actions">
+        <a class="hero-cta primary" href="#articles">Explore insights</a>
+        <a class="hero-cta secondary" href="#topics">Browse topics</a>
+      </div>
+      <svg class="hero-ecg" viewBox="0 0 1200 220" preserveAspectRatio="none" aria-hidden="true">
+        <path class="hero-ecg-guide" d="M0 120H310l26-2 18-42 31 104 35-148 35 88h118l22-2 17-35 29 75 30-112 34 74h495"/>
+        <path class="hero-ecg-pulse" pathLength="1" d="M0 120H310l26-2 18-42 31 104 35-148 35 88h118l22-2 17-35 29 75 30-112 34 74h495"/>
+      </svg>
+    </section>
+  </section>
+
+  @if (helpOpen) {
+    <aside class="help-widget" aria-label="MBBS.net help">
+      <header class="help-widget-header">
+        <button type="button" (click)="helpOpen = false" aria-label="Close help">&times;</button>
+        @if (helpTab === 'home') {
+          <p>Hi there <span>👋</span></p>
+          <h2>How can we help?</h2>
+        } @else if (helpTab === 'messages') {
+          <p>Messages</p>
+          <h2>Talk to our team</h2>
+        } @else {
+          <p>Help centre</p>
+          <h2>Find an answer</h2>
+        }
+      </header>
+
+      <div class="help-widget-body">
+        @if (helpTab === 'home' || helpTab === 'help') {
+          <label class="help-search">
+            <input type="search" [(ngModel)]="helpSearch" placeholder="Search for help" aria-label="Search help topics">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/></svg>
+          </label>
+          <div class="help-topic-list">
+            @for (topic of filteredHelpTopics; track topic) {
+              <button type="button" (click)="openHelpTab('messages')"><span>{{ topic }}</span><b>&rarr;</b></button>
+            } @empty {
+              <p class="help-empty">No matching help topics found.</p>
+            }
+          </div>
+        } @else {
+          <div class="support-message">
+            <span class="support-avatar">M</span>
+            <div><strong>MBBS.net Support</strong><p>Hello! Tell us what you need help with and our guidance team will assist you.</p></div>
+          </div>
+          <a class="start-message" href="#contact" (click)="helpOpen = false">Start a conversation <span>&rarr;</span></a>
+        }
+      </div>
+
+      <nav class="help-tabs" aria-label="Help navigation">
+        <button type="button" [class.active]="helpTab === 'home'" (click)="openHelpTab('home')"><span>⌂</span>Home</button>
+        <button type="button" [class.active]="helpTab === 'messages'" (click)="openHelpTab('messages')"><span>▤</span>Messages</button>
+        <button type="button" [class.active]="helpTab === 'help'" (click)="openHelpTab('help')"><span>?</span>Help</button>
+      </nav>
+    </aside>
+  }
+
+  <button class="help-launcher" type="button" (click)="helpOpen = !helpOpen" [attr.aria-expanded]="helpOpen" aria-label="Open help">
+    @if (helpOpen) { <span>&darr;</span> } @else {
+      <svg viewBox="0 0 28 28" aria-hidden="true"><path d="M5 7.5A3.5 3.5 0 0 1 8.5 4h11A3.5 3.5 0 0 1 23 7.5v8a3.5 3.5 0 0 1-3.5 3.5H12l-5.5 4v-4A3.5 3.5 0 0 1 5 16V7.5Z"/><path d="M9 10h10M9 14h7"/></svg>
+    }
+  </button>
+
+  <section class="mbbs-letter-section">
+    <div class="letter-visual" aria-label="Important MBBS guidance letter">
+      <article class="medical-letter">
+        <div class="letter-brand">MBBS.NET</div>
+        <div class="letter-rule"></div>
+        <p class="letter-date">Guidance for future medical students</p>
+        <h2>LETTER TO FUTURE DOCTORS</h2>
+        <p>Dear Medical Aspirant,</p>
+        <p>Choose your MBBS pathway carefully. Confirm that your university is recognised by the relevant medical authorities and offers strong academic teaching, clinical exposure and student support.</p>
+        <p>For Indian students, NEET qualification and current eligibility rules are essential. Review tuition, living costs, language requirements, hospital training and licensing pathways before applying.</p>
+        <p>A medical degree is a long-term commitment. Make your decision using verified information—not promises—and keep every admission document safely recorded.</p>
+        <p class="letter-signoff">With guidance,<br><strong>MBBS.net Academic Team</strong></p>
+      </article>
+    </div>
+
+    <div class="letter-content">
+      <p class="section-kicker">MBBS guidance that matters</p>
+      <h2>Build your medical future on the right foundation</h2>
+      <p class="letter-intro">From selecting a recognised university to understanding NEET, admissions and clinical training, every early decision shapes your journey as a doctor.</p>
+      <blockquote>
+        <span class="quote-mark">“</span>
+        <p>The right MBBS program combines recognised academics, meaningful hospital exposure and a clear pathway to medical practice.</p>
+      </blockquote>
+      <div class="quote-author">
+        <strong>Essential student checklist</strong>
+        <span>Recognition · Eligibility · Clinical exposure · Career pathway</span>
+      </div>
+      <a class="letter-link" href="#topics">Explore MBBS guidance <span>&rarr;</span></a>
+    </div>
+  </section>
+
+  <section class="layered-text-section" aria-label="Your medical journey">
+    <div #layeredHero class="layered-hero" aria-label="Your Dream, Our Guidance, Global Education, Limitless Opportunities, Start Your Journey, Today">
+      <ul>
+        @for (line of layeredHeroLines; track $index) {
+          <li>
+            <span>{{ line.top }}</span>
+            <span>{{ line.bottom }}</span>
+          </li>
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="ucat-promo" id="ucat-preparation">
+    <div class="ucat-promo-copy">
+      <p class="section-kicker">UCAT exam preparation</p>
+      <h2>Master the UCAT.<br>Move Closer to Medicine.</h2>
+      <p>Prepare confidently for the <strong>University Clinical Aptitude Test (UCAT)</strong> with focused practice, proven strategies, and exam-style preparation designed to strengthen your performance.</p>
+      <p>Build the <strong>speed, accuracy, decision-making, and problem-solving skills</strong> you need to approach test day with confidence.</p>
+      <ul>
+        <li>Structured UCAT Preparation</li>
+        <li>Exam-Style Practice Questions</li>
+        <li>Timed Mock Tests</li>
+        <li>Performance Tracking</li>
+        <li>Expert Tips &amp; Strategies</li>
+      </ul>
+      <a routerLink="/login">Start Your UCAT Preparation <span>&rarr;</span></a>
+    </div>
+    <figure class="ucat-promo-image">
+      <img src="/images/ucat-exam-omr.png" alt="Student completing an exam-style multiple-choice answer sheet">
+    </figure>
+  </section>
+
+  <section class="contact-section" id="contact">
+    <div class="contact-intro">
+      <p class="section-kicker">Student support</p>
+      <h2>Do you have any questions?</h2>
+      <p>If you need help with MBBS eligibility, universities or admissions, our guidance team is here to assist you.</p>
+      <svg class="contact-arrow" viewBox="0 0 190 110" aria-hidden="true">
+        <path d="M14 18c0 42 51 65 64 25 8-25-35-31-31 4 4 37 73 39 122 36"></path>
+        <path d="m147 67 22 16-24 14"></path>
+      </svg>
+    </div>
+
+    <div class="contact-grid">
+      <article class="contact-card">
+        <span class="contact-icon" aria-hidden="true">&#9742;</span>
+        <h3>MBBS guidance call</h3>
+        <p>Speak with our guidance team about eligibility, university selection and the admission process.</p>
+        <a href="#">Schedule a call <span>&rarr;</span></a>
+      </article>
+
+      <article class="contact-card">
+        <span class="contact-icon" aria-hidden="true">&#9993;</span>
+        <h3>contact@mbbs.net</h3>
+        <p>Write to us with your questions and student profile. Our team will respond with the relevant guidance.</p>
+        <a href="mailto:contact@mbbs.net">Send an email <span>&rarr;</span></a>
+      </article>
+
+      <article class="contact-card faq-card">
+        <span class="contact-icon" aria-hidden="true">?</span>
+        <h3>Frequently asked questions</h3>
+        <p>Find clear answers about NEET, recognised universities, required documents, fees and studying MBBS abroad.</p>
+        <a href="#">Go to the FAQ section <span>&rarr;</span></a>
+      </article>
+    </div>
+  </section>
+
+  <section class="destinations-section" id="destinations">
+    <div class="destinations-heading">
+      <span class="heading-line"></span>
+      <h2>Trusted medical universities worldwide</h2>
+      <span class="heading-line"></span>
+    </div>
+
+    <div class="universities-marquee">
+      <div class="universities-track">
+        <div class="universities-group">
+          @for (destination of featuredUniversities; track destination.university) {
+            <a class="university-logo" href="#" [attr.aria-label]="destination.university">
+              <span class="university-mark">
+                <img [src]="destination.logo" [alt]="destination.university + ' logo'">
+              </span>
+            </a>
+          }
+        </div>
+        <div class="universities-group" aria-hidden="true">
+          @for (destination of featuredUniversities; track destination.university) {
+            <span class="university-logo">
+              <span class="university-mark">
+                <img [src]="destination.logo" alt="">
+              </span>
+            </span>
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
