@@ -1,9 +1,0 @@
-:host { display: block; }
-.scroller { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
-.scroller:focus-visible { outline: 3px solid rgba(39,108,240,.18); outline-offset: 7px; border-radius: 15px; }
-@media (max-width: 1160px) { .scroller { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 650px) {
-  .scroller { display: flex; overflow-x: auto; margin-inline: -14px; padding: 2px 14px 13px; scroll-padding-left: 14px; scroll-snap-type: x mandatory; scrollbar-width: none; }
-  .scroller::-webkit-scrollbar { display: none; }
-  app-category-card { min-width: min(79vw, 300px); scroll-snap-align: start; }
-}

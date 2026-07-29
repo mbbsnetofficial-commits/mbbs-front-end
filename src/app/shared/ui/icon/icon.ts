@@ -5,7 +5,6 @@ export type IconName =
   | 'arrow-right'
   | 'authors'
   | 'bell'
-  | 'blog'
   | 'bookmark'
   | 'categories'
   | 'chart'
