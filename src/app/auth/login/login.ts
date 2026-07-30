@@ -21,6 +21,7 @@ export class Login {
   private readonly router = inject(Router);
 
   protected readonly isSubmitting = signal(false);
+  protected readonly isGoogleSubmitting = signal(false);
   protected readonly errorMessage = signal('');
   protected readonly successMessage = signal('');
   protected readonly passwordVisible = signal(false);

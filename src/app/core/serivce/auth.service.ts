@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
 
 import { environment } from '../../../environments/environments';
 import { API } from '../constants/api.constants';
@@ -44,6 +45,10 @@ export class AuthService {
       this.baseUrl + API.AUTH.LOGIN,
       data
     );
+  }
+
+  loginWithGoogle(_remember = true): Observable<LoginResponse> {
+    return throwError(() => new Error('Google sign-in is currently unavailable. Please sign in with email and password.'));
   }
 
   saveTokens(
