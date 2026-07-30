@@ -5,28 +5,27 @@
         <span>MBBS.net</span>
       </a>
       <nav class="header-nav" aria-label="Main navigation">
-        <button type="button" (mouseenter)="openMegaMenu('universities')" (focus)="openMegaMenu('universities')" [class.active]="activeMegaMenu === 'universities'" [attr.aria-expanded]="activeMegaMenu === 'universities'">Universities</button>
-        <button type="button" (mouseenter)="openMegaMenu('neet')" (focus)="openMegaMenu('neet')" [class.active]="activeMegaMenu === 'neet'" [attr.aria-expanded]="activeMegaMenu === 'neet'">NEET</button>
-        <button type="button" (mouseenter)="openMegaMenu('ucat')" (focus)="openMegaMenu('ucat')" [class.active]="activeMegaMenu === 'ucat'" [attr.aria-expanded]="activeMegaMenu === 'ucat'">UCAT Exam</button>
+        <button type="button" (mouseenter)="openMegaMenu('universities')" (focus)="openMegaMenu('universities')" [class.active]="activeMegaMenu() === 'universities'" [attr.aria-expanded]="activeMegaMenu() === 'universities'">Universities</button>
+        <button type="button" (mouseenter)="openMegaMenu('neet')" (focus)="openMegaMenu('neet')" [class.active]="activeMegaMenu() === 'neet'" [attr.aria-expanded]="activeMegaMenu() === 'neet'">NEET</button>
       </nav>
       <div class="header-actions">
         <a class="login-link" routerLink="/auth/login">Log in</a>
         <a class="signup-button" routerLink="/auth/register">Sign up</a>
       </div>
 
-      @if (activeMegaMenu; as menuKey) {
+      @if (activeMegaMenu(); as menuKey) {
         <div class="mega-menu">
           <div class="mega-visual">
             <img [src]="megaMenus[menuKey].image" [alt]="megaMenus[menuKey].imageAlt">
           </div>
           <div class="mega-content">
             <div class="mega-intro">
-              <h2>{{ megaMenus[menuKey].title }} <span>&rarr;</span></h2>
+              <h2>{{ megaMenus[menuKey].title }}</h2>
               <p>{{ megaMenus[menuKey].description }}</p>
             </div>
             <div class="mega-links">
               @for (link of megaMenus[menuKey].links; track link) {
-                <a href="#" (click)="closeMegaMenu()">{{ link }} <span>&rarr;</span></a>
+                <a href="#" (click)="closeMegaMenu()">{{ link }}</a>
               }
             </div>
           </div>
@@ -47,14 +46,14 @@
     </section>
   </section>
 
-  @if (helpOpen) {
+  @if (helpOpen()) {
     <aside class="help-widget" aria-label="MBBS.net help">
       <header class="help-widget-header">
-        <button type="button" (click)="helpOpen = false" aria-label="Close help">&times;</button>
-        @if (helpTab === 'home') {
+        <button type="button" (click)="helpOpen.set(false)" aria-label="Close help">&times;</button>
+        @if (helpTab() === 'home') {
           <p>Hi there <span>👋</span></p>
           <h2>How can we help?</h2>
-        } @else if (helpTab === 'messages') {
+        } @else if (helpTab() === 'messages') {
           <p>Messages</p>
           <h2>Talk to our team</h2>
         } @else {
@@ -64,9 +63,9 @@
       </header>
 
       <div class="help-widget-body">
-        @if (helpTab === 'home' || helpTab === 'help') {
+        @if (helpTab() === 'home' || helpTab() === 'help') {
           <label class="help-search">
-            <input type="search" [(ngModel)]="helpSearch" placeholder="Search for help" aria-label="Search help topics">
+            <input type="search" [value]="helpSearch()" (input)="helpSearch.set($event.target.value)" placeholder="Search for help" aria-label="Search help topics">
             <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 5 5"/></svg>
           </label>
           <div class="help-topic-list">
@@ -81,20 +80,20 @@
             <span class="support-avatar">M</span>
             <div><strong>MBBS.net Support</strong><p>Hello! Tell us what you need help with and our guidance team will assist you.</p></div>
           </div>
-          <a class="start-message" href="#contact" (click)="helpOpen = false">Start a conversation <span>&rarr;</span></a>
+          <a class="start-message" href="#contact" (click)="helpOpen.set(false)">Start a conversation <span>&rarr;</span></a>
         }
       </div>
 
       <nav class="help-tabs" aria-label="Help navigation">
-        <button type="button" [class.active]="helpTab === 'home'" (click)="openHelpTab('home')"><span>⌂</span>Home</button>
-        <button type="button" [class.active]="helpTab === 'messages'" (click)="openHelpTab('messages')"><span>▤</span>Messages</button>
-        <button type="button" [class.active]="helpTab === 'help'" (click)="openHelpTab('help')"><span>?</span>Help</button>
+        <button type="button" [class.active]="helpTab() === 'home'" (click)="openHelpTab('home')"><span>⌂</span>Home</button>
+        <button type="button" [class.active]="helpTab() === 'messages'" (click)="openHelpTab('messages')"><span>▤</span>Messages</button>
+        <button type="button" [class.active]="helpTab() === 'help'" (click)="openHelpTab('help')"><span>?</span>Help</button>
       </nav>
     </aside>
   }
 
-  <button class="help-launcher" type="button" (click)="helpOpen = !helpOpen" [attr.aria-expanded]="helpOpen" aria-label="Open help">
-    @if (helpOpen) { <span>&darr;</span> } @else {
+  <button class="help-launcher" type="button" (click)="helpOpen.set(!helpOpen())" [attr.aria-expanded]="helpOpen()" aria-label="Open help">
+    @if (helpOpen()) { <span>&darr;</span> } @else {
       <svg viewBox="0 0 28 28" aria-hidden="true"><path d="M5 7.5A3.5 3.5 0 0 1 8.5 4h11A3.5 3.5 0 0 1 23 7.5v8a3.5 3.5 0 0 1-3.5 3.5H12l-5.5 4v-4A3.5 3.5 0 0 1 5 16V7.5Z"/><path d="M9 10h10M9 14h7"/></svg>
     }
   </button>
@@ -143,12 +142,12 @@
           </svg>
         </span>
         <div class="creative-team__title-wrap">
-          <h2 id="creative-team-title">Creative Cnippet Members</h2>
+          <h2 id="creative-team-title">Meet Our Medical Education Team</h2>
           <svg class="creative-team__title-mark" aria-hidden="true" viewBox="0 0 108 86">
             <path d="M38.8484 16.236L15 43.5793L78.2688 15L18.1218 71L93 34.1172L70.2047 65.2739"/>
           </svg>
         </div>
-        <p>Cnippet connects you with the most advanced tech solutions, empowering seamless communication.</p>
+        <p>Our experienced mentors help aspiring doctors navigate MBBS admissions, university selection, and their journey into medicine.</p>
       </header>
       <div class="creative-team__marquee">
         <div class="creative-team__fade creative-team__fade--left"></div>
@@ -167,65 +166,32 @@
         </div>
       </div>
       <figure class="creative-team__quote">
-        <blockquote>The exceptional support from Cnippet truly impressed us. We suggested an improvement, and their team implemented it with remarkable speed!</blockquote>
+        <blockquote>The team made my MBBS application journey clear and manageable. Their guidance on eligibility, university selection, and admissions gave me the confidence to pursue medicine.</blockquote>
         <img src="https://res.cloudinary.com/dvwtcsh5v/image/upload/v1770279333/a1.jpg" alt="Natalia Kara" loading="lazy">
-        <figcaption><strong>Natalia Kara</strong><span>CTO · Cnippet Collection</span></figcaption>
+        <figcaption><strong>Natalia Kara</strong><span>MBBS Student · Future Doctor</span></figcaption>
       </figure>
     </div>
   </section>
 
-  <section class="ucat-promo" id="ucat-preparation">
-    <div class="ucat-promo-copy">
-      <p class="section-kicker">UCAT exam preparation</p>
-      <h2>Master the UCAT.<br>Move Closer to Medicine.</h2>
-      <p>Prepare confidently for the <strong>University Clinical Aptitude Test (UCAT)</strong> with focused practice, proven strategies, and exam-style preparation designed to strengthen your performance.</p>
-      <p>Build the <strong>speed, accuracy, decision-making, and problem-solving skills</strong> you need to approach test day with confidence.</p>
-      <ul>
-        <li>Structured UCAT Preparation</li>
-        <li>Exam-Style Practice Questions</li>
-        <li>Timed Mock Tests</li>
-        <li>Performance Tracking</li>
-        <li>Expert Tips &amp; Strategies</li>
-      </ul>
-      <a routerLink="/login">Start Your UCAT Preparation <span>&rarr;</span></a>
-    </div>
-    <figure class="ucat-promo-image">
-      <img src="/images/ucat-exam-omr.png" alt="Student completing an exam-style multiple-choice answer sheet">
-    </figure>
-  </section>
+  <section class="country-gallery-section" aria-labelledby="country-gallery-title">
+    <header class="country-gallery-heading">
+      <p class="section-kicker">Study medicine worldwide</p>
+      <h2 id="country-gallery-title">Explore MBBS destinations</h2>
+      <p>Discover inspiring countries offering respected medical education, rich cultures, and memorable student experiences.</p>
+    </header>
 
-  <section class="contact-section" id="contact">
-    <div class="contact-intro">
-      <p class="section-kicker">Student support</p>
-      <h2>Do you have any questions?</h2>
-      <p>If you need help with MBBS eligibility, universities or admissions, our guidance team is here to assist you.</p>
-      <svg class="contact-arrow" viewBox="0 0 190 110" aria-hidden="true">
-        <path d="M14 18c0 42 51 65 64 25 8-25-35-31-31 4 4 37 73 39 122 36"></path>
-        <path d="m147 67 22 16-24 14"></path>
-      </svg>
-    </div>
-
-    <div class="contact-grid">
-      <article class="contact-card">
-        <span class="contact-icon" aria-hidden="true">&#9742;</span>
-        <h3>MBBS guidance call</h3>
-        <p>Speak with our guidance team about eligibility, university selection and the admission process.</p>
-        <a href="#">Schedule a call <span>&rarr;</span></a>
-      </article>
-
-      <article class="contact-card">
-        <span class="contact-icon" aria-hidden="true">&#9993;</span>
-        <h3>contact@mbbs.net</h3>
-        <p>Write to us with your questions and student profile. Our team will respond with the relevant guidance.</p>
-        <a href="mailto:contact@mbbs.net">Send an email <span>&rarr;</span></a>
-      </article>
-
-      <article class="contact-card faq-card">
-        <span class="contact-icon" aria-hidden="true">?</span>
-        <h3>Frequently asked questions</h3>
-        <p>Find clear answers about NEET, recognised universities, required documents, fees and studying MBBS abroad.</p>
-        <a href="#">Go to the FAQ section <span>&rarr;</span></a>
-      </article>
+    <div class="country-gallery">
+      @for (country of mbbsCountries; track country.name) {
+        <article class="country-gallery-card">
+          <img [src]="country.image" [alt]="country.imageAlt" loading="lazy">
+          <div class="country-gallery-shade"></div>
+          <div class="country-gallery-copy">
+            <span>{{ country.tag }}</span>
+            <h3>{{ country.name }}</h3>
+            <p>{{ country.description }}</p>
+          </div>
+        </article>
+      }
     </div>
   </section>
 
@@ -259,4 +225,131 @@
       </div>
     </div>
   </section>
+
+  <section class="contact-section" id="contact" aria-labelledby="contact-title">
+    <div class="contact-shell">
+      <aside class="contact-panel">
+        <p class="contact-eyebrow">Admissions guidance</p>
+        <h2 id="contact-title">Let&rsquo;s plan your medical journey.</h2>
+        <p>Share your goals with our guidance team and we&rsquo;ll help you understand the right next step.</p>
+
+        <address class="contact-details">
+          <a href="tel:+918800000000">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3H4.8A1.8 1.8 0 0 0 3 4.8C3 13.75 10.25 21 19.2 21a1.8 1.8 0 0 0 1.8-1.8V17l-4.8-1.2-1.15 2.25a14.3 14.3 0 0 1-9.1-9.1L8.2 7.8 7 3Z"/></svg>
+            <span><small>Call our team</small>+91 88000 00000</span>
+          </a>
+          <a href="mailto:mbbs.net.official@gmail.com">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6.5h18v11H3z"/><path d="m4 7 8 6 8-6"/></svg>
+            <span><small>Email us</small>mbbs.net.official&#64;gmail.com</span>
+          </a>
+          <div>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+            <span><small>Visit us</small>New Delhi, India</span>
+          </div>
+        </address>
+
+        <span class="contact-panel-orbit" aria-hidden="true"></span>
+      </aside>
+
+      <form class="contact-form" #contactForm (submit)="submitContact($event, contactForm)">
+        <div class="contact-form-heading">
+          <p class="section-kicker">Start a conversation</p>
+          <h3>How can we help?</h3>
+        </div>
+
+        <div class="contact-fields">
+          <label>
+            <span>Your name</span>
+            <input type="text" name="name" placeholder="Enter your full name" autocomplete="name" required>
+          </label>
+          <label>
+            <span>Email address</span>
+            <input type="email" name="email" placeholder="you@example.com" autocomplete="email" required>
+          </label>
+          <label class="contact-field-wide">
+            <span>Subject</span>
+            <input type="text" name="subject" placeholder="What would you like guidance with?" required>
+          </label>
+          <label class="contact-field-wide">
+            <span>Message</span>
+            <textarea name="message" rows="4" placeholder="Tell us about your study plans, preferred country, or questions..." required></textarea>
+          </label>
+        </div>
+
+        <div class="contact-form-footer">
+          <button type="submit">
+            Continue to Gmail
+            <span aria-hidden="true">&rarr;</span>
+          </button>
+          @if (contactFeedback()) {
+            <p class="contact-feedback" [class.is-success]="contactState() === 'success'"
+              [class.is-error]="contactState() === 'error'" aria-live="polite">
+              {{ contactFeedback() }}
+            </p>
+          } @else {
+            <p>Gmail will open with the recipient and message ready to send.</p>
+          }
+        </div>
+      </form>
+    </div>
+  </section>
 </main>
+
+<footer class="global-footer">
+  <div class="world-map" role="img" aria-label="World map showing medical education connections from India to universities worldwide">
+    <svg viewBox="0 0 800 400" aria-hidden="true">
+      <defs>
+        <pattern id="map-dots" width="7" height="7" patternUnits="userSpaceOnUse">
+          <circle cx="2" cy="2" r="1.15" fill="#766f64"></circle>
+        </pattern>
+        <linearGradient id="route-gradient" x1="0" x2="1">
+          <stop offset="0" stop-color="#5ba9d6" stop-opacity="0"></stop>
+          <stop offset=".12" stop-color="#c8a96b"></stop>
+          <stop offset=".88" stop-color="#c8a96b"></stop>
+          <stop offset="1" stop-color="#5ba9d6" stop-opacity="0"></stop>
+        </linearGradient>
+      </defs>
+      <g class="world-land">
+        <path d="M42 105 72 75l54-21 61 8 42 28-10 31-39 13-13 34-35 10-19 43-28-11-9-43-35-23z"/>
+        <path d="m207 211 35 20 24 48-9 65-24 37-18-49-19-42-18-38z"/>
+        <path d="m337 83 36-23 46 9 27 20 36-8 43 17 31-10 48 21 65 4 71 35-12 29-47 9-30-15-41 19-20 43-27-5-19-42-34-15-26 14-21-4-23-31-27-5-20-29-48-8z"/>
+        <path d="m407 185 34 9 28 38-8 71-28 55-26-30-17-69z"/>
+        <path d="m650 270 31-22 47 12 27 38-20 34-42 9-47-35z"/>
+        <path d="m275 63 16-24 40 3 9 24-32 11z"/>
+      </g>
+      <g class="world-routes">
+        <path d="M535 190 Q430 55 177 122"/>
+        <path d="M535 190 Q420 110 386 106"/>
+        <path d="M535 190 Q505 85 470 112"/>
+        <path d="M535 190 Q590 105 664 152"/>
+        <path d="M535 190 Q635 220 696 286"/>
+        <path d="M535 190 Q400 190 232 260"/>
+      </g>
+      <g class="map-points">
+        <circle class="location" cx="535" cy="190" r="4"/>
+        <circle class="location" cx="177" cy="122" r="3"/>
+        <circle class="location" cx="386" cy="106" r="3"/>
+        <circle class="location" cx="470" cy="112" r="3"/>
+        <circle class="location" cx="664" cy="152" r="3"/>
+        <circle class="location" cx="696" cy="286" r="3"/>
+        <circle class="location" cx="232" cy="260" r="3"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="footer-bottom">
+    <div class="footer-brand">
+      <a routerLink="/">MBBS<span>.NET</span></a>
+      <p>Clear guidance for your journey into medicine.</p>
+    </div>
+    <nav aria-label="Footer navigation">
+      <div><strong>Explore</strong><a href="#topics">MBBS Insights</a><a href="#destinations">Universities</a><a href="#ucat-preparation">UCAT</a></div>
+      <div><strong>Support</strong><a href="#contact">Contact</a><a href="#">FAQs</a><a href="mailto:mbbs.net.official@gmail.com">Email us</a></div>
+      <div><strong>Account</strong><a routerLink="/login">Log in</a><a routerLink="/auth/register">Register</a></div>
+    </nav>
+  </div>
+  <div class="footer-legal">
+    <span>© 2026 MBBS.NET. All rights reserved.</span>
+    <span><a href="#">Privacy</a><a href="#">Terms</a></span>
+  </div>
+</footer>

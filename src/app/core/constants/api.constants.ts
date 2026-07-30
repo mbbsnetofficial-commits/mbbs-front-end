@@ -4,7 +4,6 @@ export const API = {
     REGISTER: '/auth/sign-up',
     VERIFY_OTP: '/auth/sign-up/verify-otp',
     LOGIN: '/auth/login',
-    GOOGLE: '/auth/google',
     LOGOUT: '/auth/logout',
     REFRESH_TOKEN: '/auth/refresh-token'
   },

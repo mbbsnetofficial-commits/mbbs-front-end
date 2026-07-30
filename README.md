@@ -26,6 +26,14 @@ ng serve
 
 Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
 
+## Contact form email
+
+The contact form uses a frontend-only Gmail Web handoff. It redirects the
+visitor to Gmail's compose screen with `mbbs.net.official@gmail.com`, the
+subject, and the formatted message already filled in. Gmail uses the account
+currently signed into the browser. The visitor reviews the email and presses
+Send in Gmail. No email credentials are stored by the website.
+
 ## Code scaffolding
 
 Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
