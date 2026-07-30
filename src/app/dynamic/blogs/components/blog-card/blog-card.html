@@ -1,0 +1,32 @@
+<article class="card" [class.featured]="featured()">
+  <a class="image-link" [routerLink]="['/dynamic/blogs', blog().slug]" [attr.aria-label]="'Read ' + blog().title">
+    <img
+      appImageFallback
+      [src]="blog().featuredImage?.url ?? ''"
+      [alt]="blog().featuredImage?.alt || blog().title || 'Blog image'"
+      loading="lazy"
+    >
+  </a>
+  <div class="body">
+    <span class="category">{{ blog().category?.categoryName ?? 'Uncategorized' }}</span>
+    <h3><a [routerLink]="['/dynamic/blogs', blog().slug]">{{ blog().title || 'Untitled article' }}</a></h3>
+    <p>{{ displayExcerpt() }}</p>
+    <div class="meta">
+      <img
+        appImageFallback
+        class="avatar"
+        [src]="blog().author?.profileImage ?? ''"
+        [alt]="blog().author?.fullName ?? 'Author'"
+        loading="lazy"
+      >
+      <span class="byline">
+        <strong>{{ blog().author?.fullName ?? 'MBBS.NET' }}</strong>
+        <span>
+          <time [attr.datetime]="blog().publishedAt">{{ blog().publishedAt | date: 'mediumDate' }}</time>
+          <span aria-hidden="true"> · </span>
+          {{ blog().readingTime ?? 0 }} min read
+        </span>
+      </span>
+    </div>
+  </div>
+</article>

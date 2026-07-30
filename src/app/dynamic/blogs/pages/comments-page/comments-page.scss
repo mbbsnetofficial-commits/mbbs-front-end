@@ -1,0 +1,240 @@
+:host { display: block; min-height: 100vh; background: #f8fafb; }
+
+/* ── Back link ── */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 20px 0 0 24px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #475569;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.back-link:hover { color: #0f172a; }
+
+/* ── Page wrapper ── */
+.cp-page {
+  width: min(46rem, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 28px 0 64px;
+}
+
+/* ── Heading ── */
+.cp-heading {
+  margin: 0 0 24px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+  font-family: Inter, ui-sans-serif, sans-serif;
+}
+.cp-count { color: #64748b; font-weight: 500; }
+
+/* ── Composer ── */
+.cp-composer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.cp-chip {
+  width: 36px; height: 36px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-size: 0.72rem; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  user-select: none;
+}
+
+.cp-field {
+  flex: 1;
+  display: flex;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #fff;
+  transition: border-color 0.18s;
+}
+.cp-field:focus-within { border-color: #f59e0b; }
+
+.cp-input {
+  flex: 1;
+  height: 42px;
+  padding: 0 16px;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.875rem;
+  color: #1e293b;
+}
+.cp-input::placeholder { color: #94a3b8; }
+.cp-input:focus { outline: none; }
+
+.cp-post-btn {
+  height: 42px;
+  padding: 0 22px;
+  border: none;
+  border-radius: 0 999px 999px 0;
+  background: #f59e0b;
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+.cp-post-btn:hover:not(:disabled) { background: #d97706; }
+.cp-post-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── Skeletons ── */
+.cp-skeletons { display: flex; flex-direction: column; gap: 14px; }
+
+.sk-card {
+  padding: 16px;
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #f1f5f9;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.sk-row { display: flex; align-items: center; gap: 12px; }
+.sk-lines { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+
+.sk {
+  background: linear-gradient(90deg, #f1f5f9 25%, #e8edf3 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  border-radius: 6px;
+  animation: shimmer 1.4s infinite;
+}
+.sk-av  { width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; }
+.sk-line { height: 11px; }
+.w30 { width: 30%; } .w50 { width: 50%; }
+.w80 { width: 80%; } .w100 { width: 100%; }
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Comment list ── */
+.cp-list {
+  list-style: none;
+  margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: 0;
+}
+
+/* ── Comment card ── */
+.cp-card {
+  display: flex;
+  gap: 12px;
+  padding: 18px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+.cp-card:last-child { border-bottom: none; }
+
+/* Avatar */
+.cp-avatar {
+  width: 38px; height: 38px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-top: 2px;
+}
+.cp-avatar img {
+  width: 100%; height: 100%;
+  object-fit: cover; display: block;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 50%;
+}
+.cp-avatar span {
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; height: 100%;
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-size: 0.72rem; font-weight: 800;
+}
+
+/* Body */
+.cp-body {
+  flex: 1; min-width: 0;
+  background: #f7f9fc;
+  border-radius: 14px;
+  padding: 12px 14px 10px;
+}
+
+.cp-hdr {
+  display: flex; align-items: center;
+  justify-content: space-between; gap: 8px;
+  margin-bottom: 8px;
+}
+.cp-hdr-left { display: flex; align-items: center; gap: 6px; }
+.cp-hdr-right { display: flex; align-items: center; gap: 6px; }
+
+.cp-name { font-size: 0.875rem; font-weight: 700; color: #0f172a; }
+.cp-edited { font-size: 0.75rem; color: #94a3b8; font-style: italic; }
+.cp-time { font-size: 0.8rem; color: #94a3b8; }
+
+.cp-more {
+  width: 26px; height: 26px;
+  display: flex; align-items: center; justify-content: center;
+  border: none; background: none; border-radius: 6px;
+  color: #94a3b8; cursor: pointer;
+  transition: background 0.15s;
+}
+.cp-more:hover { background: #e8edf3; color: #475569; }
+
+/* Text */
+.cp-text { max-height: 5em; overflow: hidden; transition: max-height 0.3s ease; }
+.cp-text.expanded { max-height: none; }
+.cp-text p { margin: 0; font-size: 0.875rem; color: #334155; line-height: 1.65; }
+
+.cp-show {
+  border: none; background: none; font-family: inherit;
+  font-size: 0.8125rem; font-weight: 600; color: #f59e0b;
+  cursor: pointer; padding: 3px 0; display: block; margin-top: 4px;
+}
+.cp-show:hover { text-decoration: underline; }
+
+/* Reactions */
+.cp-react {
+  display: flex; align-items: center; gap: 8px; margin-top: 10px;
+}
+.cp-react-btn {
+  border: none; background: none; font-family: inherit;
+  font-size: 0.8125rem; font-weight: 600; color: #64748b;
+  cursor: pointer; padding: 0; transition: color 0.15s;
+}
+.cp-react-btn:hover,
+.cp-react-btn.liked { color: #f59e0b; }
+
+.cp-dot, .cp-sep { color: #cbd5e1; font-size: 0.75rem; user-select: none; }
+
+.cp-likes {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 0.8125rem; font-weight: 600; color: #64748b;
+}
+
+/* ── Load more ── */
+.cp-load-more {
+  display: block; width: 100%;
+  margin-top: 24px; padding: 14px;
+  border: none; border-top: 1px solid #f1f5f9;
+  background: transparent; font-family: inherit;
+  font-size: 0.9375rem; font-weight: 700; color: #f59e0b;
+  cursor: pointer; text-align: center;
+  transition: color 0.18s;
+}
+.cp-load-more:hover:not(:disabled) { color: #d97706; text-decoration: underline; }
+.cp-load-more:disabled { opacity: 0.6; cursor: wait; }
+
+.cp-end, .cp-empty {
+  margin: 24px 0 0;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 0.875rem;
+}

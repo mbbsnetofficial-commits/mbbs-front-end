@@ -1,0 +1,8 @@
+<a class="card" [routerLink]="['/dynamic/blogs/authors', author().slug]">
+  <img [src]="author().profileImage" [alt]="author().fullName" loading="lazy">
+  <span class="content">
+    <strong>{{ author().fullName }}</strong>
+    <span>{{ author().designation }}</span>
+    <small>{{ author().totalBlogs ?? 0 }} published blogs</small>
+  </span>
+</a>

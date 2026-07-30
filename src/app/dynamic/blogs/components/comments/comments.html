@@ -1,0 +1,131 @@
+<section class="comments-section" aria-labelledby="comments-title">
+
+  <!-- ── Composer row ── -->
+  <div class="composer-row">
+    <div class="user-chip" aria-hidden="true">SS</div>
+    <div class="composer-field">
+      <input
+        class="composer-input"
+        type="text"
+        placeholder="Add your comment..."
+        [value]="composerText()"
+        (input)="composerText.set($any($event.target).value)"
+        (keydown.enter)="onEnter($event)"
+        aria-label="Add a comment"
+      >
+      <button
+        class="post-btn"
+        type="button"
+        [disabled]="!composerText().trim() || submitting()"
+        (click)="post()"
+      >{{ submitting() ? '…' : 'Post' }}</button>
+    </div>
+  </div>
+
+  <!-- ── Heading ── -->
+  <h2 id="comments-title" class="comments-heading">
+    Comments <span class="count">({{ total() }})</span>
+  </h2>
+
+  <!-- ── Loading skeletons ── -->
+  @if (loading()) {
+    <div class="skeleton-list">
+      @for (i of [1,2,3]; track i) {
+        <div class="sk-card">
+          <div class="sk-row">
+            <div class="sk sk-avatar"></div>
+            <div class="sk-lines">
+              <div class="sk sk-line w50"></div>
+              <div class="sk sk-line w30"></div>
+            </div>
+          </div>
+          <div class="sk sk-line w100"></div>
+          <div class="sk sk-line w80"></div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ── Comment cards ── -->
+  @else if (comments().length) {
+    <ul class="comment-list" role="list">
+      @for (comment of comments(); track comment.id) {
+        <li class="comment-card">
+
+          <!-- Avatar -->
+          <div class="avatar-wrap">
+            @if (comment.profilePicture) {
+              <img class="avatar-img" [src]="comment.profilePicture" [alt]="comment.commenterName" loading="lazy">
+            } @else {
+              <div class="avatar-initials" aria-hidden="true">{{ initials(comment.commenterName) }}</div>
+            }
+          </div>
+
+          <!-- Body -->
+          <div class="comment-body">
+            <!-- Header row -->
+            <div class="comment-header">
+              <div class="header-left">
+                <span class="commenter-name">{{ comment.commenterName }}</span>
+                @if (comment.isEdited) {
+                  <span class="edited-tag">(edited)</span>
+                }
+              </div>
+              <div class="header-right">
+                <time class="time-ago" [attr.datetime]="comment.createdAt">{{ timeAgo(comment.createdAt) }}</time>
+                <button class="more-icon" type="button" aria-label="More options">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Comment text with show more/less -->
+            <div class="comment-text" [class.expanded]="isExpanded(comment.id)">
+              <p>{{ comment.comment }}</p>
+            </div>
+            @if (comment.comment.length > 180) {
+              <button class="show-more-btn" type="button" (click)="toggleExpand(comment.id)">
+                {{ isExpanded(comment.id) ? 'show less' : 'show more' }}
+              </button>
+            }
+
+            <!-- Reactions row -->
+            <div class="reactions-row">
+              <button
+                class="react-btn"
+                type="button"
+                [class.liked]="comment.isLiked"
+                (click)="toggleLike(comment)"
+                [attr.aria-label]="comment.isLiked ? 'Unlike' : 'Like'"
+              >Like</button>
+              <span class="react-sep">·</span>
+              <span class="like-count">
+                <svg width="14" height="14" viewBox="0 0 24 24" [attr.fill]="comment.isLiked ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3z"/>
+                  <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>
+                </svg>
+                {{ comment.totalLikes }}
+              </span>
+              <span class="react-sep" aria-hidden="true">|</span>
+              <button class="react-btn" type="button">Reply</button>
+            </div>
+          </div>
+
+        </li>
+      }
+    </ul>
+
+    <!-- ── Load More ── -->
+    @if (total() > comments().length) {
+      <button class="load-more-btn" type="button" (click)="loadMore()">
+        Load More Comments
+      </button>
+    }
+  }
+
+  <!-- ── Empty ── -->
+  @else {
+    <p class="empty-msg">No comments yet. Be the first to share your thoughts!</p>
+  }
+
+</section>

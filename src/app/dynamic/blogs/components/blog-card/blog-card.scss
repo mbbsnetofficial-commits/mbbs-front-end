@@ -1,0 +1,179 @@
+/* ==============================================
+   CENTER FEED — Compact post-row cards
+   (Yocket-style: text left, thumbnail right)
+   ============================================== */
+
+/* Non-featured (center feed) card */
+.card:not(.featured) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 120px;
+  gap: 16px;
+  align-items: center;
+  padding: 18px 20px;
+  background: #ffffff;
+  border: 1px solid #e8ecf2;
+  border-radius: 14px;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
+  min-width: 0;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  cursor: pointer;
+}
+
+.card:not(.featured):hover {
+  border-color: #c8d4e0;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.09);
+}
+
+/* Thumbnail — right column */
+.image-link {
+  grid-column: 2;
+  grid-row: 1;
+  display: block;
+  width: 120px;
+  height: 80px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #f1f5f9;
+  flex-shrink: 0;
+}
+
+.image-link > img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.image-link > img.image-failed {
+  visibility: hidden;
+}
+
+.card:hover .image-link > img {
+  transform: scale(1.05);
+}
+
+/* Body — left column */
+.body {
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Category tag */
+.category {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #168477;
+}
+
+/* Title */
+h3 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+
+h3 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+h3 a:hover {
+  color: #1d4ed8;
+}
+
+/* Excerpt */
+p {
+  margin: 2px 0 0;
+  color: #64748b;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Meta row */
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  color: #94a3b8;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.avatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #e2e8f0;
+  background: #f1f5f9;
+  flex-shrink: 0;
+}
+
+.avatar.image-failed {
+  visibility: hidden;
+}
+
+.byline {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.byline strong {
+  color: #475569;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+}
+
+.byline span {
+  color: #94a3b8;
+  font-size: 0.75rem;
+}
+
+/* ==============================================
+   FEATURED HERO — Used in left sidebar only
+   (kept minimal; actual left sidebar uses
+   featured-blogs component's own template)
+   ============================================== */
+.featured {
+  display: block;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .card:not(.featured) {
+    grid-template-columns: 1fr;
+    padding: 16px;
+  }
+
+  .image-link {
+    grid-column: 1;
+    grid-row: 2;
+    width: 100%;
+    height: 180px;
+  }
+
+  .body {
+    grid-row: 1;
+  }
+}

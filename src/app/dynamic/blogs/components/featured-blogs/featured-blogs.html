@@ -1,0 +1,37 @@
+<p class="section-label">Featured For You</p>
+
+@if (blogs().length) {
+  @let blog = blogs()[0];
+  <a class="featured-card" [routerLink]="['/dynamic/blogs', blog.slug]" [attr.aria-label]="'Read ' + blog.title">
+    <span class="thumb">
+      <img
+        appImageFallback
+        [src]="blog.featuredImage?.url ?? ''"
+        [alt]="blog.featuredImage?.alt ?? blog.title"
+        loading="lazy"
+      >
+    </span>
+    <div class="body">
+      <span class="category-badge">{{ blog.category?.categoryName ?? 'Medical' }}</span>
+      <h3>{{ blog.title }}</h3>
+      <p>{{ blog.excerpt ?? blog.shortDescription }}</p>
+      <div class="meta">
+        <img
+          appImageFallback
+          [src]="blog.author?.profileImage ?? ''"
+          [alt]="blog.author?.fullName ?? 'Author'"
+          loading="lazy"
+        >
+        <div class="meta-text">
+          <strong>{{ blog.author?.fullName ?? 'MBBS.NET' }}</strong>
+          <span>
+            <time [attr.datetime]="blog.publishedAt">{{ blog.publishedAt | date:'mediumDate' }}</time>
+            · {{ blog.readingTime ?? 0 }} min read
+          </span>
+        </div>
+      </div>
+    </div>
+  </a>
+} @else {
+  <div class="empty">No featured article available yet.</div>
+}

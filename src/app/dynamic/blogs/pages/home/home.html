@@ -1,0 +1,46 @@
+<div class="blog-page">
+  <header class="page-header">
+    <h1>Medical Feed</h1>
+    <p>Latest perspectives from MBBS.NET contributors</p>
+  </header>
+
+  @if (store.loading()) {
+    <app-blog-loading/>
+  } @else if (store.error(); as error) {
+    <app-blog-error-state [message]="error" (retry)="store.retry()"/>
+  } @else if (store.homeResponse()) {
+    <div class="feed-layout">
+
+      <!-- LEFT: Featured Blog -->
+      <aside class="left-rail">
+        <app-featured-blogs [blogs]="store.featuredBlogs()"/>
+      </aside>
+
+      <!-- CENTER: Community Feed + Latest Articles -->
+      <div class="center-feed">
+        @if (store.featuredBlogs().length) {
+          <app-community-feed [slug]="store.featuredBlogs()[0].slug"/>
+        }
+        <div class="latest-divider">
+          <span>Latest Articles</span>
+        </div>
+        <app-latest-blogs [blogs]="store.latestBlogs()"/>
+      </div>
+
+      <!-- RIGHT: Featured Authors -->
+      <aside class="right-rail">
+        <h2 class="right-rail-heading">Featured Authors</h2>
+        @if (store.featuredAuthors().length) {
+          <div class="authors-list">
+            @for (author of store.featuredAuthors(); track author._id) {
+              <app-author-card [author]="author"/>
+            }
+          </div>
+        } @else {
+          <app-blog-empty-state message="No featured authors yet."/>
+        }
+      </aside>
+
+    </div>
+  }
+</div>

@@ -43,6 +43,15 @@
           <a routerLink="/dynamic/neet/leaderboard" routerLinkActive="active" (click)="closeMobileNav()">Performance</a>
         </div>
       }
+      <a
+        routerLink="/dynamic/blogs"
+        routerLinkActive="active"
+        data-label="Blogs"
+        (click)="closeMobileNav()"
+      >
+        <span class="nav-icon"><app-icon name="bookmark" [size]="19"/></span>
+        <span>Blogs</span>
+      </a>
     </nav>
 
     <div class="sidebar-footer">

@@ -18,6 +18,11 @@ export const dynamicRoutes: Routes = [
         redirectTo: 'neet/leaderboard',
       },
       {
+        path: 'blogs',
+        loadChildren: () =>
+          import('./blogs/blogs.routes').then(({ blogRoutes }) => blogRoutes),
+      },
+      {
         path: 'neet/quick-test',
         loadComponent: () =>
           import('./neet/quick-test/quick-test').then(

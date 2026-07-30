@@ -1,0 +1,187 @@
+<!-- ── Composer box ── -->
+<div class="composer-box">
+  <div class="composer-row">
+    <div class="user-avatar" aria-hidden="true">SS</div>
+    <textarea
+      class="composer-input"
+      rows="1"
+      placeholder="Ask anything about MBBS abroad…"
+      [value]="composerText()"
+      (input)="composerText.set($any($event.target).value)"
+      (keydown.enter)="onEnter($event)"
+      aria-label="Write a comment"
+    ></textarea>
+  </div>
+  <div class="composer-actions">
+    <button
+      class="action-btn primary"
+      type="button"
+      [disabled]="!composerText().trim() || submitting()"
+      (click)="submitComment()"
+    >
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      {{ submitting() ? 'Posting…' : 'Post' }}
+    </button>
+    <button class="action-btn" type="button">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Create Poll
+    </button>
+  </div>
+</div>
+
+<!-- ── Sort bar ── -->
+<div class="sort-bar">
+  <span class="sort-label">Sort:</span>
+  <div class="sort-dropdown" [class.open]="showSort()">
+    <button class="sort-trigger" type="button" (click)="showSort.set(!showSort())">
+      {{ activeSort() }}
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    @if (showSort()) {
+      <ul class="sort-menu" role="listbox">
+        @for (opt of sortOptions; track opt) {
+          <li role="option" [class.active]="activeSort() === opt" (click)="setSort(opt)">{{ opt }}</li>
+        }
+      </ul>
+    }
+  </div>
+</div>
+
+<!-- ── Loading ── -->
+@if (loading()) {
+  <div class="feed-loading">
+    @for (i of [1,2,3]; track i) {
+      <div class="skeleton-card">
+        <div class="sk-row">
+          <div class="sk sk-avatar"></div>
+          <div class="sk-lines">
+            <div class="sk sk-line w60"></div>
+            <div class="sk sk-line w40"></div>
+          </div>
+        </div>
+        <div class="sk sk-line w100"></div>
+        <div class="sk sk-line w80"></div>
+        <div class="sk sk-line w90"></div>
+      </div>
+    }
+  </div>
+}
+
+<!-- ── Error ── -->
+@else if (error()) {
+  <div class="feed-error">
+    <p>{{ error() }}</p>
+    <button type="button" (click)="load()">Retry</button>
+  </div>
+}
+
+<!-- ── Comment cards ── -->
+@else if (comments().length) {
+  <div class="posts-list">
+    @for (comment of comments(); track comment.id) {
+      <article class="post-card">
+
+        <!-- Header -->
+        <div class="post-header">
+          <div class="category-avatar" aria-hidden="true">
+            @if (comment.profilePicture) {
+              <img [src]="comment.profilePicture" [alt]="comment.commenterName" loading="lazy">
+            } @else {
+              {{ initials(comment.commenterName) }}
+            }
+          </div>
+          <div class="post-meta">
+            <div class="post-meta-top">
+              <span class="category-name">Discussion</span>
+              <span class="dot" aria-hidden="true">·</span>
+              <time class="time-ago" [attr.datetime]="comment.createdAt">{{ timeAgo(comment.createdAt) }}</time>
+              @if (comment.isEdited) {
+                <span class="edited-badge">(edited)</span>
+              }
+            </div>
+            <span class="author-name">{{ comment.commenterName }}</span>
+          </div>
+          <!-- Actions menu -->
+          <div class="more-wrapper">
+            <button class="more-btn" type="button" aria-label="More options"
+              (click)="editingId() === comment.id ? cancelEdit() : startEdit(comment)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+            </button>
+            <div class="action-menu" [class.visible]="editingId() === comment.id">
+              <button type="button" (click)="startEdit(comment)">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Edit
+              </button>
+              <button type="button" class="delete" (click)="deleteComment(comment)">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Body — edit mode vs view mode -->
+        @if (editingId() === comment.id) {
+          <div class="edit-area">
+            <textarea
+              class="edit-input"
+              rows="3"
+              [value]="editText()"
+              (input)="editText.set($any($event.target).value)"
+              aria-label="Edit comment"
+            ></textarea>
+            <div class="edit-actions">
+              <button type="button" class="btn-save" (click)="saveEdit(comment)">Save</button>
+              <button type="button" class="btn-cancel" (click)="cancelEdit()">Cancel</button>
+            </div>
+          </div>
+        } @else {
+          <div class="post-body">
+            <p class="post-text">{{ comment.comment }}</p>
+          </div>
+        }
+
+        <!-- Footer -->
+        <div class="post-footer">
+          <div class="footer-left">
+            <button
+              class="icon-btn"
+              type="button"
+              [class.liked]="comment.isLiked"
+              (click)="toggleLike(comment)"
+              [attr.aria-label]="comment.isLiked ? 'Unlike' : 'Like'"
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" [attr.fill]="comment.isLiked ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3z"/>
+                <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>
+              </svg>
+              {{ comment.totalLikes }}
+            </button>
+            <button class="icon-btn" type="button" aria-label="Comments">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+            </button>
+          </div>
+          <div class="footer-right">
+            <button class="icon-btn" type="button" aria-label="Share">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+              </svg>
+            </button>
+            <button class="icon-btn" type="button" aria-label="Bookmark">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+      </article>
+    }
+  </div>
+} @else {
+  <div class="feed-empty">No discussions yet. Be the first to post!</div>
+}

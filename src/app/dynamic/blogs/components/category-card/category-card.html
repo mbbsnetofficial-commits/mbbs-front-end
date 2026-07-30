@@ -1,0 +1,7 @@
+<a class="card" [routerLink]="['/dynamic/blogs/categories', category().slug]">
+  <img [src]="category().icon" alt="" loading="lazy">
+  <span>
+    <strong>{{ category().categoryName }}</strong>
+    <small>{{ category().totalBlogs ?? 0 }} blogs</small>
+  </span>
+</a>

@@ -1,0 +1,35 @@
+/* Center feed wrapper */
+.feed-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* Sort/filter bar */
+.feed-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0 14px;
+  border-bottom: 1px solid #e8ecf2;
+  margin-bottom: 12px;
+}
+
+.feed-bar-title {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.sort-label {
+  font-size: 0.8125rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* Post list */
+.grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}

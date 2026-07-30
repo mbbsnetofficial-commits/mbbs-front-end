@@ -1,0 +1,6 @@
+.card { display: flex; align-items: center; gap: .7rem; padding: .68rem; border: 1px solid #e0e7eb; border-radius: .75rem; color: #1d3442; background: rgb(255 255 255 / 76%); text-decoration: none; transition: border-color .2s, transform .2s, background .2s; }
+.card:hover { border-color: #62a99f; background: #fff; transform: translateX(2px); }
+img { width: 2.15rem; height: 2.15rem; border-radius: .55rem; object-fit: cover; background: #e9f3f1; }
+span { display: grid; gap: .2rem; }
+strong { overflow: hidden; font-size: .78rem; text-overflow: ellipsis; white-space: nowrap; }
+small { color: #71808b; font-size: .66rem; }

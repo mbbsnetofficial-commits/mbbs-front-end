@@ -1,0 +1,15 @@
+<section class="feed-section" aria-labelledby="latest-blogs-heading">
+  <div class="feed-bar">
+    <span class="feed-bar-title" id="latest-blogs-heading">Latest Articles</span>
+    <span class="sort-label">Sort: Latest</span>
+  </div>
+  @if (blogs().length) {
+    <div class="grid">
+      @for (blog of blogs(); track blog._id) {
+        <app-blog-card [blog]="blog"/>
+      }
+    </div>
+  } @else {
+    <app-blog-empty-state message="No articles available yet."/>
+  }
+</section>
