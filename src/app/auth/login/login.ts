@@ -5,11 +5,13 @@ import { finalize } from 'rxjs';
 
 import { AuthService } from '../../core/serivce/auth.service';
 import { TokenService } from '../../core/serivce/token.service';
+import { Icon } from '../../shared/ui/icon/icon';
+import { AuthShell } from '../shared/auth-shell/auth-shell';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, AuthShell, Icon],
   templateUrl: './login.html',
   styleUrl: './login.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -53,11 +55,11 @@ export class Login {
             response.data.student_id,
             rememberMe
           );
-          this.successMessage.set('Welcome back. Opening your dashboard…');
+          this.successMessage.set('Welcome back! Opening your dashboard…');
           this.router.navigate(['/dynamic/neet']);
         },
         error: (error: unknown) => {
-          this.errorMessage.set(this.getErrorMessage(error, 'Unable to log in. Check your email and password.'));
+          this.errorMessage.set(this.getErrorMessage(error, 'Unable to log in. Please check your email and password.'));
         }
       });
   }
@@ -75,11 +77,11 @@ export class Login {
       .pipe(finalize(() => this.isGoogleSubmitting.set(false)))
       .subscribe({
         next: () => {
-          this.successMessage.set('Google sign-in successful. Opening your dashboard…');
+          this.successMessage.set('Google sign-in successful! Opening your dashboard…');
           this.router.navigate(['/dynamic/neet']);
         },
         error: (error: unknown) => {
-          this.errorMessage.set(this.getErrorMessage(error, 'Unable to log in. Check your email and password.'));
+          this.errorMessage.set(this.getErrorMessage(error, 'Unable to log in with Google. Please try again.'));
         }
       });
   }

@@ -1,123 +1,128 @@
-<main class="login-page">
-  <div class="login-grid">
-    <section class="login-panel" aria-labelledby="login-title">
-      <div class="login-form-wrap">
-        <a class="brand" routerLink="/" aria-label="MBBS.NET home">
-          <span class="brand-copy"><strong>MBBS<span>.NET</span></strong></span>
-        </a>
+<app-auth-shell
+  eyebrow="Student Portal"
+  headline="Welcome back to MBBS.NET"
+  description="Log in to access your personalized NEET preparation modules, high-yield clinical question banks, and live performance analytics."
+>
+  <form [formGroup]="loginForm" (ngSubmit)="login()" novalidate>
+    <header class="form-heading">
+      <span>Student authentication</span>
+      <h2>Sign in to your account</h2>
+      <p>Enter your credentials to continue your medical learning journey.</p>
+    </header>
 
-        <header>
-          <p class="eyebrow">Student portal</p>
-          <h1 id="login-title">Welcome back</h1>
-          <p class="intro">Sign in to continue your medical education journey.</p>
-        </header>
+    <!-- Google Sign-in button -->
+    <button
+      class="secondary-button google-auth-button"
+      type="button"
+      [disabled]="isSubmitting() || isGoogleSubmitting()"
+      (click)="loginWithGoogle()"
+    >
+      @if (isGoogleSubmitting()) {
+        <span class="button-loader dark" aria-hidden="true"></span>
+        Connecting to Google…
+      } @else {
+        <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24">
+          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09Z" fill="#4285F4"/>
+          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23Z" fill="#34A853"/>
+          <path d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.84Z" fill="#FBBC05"/>
+          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84C6.71 7.3 9.14 5.38 12 5.38Z" fill="#EB4335"/>
+        </svg>
+        Continue with Google
+      }
+    </button>
 
-        <button
-          class="social-button"
-          type="button"
-          [disabled]="isSubmitting() || isGoogleSubmitting()"
-          (click)="loginWithGoogle()"
+    <div class="divider">
+      <span>or sign in with email</span>
+    </div>
+
+    <!-- Email field -->
+    <div class="field">
+      <label for="login-email">Email address</label>
+      <input
+        id="login-email"
+        type="email"
+        formControlName="email"
+        placeholder="student@example.com"
+        autocomplete="email"
+        [class.invalid]="loginForm.controls.email.invalid && loginForm.controls.email.touched"
+        [attr.aria-invalid]="loginForm.controls.email.invalid && loginForm.controls.email.touched"
+      >
+      @if (loginForm.controls.email.touched && loginForm.controls.email.hasError('required')) {
+        <p class="field-error">Please enter your email address.</p>
+      } @else if (loginForm.controls.email.touched && loginForm.controls.email.hasError('email')) {
+        <p class="field-error">Please enter a valid email address.</p>
+      }
+    </div>
+
+    <!-- Password field -->
+    <div class="field">
+      <div class="field-header">
+        <label for="login-password">Password</label>
+        <a href="mailto:support@mbbs.net?subject=Password%20Reset%20Request" class="forgot-link">Forgot password?</a>
+      </div>
+      <div class="input-wrap">
+        <input
+          id="login-password"
+          class="password-input"
+          [type]="passwordVisible() ? 'text' : 'password'"
+          formControlName="password"
+          placeholder="Enter your password"
+          autocomplete="current-password"
+          [class.invalid]="loginForm.controls.password.invalid && loginForm.controls.password.touched"
+          [attr.aria-invalid]="loginForm.controls.password.invalid && loginForm.controls.password.touched"
         >
-          @if (isGoogleSubmitting()) {
-            <span class="button-loader dark" aria-hidden="true"></span>
-            Connecting to Google…
-          } @else {
-            <svg aria-hidden="true" viewBox="0 0 24 24">
-              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09Z" fill="#4285F4"/>
-              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23Z" fill="#34A853"/>
-              <path d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.84Z" fill="#FBBC05"/>
-              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84C6.71 7.3 9.14 5.38 12 5.38Z" fill="#EB4335"/>
-            </svg>
-            Continue with Google
-          }
+        <button
+          type="button"
+          class="reveal"
+          (click)="passwordVisible.set(!passwordVisible())"
+          [attr.aria-label]="passwordVisible() ? 'Hide password' : 'Show password'"
+        >
+          <app-icon [name]="passwordVisible() ? 'close' : 'profile'" [size]="16" />
         </button>
-
-        <div class="divider"><span>or continue with email</span></div>
-
-        <form [formGroup]="loginForm" (ngSubmit)="login()" novalidate>
-          <div class="field">
-            <label for="login-email">Email address</label>
-            <input id="login-email" type="email" formControlName="email" placeholder="email@example.com"
-              autocomplete="email" [class.invalid]="loginForm.controls.email.invalid && loginForm.controls.email.touched"
-              [attr.aria-invalid]="loginForm.controls.email.invalid && loginForm.controls.email.touched">
-            @if (loginForm.controls.email.touched && loginForm.controls.email.hasError('required')) {
-              <p class="field-error">Enter your email address.</p>
-            } @else if (loginForm.controls.email.touched && loginForm.controls.email.hasError('email')) {
-              <p class="field-error">Enter a valid email address.</p>
-            }
-          </div>
-
-          <div class="field">
-            <div class="field-label-row">
-              <label for="login-password">Password</label>
-              <a href="mailto:contact@mbbs.net?subject=Password%20recovery">Forgot password?</a>
-            </div>
-            <div class="password-wrap">
-              <input id="login-password" [type]="passwordVisible() ? 'text' : 'password'"
-                formControlName="password" placeholder="Enter your password" autocomplete="current-password"
-                [class.invalid]="loginForm.controls.password.invalid && loginForm.controls.password.touched"
-                [attr.aria-invalid]="loginForm.controls.password.invalid && loginForm.controls.password.touched">
-              <button type="button" class="reveal" (click)="passwordVisible.set(!passwordVisible())"
-                [attr.aria-label]="passwordVisible() ? 'Hide password' : 'Show password'">
-                @if (passwordVisible()) {
-                  <svg viewBox="0 0 24 24"><path d="m3 3 18 18M10.6 10.7a2 2 0 0 0 2.7 2.7M9.9 4.2A10.4 10.4 0 0 1 12 4c5.5 0 9 6 9 6a16.5 16.5 0 0 1-2.1 2.8M6.6 6.6C4.4 8.1 3 10 3 10s3.5 6 9 6a9.8 9.8 0 0 0 3.4-.6"/></svg>
-                } @else {
-                  <svg viewBox="0 0 24 24"><path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6Z"/><circle cx="12" cy="12" r="2.5"/></svg>
-                }
-              </button>
-            </div>
-            @if (loginForm.controls.password.touched && loginForm.controls.password.invalid) {
-              <p class="field-error">Enter your password (at least 6 characters).</p>
-            }
-          </div>
-
-          <label class="remember">
-            <input type="checkbox" formControlName="rememberMe">
-            <span aria-hidden="true"><svg viewBox="0 0 12 12"><path d="m3 6.2 2 1.9 4-4.2"/></svg></span>
-            Keep me signed in on this device
-          </label>
-
-          @if (errorMessage()) { <p class="form-alert error" role="alert">{{ errorMessage() }}</p> }
-          @if (successMessage()) { <p class="form-alert success" role="status">{{ successMessage() }}</p> }
-
-          <button class="submit-button" type="submit" [disabled]="isSubmitting() || isGoogleSubmitting()">
-            @if (isSubmitting()) { <span class="button-loader" aria-hidden="true"></span> Signing in… } @else { Sign in }
-          </button>
-        </form>
-
-        <p class="switch-link">New to MBBS.NET? <a routerLink="/auth/register">Create an account</a></p>
-        <p class="legal">By continuing, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</p>
       </div>
-    </section>
+      @if (loginForm.controls.password.touched && loginForm.controls.password.invalid) {
+        <p class="field-error">Please enter your password (minimum 6 characters).</p>
+      }
+    </div>
 
-    <aside class="showcase" aria-label="Student success story">
-      <div class="fluted-glass" aria-hidden="true"></div>
-      <div class="showcase-content">
-        <div class="testimonial">
-          <div class="person">
-            <img src="https://res.cloudinary.com/harshitproject/image/upload/v1746774430/member-five.png" alt="Charlotte">
-            <div><strong>Charlotte</strong><span>Future medical student</span></div>
-          </div>
-          <blockquote>“Everything I need for my medical journey, organised in one focused place.”</blockquote>
-        </div>
+    <!-- Remember Me Checkbox -->
+    <div class="remember-row">
+      <label class="remember-label">
+        <input type="checkbox" formControlName="rememberMe">
+        <span>Keep me signed in on this device</span>
+      </label>
+    </div>
 
-        <div class="dashboard-preview">
-          <div class="browser-bar">
-            <i></i><i></i><i></i><span>mbbs.net/student/dashboard</span>
-          </div>
-          <div class="mock-dashboard">
-            <div class="mock-sidebar">
-              <b>MBBS.NET</b><span></span><span></span><span></span><span></span>
-            </div>
-            <div class="mock-main">
-              <small>GOOD MORNING, CHARLOTTE</small>
-              <h2>Your preparation overview</h2>
-              <div class="mock-stats"><span><b>72%</b>Course progress</span><span><b>18</b>Tests completed</span><span><b>84%</b>Average score</span></div>
-              <div class="mock-chart"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-            </div>
-          </div>
-        </div>
+    <!-- Status Alerts -->
+    @if (errorMessage()) {
+      <div class="form-alert error" role="alert">
+        <app-icon name="activity" [size]="16" />
+        <span>{{ errorMessage() }}</span>
       </div>
-    </aside>
-  </div>
-</main>
+    }
+    @if (successMessage()) {
+      <div class="form-alert form-success" role="status">
+        <app-icon name="check" [size]="16" />
+        <span>{{ successMessage() }}</span>
+      </div>
+    }
+
+    <!-- Submit Button -->
+    <button class="submit-button" type="submit" [disabled]="isSubmitting() || isGoogleSubmitting()">
+      @if (isSubmitting()) {
+        <span class="button-loader" aria-hidden="true"></span>
+        Signing in…
+      } @else {
+        Sign in
+      }
+    </button>
+
+    <p class="switch-link">
+      New to MBBS.NET? <a routerLink="/auth/register">Create an account</a>
+    </p>
+
+    <p class="legal-notice">
+      By signing in, you agree to MBBS.NET's <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+    </p>
+  </form>
+</app-auth-shell>
