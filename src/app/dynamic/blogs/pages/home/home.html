@@ -1,43 +1,104 @@
-<div class="blog-page">
-  <header class="page-header">
-    <h1>Medical Feed</h1>
-    <p>Latest perspectives from MBBS.NET contributors</p>
-  </header>
+<!-- Top Promo Offer Banner (Medium Style) -->
+@if (showBanner()) {
+  <div class="medium-promo-banner" role="banner">
+    <div class="banner-content">
+      <span class="badge">Welcome Offer</span>
+      <span class="banner-text">Access to everything. Now 20% off.</span>
+      <button class="upgrade-btn" type="button">Upgrade now</button>
+    </div>
+    <button class="close-banner" type="button" (click)="dismissBanner()" aria-label="Close offer banner">&times;</button>
+  </div>
+}
 
+<div class="medium-page-container">
   @if (store.loading()) {
     <app-blog-loading/>
   } @else if (store.error(); as error) {
     <app-blog-error-state [message]="error" (retry)="store.retry()"/>
   } @else if (store.homeResponse()) {
-    <div class="feed-layout">
+    <div class="medium-layout">
 
-      <!-- LEFT: Featured Blog -->
-      <aside class="left-rail">
+      <!-- LEFT MAIN FEED (~68%) -->
+      <main class="main-feed-col">
+        <!-- Top Navigation Tabs (For you / Featured) -->
+        <nav class="feed-tabs-nav" aria-label="Feed sections">
+          <button
+            class="tab-btn"
+            [class.active]="store.activeTab() === 'forYou' && !store.selectedCategorySlug()"
+            (click)="store.setActiveTab('forYou')"
+            type="button"
+          >
+            For you
+          </button>
+          <button
+            class="tab-btn"
+            [class.active]="store.activeTab() === 'featured' && !store.selectedCategorySlug()"
+            (click)="store.setActiveTab('featured')"
+            type="button"
+          >
+            Featured
+          </button>
+
+          @if (store.selectedCategorySlug(); as categorySlug) {
+            <span class="active-category-pill">
+              Topic: <strong>{{ categorySlug }}</strong>
+              <button type="button" class="clear-topic" (click)="store.selectCategory(null)">&times;</button>
+            </span>
+          }
+        </nav>
+
+        <!-- Post Cards List -->
+        <app-latest-blogs [blogs]="store.feedBlogs()"/>
+      </main>
+
+      <!-- RIGHT SIDEBAR (~32%) -->
+      <aside class="right-sidebar-col">
+        <!-- Staff Picks Component -->
         <app-featured-blogs [blogs]="store.featuredBlogs()"/>
-      </aside>
 
-      <!-- CENTER: Community Feed + Latest Articles -->
-      <div class="center-feed">
-        @if (store.featuredBlogs().length) {
-          <app-community-feed [slug]="store.featuredBlogs()[0].slug"/>
-        }
-        <div class="latest-divider">
-          <span>Latest Articles</span>
-        </div>
-        <app-latest-blogs [blogs]="store.latestBlogs()"/>
-      </div>
+        <!-- Recommended Topics Section (Medium Tag Pills) -->
+        <section class="recommended-topics-section">
+          <h3 class="sidebar-title">Recommended topics</h3>
 
-      <!-- RIGHT: Featured Authors -->
-      <aside class="right-rail">
-        <h2 class="right-rail-heading">Featured Authors</h2>
-        @if (store.featuredAuthors().length) {
-          <div class="authors-list">
-            @for (author of store.featuredAuthors(); track author._id) {
-              <app-author-card [author]="author"/>
+          <div class="topics-grid">
+            @if (store.categories().length) {
+              @for (cat of store.categories(); track cat._id) {
+                <button
+                  class="topic-pill"
+                  [class.active]="store.selectedCategorySlug() === cat.slug"
+                  (click)="store.selectCategory(cat.slug)"
+                  type="button"
+                >
+                  {{ cat.categoryName }} <span class="plus-icon">+</span>
+                </button>
+              }
+            } @else {
+              @for (topic of defaultRecommendedTopics; track topic.slug) {
+                <button
+                  class="topic-pill"
+                  [class.active]="store.selectedCategorySlug() === topic.slug"
+                  (click)="store.selectCategory(topic.slug)"
+                  type="button"
+                >
+                  {{ topic.name }} <span class="plus-icon">+</span>
+                </button>
+              }
             }
           </div>
-        } @else {
-          <app-blog-empty-state message="No featured authors yet."/>
+
+          <button type="button" class="see-more-topics" (click)="store.selectCategory(null)">See the full list</button>
+        </section>
+
+        <!-- Featured Authors / Who to Follow -->
+        @if (store.featuredAuthors().length) {
+          <section class="authors-section">
+            <h3 class="sidebar-title">Who to follow</h3>
+            <div class="authors-list">
+              @for (author of store.featuredAuthors(); track author._id) {
+                <app-author-card [author]="author"/>
+              }
+            </div>
+          </section>
         }
       </aside>
 

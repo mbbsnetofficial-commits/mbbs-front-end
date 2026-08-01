@@ -1,37 +1,36 @@
-<p class="section-label">Featured For You</p>
+<section class="staff-picks">
+  <h3 class="section-title">Staff Picks</h3>
 
-@if (blogs().length) {
-  @let blog = blogs()[0];
-  <a class="featured-card" [routerLink]="['/dynamic/blogs', blog.slug]" [attr.aria-label]="'Read ' + blog.title">
-    <span class="thumb">
-      <img
-        appImageFallback
-        [src]="blog.featuredImage?.url ?? ''"
-        [alt]="blog.featuredImage?.alt ?? blog.title"
-        loading="lazy"
-      >
-    </span>
-    <div class="body">
-      <span class="category-badge">{{ blog.category?.categoryName ?? 'Medical' }}</span>
-      <h3>{{ blog.title }}</h3>
-      <p>{{ blog.excerpt ?? blog.shortDescription }}</p>
-      <div class="meta">
-        <img
-          appImageFallback
-          [src]="blog.author?.profileImage ?? ''"
-          [alt]="blog.author?.fullName ?? 'Author'"
-          loading="lazy"
-        >
-        <div class="meta-text">
-          <strong>{{ blog.author?.fullName ?? 'MBBS.NET' }}</strong>
-          <span>
-            <time [attr.datetime]="blog.publishedAt">{{ blog.publishedAt | date:'mediumDate' }}</time>
-            · {{ blog.readingTime ?? 0 }} min read
-          </span>
-        </div>
-      </div>
+  @if (blogs().length) {
+    <div class="picks-list">
+      @for (blog of blogs().slice(0, 3); track blog._id) {
+        <article class="pick-item">
+          <div class="author-row">
+            <img
+              appImageFallback
+              class="author-avatar"
+              [src]="blog.author?.profileImage || blog.featuredImage?.url || ''"
+              [alt]="blog.author?.fullName || 'Author'"
+              loading="lazy"
+            >
+            <span class="author-info">
+              @if (blog.category?.categoryName) {
+                In <strong>{{ blog.category?.categoryName }}</strong> by
+              }
+              <strong>{{ blog.author?.fullName || 'MBBS.NET' }}</strong>
+            </span>
+          </div>
+
+          <h4 class="pick-title">
+            <a [routerLink]="['/dynamic/blogs', blog.slug]">{{ blog.title }}</a>
+          </h4>
+
+          <time class="pick-date" [attr.datetime]="blog.publishedAt">{{ (blog.publishedAt || blog.createdAt) | date:'MMM d, y' }}</time>
+        </article>
+      }
     </div>
-  </a>
-} @else {
-  <div class="empty">No featured article available yet.</div>
-}
+    <a class="see-full-list" routerLink="/dynamic/blogs">See the full list</a>
+  } @else {
+    <div class="empty-picks">No staff picks available.</div>
+  }
+</section>

@@ -12,9 +12,17 @@ export class PageStore {
   private readonly homeResponseState = signal<PageHomeResponse | null>(null);
   private hasLoaded = false;
 
+  private readonly activeTabState = signal<'forYou' | 'featured'>('forYou');
+  private readonly selectedCategorySlugState = signal<string | null>(null);
+  private readonly bookmarkedSlugsState = signal<string[]>([]);
+
   readonly loading = this.loadingState.asReadonly();
   readonly error = this.errorState.asReadonly();
   readonly homeResponse = this.homeResponseState.asReadonly();
+  readonly activeTab = this.activeTabState.asReadonly();
+  readonly selectedCategorySlug = this.selectedCategorySlugState.asReadonly();
+  readonly bookmarkedSlugs = this.bookmarkedSlugsState.asReadonly();
+
   readonly featuredBlogs = computed(
     () => this.homeResponseState()?.data.content.featuredBlogs ?? []
   );
@@ -27,6 +35,52 @@ export class PageStore {
   readonly featuredAuthors = computed(
     () => this.homeResponseState()?.data.content.featuredAuthors ?? []
   );
+
+  readonly feedBlogs = computed(() => {
+    const tab = this.activeTabState();
+    const categorySlug = this.selectedCategorySlugState();
+    let blogs = tab === 'featured' ? this.featuredBlogs() : [...this.featuredBlogs(), ...this.latestBlogs()];
+
+    // Remove duplicates if any
+    const seen = new Set<string>();
+    blogs = blogs.filter(b => {
+      if (seen.has(b._id)) return false;
+      seen.add(b._id);
+      return true;
+    });
+
+    if (categorySlug) {
+      blogs = blogs.filter(b => b.category?.slug === categorySlug || b.category?.categoryName?.toLowerCase() === categorySlug.toLowerCase());
+    }
+
+    return blogs;
+  });
+
+  setActiveTab(tab: 'forYou' | 'featured'): void {
+    this.activeTabState.set(tab);
+    this.selectedCategorySlugState.set(null);
+  }
+
+  selectCategory(categorySlug: string | null): void {
+    if (this.selectedCategorySlugState() === categorySlug) {
+      this.selectedCategorySlugState.set(null);
+    } else {
+      this.selectedCategorySlugState.set(categorySlug);
+    }
+  }
+
+  toggleBookmark(slug: string): void {
+    const current = this.bookmarkedSlugsState();
+    if (current.includes(slug)) {
+      this.bookmarkedSlugsState.set(current.filter(s => s !== slug));
+    } else {
+      this.bookmarkedSlugsState.set([...current, slug]);
+    }
+  }
+
+  isBookmarked(slug: string): boolean {
+    return this.bookmarkedSlugsState().includes(slug);
+  }
 
   loadHomePage(): void {
     if (this.loadingState() || this.hasLoaded) {

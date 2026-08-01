@@ -1,8 +1,6 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 
 import { AuthorCard } from '../../components/author-card/author-card';
-import { CommunityFeed } from '../../components/community-feed/community-feed';
-import { EmptyState } from '../../components/empty-state/empty-state';
 import { ErrorState } from '../../components/error-state/error-state';
 import { FeaturedBlogs } from '../../components/featured-blogs/featured-blogs';
 import { LatestBlogs } from '../../components/latest-blogs/latest-blogs';
@@ -14,8 +12,6 @@ import { PageStore } from '../../state/page.store';
   standalone: true,
   imports: [
     AuthorCard,
-    CommunityFeed,
-    EmptyState,
     ErrorState,
     FeaturedBlogs,
     LatestBlogs,
@@ -27,8 +23,22 @@ import { PageStore } from '../../state/page.store';
 })
 export class BlogHome implements OnInit {
   readonly store = inject(PageStore);
+  readonly showBanner = signal(true);
+
+  readonly defaultRecommendedTopics = [
+    { name: 'Programming', slug: 'programming' },
+    { name: 'Self Improvement', slug: 'self-improvement' },
+    { name: 'Data Science', slug: 'data-science' },
+    { name: 'Writing', slug: 'writing' },
+    { name: 'Technology', slug: 'technology' },
+    { name: 'Relationships', slug: 'relationships' }
+  ];
 
   ngOnInit(): void {
     this.store.loadHomePage();
+  }
+
+  dismissBanner(): void {
+    this.showBanner.set(false);
   }
 }
