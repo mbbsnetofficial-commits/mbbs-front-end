@@ -43,6 +43,25 @@
           <a routerLink="/dynamic/neet/leaderboard" routerLinkActive="active" (click)="closeMobileNav()">Performance</a>
         </div>
       }
+      <button
+        class="nav-parent"
+        type="button"
+        data-label="UCAT"
+        [class.expanded]="ucatOpen()"
+        [attr.aria-expanded]="ucatOpen()"
+        aria-controls="ucat-subnav"
+        (click)="ucatOpen.set(!ucatOpen())"
+      >
+        <span class="nav-icon"><app-icon name="test" [size]="19"/></span>
+        <span>UCAT</span>
+        <app-icon class="nav-chevron" name="chevron" [size]="15"/>
+      </button>
+      @if (ucatOpen() && !sidebarCollapsed()) {
+        <div id="ucat-subnav" class="subnav">
+          <a routerLink="/dynamic/ucat" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMobileNav()">Practice Test</a>
+          <a routerLink="/dynamic/ucat/previous-year" routerLinkActive="active" (click)="closeMobileNav()">Previous Year Papers</a>
+        </div>
+      }
       <a
         routerLink="/dynamic/blogs"
         routerLinkActive="active"

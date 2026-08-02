@@ -49,12 +49,17 @@ export class Login {
       .pipe(finalize(() => this.isSubmitting.set(false)))
       .subscribe({
         next: (response) => {
+          const studentId = response.data.student_id || response.data.user?.student_id || '';
           this.tokenService.saveTokens(
             response.data.accessToken,
             response.data.refreshToken,
-            response.data.student_id,
+            studentId,
             rememberMe
           );
+          // Save user profile if available
+          if (response.data.user) {
+            this.tokenService.saveUser(response.data.user, rememberMe);
+          }
           this.successMessage.set('Welcome back! Opening your dashboard…');
           this.router.navigate(['/dynamic/neet']);
         },

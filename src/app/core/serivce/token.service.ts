@@ -77,8 +77,45 @@ export class TokenService {
     }
 
     getStudentId(): string | null {
-        return localStorage.getItem(this.STUDENT_ID)
+        // 1. Direct storage under 'studentId' key (set by saveTokens after login)
+        const directId = localStorage.getItem(this.STUDENT_ID)
             ?? sessionStorage.getItem(this.STUDENT_ID);
+        if (directId && directId.trim()) {
+            return directId.trim();
+        }
+
+        // 2. From saved user profile (set by saveUser after login)
+        const user = this.getCurrentUser();
+        if (user?.student_id && user.student_id.trim()) {
+            return user.student_id.trim();
+        }
+
+        // 3. From JWT access token claims
+        const token = this.getAccessToken();
+        if (token) {
+            try {
+                const encodedPayload = token.split('.')[1];
+                if (encodedPayload) {
+                    const normalizedPayload = encodedPayload
+                        .replace(/-/g, '+')
+                        .replace(/_/g, '/');
+                    const payload = JSON.parse(atob(normalizedPayload)) as Record<string, unknown>;
+                    const sId = payload['student_id'] ?? payload['studentId'];
+                    if (typeof sId === 'string' && sId.trim()) {
+                        return sId.trim();
+                    }
+                }
+            } catch {
+                // Ignore parse errors
+            }
+        }
+
+        // 4. Fallback to user.id
+        if (user?.id && user.id.trim()) {
+            return user.id.trim();
+        }
+
+        return null;
     }
 
     clearTokens(): void {

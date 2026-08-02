@@ -27,6 +27,7 @@ export class DynamicLayouts {
   protected readonly sidebarOpen = signal(false);
   protected readonly sidebarCollapsed = signal(false);
   protected readonly neetOpen = signal(true);
+  protected readonly ucatOpen = signal(true);
   protected readonly loggingOut = signal(false);
 
   constructor(

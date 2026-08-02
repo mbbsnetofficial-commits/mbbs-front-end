@@ -36,6 +36,8 @@ export interface LoginResponse {
     accessToken: string;
     refreshToken: string;
     student_id?: string;
+    user?: AuthUser;
+    id?: string;
   };
 }
 

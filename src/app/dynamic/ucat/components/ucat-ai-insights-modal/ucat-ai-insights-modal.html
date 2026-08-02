@@ -1,0 +1,123 @@
+<div class="insights-modal-backdrop" (click)="onClose()">
+  <div class="insights-modal-card" (click)="$event.stopPropagation()">
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <div class="header-title-group">
+        <span class="ai-sparkle-icon">✨</span>
+        <div>
+          <h2>AI Performance Insights</h2>
+          <small>Powered by Gemini Analysis • Session: {{ testSessionId }}</small>
+        </div>
+      </div>
+      <button type="button" class="close-btn" (click)="onClose()">✕</button>
+    </div>
+
+    <!-- Modal Body Content -->
+    <div class="modal-body">
+      @if (isGenerating() || isFetching()) {
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <h3>
+            @if (isGenerating()) {
+              Gemini AI is analyzing your exam performance...
+            } @else {
+              Retrieving stored AI performance insights...
+            }
+          </h3>
+          <p>Evaluating overall accuracy, section timing, topic mastery, and personalized study recommendations.</p>
+        </div>
+      } @else if (errorMessage()) {
+        <div class="error-state">
+          <span class="error-icon">⚠️</span>
+          <h3>Insights Analysis Failed</h3>
+          <p>{{ errorMessage() }}</p>
+          <button type="button" class="btn btn-primary" (click)="onRetry()">↻ Retry Analysis</button>
+        </div>
+      } @else if (insightsData(); as data) {
+        <div class="insights-dashboard">
+          <!-- Summary Banner Card -->
+          <div class="summary-banner-card">
+            <div class="banner-top">
+              <span class="banner-tag">AI Executive Summary</span>
+              <span class="accuracy-badge">
+                🎯 Overall Accuracy: <strong>{{ data.overallAccuracy }}%</strong>
+              </span>
+            </div>
+            <p class="summary-text">💡 {{ data.insightsSummary }}</p>
+          </div>
+
+          <!-- Analytical Breakdown Grid -->
+          <div class="breakdown-grid">
+            <!-- Strong Sections -->
+            <div class="section-card strong">
+              <div class="card-title">
+                <span class="status-dot green"></span>
+                <h4>Strong Sections</h4>
+              </div>
+              @if (data.strongSections && data.strongSections.length > 0) {
+                <div class="tags-list">
+                  @for (sec of data.strongSections; track sec) {
+                    <span class="badge badge-strong">
+                      ✅ {{ sec.replace('_', ' ') }}
+                    </span>
+                  }
+                </div>
+              } @else {
+                <p class="empty-note">No strong sections identified yet.</p>
+              }
+            </div>
+
+            <!-- Weak Sections -->
+            <div class="section-card weak">
+              <div class="card-title">
+                <span class="status-dot red"></span>
+                <h4>Weak Sections</h4>
+              </div>
+              @if (data.weakSections && data.weakSections.length > 0) {
+                <div class="tags-list">
+                  @for (sec of data.weakSections; track sec) {
+                    <span class="badge badge-weak">
+                      ⚠️ {{ sec.replace('_', ' ') }}
+                    </span>
+                  }
+                </div>
+              } @else {
+                <p class="empty-note">No weak sections identified.</p>
+              }
+            </div>
+          </div>
+
+          <!-- Recommended Focus Topics -->
+          <div class="focus-topics-card">
+            <div class="card-title">
+              <span class="icon">🎯</span>
+              <h4>Recommended Focus Topics</h4>
+            </div>
+            @if (data.recommendedFocusTopics && data.recommendedFocusTopics.length > 0) {
+              <div class="topics-grid">
+                @for (topic of data.recommendedFocusTopics; track topic) {
+                  <div class="topic-chip">
+                    <span class="chip-icon">📖</span>
+                    <span>{{ topic }}</span>
+                  </div>
+                }
+              </div>
+            } @else {
+              <p class="empty-note">No topic recommendations at this time.</p>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="onClose()">Close</button>
+      @if (insightsData()) {
+        <button type="button" class="btn btn-primary" (click)="onOpenAiChat()">
+          🤖 Continue to AI Review Chat →
+        </button>
+      }
+    </div>
+  </div>
+</div>

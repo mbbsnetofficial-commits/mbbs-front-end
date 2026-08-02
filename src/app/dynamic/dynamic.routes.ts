@@ -23,6 +23,11 @@ export const dynamicRoutes: Routes = [
           import('./blogs/blogs.routes').then(({ blogRoutes }) => blogRoutes),
       },
       {
+        path: 'ucat',
+        loadChildren: () =>
+          import('./ucat/ucat.routes').then(({ ucatRoutes }) => ucatRoutes),
+      },
+      {
         path: 'neet/quick-test',
         loadComponent: () =>
           import('./neet/quick-test/quick-test').then(
