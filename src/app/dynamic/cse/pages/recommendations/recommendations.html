@@ -1,0 +1,55 @@
+<div class="recommendations-page">
+  <app-cse-progress-stepper
+    [currentStep]="store.currentStep()"
+    (stepClick)="onStepClick($event)"
+  />
+
+  <main class="recommendations-container">
+    <header class="recs-header">
+      <div class="header-badge">
+        <span class="ai-sparkle">✨</span>
+        <span>AI Recommendation Engine</span>
+      </div>
+      <h1>Your Tailored Medical School Matches</h1>
+      <p>Based on your country preference, academic profile, and budget requirements, here are your top recommended universities.</p>
+    </header>
+
+    @if (store.loading()) {
+      <div class="loading-box">
+        <div class="spinner"></div>
+        <p>Analyzing university datasets & calculating match metrics...</p>
+      </div>
+    } @else if (store.error()) {
+      <div class="empty-recs error-recs">
+        <h3>Recommendation Failed</h3>
+        <p>{{ store.error() }}</p>
+        <button type="button" class="restart-btn" (click)="restartQuiz()">Try Again</button>
+      </div>
+    } @else if (store.recommendations().length === 0) {
+      <div class="empty-recs">
+        <h3>No matching universities found</h3>
+        <p>Try modifying your budget or country selection preferences to explore more options.</p>
+        <button type="button" class="restart-btn" (click)="restartQuiz()">Start Over</button>
+      </div>
+    } @else {
+      <div class="recs-grid">
+        @for (rec of store.recommendations(); track rec.id) {
+          <app-cse-recommendation-card
+            [recommendation]="rec"
+            (viewDetails)="onViewUniversityDetails($event)"
+          />
+        }
+      </div>
+    }
+
+    <div class="consultation-banner">
+      <div class="banner-content">
+        <h3>Need Expert Guidance on Admissions & Visas?</h3>
+        <p>Book a 1-on-1 personalized counseling session with our international MBBS advisors.</p>
+      </div>
+      <button type="button" class="consult-btn" (click)="restartQuiz()">
+        Refine Preferences
+      </button>
+    </div>
+  </main>
+</div>

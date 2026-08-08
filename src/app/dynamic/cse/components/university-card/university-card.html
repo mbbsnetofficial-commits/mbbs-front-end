@@ -1,0 +1,50 @@
+<article class="university-card" (click)="onCardClick()">
+  <div class="card-cover" [style.background-image]="'url(' + university().coverImage + ')'">
+    <div class="cover-overlay"></div>
+    <span class="type-badge">{{ university().type }} University</span>
+    <span class="ranking-badge">Rank #{{ university().ranking.world }}</span>
+  </div>
+
+  <div class="card-header-info">
+    <img [src]="university().logo" [alt]="university().name + ' Logo'" class="uni-logo" />
+    <div class="header-titles">
+      <h3 class="uni-name">{{ university().name }}</h3>
+      <p class="uni-location">{{ university().city }}, {{ university().country }}</p>
+    </div>
+  </div>
+
+  <div class="card-body">
+    <p class="uni-desc">{{ university().description }}</p>
+
+    <div class="stats-grid">
+      <div class="stat-box">
+        <span class="stat-label">Tuition / Year</span>
+        <span class="stat-val highlight">${{ university().tuitionFeePerYear.toLocaleString() }}</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-label">Course Duration</span>
+        <span class="stat-val">{{ university().durationYears }} Years</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-label">FMGE Pass Rate</span>
+        <span class="stat-val">{{ university().fmgePassingRate }}</span>
+      </div>
+    </div>
+
+    <div class="accreditations-row">
+      @for (acc of university().accreditations; track acc) {
+        <span class="acc-chip">{{ acc }}</span>
+      }
+    </div>
+  </div>
+
+  <div class="card-footer">
+    <button type="button" class="explore-btn">
+      <span>View University Profile</span>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+        <polyline points="12 5 19 12 12 19"></polyline>
+      </svg>
+    </button>
+  </div>
+</article>

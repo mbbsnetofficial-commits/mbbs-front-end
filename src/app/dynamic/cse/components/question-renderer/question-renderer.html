@@ -1,0 +1,242 @@
+<div class="question-container">
+  <div class="question-header">
+    <h2 class="question-title">
+      {{ getQuestionTitle() }}
+      @if (question().required) {
+        <span class="required-star">*</span>
+      }
+    </h2>
+    @if (question().subtitle) {
+      <p class="question-subtitle">{{ question().subtitle }}</p>
+    }
+  </div>
+
+  <div class="question-body">
+    @switch (question().type) {
+      @case ('SINGLE_SELECT') {
+        <div class="options-grid">
+          @for (opt of getOptions(); track getOptionValue(opt)) {
+            <div
+              class="option-card"
+              [class.selected]="isOptionSelected(opt)"
+              (click)="selectOption(opt)"
+            >
+              <div class="option-radio">
+                <div class="radio-inner"></div>
+              </div>
+              <div class="option-content">
+                <div class="option-title-row">
+                  <span class="option-label">{{ getOptionLabel(opt) }}</span>
+                  @if (getOptionBadge(opt)) {
+                    <span class="option-badge">{{ getOptionBadge(opt) }}</span>
+                  }
+                </div>
+                @if (getOptionDesc(opt)) {
+                  <p class="option-desc">{{ getOptionDesc(opt) }}</p>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      @case ('single-choice') {
+        <div class="options-grid">
+          @for (opt of getOptions(); track getOptionValue(opt)) {
+            <div
+              class="option-card"
+              [class.selected]="isOptionSelected(opt)"
+              (click)="selectOption(opt)"
+            >
+              <div class="option-radio">
+                <div class="radio-inner"></div>
+              </div>
+              <div class="option-content">
+                <div class="option-title-row">
+                  <span class="option-label">{{ getOptionLabel(opt) }}</span>
+                  @if (getOptionBadge(opt)) {
+                    <span class="option-badge">{{ getOptionBadge(opt) }}</span>
+                  }
+                </div>
+                @if (getOptionDesc(opt)) {
+                  <p class="option-desc">{{ getOptionDesc(opt) }}</p>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      @case ('NUMBER') {
+        <div class="input-wrapper">
+          <input
+            type="number"
+            class="text-input"
+            [placeholder]="question().placeholder || 'Enter value...'"
+            [min]="getValidationMin()"
+            [max]="getValidationMax()"
+            [value]="currentAnswer() ?? ''"
+            (input)="onNumberChange($event)"
+          />
+          @if (getValidationMin() !== null || getValidationMax() !== null) {
+            <p class="validation-hint">
+              Acceptable range:
+              @if (getValidationMin() !== null && getValidationMax() !== null) {
+                <strong>{{ getValidationMin() }}</strong> to <strong>{{ getValidationMax() }}</strong>
+              } @else if (getValidationMin() !== null) {
+                Minimum <strong>{{ getValidationMin() }}</strong>
+              } @else {
+                Maximum <strong>{{ getValidationMax() }}</strong>
+              }
+            </p>
+          }
+        </div>
+      }
+
+      @case ('BOOLEAN') {
+        <div class="options-grid">
+          <div
+            class="option-card"
+            [class.selected]="currentAnswer() === true"
+            (click)="answerChange.emit(true)"
+          >
+            <div class="option-radio">
+              <div class="radio-inner"></div>
+            </div>
+            <div class="option-content">
+              <span class="option-label">Yes</span>
+            </div>
+          </div>
+          <div
+            class="option-card"
+            [class.selected]="currentAnswer() === false"
+            (click)="answerChange.emit(false)"
+          >
+            <div class="option-radio">
+              <div class="radio-inner"></div>
+            </div>
+            <div class="option-content">
+              <span class="option-label">No</span>
+            </div>
+          </div>
+        </div>
+      }
+
+      @case ('MULTI_SELECT') {
+        <div class="options-grid">
+          @for (opt of getOptions(); track getOptionValue(opt)) {
+            <div
+              class="option-card"
+              [class.selected]="isOptionSelected(opt)"
+              (click)="selectOption(opt)"
+            >
+              <div class="option-checkbox">
+                @if (isOptionSelected(opt)) {
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                }
+              </div>
+              <div class="option-content">
+                <span class="option-label">{{ getOptionLabel(opt) }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      @case ('multi-choice') {
+        <div class="options-grid">
+          @for (opt of getOptions(); track getOptionValue(opt)) {
+            <div
+              class="option-card"
+              [class.selected]="isOptionSelected(opt)"
+              (click)="selectOption(opt)"
+            >
+              <div class="option-checkbox">
+                @if (isOptionSelected(opt)) {
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                }
+              </div>
+              <div class="option-content">
+                <span class="option-label">{{ getOptionLabel(opt) }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      @case ('TEXT') {
+        <div class="input-wrapper">
+          <input
+            type="text"
+            class="text-input"
+            [placeholder]="question().placeholder || 'Type your response here...'"
+            [value]="currentAnswer() || ''"
+            (input)="onTextChange($event)"
+          />
+        </div>
+      }
+
+      @case ('text') {
+        <div class="input-wrapper">
+          <input
+            type="text"
+            class="text-input"
+            [placeholder]="question().placeholder || 'Type your response here...'"
+            [value]="currentAnswer() || ''"
+            (input)="onTextChange($event)"
+          />
+        </div>
+      }
+
+      @case ('SUBJECT_MARKS') {
+        <div class="subject-marks-grid">
+          @for (sub of subjects; track sub.key) {
+            <div class="subject-mark-card">
+              <label [for]="'sub-' + sub.key" class="subject-label">{{ sub.label }}</label>
+              <div class="input-wrapper">
+                <input
+                  [id]="'sub-' + sub.key"
+                  type="number"
+                  class="text-input subject-input"
+                  [placeholder]="'Enter ' + sub.label + ' marks'"
+                  [min]="getValidationMin()"
+                  [max]="getValidationMax()"
+                  [value]="getSubjectMark(sub.key)"
+                  (input)="onSubjectMarkChange(sub.key, $event)"
+                />
+              </div>
+            </div>
+          }
+          @if (getValidationMin() !== null || getValidationMax() !== null) {
+            <p class="validation-hint subject-validation-hint">
+              Acceptable range for each subject:
+              @if (getValidationMin() !== null && getValidationMax() !== null) {
+                <strong>{{ getValidationMin() }}</strong> to <strong>{{ getValidationMax() }}</strong>
+              } @else if (getValidationMin() !== null) {
+                Minimum <strong>{{ getValidationMin() }}</strong>
+              } @else {
+                Maximum <strong>{{ getValidationMax() }}</strong>
+              }
+            </p>
+          }
+        </div>
+      }
+
+      @default {
+        <div class="input-wrapper">
+          <input
+            type="text"
+            class="text-input"
+            [placeholder]="question().placeholder || 'Enter response...'"
+            [value]="currentAnswer() || ''"
+            (input)="onTextChange($event)"
+          />
+        </div>
+      }
+    }
+  </div>
+</div>

@@ -11,80 +11,12 @@
   -webkit-font-smoothing: antialiased;
 }
 
-/* ── Top Promo Offer Banner ── */
-.medium-promo-banner {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  background: #ffd400;
-  color: #242424;
-  padding: 10px 24px;
-  font-size: 14px;
-  line-height: 20px;
-  letter-spacing: 0;
-  font-weight: 500;
-  border-bottom: 1px solid #ebc200;
 
-  .banner-content {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
 
-  .badge {
-    background: #ffffff;
-    padding: 3px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    line-height: 16px;
-    font-weight: 700;
-    color: #242424;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-
-  .banner-text {
-    font-weight: 600;
-    font-size: 14px;
-    line-height: 20px;
-  }
-
-  .upgrade-btn {
-    background: #242424;
-    color: #ffffff;
-    border: none;
-    border-radius: 999px;
-    padding: 6px 16px;
-    font-size: 13px;
-    line-height: 16px;
-    font-weight: 600;
-    letter-spacing: 0;
-    cursor: pointer;
-    transition: background 0.15s ease;
-
-    &:hover {
-      background: #000000;
-    }
-  }
-
-  .close-banner {
-    position: absolute;
-    right: 16px;
-    background: transparent;
-    border: none;
-    font-size: 20px;
-    line-height: 20px;
-    color: #242424;
-    cursor: pointer;
-    padding: 4px 8px;
-
-    &:hover {
-      opacity: 0.7;
-    }
-  }
+.search-bar-top-wrapper {
+  width: 100%;
+  margin-top: 24px;
+  margin-bottom: 28px;
 }
 
 /* ── Page Container ── */

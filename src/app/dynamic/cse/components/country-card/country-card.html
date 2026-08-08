@@ -1,0 +1,70 @@
+<article
+  class="country-card"
+  [class.is-selected]="selected()"
+  (click)="onCardClick()"
+  tabindex="0"
+  role="button"
+>
+  <div class="card-header-image" [style.background-image]="'url(' + country().heroImage + ')'">
+    <div class="overlay"></div>
+    @if (country().isPopular) {
+      <span class="badge popular-badge">Popular Choice</span>
+    }
+    <div class="flag-wrapper">
+      <img [src]="country().flagUrl" [alt]="country().name + ' Flag'" class="country-flag" />
+    </div>
+
+    <div class="selection-indicator">
+      @if (selected()) {
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      }
+    </div>
+  </div>
+
+  <div class="card-body">
+    <div class="country-title-row">
+      <h3 class="country-name">{{ country().name }}</h3>
+      <span class="uni-count">{{ country().totalUniversities }} Universities</span>
+    </div>
+
+    <p class="country-desc">{{ country().description }}</p>
+
+    <div class="key-metrics">
+      <div class="metric">
+        <span class="metric-label">Avg. Tuition:</span>
+        <span class="metric-value price-highlight">{{ country().averageTuitionFee }}</span>
+      </div>
+      <div class="metric">
+        <span class="metric-label">Duration:</span>
+        <span class="metric-value">{{ country().duration }}</span>
+      </div>
+      <div class="metric">
+        <span class="metric-label">Medium:</span>
+        <span class="metric-value">{{ country().language }}</span>
+      </div>
+    </div>
+
+    <div class="advantages-tags">
+      @for (adv of (country().advantages || []).slice(0, 3); track adv) {
+        <span class="adv-tag">✓ {{ adv }}</span>
+      }
+    </div>
+
+    <div class="recognition-row">
+      <span class="rec-label">Recognized by:</span>
+      <div class="rec-badges">
+        @for (rec of country().recognition || []; track rec) {
+          <span class="rec-badge">{{ rec }}</span>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="card-footer">
+    <button type="button" class="select-btn" [class.btn-selected]="selected()">
+      {{ selected() ? 'Selected' : 'Select Destination' }}
+    </button>
+  </div>
+</article>

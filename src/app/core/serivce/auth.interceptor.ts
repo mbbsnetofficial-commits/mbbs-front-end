@@ -17,7 +17,7 @@ import {
 
 import { RefreshTokenResponse } from '../models/auth.model';
 import { TokenService } from './token.service';
-import { environment } from '../../../environments/environments';
+import { environment } from '../../../environments/environment';
 import { API } from '../constants/api.constants';
 
 let refreshInFlight$: Observable<RefreshTokenResponse> | null = null;

@@ -63,6 +63,15 @@
         </div>
       }
       <a
+        routerLink="/dynamic/cse"
+        routerLinkActive="active"
+        data-label="Study Abroad"
+        (click)="closeMobileNav()"
+      >
+        <span class="nav-icon"><app-icon name="globe" [size]="19"/></span>
+        <span>Study Abroad</span>
+      </a>
+      <a
         routerLink="/dynamic/blogs"
         routerLinkActive="active"
         data-label="Blogs"

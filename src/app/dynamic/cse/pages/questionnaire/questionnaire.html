@@ -1,0 +1,75 @@
+<div class="questionnaire-page">
+  <app-cse-progress-stepper
+    [currentStep]="store.currentStep()"
+    (stepClick)="onStepClick($event)"
+  />
+
+  <main class="quiz-container">
+    @if (loading()) {
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading assessment questions for your study destination...</p>
+      </div>
+    } @else if (error()) {
+      <div class="error-state">
+        <p>{{ error() }}</p>
+      </div>
+    } @else if (currentQuestion(); as currentQ) {
+      <div class="quiz-card-wrapper">
+        <!-- Question Counter & Progress Bar -->
+        <div class="quiz-meta-bar">
+          <div class="meta-info">
+            <span class="step-indicator">{{ questionIndicator() }}</span>
+            @if (selectedCountry()) {
+              <span class="country-badge">📍 {{ selectedCountry()?.name }}</span>
+            }
+          </div>
+          <div class="progress-bar-bg">
+            <div
+              class="progress-bar-fill"
+              [style.width.%]="progressPercent()"
+            ></div>
+          </div>
+        </div>
+
+        <!-- Question Renderer Component -->
+        <app-cse-question-renderer
+          [question]="currentQ"
+          [currentAnswer]="answers()[currentQ.question_key]"
+          (answerChange)="onAnswerChange(currentQ.question_key, $event)"
+        />
+
+        <!-- Navigation Controls -->
+        <div class="quiz-navigation-controls">
+          <button
+            type="button"
+            class="btn-prev"
+            (click)="prevQuestion()"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            <span>Previous</span>
+          </button>
+
+          <button
+            type="button"
+            class="btn-next"
+            [disabled]="!isCurrentQuestionValid()"
+            (click)="nextQuestion()"
+          >
+            <span>
+              {{ currentQuestionIndex() === totalQuestions() - 1 ? 'Continue to Student Details' : 'Next Question' }}
+            </span>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </button>
+        </div>
+      </div>
+    }
+  </main>
+</div>
+

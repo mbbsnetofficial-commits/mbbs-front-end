@@ -28,6 +28,11 @@ export const dynamicRoutes: Routes = [
           import('./ucat/ucat.routes').then(({ ucatRoutes }) => ucatRoutes),
       },
       {
+        path: 'cse',
+        loadChildren: () =>
+          import('./cse/cse.routes').then(({ cseRoutes }) => cseRoutes),
+      },
+      {
         path: 'neet/quick-test',
         loadComponent: () =>
           import('./neet/quick-test/quick-test').then(

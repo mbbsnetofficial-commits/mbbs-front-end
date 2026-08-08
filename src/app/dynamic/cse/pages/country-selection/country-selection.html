@@ -1,0 +1,72 @@
+<div class="country-selection-page">
+  <app-cse-progress-stepper
+    [currentStep]="store.currentStep()"
+    (stepClick)="onStepClick($event)"
+  />
+
+  <app-cse-search-header
+    title="Choose Your Preferred Study Destination"
+    subtitle="Explore accredited medical destinations across Europe and Asia with high FMGE pass rates and English-medium instruction."
+    [searchValue]="store.searchQuery()"
+    (searchChange)="onSearchQueryChange($event)"
+    (filterSelect)="onFilterSelect($event)"
+  />
+
+  <main class="selection-container">
+    <div class="section-title-bar">
+      <h2>Available Medical Destinations</h2>
+      <span class="count-badge">{{ store.filteredCountries().length }} Countries Available</span>
+    </div>
+
+    @if (store.loading()) {
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading medical study destinations...</p>
+      </div>
+    } @else if (store.filteredCountries().length === 0) {
+      <div class="empty-state">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <h3>No study destinations match your search</h3>
+        <p>Try searching for another country name, fee range, or clear your query.</p>
+        <button type="button" class="reset-search-btn" (click)="onSearchQueryChange('')">Clear Search Filter</button>
+      </div>
+    } @else {
+      <div class="country-grid">
+        @for (country of store.filteredCountries(); track country.id) {
+          <app-cse-country-card
+            [country]="country"
+            [selected]="store.selectedCountry()?.id === country.id"
+            (selectCard)="onCountrySelect($event)"
+          />
+        }
+      </div>
+    }
+
+    <div class="sticky-action-bar">
+      <div class="selected-info">
+        @if (store.selectedCountry()) {
+          <span class="selected-label">Selected Destination:</span>
+          <strong class="selected-name">{{ store.selectedCountry()?.name }}</strong>
+        } @else {
+          <span class="hint-text">Select a country or skip to questionnaire to get AI-matched destinations</span>
+        }
+      </div>
+
+      <button
+        type="button"
+        class="next-step-btn"
+        (click)="proceedToQuestionnaire()"
+      >
+        <span>Continue to Preference Quiz</span>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </button>
+    </div>
+  </main>
+</div>

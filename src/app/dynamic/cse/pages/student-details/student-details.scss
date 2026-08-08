@@ -1,0 +1,185 @@
+.student-details-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1.5rem;
+
+  .form-container {
+    background: #ffffff;
+    border-radius: 1.5rem;
+    border: 1px solid #e2e8f0;
+    padding: 2.5rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+
+    @media (max-width: 640px) {
+      padding: 1.5rem;
+    }
+  }
+
+  .form-header {
+    text-align: center;
+    margin-bottom: 2rem;
+
+    .badge-pill {
+      display: inline-block;
+      padding: 0.3rem 0.85rem;
+      background: #e0e7ff;
+      color: #4338ca;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 0.85rem;
+    }
+
+    h2 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: #0f172a;
+
+      margin-bottom: 0.5rem;
+    }
+
+    p {
+      font-size: 0.95rem;
+      color: #64748b;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+  }
+
+  .details-form {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+
+    .form-section {
+      background: #f8fafc;
+      padding: 1.5rem;
+      border-radius: 1rem;
+      border: 1px solid #f1f5f9;
+
+      .section-heading {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 1.25rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #e2e8f0;
+      }
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+
+      @media (max-width: 640px) {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      margin-bottom: 1rem;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #334155;
+
+        .required {
+          color: #ef4444;
+        }
+      }
+
+      .form-control {
+        width: 100%;
+        padding: 0.85rem 1rem;
+        border: 1.5px solid #cbd5e1;
+        border-radius: 0.75rem;
+        font-size: 0.95rem;
+        background: #ffffff;
+        color: #0f172a;
+        transition: all 0.2s ease;
+
+        &:focus {
+          outline: none;
+          border-color: #6366f1;
+          box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+
+        &::placeholder {
+          color: #94a3b8;
+        }
+      }
+    }
+
+    .form-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 1rem;
+
+      .btn-back {
+        padding: 0.85rem 1.5rem;
+        background: #ffffff;
+        border: 1.5px solid #cbd5e1;
+        color: #475569;
+        border-radius: 0.75rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        &:hover {
+          background: #f1f5f9;
+          color: #0f172a;
+        }
+
+        svg {
+          width: 18px;
+          height: 18px;
+        }
+      }
+
+      .btn-submit {
+        padding: 0.9rem 1.85rem;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: #ffffff;
+        border: none;
+        border-radius: 0.75rem;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);
+
+        &:hover:not(:disabled) {
+          background: linear-gradient(135deg, #059669 0%, #047857 100%);
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
+        }
+
+        &:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+          box-shadow: none;
+        }
+
+        svg {
+          width: 18px;
+          height: 18px;
+        }
+      }
+    }
+  }
+}

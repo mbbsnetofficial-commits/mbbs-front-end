@@ -1,0 +1,118 @@
+.stepper-nav {
+  margin-bottom: 2rem;
+  padding: 1.25rem 1.5rem;
+  background: #ffffff;
+  border-radius: 1.25rem;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+
+  .stepper-track {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 900px;
+    margin: 0 auto;
+    overflow-x: auto;
+    padding-bottom: 0.25rem;
+  }
+
+  .step-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    position: relative;
+    cursor: default;
+
+    &.clickable {
+      cursor: pointer;
+    }
+
+    .step-indicator {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #f1f5f9;
+      border: 2px solid #cbd5e1;
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.9rem;
+      transition: all 0.25s ease;
+      flex-shrink: 0;
+
+      svg {
+        width: 18px;
+        height: 18px;
+      }
+    }
+
+    .step-label-group {
+      display: flex;
+      flex-direction: column;
+
+      .step-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #64748b;
+        white-space: nowrap;
+        transition: color 0.25s ease;
+      }
+
+      .step-subtitle {
+        font-size: 0.75rem;
+        color: #94a3b8;
+        white-space: nowrap;
+
+        @media (max-width: 640px) {
+          display: none;
+        }
+      }
+    }
+
+    &.active {
+      .step-indicator {
+        background: #6366f1;
+        border-color: #6366f1;
+        color: #ffffff;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+      }
+
+      .step-title {
+        color: #0f172a;
+        font-weight: 700;
+      }
+    }
+
+    &.completed {
+      .step-indicator {
+        background: #10b981;
+        border-color: #10b981;
+        color: #ffffff;
+      }
+
+      .step-title {
+        color: #10b981;
+      }
+    }
+  }
+
+  .step-connector {
+    flex: 1;
+    height: 3px;
+    background: #e2e8f0;
+    margin: 0 1rem;
+    min-width: 24px;
+    transition: background 0.3s ease;
+
+    &.completed {
+      background: #10b981;
+    }
+
+    @media (max-width: 640px) {
+      margin: 0 0.5rem;
+      min-width: 12px;
+    }
+  }
+}
