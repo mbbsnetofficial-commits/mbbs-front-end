@@ -1,7 +1,7 @@
 .country-card {
   background: #ffffff;
   border-radius: 1.25rem;
-  border: 2px solid #e2e8f0;
+  border: 1px solid #e2e8f0;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -9,233 +9,190 @@
   cursor: pointer;
   height: 100%;
   position: relative;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
 
   &:hover {
-    transform: translateY(-6px);
-    border-color: #a5b4fc;
-    box-shadow: 0 16px 32px rgba(99, 102, 241, 0.12);
+    transform: translateY(-5px);
+    border-color: #cbd5e1;
+    box-shadow: 0 16px 36px rgba(15, 23, 42, 0.08);
+
+    .action-circle-btn {
+      background: #4f46e5;
+      color: #ffffff;
+      transform: scale(1.08);
+    }
   }
 
   &.is-selected {
-    border-color: #6366f1;
-    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2), 0 16px 32px rgba(99, 102, 241, 0.15);
-    background: #f8fafc;
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.18), 0 16px 36px rgba(79, 70, 229, 0.12);
+    background: #ffffff;
 
-    .selection-indicator {
-      background: #6366f1;
-      border-color: #ffffff;
+    .action-circle-btn {
+      background: #4f46e5;
       color: #ffffff;
     }
   }
 
   .card-header-image {
-    height: 160px;
+    height: 190px;
     background-size: cover;
     background-position: center;
     position: relative;
     padding: 1rem;
+    border-radius: 1.25rem 1.25rem 0 0;
+    overflow: hidden;
 
     .overlay {
       position: absolute;
       inset: 0;
-      background: linear-gradient(180deg, rgba(15, 23, 42, 0.3) 0%, rgba(15, 23, 42, 0.75) 100%);
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.02) 0%, rgba(15, 23, 42, 0.4) 100%);
     }
 
     .popular-badge {
       position: absolute;
       top: 0.85rem;
       left: 0.85rem;
-      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      background: #0f172a;
       color: #ffffff;
       font-size: 0.75rem;
       font-weight: 700;
-      padding: 0.25rem 0.65rem;
-      border-radius: 0.5rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: 1rem;
       z-index: 2;
-      box-shadow: 0 4px 10px rgba(245, 158, 11, 0.4);
-    }
-
-    .flag-wrapper {
-      position: absolute;
-      bottom: -1.25rem;
-      left: 1.25rem;
-      width: 48px;
-      height: 34px;
-      border-radius: 0.4rem;
-      overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
-      border: 2px solid #ffffff;
-      z-index: 2;
-
-      .country-flag {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-    }
-
-    .selection-indicator {
-      position: absolute;
-      top: 0.85rem;
-      right: 0.85rem;
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.25);
-      backdrop-filter: blur(4px);
-      border: 2px solid rgba(255, 255, 255, 0.6);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 2;
-      transition: all 0.2s ease;
-
-      svg {
-        width: 16px;
-        height: 16px;
-      }
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
   }
 
   .card-body {
-    padding: 1.75rem 1.25rem 1rem;
+    padding: 1.35rem;
     flex: 1;
     display: flex;
     flex-direction: column;
 
-    .country-title-row {
+    .country-header-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.4rem;
 
-      .country-name {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: #0f172a;
-
-        margin: 0;
-      }
-
-      .uni-count {
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: #6366f1;
-        background: #e0e7ff;
-        padding: 0.2rem 0.5rem;
-        border-radius: 0.4rem;
-      }
-    }
-
-    .country-desc {
-      font-size: 0.875rem;
-      color: #64748b;
-      line-height: 1.45;
-      margin-bottom: 1rem;
-    }
-
-    .key-metrics {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0.5rem;
-      background: #f8fafc;
-      padding: 0.75rem;
-      border-radius: 0.75rem;
-      margin-bottom: 1rem;
-
-      .metric {
+      .title-with-flag {
         display: flex;
-        flex-direction: column;
+        align-items: center;
+        gap: 0.65rem;
 
-        .metric-label {
-          font-size: 0.7rem;
-          color: #94a3b8;
-          font-weight: 500;
-          text-transform: uppercase;
-        }
+        .flag-icon-container {
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+          overflow: hidden;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+          border: 1.5px solid #ffffff;
+          flex-shrink: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
 
-        .metric-value {
-          font-size: 0.8rem;
-          font-weight: 700;
-          color: #1e293b;
-
-          &.price-highlight {
-            color: #059669;
+          .country-flag-icon {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
           }
         }
+
+        .country-name {
+          font-size: 1.2rem;
+          font-weight: 800;
+          color: #0f172a;
+          margin: 0;
+          letter-spacing: -0.015em;
+        }
+      }
+
+      .action-circle-btn {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: #0f172a;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.25s ease;
+        flex-shrink: 0;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+        svg {
+          width: 18px;
+          height: 18px;
+        }
+
+        &.selected {
+          background: #4f46e5;
+          color: #ffffff;
+        }
       }
     }
 
-    .advantages-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.35rem;
-      margin-bottom: 1rem;
+    .meta-row {
+      margin-bottom: 0.25rem;
 
-      .adv-tag {
-        font-size: 0.75rem;
-        color: #334155;
-        background: #f1f5f9;
-        padding: 0.2rem 0.5rem;
-        border-radius: 0.375rem;
-        font-weight: 500;
+      .uni-count-text {
+        font-size: 0.85rem;
+        color: #64748b;
+        font-weight: 600;
       }
     }
 
-    .recognition-row {
-      margin-top: auto;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
+    .courses-row {
+      margin-bottom: 1.1rem;
 
-      .rec-label {
-        font-size: 0.75rem;
+      .courses-tag {
+        font-size: 0.8rem;
         color: #94a3b8;
         font-weight: 500;
       }
+    }
 
-      .rec-badges {
-        display: flex;
-        gap: 0.25rem;
+    .key-metrics-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin-bottom: 1rem;
 
-        .rec-badge {
-          font-size: 0.7rem;
-          font-weight: 700;
-          color: #475569;
-          background: #e2e8f0;
-          padding: 0.1rem 0.4rem;
-          border-radius: 0.25rem;
+      .metric-pill {
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 0.3rem 0.7rem;
+        border-radius: 0.6rem;
+        background: #f8fafc;
+        color: #334155;
+        border: 1px solid #e2e8f0;
+
+        &.price {
+          color: #059669;
+          background: #ecfdf5;
+          border-color: #a7f3d0;
         }
       }
     }
-  }
 
-  .card-footer {
-    padding: 0.85rem 1.25rem 1.25rem;
+    .recognition-pills {
+      margin-top: auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
 
-    .select-btn {
-      width: 100%;
-      padding: 0.65rem;
-      border: 1.5px solid #cbd5e1;
-      background: transparent;
-      color: #334155;
-      font-weight: 600;
-      font-size: 0.875rem;
-      border-radius: 0.75rem;
-      cursor: pointer;
-      transition: all 0.2s ease;
-
-      &:hover {
-        background: #6366f1;
-        color: #ffffff;
-        border-color: #6366f1;
-      }
-
-      &.btn-selected {
-        background: #6366f1;
-        color: #ffffff;
-        border-color: #6366f1;
+      .rec-tag {
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: #475569;
+        background: #f1f5f9;
+        padding: 0.2rem 0.55rem;
+        border-radius: 0.4rem;
       }
     }
   }
 }
+
+

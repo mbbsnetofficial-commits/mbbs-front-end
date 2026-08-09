@@ -5,66 +5,64 @@
   tabindex="0"
   role="button"
 >
-  <div class="card-header-image" [style.background-image]="'url(' + country().heroImage + ')'">
+  <div
+    class="card-header-image"
+    [style.background-image]="'url(' + heroImageUrl() + ')'"
+  >
+    <img
+      [src]="heroImageUrl()"
+      alt=""
+      style="display: none;"
+      (error)="onHeroError()"
+    />
     <div class="overlay"></div>
-    @if (country().isPopular) {
+    @if (displayCountry().isPopular) {
       <span class="badge popular-badge">Popular Choice</span>
     }
-    <div class="flag-wrapper">
-      <img [src]="country().flagUrl" [alt]="country().name + ' Flag'" class="country-flag" />
-    </div>
-
-    <div class="selection-indicator">
-      @if (selected()) {
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-          <polyline points="20 6 9 17 4 12"></polyline>
-        </svg>
-      }
-    </div>
   </div>
 
   <div class="card-body">
-    <div class="country-title-row">
-      <h3 class="country-name">{{ country().name }}</h3>
-      <span class="uni-count">{{ country().totalUniversities }} Universities</span>
+    <div class="country-header-row">
+      <div class="title-with-flag">
+        <div class="flag-icon-container">
+          <img
+            [src]="flagImageUrl()"
+            [alt]="displayCountry().name + ' Flag'"
+            class="country-flag-icon"
+            (error)="onFlagError($event)"
+          />
+        </div>
+        <h3 class="country-name">{{ displayCountry().name }}</h3>
+      </div>
+
+      <div class="action-circle-btn" [class.selected]="selected()" (click)="onActionBtnClick($event)">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </div>
     </div>
 
-    <p class="country-desc">{{ country().description }}</p>
-
-    <div class="key-metrics">
-      <div class="metric">
-        <span class="metric-label">Avg. Tuition:</span>
-        <span class="metric-value price-highlight">{{ country().averageTuitionFee }}</span>
-      </div>
-      <div class="metric">
-        <span class="metric-label">Duration:</span>
-        <span class="metric-value">{{ country().duration }}</span>
-      </div>
-      <div class="metric">
-        <span class="metric-label">Medium:</span>
-        <span class="metric-value">{{ country().language }}</span>
-      </div>
+    <div class="meta-row">
+      <span class="uni-count-text">{{ displayCountry().totalUniversities || 20 }}+ Universities</span>
     </div>
 
-    <div class="advantages-tags">
-      @for (adv of (country().advantages || []).slice(0, 3); track adv) {
-        <span class="adv-tag">✓ {{ adv }}</span>
+    <div class="courses-row">
+      <span class="courses-tag">{{ (displayCountry().popularCourses && displayCountry().popularCourses!.length > 0) ? displayCountry().popularCourses!.join(' • ') : 'MBBS • BDS • Medicine' }}</span>
+    </div>
+
+    <div class="key-metrics-pills">
+      <span class="metric-pill price">{{ displayCountry().averageTuitionFee }}</span>
+      <span class="metric-pill duration">{{ displayCountry().duration }}</span>
+      <span class="metric-pill medium">{{ displayCountry().language }}</span>
+    </div>
+
+    <div class="recognition-pills">
+      @for (rec of displayCountry().recognition || []; track rec) {
+        <span class="rec-tag">{{ rec }}</span>
       }
     </div>
-
-    <div class="recognition-row">
-      <span class="rec-label">Recognized by:</span>
-      <div class="rec-badges">
-        @for (rec of country().recognition || []; track rec) {
-          <span class="rec-badge">{{ rec }}</span>
-        }
-      </div>
-    </div>
-  </div>
-
-  <div class="card-footer">
-    <button type="button" class="select-btn" [class.btn-selected]="selected()">
-      {{ selected() ? 'Selected' : 'Select Destination' }}
-    </button>
   </div>
 </article>
+
+

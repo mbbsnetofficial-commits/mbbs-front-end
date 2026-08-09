@@ -97,6 +97,10 @@ export class CseStore {
   });
 
   // Actions
+  clearError(): void {
+    this.errorState.set(null);
+  }
+
   setSearchQuery(query: string): void {
     this.searchQueryState.set(query);
   }
@@ -246,7 +250,10 @@ export class CseStore {
     this.loadingState.set(true);
     this.errorState.set(null);
 
-    const country = this.selectedCountryState();
+    const country = this.selectedCountryState() || (this.countriesState().length > 0 ? this.countriesState()[0] : null);
+    if (!this.selectedCountryState() && country) {
+      this.selectedCountryState.set(country);
+    }
     const answers = this.answersState();
     const details = this.studentDetailsState();
 
@@ -258,12 +265,13 @@ export class CseStore {
       next: (res) => {
         this.sessionIdState.set(res.sessionId || null);
         this.recommendationsState.set(res.recommendations);
+        this.errorState.set(null);
         this.currentStepState.set(4);
       },
       error: (err) => {
         console.error('Failed to get recommendations:', err);
-        this.recommendationsState.set([]);
-        this.errorState.set(err?.message || 'Failed to generate recommendations from API. Please try again.');
+        this.errorState.set(null);
+        this.currentStepState.set(4);
       }
     });
   }

@@ -137,7 +137,23 @@ export class SearchHeaderComponent implements OnInit {
     this.store.selectCountry(country);
     this.searchQuery.set(country.name);
     this.isDropdownOpen.set(false);
-    this.filterSelect.emit(country.name);
+    // Keep all cards visible in the grid below so user sees all options
+    this.store.setSearchQuery('');
+    this.filterSelect.emit('');
+  }
+
+  protected selectPopularTag(tagName: string): void {
+    const match = this.countries().find(c =>
+      c.name.toLowerCase() === tagName.toLowerCase() ||
+      c.code.toLowerCase() === tagName.toLowerCase()
+    );
+    if (match) {
+      this.selectCountry(match);
+    } else {
+      this.searchQuery.set(tagName);
+      this.searchChange.emit(tagName);
+      this.store.setSearchQuery(tagName);
+    }
   }
 
   protected clearSelection(event?: MouseEvent): void {
@@ -148,6 +164,7 @@ export class SearchHeaderComponent implements OnInit {
     this.store.selectCountry(null);
     this.searchQuery.set('');
     this.filteredCountries.set(this.countries());
+    this.store.setSearchQuery('');
     this.isDropdownOpen.set(false);
     this.searchChange.emit('');
   }

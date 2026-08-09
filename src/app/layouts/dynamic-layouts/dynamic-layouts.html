@@ -65,11 +65,11 @@
       <a
         routerLink="/dynamic/cse"
         routerLinkActive="active"
-        data-label="Study Abroad"
+        data-label="University Finder"
         (click)="closeMobileNav()"
       >
         <span class="nav-icon"><app-icon name="globe" [size]="19"/></span>
-        <span>Study Abroad</span>
+        <span>University Finder</span>
       </a>
       <a
         routerLink="/dynamic/blogs"
@@ -91,10 +91,6 @@
   </aside>
 
   <div class="main">
-    <button class="mobile-menu" type="button" aria-label="Open navigation" (click)="sidebarOpen.set(true)">
-      <app-icon name="menu" [size]="21"/>
-    </button>
-
     <main class="content" tabindex="-1"><router-outlet/></main>
   </div>
 </div>

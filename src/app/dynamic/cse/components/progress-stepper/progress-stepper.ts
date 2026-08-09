@@ -17,10 +17,10 @@ export interface StepItem {
 export class ProgressStepper {
   readonly currentStep = input.required<number>();
   readonly steps = input<StepItem[]>([
-    { number: 1, title: 'Country Selection', subtitle: 'Choose Destination' },
-    { number: 2, title: 'Preference Quiz', subtitle: 'Eligibility & Budget' },
-    { number: 3, title: 'Student Profile', subtitle: 'Contact Details' },
-    { number: 4, title: 'Recommendations', subtitle: 'AI Matches' }
+    { number: 1, title: 'Choose Destination', subtitle: 'Select your preferred country' },
+    { number: 2, title: 'Answer Questions', subtitle: 'Tell us about your preferences' },
+    { number: 3, title: 'View Courses', subtitle: 'See matching programs' },
+    { number: 4, title: 'Shortlist & Apply', subtitle: 'Save and start application' }
   ]);
 
   readonly stepClick = output<number>();

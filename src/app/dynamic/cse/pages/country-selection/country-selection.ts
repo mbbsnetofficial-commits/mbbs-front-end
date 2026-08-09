@@ -1,8 +1,8 @@
+import { Location } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { CountryCard } from '../../components/country-card/country-card';
-import { ProgressStepper } from '../../components/progress-stepper/progress-stepper';
 import { SearchHeader } from '../../components/search-header/search-header';
 import { Country } from '../../models/country.model';
 import { CseStore } from '../../state/cse.store';
@@ -10,7 +10,7 @@ import { CseStore } from '../../state/cse.store';
 @Component({
   selector: 'app-cse-country-selection',
   standalone: true,
-  imports: [SearchHeader, CountryCard, ProgressStepper],
+  imports: [SearchHeader, CountryCard],
   templateUrl: './country-selection.html',
   styleUrl: './country-selection.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -18,26 +18,54 @@ import { CseStore } from '../../state/cse.store';
 export class CountrySelection implements OnInit {
   readonly store = inject(CseStore);
   private readonly router = inject(Router);
+  private readonly location = inject(Location);
 
   ngOnInit(): void {
     this.store.setStep(1);
+    // Ensure all cards are visible when returning back to country selection
+    this.store.setSearchQuery('');
     if (this.store.countries().length === 0) {
       this.store.loadCountries();
     }
   }
 
+  protected goBack(): void {
+    this.location.back();
+  }
+
   protected onSearchQueryChange(query: string): void {
     this.store.setSearchQuery(query);
-    this.store.loadCountries();
   }
 
   protected onFilterSelect(tag: string): void {
-    this.store.setSearchQuery(tag);
-    this.store.loadCountries();
+    if (!tag) {
+      this.store.setSearchQuery('');
+      return;
+    }
+    const isCountry = this.store.countries().some(c => c.name.toLowerCase() === tag.toLowerCase());
+    if (isCountry) {
+      this.store.setSearchQuery('');
+    } else {
+      this.store.setSearchQuery(tag);
+    }
   }
 
   protected onCountrySelect(country: Country): void {
     this.store.selectCountry(country);
+    // Smooth scroll down to the bottom sticky action bar
+    setTimeout(() => {
+      const bottomBar = document.querySelector('.sticky-action-bar');
+      if (bottomBar) {
+        bottomBar.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      } else {
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+      }
+    }, 50);
+  }
+
+  protected onCountryActionClick(country: Country): void {
+    this.store.selectCountry(country);
+    this.proceedToQuestionnaire();
   }
 
   protected onStepClick(stepNumber: number): void {

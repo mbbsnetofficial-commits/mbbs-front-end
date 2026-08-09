@@ -7,7 +7,7 @@
 
 * { box-sizing: border-box; }
 button, input { font-family: inherit; }
-.layout { min-height: 100vh; background: #f5f7fb; }
+.layout { min-height: 100vh; background: #f8fafc; }
 .sidebar {
   position: fixed;
   z-index: 50;
@@ -40,7 +40,7 @@ nav > a.active::before { background: #6ee0c0; transform: scaleY(1); }
 .subnav a { min-height: 32px; display: flex; align-items: center; border-radius: 8px; padding: 0 10px; color: #829ab1; font-size: 8px; font-weight: 700; text-decoration: none; transition: color .18s,background .18s; }.subnav a:hover { color: #dbe9f5; background: rgba(255,255,255,.04); }.subnav a.active { color: #76b4ff; }
 .sidebar-footer { display: grid; gap: 10px; margin-top: auto; padding-top: 10px; }
 .logout-button { min-height: 42px; display: flex; align-items: center; justify-content: center; gap: 9px; border: 1px solid rgba(234,78,91,.2); border-radius: 12px; color: #e79aa2; background: rgba(221,58,72,.07); font-size: 9px; font-weight: 800; cursor: pointer; transition: color .2s,background .2s,border-color .2s; }.logout-button:hover { color: #fff; border-color: rgba(234,78,91,.4); background: rgba(221,58,72,.2); }.logout-button:disabled { opacity: .55; cursor: wait; }
-.main { min-height: 100vh; margin-left: var(--sidebar-width); max-width: calc(100% - var(--sidebar-width)); overflow-x: hidden; transition: margin .28s ease; }
+.main { min-height: 100vh; background: #f8fafc; margin-left: var(--sidebar-width); max-width: calc(100% - var(--sidebar-width)); overflow-x: hidden; transition: margin .28s ease; }
 .content { min-height: 100vh; width: 100%; outline: none; }
 .sidebar-collapsed { --sidebar-width: 80px; }
 .sidebar-collapsed .brand-copy,.sidebar-collapsed nav > a > span:last-child,.sidebar-collapsed .nav-parent > span:nth-child(2),.sidebar-collapsed .nav-chevron,.sidebar-collapsed .nav-label,.sidebar-collapsed .logout-button span { display: none; }
@@ -57,6 +57,6 @@ button:focus-visible,a:focus-visible { outline: 3px solid rgba(93,164,255,.45); 
   .sidebar-collapsed .brand-copy,.sidebar-collapsed nav > a > span:last-child,.sidebar-collapsed .nav-parent > span:nth-child(2),.sidebar-collapsed .nav-chevron,.sidebar-collapsed .nav-label,.sidebar-collapsed .logout-button span { display:initial }
   .sidebar-collapsed .brand { display:block }.sidebar-collapsed nav > a,.sidebar-collapsed .nav-parent { justify-content:flex-start;padding:0 12px }.sidebar-collapsed nav > a::after,.sidebar-collapsed .nav-parent::after { display:none }
   .collapse-button { display:none }.nav-backdrop { position:fixed;z-index:45;inset:0;display:block;border:0;background:rgba(4,18,31,.62) }
-  .mobile-menu { position:fixed;z-index:34;top:12px;left:12px;display:grid;margin:0;box-shadow:0 4px 14px rgba(16,35,62,.12) }
+  .mobile-menu { display: none !important; }
 }
 @media (prefers-reduced-motion: reduce) { * { animation:none !important;transition:none !important } }

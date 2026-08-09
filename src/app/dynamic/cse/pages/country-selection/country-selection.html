@@ -1,12 +1,28 @@
 <div class="country-selection-page">
-  <app-cse-progress-stepper
-    [currentStep]="store.currentStep()"
-    (stepClick)="onStepClick($event)"
-  />
+  <!-- Top Navigation Header with Back Button -->
+  <header class="top-nav-bar">
+    <!-- <button type="button" class="back-btn" (click)="goBack()" title="Go Back">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+      <span>Back</span>
+    </button> -->
+
+    <!-- <div class="header-center-info">
+      <span class="process-pill-badge">Step 1 of 4 • Select Destination</span>
+    </div> -->
+
+    @if (store.selectedCountry()) {
+      <button type="button" class="reset-selection-btn" (click)="store.selectCountry(null)" title="Reset selected destination">
+        Reset Selection
+      </button>
+    }
+  </header>
 
   <app-cse-search-header
-    title="Choose Your Preferred Study Destination"
-    subtitle="Explore accredited medical destinations across Europe and Asia with high FMGE pass rates and English-medium instruction."
+    title="Find the perfect course from the right university"
+    subtitle="Answer a few simple questions and we'll match you with the best courses and universities worldwide."
     [searchValue]="store.searchQuery()"
     (searchChange)="onSearchQueryChange($event)"
     (filterSelect)="onFilterSelect($event)"
@@ -14,8 +30,10 @@
 
   <main class="selection-container">
     <div class="section-title-bar">
-      <h2>Available Medical Destinations</h2>
-      <span class="count-badge">{{ store.filteredCountries().length }} Countries Available</span>
+      <div>
+        <h2>Top Destinations for Medical Studies</h2>
+        <p class="section-subtext">Select a destination country to begin your medical preference evaluation</p>
+      </div>
     </div>
 
     @if (store.loading()) {
@@ -39,8 +57,9 @@
         @for (country of store.filteredCountries(); track country.id) {
           <app-cse-country-card
             [country]="country"
-            [selected]="store.selectedCountry()?.id === country.id"
+            [selected]="store.selectedCountry()?.id === country.id || store.selectedCountry()?.country_id === country.country_id"
             (selectCard)="onCountrySelect($event)"
+            (actionClick)="onCountryActionClick($event)"
           />
         }
       </div>
@@ -50,15 +69,19 @@
       <div class="selected-info">
         @if (store.selectedCountry()) {
           <span class="selected-label">Selected Destination:</span>
-          <strong class="selected-name">{{ store.selectedCountry()?.name }}</strong>
+          <strong class="selected-name">
+            <img [src]="store.selectedCountry()?.flagUrl || 'https://flagcdn.com/w160/ge.png'" class="selected-flag" alt="" />
+            {{ store.selectedCountry()?.name }}
+          </strong>
         } @else {
-          <span class="hint-text">Select a country or skip to questionnaire to get AI-matched destinations</span>
+          <span class="hint-text">💡 Select a country card above or search to proceed to your assessment</span>
         }
       </div>
 
       <button
         type="button"
         class="next-step-btn"
+        [disabled]="!store.selectedCountry()"
         (click)="proceedToQuestionnaire()"
       >
         <span>Continue to Preference Quiz</span>
@@ -70,3 +93,5 @@
     </div>
   </main>
 </div>
+
+

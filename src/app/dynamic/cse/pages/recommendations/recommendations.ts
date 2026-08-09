@@ -20,6 +20,14 @@ export class Recommendations implements OnInit {
 
   ngOnInit(): void {
     this.store.setStep(4);
+    this.store.clearError();
+
+    if (!this.store.selectedCountry()) {
+      const activeCountries = this.store.countries();
+      if (activeCountries.length > 0) {
+        this.store.selectCountry(activeCountries[0]);
+      }
+    }
     if (this.store.recommendations().length === 0) {
       this.store.generateRecommendations();
     }

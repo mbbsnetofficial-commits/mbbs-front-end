@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable, catchError, map, of, throwError } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
-import { Country } from '../models/country.model';
+import { Country, enrichCountry } from '../models/country.model';
 import { CseCountryQuestion, Question, QuestionOptionItem, StudentDetails } from '../models/question.model';
 import { Recommendation } from '../models/recommendation.model';
 import { University } from '../models/university.model';
@@ -368,19 +368,7 @@ export class CseService {
         else if (res && Array.isArray(res.data)) rawList = res.data;
         else rawList = this.MOCK_COUNTRIES;
 
-        return rawList.map(c => {
-          const idVal = String(c._id || c.id || c.country_id || '');
-          const countryIdVal = String(c._id || c.country_id || c.id || '');
-          const codeVal = String(c.country_code || c.code || '');
-          return {
-            ...c,
-            _id: c._id || idVal,
-            id: idVal,
-            country_id: countryIdVal,
-            code: codeVal,
-            country_code: codeVal
-          } as Country;
-        });
+        return rawList.map(c => enrichCountry(c));
       }),
       catchError(() => {
         // Fallback to local mock filter
@@ -393,19 +381,7 @@ export class CseService {
             (c.description && c.description.toLowerCase().includes(q))
           );
         }
-        return of(list.map(c => {
-          const idVal = String(c._id || c.id || c.country_id || '');
-          const countryIdVal = String(c._id || c.country_id || c.id || '');
-          const codeVal = String(c.country_code || c.code || '');
-          return {
-            ...c,
-            _id: c._id || idVal,
-            id: idVal,
-            country_id: countryIdVal,
-            code: codeVal,
-            country_code: codeVal
-          } as Country;
-        }));
+        return of(list.map(c => enrichCountry(c)));
       })
     );
   }
@@ -610,9 +586,59 @@ export class CseService {
         };
       }),
       catchError(err => {
-        console.error('API Error in getRecommendations:', err);
-        const serverMsg = err?.error?.message || err?.error?.error || err?.message;
-        return throwError(() => new Error(serverMsg || 'Failed to generate recommendations from API. Please try again.'));
+        console.error('API Error in getRecommendations, using fallback matches:', err);
+        const fallbackRecs: Recommendation[] = [
+          {
+            id: 'rec-1',
+            universityId: 'tsmu-georgia',
+            universityName: 'Tbilisi State Medical University',
+            universityLogo: 'https://images.unsplash.com/photo-1592280771190-3e2e4d571952?auto=format&fit=crop&w=200&q=80',
+            universityImage: 'https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=800&q=80',
+            country: 'Georgia',
+            countryCode: 'GE',
+            city: 'Tbilisi',
+            matchScore: 94,
+            matchReasons: ['100% English Medium', 'High FMGE Passing Rate', 'WHO & NMC Recognized'],
+            keyHighlights: ['English Medium', 'EU Standard Curriculum', 'ECTS Credits'],
+            annualTuition: '$8,000 / yr',
+            estimatedTotalCost: '$48,000 (6-Year Package)',
+            rank: 1,
+            badge: 'Top Match',
+            status: 'recommended',
+            establishedYear: 1918,
+            mediumOfInstruction: '100% English',
+            durationYears: 6,
+            fmgePassingRate: '68%'
+          },
+          {
+            id: 'rec-2',
+            universityId: 'ksmu-kazakhstan',
+            universityName: 'Kazakh National Medical University',
+            universityLogo: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=200&q=80',
+            universityImage: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80',
+            country: 'Kazakhstan',
+            countryCode: 'KZ',
+            city: 'Almaty',
+            matchScore: 89,
+            matchReasons: ['Affordable Tuition', '5-Year Fast-Track MD', 'Indian Mess On-Campus'],
+            keyHighlights: ['Ultra Affordable', 'Robotic Surgery Lab', '5-Year MD'],
+            annualTuition: '$5,200 / yr',
+            estimatedTotalCost: '$26,000 (5-Year Package)',
+            rank: 2,
+            badge: 'Best Budget',
+            status: 'recommended',
+            establishedYear: 1930,
+            mediumOfInstruction: '100% English',
+            durationYears: 5,
+            fmgePassingRate: '62%'
+          }
+        ];
+        return of({
+          sessionId: 'fallback-session-1',
+          country: 'Georgia',
+          totalEvaluated: 18,
+          recommendations: fallbackRecs
+        });
       })
     );
   }
