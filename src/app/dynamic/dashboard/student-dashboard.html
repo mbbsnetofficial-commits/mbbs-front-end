@@ -1,0 +1,130 @@
+<div class="dashboard-page-container">
+  @if (loading()) {
+    <div class="loading-spinner-state">
+      <div class="spinner"></div>
+      <p>Loading your student dashboard…</p>
+    </div>
+  } @else if (summaryData(); as data) {
+    <!-- Welcome Header Banner -->
+    <header class="dashboard-banner">
+      <div class="banner-left">
+        <div class="welcome-title-row">
+          <h1>Welcome back, {{ data.profile.full_name }}! 👋</h1>
+          <span class="plan-badge">{{ data.profile.subscription_plan }}</span>
+        </div>
+        <p class="banner-subtext">Future Doctor, your dedication today builds tomorrow's white coat.</p>
+      </div>
+
+      <div class="banner-right">
+        <div class="streak-pill">
+          <span class="fire-icon">🔥</span>
+          <div class="streak-text">
+            <strong>{{ data.streak.current_streak }} Day Streak</strong>
+            <small>Longest: {{ data.streak.longest_streak }} days</small>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Top KPI Performance Cards -->
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon purple">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </div>
+        <div class="stat-meta">
+          <span class="stat-label">Tests Completed</span>
+          <span class="stat-value">{{ data.performance_summary.total_tests_completed }}</span>
+          <span class="stat-trend positive">Started: {{ data.performance_summary.total_tests_started }}</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <div class="stat-meta">
+          <span class="stat-label">Overall Accuracy</span>
+          <span class="stat-value">{{ data.performance_summary.overall_accuracy_percentage | number:'1.1-1' }}%</span>
+          <span class="stat-trend positive">Questions Attempted: {{ data.performance_summary.total_questions_attempted }}</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon blue">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="stat-meta">
+          <span class="stat-label">Practice Time</span>
+          <span class="stat-value">{{ data.performance_summary.total_practice_time_minutes }} mins</span>
+          <span class="stat-trend neutral">Total Score: {{ data.performance_summary.total_score }}</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon orange">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+        <div class="stat-meta">
+          <span class="stat-label">Correct Answers</span>
+          <span class="stat-value">{{ data.performance_summary.total_correct }}</span>
+          <span class="stat-trend negative">Wrong: {{ data.performance_summary.total_wrong }}</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Content Section: Subject Breakdown & Recent Activity -->
+    <div class="dashboard-main-grid">
+      <!-- Subject Performance Breakdown -->
+      <div class="dashboard-section-card">
+        <div class="section-header">
+          <h2>Subject Accuracy</h2>
+          <a routerLink="/dynamic/neet/leaderboard" class="section-link">View Performance &rarr;</a>
+        </div>
+
+        <div class="subjects-list">
+          @for (subj of data.subject_breakdown; track subj.subject) {
+            <div class="subject-row">
+              <div class="subject-info">
+                <span class="subject-name">{{ subj.subject }}</span>
+                <span class="subject-accuracy">{{ subj.accuracy }}% accuracy</span>
+              </div>
+              <div class="progress-bar-bg">
+                <div class="progress-bar-fill" [style.width.%]="subj.accuracy"></div>
+              </div>
+              <div class="subject-details">
+                <small>{{ subj.total_correct }} correct &bull; {{ subj.total_wrong }} wrong &bull; {{ subj.tests_taken }} tests</small>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Recent Test Activity -->
+      <div class="dashboard-section-card">
+        <div class="section-header">
+          <h2>Recent Test Activity</h2>
+          <a routerLink="/dynamic/neet/quick-test" class="section-link">Take Quick Test &rarr;</a>
+        </div>
+
+        <div class="activity-list">
+          @for (test of data.recent_tests; track test._id) {
+            <div class="activity-item">
+              <div class="activity-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              </div>
+              <div class="activity-details">
+                <strong class="activity-title">{{ test.test_type }}</strong>
+                <span class="activity-date">{{ test.started_at | date:'mediumDate' }}</span>
+              </div>
+              <div class="activity-metrics">
+                <span class="activity-score">Score: {{ test.score }}</span>
+                <span class="activity-badge">{{ test.accuracy }}% accuracy</span>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>
