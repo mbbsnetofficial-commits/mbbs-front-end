@@ -6,13 +6,15 @@
       @for (blog of blogs().slice(0, 3); track blog._id) {
         <article class="pick-item">
           <div class="author-row">
-            <img
-              appImageFallback
-              class="author-avatar"
-              [src]="blog.author?.profileImage || blog.featuredImage?.url || ''"
-              [alt]="blog.author?.fullName || 'Author'"
-              loading="lazy"
-            >
+            @if (getAuthorAvatar(blog); as avatarUrl) {
+              <img
+                appImageFallback
+                class="author-avatar"
+                [src]="avatarUrl"
+                [alt]="blog.author?.fullName || 'Author'"
+                loading="lazy"
+              >
+            }
             <span class="author-info">
               @if (blog.category?.categoryName) {
                 In <strong>{{ blog.category?.categoryName }}</strong> by

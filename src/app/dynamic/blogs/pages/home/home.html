@@ -77,12 +77,12 @@
           <button type="button" class="see-more-topics" (click)="store.selectCategory(null)">See the full list</button>
         </section>
 
-        <!-- Featured Authors / Who to Follow -->
-        @if (store.featuredAuthors().length) {
+        <!-- All Authors / Who to Follow (bound to Swagger API) -->
+        @if (store.allAuthors().length) {
           <section class="authors-section">
             <h3 class="sidebar-title">Who to follow</h3>
             <div class="authors-list">
-              @for (author of store.featuredAuthors(); track author._id) {
+              @for (author of store.allAuthors(); track author._id) {
                 <app-author-card [author]="author"/>
               }
             </div>

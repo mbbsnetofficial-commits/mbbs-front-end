@@ -14,5 +14,19 @@ import { Blog } from '../../models/blog.model';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FeaturedBlogs {
-  readonly blogs = input.required<Blog[]>();
+  readonly blogs = input<Blog[]>([]);
+
+  protected getAuthorAvatar(blog: Blog): string | null {
+    const url = blog.author?.profileImage;
+    return (!!url && !url.includes('example.com')) ? url : null;
+  }
+
+  protected getAuthorInitials(blog: Blog): string {
+    const name = blog.author?.fullName || 'MBBS';
+    const parts = name.split(' ').filter(Boolean);
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  }
 }

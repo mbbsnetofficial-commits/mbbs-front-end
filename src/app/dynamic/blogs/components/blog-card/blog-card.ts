@@ -23,7 +23,37 @@ export class BlogCard {
 
   readonly isBookmarked = signal(false);
   readonly isDisliked = signal(false);
+  readonly isLikedSignal = signal<boolean | null>(null);
   readonly clapsCount = signal<number | null>(null);
+
+  protected isLiked(): boolean {
+    if (this.isLikedSignal() !== null) {
+      return this.isLikedSignal()!;
+    }
+    if (this.pageStore?.isLiked(this.blog()._id)) {
+      return true;
+    }
+    return (this.blog() as any).isLiked ?? false;
+  }
+
+  protected hasValidImage(): boolean {
+    const url = this.blog().featuredImage?.url;
+    return !!url && !url.includes('example.com');
+  }
+
+  protected getAuthorAvatar(): string | null {
+    const url = this.blog().author?.profileImage;
+    return (!!url && !url.includes('example.com')) ? url : null;
+  }
+
+  protected getAuthorInitials(): string {
+    const name = this.blog().author?.fullName || 'MBBS';
+    const parts = name.split(' ').filter(Boolean);
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  }
 
   protected displayExcerpt(): string {
     const blog = this.blog();
@@ -42,29 +72,35 @@ export class BlogCard {
     if (this.clapsCount() !== null) {
       return this.formatCount(this.clapsCount()!);
     }
-    const base = this.blog().totalLikes || (Math.floor(this.blog()._id.charCodeAt(0) % 50 + 1) * 120);
-    return this.formatCount(base);
+    if (this.pageStore) {
+      const storedCount = this.pageStore.getLikedCount(this.blog()._id, this.blog().totalLikes ?? 0);
+      return this.formatCount(storedCount);
+    }
+    return this.formatCount(this.blog().totalLikes ?? 0);
   }
 
   protected getCommentsCount(): string {
-    const total = this.blog().totalComments ?? 0;
-    if (total > 0) return this.formatCount(total);
-    const mock = (this.blog()._id.charCodeAt(1) % 40) + 12;
-    return this.formatCount(mock);
+    return this.formatCount(this.blog().totalComments ?? 0);
   }
 
   protected getSharesCount(): string {
-    const mock = (this.blog()._id.charCodeAt(2) % 30) + 5;
-    return this.formatCount(mock);
+    return this.formatCount(this.blog().totalShares ?? this.blog().totalViews ?? 0);
   }
 
   protected toggleBookmark(event: Event): void {
     event.stopPropagation();
     event.preventDefault();
-    this.isBookmarked.update(b => !b);
+    const nextState = !this.isBookmarked();
+    this.isBookmarked.set(nextState);
     if (this.pageStore) {
       this.pageStore.toggleBookmark(this.blog().slug);
     }
+    // Bind to Swagger save/bookmark API endpoints using MongoDB _id
+    this.blogService.saveBlog(this.blog()._id).subscribe({
+      error: () => {
+        // Optimistic state retained locally
+      }
+    });
   }
 
   protected toggleDislike(event: Event): void {
@@ -76,19 +112,54 @@ export class BlogCard {
   protected addClap(event: Event): void {
     event.stopPropagation();
     event.preventDefault();
-    const currentBase = this.clapsCount() ?? (this.blog().totalLikes || (Math.floor(this.blog()._id.charCodeAt(0) % 50 + 1) * 120));
-    this.clapsCount.set(currentBase + 1);
 
-    this.blogService.likeBlog(this.blog().slug).subscribe({
-      next: (res) => {
-        if (res.data?.totalLikes !== undefined) {
-          this.clapsCount.set(res.data.totalLikes);
+    const currentlyLiked = this.isLiked();
+    const nextLikedState = !currentlyLiked;
+    this.isLikedSignal.set(nextLikedState);
+
+    const rawTotal = this.blog().totalLikes ?? 0;
+    let optimisticCount = 0;
+
+    if (this.pageStore) {
+      const res = this.pageStore.setLikeState(this.blog()._id, nextLikedState, rawTotal);
+      optimisticCount = res.totalLikes;
+    } else {
+      const base = this.clapsCount() ?? rawTotal;
+      optimisticCount = nextLikedState ? base + 1 : Math.max(0, base - 1);
+    }
+
+    this.clapsCount.set(optimisticCount);
+
+    if (nextLikedState) {
+      // 🟢 Calling LIKE API
+      this.blogService.likeBlog(this.blog()._id).subscribe({
+        next: (res) => {
+          const apiLikes = res.data?.totalLikes;
+          if (apiLikes !== undefined && apiLikes > 0) {
+            this.clapsCount.set(apiLikes);
+          } else {
+            this.clapsCount.set(Math.max(1, optimisticCount));
+          }
+        },
+        error: () => {
+          this.clapsCount.set(Math.max(1, optimisticCount));
         }
-      },
-      error: () => {
-        // Retain optimistic clap update if offline or guest user
-      }
-    });
+      });
+    } else {
+      // 🔴 Calling UNLIKE API
+      this.blogService.unlikeBlog(this.blog()._id).subscribe({
+        next: (res) => {
+          if (res.data?.totalLikes !== undefined) {
+            this.clapsCount.set(res.data.totalLikes);
+          } else {
+            this.clapsCount.set(optimisticCount);
+          }
+        },
+        error: () => {
+          this.clapsCount.set(optimisticCount);
+        }
+      });
+    }
   }
 
   protected formatCount(num: number): string {

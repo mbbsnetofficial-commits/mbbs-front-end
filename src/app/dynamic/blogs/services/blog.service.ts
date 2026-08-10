@@ -20,6 +20,12 @@ export interface BlogLikeResponse {
   };
 }
 
+export interface BlogActionResponse {
+  success: boolean;
+  message: string;
+  data?: any;
+}
+
 @Injectable({ providedIn: 'root' })
 export class BlogService {
   private readonly http = inject(HttpClient);
@@ -30,13 +36,23 @@ export class BlogService {
     return this.http.get<BlogSingleResponse>(`${this.baseUrl}/${slug}`);
   }
 
-  /** POST /api/v1/pages/blog/{slug}/like */
-  likeBlog(slug: string): Observable<BlogLikeResponse> {
-    return this.http.post<BlogLikeResponse>(`${this.baseUrl}/${slug}/like`, {});
+  /** POST /api/v1/blogs/{id}/like */
+  likeBlog(id: string): Observable<BlogLikeResponse> {
+    return this.http.post<BlogLikeResponse>(`${environment.apiBaseUrl}/blogs/${id}/like`, {});
   }
 
-  /** DELETE /api/v1/pages/blog/{slug}/like */
-  unlikeBlog(slug: string): Observable<BlogLikeResponse> {
-    return this.http.delete<BlogLikeResponse>(`${this.baseUrl}/${slug}/like`);
+  /** DELETE /api/v1/blogs/{id}/like */
+  unlikeBlog(id: string): Observable<BlogLikeResponse> {
+    return this.http.delete<BlogLikeResponse>(`${environment.apiBaseUrl}/blogs/${id}/like`);
+  }
+
+  /** POST /api/v1/blogs/{id}/bookmark */
+  bookmarkBlog(id: string): Observable<BlogActionResponse> {
+    return this.http.post<BlogActionResponse>(`${environment.apiBaseUrl}/blogs/${id}/bookmark`, {});
+  }
+
+  /** POST /api/v1/blogs/{id}/save */
+  saveBlog(id: string): Observable<BlogActionResponse> {
+    return this.http.post<BlogActionResponse>(`${environment.apiBaseUrl}/blogs/${id}/save`, {});
   }
 }
