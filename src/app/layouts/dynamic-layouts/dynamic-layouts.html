@@ -21,6 +21,25 @@
     <div class="header-divider"></div>
 
     <nav aria-label="Primary" class="sidebar-nav">
+      <!-- Dashboard -->
+      <a
+        routerLink="/dynamic/neet"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        data-label="Dashboard"
+        (click)="closeMobileNav()"
+      >
+        <span class="nav-icon">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+        </span>
+        <span>Dashboard</span>
+      </a>
+
       <button
         class="nav-parent"
         type="button"
