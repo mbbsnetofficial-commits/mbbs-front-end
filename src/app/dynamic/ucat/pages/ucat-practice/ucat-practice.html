@@ -2,10 +2,10 @@
   <!-- Top Feature Header Bar -->
   <header class="top-nav-bar">
     <div class="brand-title">
-      <span class="icon-mark">🎯</span>
+      <span class="icon-mark" aria-hidden="true">UC</span>
       <div>
-        <h1>UCAT Practice Suite</h1>
-        <small>Universal Clinical Aptitude Test Practice & Analytics</small>
+        <h1>UCAT practice</h1>
+        <small>Focused aptitude practice and performance review</small>
       </div>
     </div>
 
@@ -36,20 +36,26 @@
     <div class="streak-widget-banner">
       <div class="streak-main">
         <div class="flame-badge" [class.active]="streak.currentStreak > 0">
-          <span class="flame-icon">🔥</span>
+          <span class="flame-icon" aria-hidden="true">DAY</span>
           <span class="streak-num">{{ streak.currentStreak }}</span>
         </div>
         <div class="streak-info">
           <h3>
             @if (streak.currentStreak > 0) {
-              🔥 Keep your streak alive!
+              Keep your streak alive
             } @else {
               Start a practice test today to kick off your streak!
             }
           </h3>
           <p>
-            Current Streak: <strong>{{ streak.currentStreak }} {{ streak.currentStreak === 1 ? 'day' : 'days' }}</strong>
-            • Longest Streak: <strong>{{ streak.longestStreak }} {{ streak.longestStreak === 1 ? 'day' : 'days' }}</strong>
+            Current Streak:
+            <strong
+              >{{ streak.currentStreak }} {{ streak.currentStreak === 1 ? 'day' : 'days' }}</strong
+            >
+            • Longest Streak:
+            <strong
+              >{{ streak.longestStreak }} {{ streak.longestStreak === 1 ? 'day' : 'days' }}</strong
+            >
             @if (streak.lastActivityDate) {
               • Last Activity: <strong>{{ streak.lastActivityDate }}</strong>
             }
@@ -62,7 +68,7 @@
           <span class="history-label">Recent Activity:</span>
           @for (item of streak.history.slice(-3); track item._id || item.date) {
             <span class="history-chip">
-              ✅ {{ item.activityType.replace('_', ' ') }} ({{ item.date }})
+              {{ item.activityType.replace('_', ' ') }} · {{ item.date }}
             </span>
           }
         </div>
@@ -102,7 +108,9 @@
         </div>
 
         <h1>Configure Your UCAT Practice Test</h1>
-        <p>Select your target subjects, chapters, and topics to generate a custom practice session.</p>
+        <p>
+          Select your target subjects, chapters, and topics to generate a custom practice session.
+        </p>
 
         <!-- Stepper indicator -->
         <nav class="stepper" aria-label="Setup steps">
@@ -168,7 +176,9 @@
             <div class="step-toolbar">
               <h2>Select Subjects ({{ selectedSubjects().length }} selected)</h2>
               <div class="btn-group">
-                <button type="button" class="btn-text" (click)="selectAllSubjects()">Select All</button>
+                <button type="button" class="btn-text" (click)="selectAllSubjects()">
+                  Select All
+                </button>
                 <button type="button" class="btn-text" (click)="clearSubjects()">Clear</button>
               </div>
             </div>
@@ -216,7 +226,9 @@
             <div class="step-toolbar">
               <h2>Select Chapters ({{ selectedChapters().length }} selected)</h2>
               <div class="btn-group">
-                <button type="button" class="btn-text" (click)="selectAllChapters()">Select All</button>
+                <button type="button" class="btn-text" (click)="selectAllChapters()">
+                  Select All
+                </button>
                 <button type="button" class="btn-text" (click)="clearChapters()">Clear</button>
               </div>
             </div>
@@ -245,14 +257,18 @@
               </div>
 
               <div class="step-actions">
-                <button type="button" class="btn btn-secondary" (click)="goToStep(1)">← Back to Subjects</button>
+                <button type="button" class="btn btn-secondary" (click)="goToStep(1)">
+                  ← Back to Subjects
+                </button>
                 <button
                   type="button"
                   class="btn btn-primary"
                   [disabled]="selectedChapters().length === 0"
                   (click)="goToStep(testMode() === 'QUICK_TEST' ? 4 : 3)"
                 >
-                  {{ testMode() === 'QUICK_TEST' ? 'Continue to Settings →' : 'Continue to Topics →' }}
+                  {{
+                    testMode() === 'QUICK_TEST' ? 'Continue to Settings →' : 'Continue to Topics →'
+                  }}
                 </button>
               </div>
             }
@@ -265,7 +281,9 @@
             <div class="step-toolbar">
               <h2>Select Topics ({{ selectedTopicIds().length }} selected)</h2>
               <div class="btn-group">
-                <button type="button" class="btn-text" (click)="selectAllTopics()">Select All</button>
+                <button type="button" class="btn-text" (click)="selectAllTopics()">
+                  Select All
+                </button>
                 <button type="button" class="btn-text" (click)="clearTopics()">Clear</button>
               </div>
             </div>
@@ -297,7 +315,9 @@
               </div>
 
               <div class="step-actions">
-                <button type="button" class="btn btn-secondary" (click)="goToStep(2)">← Back to Chapters</button>
+                <button type="button" class="btn btn-secondary" (click)="goToStep(2)">
+                  ← Back to Chapters
+                </button>
                 <button
                   type="button"
                   class="btn btn-primary"
@@ -352,18 +372,30 @@
             <div class="summary-box">
               <h3>Practice Summary</h3>
               <ul>
-                <li><strong>Test Mode:</strong> {{ testMode() === 'QUICK_TEST' ? 'Quick Test (All Topics)' : 'Custom Test' }}</li>
+                <li>
+                  <strong>Test Mode:</strong>
+                  {{ testMode() === 'QUICK_TEST' ? 'Quick Test (All Topics)' : 'Custom Test' }}
+                </li>
                 <li><strong>Subjects:</strong> {{ selectedSubjects().join(', ') }}</li>
                 <li><strong>Chapters:</strong> {{ selectedChapters().join(', ') }}</li>
                 @if (testMode() === 'CUSTOM_TEST') {
-                  <li><strong>Topics Selected:</strong> {{ selectedTopicIds().length }} topic(s)</li>
+                  <li>
+                    <strong>Topics Selected:</strong> {{ selectedTopicIds().length }} topic(s)
+                  </li>
                 }
-                <li><strong>Limit:</strong> {{ questionLimit() }} Questions | <strong>Duration:</strong> {{ testDuration() }} Minutes</li>
+                <li>
+                  <strong>Limit:</strong> {{ questionLimit() }} Questions |
+                  <strong>Duration:</strong> {{ testDuration() }} Minutes
+                </li>
               </ul>
             </div>
 
             <div class="step-actions">
-              <button type="button" class="btn btn-secondary" (click)="goToStep(testMode() === 'QUICK_TEST' ? 2 : 3)">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                (click)="goToStep(testMode() === 'QUICK_TEST' ? 2 : 3)"
+              >
                 ← Back
               </button>
               <button
@@ -392,7 +424,8 @@
         <div class="test-info">
           <h2>UCAT Practice Test</h2>
           <span class="q-counter">
-            Question <strong>{{ currentQuestionIndex() + 1 }}</strong> of {{ questionStates().length }}
+            Question <strong>{{ currentQuestionIndex() + 1 }}</strong> of
+            {{ questionStates().length }}
           </span>
         </div>
 
@@ -475,9 +508,7 @@
 
         <div class="footer-right">
           @if (currentQuestionIndex() < questionStates().length - 1) {
-            <button type="button" class="btn btn-secondary" (click)="nextQuestion()">
-              Next →
-            </button>
+            <button type="button" class="btn btn-secondary" (click)="nextQuestion()">Next →</button>
           }
           <button
             type="button"
@@ -529,15 +560,21 @@
                     (click)="jumpToQuestion($index)"
                   >
                     <span>Q{{ $index + 1 }}</span>
-                    <small>{{ st.selectedOption ? 'Option ' + st.selectedOption : 'Skipped' }}</small>
+                    <small>{{
+                      st.selectedOption ? 'Option ' + st.selectedOption : 'Skipped'
+                    }}</small>
                   </button>
                 }
               </div>
             </main>
 
             <footer class="modal-footer">
-              <button type="button" class="btn btn-secondary" (click)="closeReviewModal()">Back to Test</button>
-              <button type="button" class="btn btn-success" (click)="onSubmitTest()">Confirm & Submit</button>
+              <button type="button" class="btn btn-secondary" (click)="closeReviewModal()">
+                Back to Test
+              </button>
+              <button type="button" class="btn btn-success" (click)="onSubmitTest()">
+                Confirm & Submit
+              </button>
             </footer>
           </div>
         </div>
@@ -555,9 +592,11 @@
         </div>
       } @else if (testResult(); as res) {
         <header class="result-header">
-          <div class="badge-tag">{{ res.status || 'Completed' }} • {{ res.test_type || 'Practice Test' }}</div>
+          <div class="badge-tag">
+            {{ res.status || 'Completed' }} • {{ res.test_type || 'Practice Test' }}
+          </div>
           <h1>UCAT Performance Results</h1>
-          
+
           <div class="metrics-grid">
             <div class="metric-card score">
               <span class="metric-value">{{ res.score }}</span>
@@ -592,10 +631,10 @@
               <span><strong>Duration:</strong> {{ res.duration }} Mins</span>
             }
             @if (res.started_at) {
-              <span><strong>Started:</strong> {{ res.started_at | date:'short' }}</span>
+              <span><strong>Started:</strong> {{ res.started_at | date: 'short' }}</span>
             }
             @if (res.submitted_at) {
-              <span><strong>Submitted:</strong> {{ res.submitted_at | date:'short' }}</span>
+              <span><strong>Submitted:</strong> {{ res.submitted_at | date: 'short' }}</span>
             }
           </div>
 
@@ -611,7 +650,9 @@
               type="button"
               class="btn btn-ai-chat"
               [disabled]="isOpeningChat()"
-              (click)="openAiChatForTestSession(res.sessionId, (res.test_type || 'UCAT') + ' Test Review')"
+              (click)="
+                openAiChatForTestSession(res.sessionId, (res.test_type || 'UCAT') + ' Test Review')
+              "
             >
               @if (isOpeningChat()) {
                 <span class="btn-spinner"></span> Opening AI Assistant...
@@ -666,7 +707,9 @@
               <div
                 class="review-item"
                 [class.is-correct]="item.isCorrect || item.is_correct"
-                [class.is-wrong]="!(item.isCorrect || item.is_correct) && (item.selected || item.selected_option)"
+                [class.is-wrong]="
+                  !(item.isCorrect || item.is_correct) && (item.selected || item.selected_option)
+                "
               >
                 <div class="review-item-header">
                   <div class="item-title-group">
@@ -681,7 +724,10 @@
                   <span
                     class="item-status"
                     [class.correct]="item.isCorrect || item.is_correct"
-                    [class.wrong]="!(item.isCorrect || item.is_correct) && (item.selected || item.selected_option)"
+                    [class.wrong]="
+                      !(item.isCorrect || item.is_correct) &&
+                      (item.selected || item.selected_option)
+                    "
                     [class.skipped]="!(item.selected || item.selected_option)"
                   >
                     @if (item.isCorrect || item.is_correct) {
@@ -711,7 +757,14 @@
                 </div>
 
                 <div class="answers-comparison">
-                  <div class="ans-box user-ans" [class.correct]="item.isCorrect || item.is_correct" [class.wrong]="!(item.isCorrect || item.is_correct) && (item.selected || item.selected_option)">
+                  <div
+                    class="ans-box user-ans"
+                    [class.correct]="item.isCorrect || item.is_correct"
+                    [class.wrong]="
+                      !(item.isCorrect || item.is_correct) &&
+                      (item.selected || item.selected_option)
+                    "
+                  >
                     <span>Your Choice:</span>
                     <strong>{{ item.selected || item.selected_option || 'Skipped' }}</strong>
                   </div>
@@ -752,7 +805,10 @@
     <div class="ucat-card history-card">
       <header class="history-header">
         <h1>UCAT Practice History</h1>
-        <p>View your past test sessions, analyze detailed results, or resume in-progress practice tests.</p>
+        <p>
+          View your past test sessions, analyze detailed results, or resume in-progress practice
+          tests.
+        </p>
       </header>
 
       <main class="history-body">
@@ -766,7 +822,9 @@
             <span class="empty-icon">📂</span>
             <h3>No Test History Found</h3>
             <p>You haven't completed any UCAT practice tests yet.</p>
-            <button type="button" class="btn btn-primary" (click)="switchMainView('wizard')">Start a Practice Test</button>
+            <button type="button" class="btn btn-primary" (click)="switchMainView('wizard')">
+              Start a Practice Test
+            </button>
           </div>
         } @else {
           <div class="history-list">
@@ -776,18 +834,30 @@
                   <div class="item-main-info">
                     <span class="session-id">Session: {{ item.sessionId }}</span>
                     <span class="type-badge">{{ item.test_type || 'Practice Test' }}</span>
-                    <span class="status-badge" [class.completed]="item.status === 'Completed'" [class.in-progress]="item.status === 'In Progress'">
+                    <span
+                      class="status-badge"
+                      [class.completed]="item.status === 'Completed'"
+                      [class.in-progress]="item.status === 'In Progress'"
+                    >
                       {{ item.status }}
                     </span>
                   </div>
 
                   <div class="item-actions">
                     @if (item.status === 'Completed') {
-                      <button type="button" class="btn btn-secondary" (click)="viewResultFromHistory(item.sessionId)">
+                      <button
+                        type="button"
+                        class="btn btn-secondary"
+                        (click)="viewResultFromHistory(item.sessionId)"
+                      >
                         📊 View Result
                       </button>
                     } @else if (item.status === 'In Progress') {
-                      <button type="button" class="btn btn-success" (click)="resumeTestFromHistory(item.sessionId)">
+                      <button
+                        type="button"
+                        class="btn btn-success"
+                        (click)="resumeTestFromHistory(item.sessionId)"
+                      >
                         ▶ Resume Test
                       </button>
                     }
@@ -827,7 +897,8 @@
               ← Previous
             </button>
             <span class="page-info">
-              Page <strong>{{ historyPage() }}</strong> of {{ historyTotalPages() }} (Total: {{ historyTotal() }})
+              Page <strong>{{ historyPage() }}</strong> of {{ historyTotalPages() }} (Total:
+              {{ historyTotal() }})
             </span>
             <button
               type="button"

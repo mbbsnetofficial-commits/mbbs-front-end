@@ -1,95 +1,108 @@
-<div class="medium-page-container">
-  @if (store.loading()) {
-    <app-blog-loading/>
-  } @else if (store.error(); as error) {
-    <app-blog-error-state [message]="error" (retry)="store.retry()"/>
-  } @else if (store.homeResponse()) {
-    <div class="medium-layout">
-      <!-- LEFT MAIN FEED (~68%) -->
-      <main class="main-feed-col">
+<main class="insights-page">
+  <header class="insights-hero">
+    <div>
+      <span class="eyebrow">MBBS.NET knowledge centre</span>
+      <h1>Medical guidance,<br />made useful.</h1>
+      <p>
+        Practical articles for entrance preparation, university decisions and the path into
+        medicine.
+      </p>
+    </div>
+    <aside>
+      <span><app-icon name="sparkles" [size]="17" /></span>
+      <div>
+        <strong>Read with intent</strong>
+        <p>Save the guidance you need and return to it from your dashboard.</p>
+      </div>
+    </aside>
+  </header>
 
-        <!-- Top Navigation Tabs (For you / Featured) -->
-        <nav class="feed-tabs-nav" aria-label="Feed sections">
+  @if (store.loading()) {
+    <app-blog-loading />
+  } @else if (store.error(); as error) {
+    <app-blog-error-state [message]="error" (retry)="store.retry()" />
+  } @else if (store.homeResponse()) {
+    <div class="insights-layout">
+      <section class="feed-column">
+        <nav class="feed-tabs" aria-label="Article feeds">
           <button
-            class="tab-btn"
+            type="button"
             [class.active]="store.activeTab() === 'forYou' && !store.selectedCategorySlug()"
             (click)="store.setActiveTab('forYou')"
-            type="button"
           >
-            For you
+            Latest
           </button>
           <button
-            class="tab-btn"
+            type="button"
             [class.active]="store.activeTab() === 'featured' && !store.selectedCategorySlug()"
             (click)="store.setActiveTab('featured')"
-            type="button"
           >
-            Featured
+            Editor’s picks
           </button>
-
           @if (store.selectedCategorySlug(); as categorySlug) {
-            <span class="active-category-pill">
-              Topic: <strong>{{ categorySlug }}</strong>
-              <button type="button" class="clear-topic" (click)="store.selectCategory(null)">&times;</button>
-            </span>
+            <span class="active-topic"
+              >{{ categorySlug
+              }}<button
+                type="button"
+                aria-label="Clear topic filter"
+                (click)="store.selectCategory(null)"
+              >
+                ×
+              </button></span
+            >
           }
         </nav>
+        <app-latest-blogs [blogs]="store.feedBlogs()" />
+      </section>
 
-        <!-- Post Cards List -->
-        <app-latest-blogs [blogs]="store.feedBlogs()"/>
-      </main>
-
-      <!-- RIGHT SIDEBAR (~32%) -->
-      <aside class="right-sidebar-col">
-        <!-- Staff Picks Component -->
-        <app-featured-blogs [blogs]="store.featuredBlogs()"/>
-
-        <!-- Recommended Topics Section (Medium Tag Pills) -->
-        <section class="recommended-topics-section">
-          <h3 class="sidebar-title">Recommended topics</h3>
-
+      <aside class="discovery-column">
+        <app-featured-blogs [blogs]="store.featuredBlogs()" />
+        <section class="topics-panel">
+          <header>
+            <span>Explore by topic</span>
+            <h2>Find your focus</h2>
+          </header>
           <div class="topics-grid">
             @if (store.categories().length) {
-              @for (cat of store.categories(); track cat._id) {
+              @for (category of store.categories(); track category._id) {
                 <button
-                  class="topic-pill"
-                  [class.active]="store.selectedCategorySlug() === cat.slug"
-                  (click)="store.selectCategory(cat.slug)"
                   type="button"
+                  [class.active]="store.selectedCategorySlug() === category.slug"
+                  (click)="store.selectCategory(category.slug)"
                 >
-                  {{ cat.categoryName }} <span class="plus-icon">+</span>
+                  {{ category.categoryName }}<span>+</span>
                 </button>
               }
             } @else {
               @for (topic of defaultRecommendedTopics; track topic.slug) {
                 <button
-                  class="topic-pill"
+                  type="button"
                   [class.active]="store.selectedCategorySlug() === topic.slug"
                   (click)="store.selectCategory(topic.slug)"
-                  type="button"
                 >
-                  {{ topic.name }} <span class="plus-icon">+</span>
+                  {{ topic.name }}<span>+</span>
                 </button>
               }
             }
           </div>
-
-          <button type="button" class="see-more-topics" (click)="store.selectCategory(null)">See the full list</button>
+          <button type="button" class="clear-topics" (click)="store.selectCategory(null)">
+            Clear topic filter
+          </button>
         </section>
-
-        <!-- All Authors / Who to Follow (bound to Swagger API) -->
         @if (store.allAuthors().length) {
-          <section class="authors-section">
-            <h3 class="sidebar-title">Who to follow</h3>
-            <div class="authors-list">
+          <section class="authors-panel">
+            <header>
+              <span>Contributors</span>
+              <h2>Expert voices</h2>
+            </header>
+            <div>
               @for (author of store.allAuthors(); track author._id) {
-                <app-author-card [author]="author"/>
+                <app-author-card [author]="author" />
               }
             </div>
           </section>
         }
       </aside>
-
     </div>
   }
-</div>
+</main>

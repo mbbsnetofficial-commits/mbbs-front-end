@@ -2,17 +2,17 @@
   <!-- Top Nav Bar -->
   <header class="top-nav-bar">
     <div class="brand-title">
-      <span class="icon-mark">📜</span>
+      <span class="icon-mark" aria-hidden="true">PY</span>
       <div>
-        <h1>UCAT Previous Year Papers</h1>
-        <small>Official Past Exam Papers & Performance Analytics</small>
+        <h1>UCAT previous papers</h1>
+        <small>Past-paper practice and performance review</small>
       </div>
     </div>
 
     @if (view() !== 'test') {
       <div class="nav-tabs">
-        <a routerLink="/dynamic/ucat" class="tab-btn">🎯 Practice Suite</a>
-        <button type="button" class="tab-btn active">📜 Previous Year Papers</button>
+        <a routerLink="/dynamic/ucat" class="tab-btn">Practice tests</a>
+        <button type="button" class="tab-btn active">Previous papers</button>
       </div>
     }
   </header>
@@ -34,8 +34,14 @@
             }
           </h3>
           <p>
-            Current Streak: <strong>{{ streak.currentStreak }} {{ streak.currentStreak === 1 ? 'day' : 'days' }}</strong>
-            • Longest Streak: <strong>{{ streak.longestStreak }} {{ streak.longestStreak === 1 ? 'day' : 'days' }}</strong>
+            Current Streak:
+            <strong
+              >{{ streak.currentStreak }} {{ streak.currentStreak === 1 ? 'day' : 'days' }}</strong
+            >
+            • Longest Streak:
+            <strong
+              >{{ streak.longestStreak }} {{ streak.longestStreak === 1 ? 'day' : 'days' }}</strong
+            >
             @if (streak.lastActivityDate) {
               • Last Activity: <strong>{{ streak.lastActivityDate }}</strong>
             }
@@ -73,7 +79,10 @@
       <div class="section-header">
         <div class="section-intro">
           <h2>Available Previous Year Exam Papers</h2>
-          <p>Select an official UCAT past paper to simulate full-length exam conditions and track topic mastery.</p>
+          <p>
+            Select an official UCAT past paper to simulate full-length exam conditions and track
+            topic mastery.
+          </p>
         </div>
 
         <div class="search-box">
@@ -97,7 +106,9 @@
           <span class="empty-icon">📂</span>
           <h3>No Papers Found</h3>
           <p>No past papers match your search criteria. Try a different term or refresh.</p>
-          <button type="button" class="btn btn-secondary" (click)="loadPapers()">↻ Refresh Papers List</button>
+          <button type="button" class="btn btn-secondary" (click)="loadPapers()">
+            ↻ Refresh Papers List
+          </button>
         </div>
       } @else {
         <div class="papers-grid">
@@ -149,14 +160,18 @@
   <!-- STEP 2: TEST CONFIGURATION VIEW -->
   @if (view() === 'config' && selectedPaper()) {
     <div class="config-container">
-      <button type="button" class="btn-back" (click)="backToPaperList()">← Back to Papers List</button>
+      <button type="button" class="btn-back" (click)="backToPaperList()">
+        ← Back to Papers List
+      </button>
 
       <div class="config-card">
         <div class="config-header">
           <span class="config-icon">⚙️</span>
           <div>
             <h2>Configure {{ selectedPaper()?.name?.replace('_', ' ') }}</h2>
-            <p>Customize question sample size and timer duration before starting your exam session.</p>
+            <p>
+              Customize question sample size and timer duration before starting your exam session.
+            </p>
           </div>
         </div>
 
@@ -210,7 +225,9 @@
         </div>
 
         <div class="config-actions">
-          <button type="button" class="btn btn-secondary" (click)="backToPaperList()">Cancel</button>
+          <button type="button" class="btn btn-secondary" (click)="backToPaperList()">
+            Cancel
+          </button>
           <button
             type="button"
             class="btn btn-primary"
@@ -247,13 +264,19 @@
         <div class="header-progress">
           <div class="progress-item">
             <span class="dot answered"></span>
-            <span>Answered: <strong>{{ answeredCount() }}</strong></span>
+            <span
+              >Answered: <strong>{{ answeredCount() }}</strong></span
+            >
           </div>
           <div class="progress-item">
             <span class="dot skipped"></span>
-            <span>Unanswered: <strong>{{ skippedCount() }}</strong></span>
+            <span
+              >Unanswered: <strong>{{ skippedCount() }}</strong></span
+            >
           </div>
-          <button type="button" class="btn btn-review" (click)="openReviewModal()">Review & Submit</button>
+          <button type="button" class="btn btn-review" (click)="openReviewModal()">
+            Review & Submit
+          </button>
         </div>
       </div>
 
@@ -264,7 +287,10 @@
           @if (currentQuestion(); as q) {
             <div class="question-card">
               <div class="q-meta">
-                <span class="q-number">Question {{ currentQuestionIndex() + 1 }} of {{ activeSession()?.totalQuestions }}</span>
+                <span class="q-number"
+                  >Question {{ currentQuestionIndex() + 1 }} of
+                  {{ activeSession()?.totalQuestions }}</span
+                >
                 <span class="q-subject">{{ q.subject?.replace('_', ' ') || 'General' }}</span>
                 @if (q.topic_name) {
                   <span class="q-topic">• {{ q.topic_name }}</span>
@@ -285,9 +311,13 @@
                     <div class="key-badge">{{ key }}</div>
                     <div class="option-text">
                       {{
-                        key === 'A' ? q.option_a :
-                        key === 'B' ? q.option_b :
-                        key === 'C' ? q.option_c : q.option_d
+                        key === 'A'
+                          ? q.option_a
+                          : key === 'B'
+                            ? q.option_b
+                            : key === 'C'
+                              ? q.option_c
+                              : q.option_d
                       }}
                     </div>
                   </div>
@@ -305,11 +335,7 @@
                   ← Previous
                 </button>
 
-                <button
-                  type="button"
-                  class="btn btn-tertiary"
-                  (click)="nextQuestion()"
-                >
+                <button type="button" class="btn btn-tertiary" (click)="nextQuestion()">
                   Skip Question
                 </button>
 
@@ -365,7 +391,9 @@
         </div>
 
         <div class="modal-body">
-          <p>Check your answer status across all questions before finalizing your exam submission.</p>
+          <p>
+            Check your answer status across all questions before finalizing your exam submission.
+          </p>
 
           <div class="review-stats">
             <div class="stat-chip answered">
@@ -398,7 +426,9 @@
         </div>
 
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" (click)="closeReviewModal()">Return to Test</button>
+          <button type="button" class="btn btn-secondary" (click)="closeReviewModal()">
+            Return to Test
+          </button>
           <button
             type="button"
             class="btn btn-danger"
@@ -429,21 +459,26 @@
         <div class="result-header">
           <div>
             <h2>Exam Performance Report</h2>
-            <p>{{ selectedPaper()?.name?.replace('_', ' ') || res.test_type || 'Previous Year Paper' }}</p>
+            <p>
+              {{
+                selectedPaper()?.name?.replace('_', ' ') || res.test_type || 'Previous Year Paper'
+              }}
+            </p>
           </div>
           <div class="header-actions">
-            <button
-              type="button"
-              class="btn btn-tertiary"
-              (click)="openAiInsightsForTestSession()"
-            >
+            <button type="button" class="btn btn-tertiary" (click)="openAiInsightsForTestSession()">
               ✨ AI Performance Insights
             </button>
             <button
               type="button"
               class="btn btn-primary"
               [disabled]="isOpeningChat()"
-              (click)="openAiChatForTestSession(res.sessionId, (selectedPaper()?.name?.replace('_', ' ') || 'Previous Year Test') + ' Review')"
+              (click)="
+                openAiChatForTestSession(
+                  res.sessionId,
+                  (selectedPaper()?.name?.replace('_', ' ') || 'Previous Year Test') + ' Review'
+                )
+              "
             >
               @if (isOpeningChat()) {
                 <span class="btn-spinner"></span> Opening AI Chat...
@@ -451,7 +486,9 @@
                 🤖 Ask AI About This Test
               }
             </button>
-            <button type="button" class="btn btn-secondary" (click)="restartWizard()">← Back to Papers List</button>
+            <button type="button" class="btn btn-secondary" (click)="restartWizard()">
+              ← Back to Papers List
+            </button>
           </div>
         </div>
 
@@ -543,13 +580,19 @@
               <div
                 class="review-card"
                 [class.correct-card]="item.isCorrect || item.is_correct"
-                [class.wrong-card]="!(item.isCorrect || item.is_correct) && !item.is_skipped && (item.selected || item.selected_option)"
+                [class.wrong-card]="
+                  !(item.isCorrect || item.is_correct) &&
+                  !item.is_skipped &&
+                  (item.selected || item.selected_option)
+                "
                 [class.skipped-card]="item.is_skipped || (!item.selected && !item.selected_option)"
               >
                 <div class="card-header">
                   <div class="meta">
                     <span class="q-index">Q{{ $index + 1 }}</span>
-                    <span class="q-subject">{{ item.subject?.replace('_', ' ') || 'General' }}</span>
+                    <span class="q-subject">{{
+                      item.subject?.replace('_', ' ') || 'General'
+                    }}</span>
                     @if (item.topic_name) {
                       <span class="q-topic">• {{ item.topic_name }}</span>
                     }
@@ -628,7 +671,9 @@
   @if (showAiInsightsModal()) {
     <app-ucat-ai-insights-modal
       [testSessionId]="testResult()?.sessionId || activeSession()?.sessionId || ''"
-      [testTitle]="(selectedPaper()?.name?.replace('_', ' ') || 'Previous Year Test') + ' Performance Insights'"
+      [testTitle]="
+        (selectedPaper()?.name?.replace('_', ' ') || 'Previous Year Test') + ' Performance Insights'
+      "
       (closeModal)="closeAiInsightsModal()"
       (continueToAiChat)="onTransitionToAiChatFromInsights($event)"
     ></app-ucat-ai-insights-modal>
