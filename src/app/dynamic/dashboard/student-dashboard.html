@@ -1,291 +1,384 @@
-<div class="dashboard-page-container">
+<main class="dashboard-page">
   @if (loading()) {
-    <div class="loading-spinner-state">
-      <div class="spinner"></div>
-      <p>Loading your student dashboard…</p>
+    <div class="dashboard-skeleton" role="status" aria-label="Loading dashboard">
+      <span class="skeleton hero"></span>
+      <div class="skeleton-grid"><span></span><span></span><span></span><span></span></div>
+      <div class="skeleton-panels"><span></span><span></span></div>
     </div>
+  } @else if (error()) {
+    <section class="dashboard-error" role="alert">
+      <span><app-icon name="activity" [size]="24" /></span>
+      <h1>Dashboard temporarily unavailable</h1>
+      <p>{{ error() }}</p>
+      <button type="button" (click)="loadAllDashboardData()">
+        <app-icon name="retry" [size]="16" />Try again
+      </button>
+    </section>
   } @else if (summaryData(); as data) {
-    <!-- Welcome Header Banner -->
-    <header class="dashboard-banner">
-      <div class="banner-left">
-        <div class="welcome-title-row">
-          <h1>Welcome back, {{ data.profile.full_name }}! 👋</h1>
-          <span class="plan-badge">{{ data.profile.subscription_plan }}</span>
-        </div>
-        <p class="banner-subtext">Future Doctor, your dedication today builds tomorrow's white coat.</p>
+    @if (previewMode()) {
+      <div class="preview-notice" role="status">
+        <app-icon name="activity" [size]="15" /><span
+          >Development preview — the API is unavailable, so clearly marked preview data is shown
+          only in this local build.</span
+        >
       </div>
+    }
 
-      <div class="banner-right">
-        <div class="streak-pill">
-          <span class="fire-icon">🔥</span>
-          <div class="streak-text">
-            <strong>{{ data.streak.current_streak }} Day Streak</strong>
-            <small>Longest: {{ data.streak.longest_streak }} days</small>
-          </div>
-        </div>
-      </div>
-    </header>
-
-    <!-- Top KPI Performance Cards -->
-    <section class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-icon purple">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-        </div>
-        <div class="stat-meta">
-          <span class="stat-label">Tests Completed</span>
-          <span class="stat-value">{{ data.performance_summary.total_tests_completed }}</span>
-          <span class="stat-trend positive">Started: {{ data.performance_summary.total_tests_started }}</span>
+    <section class="dashboard-hero">
+      <div class="hero-copy">
+        <span class="eyebrow">Preparation command centre</span>
+        <h1>Good to see you, {{ data.profile.firstName || data.profile.full_name }}.</h1>
+        <p>
+          Your performance, saved research and next best actions—together in one focused workspace.
+        </p>
+        <div class="hero-actions">
+          <a routerLink="/dynamic/neet/quick-test"
+            >Start a practice test <app-icon name="arrow-right" [size]="16"
+          /></a>
+          <a class="secondary" routerLink="/dynamic/cse">Find universities</a>
         </div>
       </div>
-
-      <div class="stat-card">
-        <div class="stat-icon green">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      <div class="hero-status">
+        <div class="streak-visual">
+          <app-icon name="flame" [size]="24" /><strong>{{ data.streak.current_streak }}</strong
+          ><span>day streak</span>
         </div>
-        <div class="stat-meta">
-          <span class="stat-label">Overall Accuracy</span>
-          <span class="stat-value">{{ data.performance_summary.overall_accuracy_percentage | number:'1.1-1' }}%</span>
-          <span class="stat-trend positive">Questions Attempted: {{ data.performance_summary.total_questions_attempted }}</span>
-        </div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-icon blue">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        </div>
-        <div class="stat-meta">
-          <span class="stat-label">Practice Time</span>
-          <span class="stat-value">{{ data.performance_summary.total_practice_time_minutes }} mins</span>
-          <span class="stat-trend neutral">Total Score: {{ data.performance_summary.total_score }}</span>
-        </div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-icon orange">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-        </div>
-        <div class="stat-meta">
-          <span class="stat-label">Correct Answers</span>
-          <span class="stat-value">{{ data.performance_summary.total_correct }}</span>
-          <span class="stat-trend negative">Wrong: {{ data.performance_summary.total_wrong }}</span>
+        <div class="status-copy">
+          <span>{{
+            data.streak.answered_today ? 'Today is complete' : 'Keep the streak alive'
+          }}</span
+          ><strong>{{ data.streak.longest_streak }} days</strong><small>Personal best</small>
         </div>
       </div>
     </section>
 
-    <!-- Dashboard Navigation Tabs -->
-    <nav class="dashboard-tabs-nav" aria-label="Dashboard views">
+    <section class="metric-grid" aria-label="Preparation summary">
+      <article class="metric-card primary">
+        <header><span>Overall accuracy</span><app-icon name="activity" [size]="18" /></header>
+        <strong
+          >{{ data.performance_summary.overall_accuracy_percentage | number: '1.0-1' }}%</strong
+        >
+        <footer>
+          <span class="trend up">{{ data.performance_summary.total_correct }} correct</span
+          ><small>of {{ data.performance_summary.total_questions_attempted }} attempted</small>
+        </footer>
+      </article>
+      <article class="metric-card">
+        <header><span>Tests completed</span><app-icon name="test" [size]="18" /></header>
+        <strong>{{ data.performance_summary.total_tests_completed }}</strong>
+        <footer>
+          <span class="trend">{{ completionRate(data) }}% completion</span
+          ><small>{{ data.performance_summary.total_tests_started }} started</small>
+        </footer>
+      </article>
+      <article class="metric-card">
+        <header><span>Focused practice</span><app-icon name="clock" [size]="18" /></header>
+        <strong>{{ practiceHours(data.performance_summary.total_practice_time_minutes) }}</strong>
+        <footer>
+          <span class="trend">{{ data.performance_summary.total_score }} points</span
+          ><small>Total score</small>
+        </footer>
+      </article>
+      <article class="metric-card dark">
+        <header><span>Questions resolved</span><app-icon name="check" [size]="18" /></header>
+        <strong>{{ data.performance_summary.total_correct }}</strong>
+        <footer>
+          <span>{{ data.performance_summary.total_wrong }} to review</span
+          ><small>{{ data.performance_summary.total_skipped }} skipped</small>
+        </footer>
+      </article>
+    </section>
+
+    <nav class="dashboard-tabs" aria-label="Dashboard sections">
       <button
-        class="dash-tab-btn"
+        type="button"
         [class.active]="activeTab() === 'overview'"
         (click)="setActiveTab('overview')"
-        type="button"
       >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-        Overview & Recent Activity
+        Overview
       </button>
-
       <button
-        class="dash-tab-btn"
+        type="button"
         [class.active]="activeTab() === 'universities'"
         (click)="setActiveTab('universities')"
-        type="button"
       >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
-        Saved Target Universities ({{ savedUniversities().length }})
+        Universities <span>{{ savedUniversities().length }}</span>
       </button>
-
       <button
-        class="dash-tab-btn"
+        type="button"
         [class.active]="activeTab() === 'recommendations'"
         (click)="setActiveTab('recommendations')"
-        type="button"
       >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        Finder Quiz Sessions ({{ savedRecommendations().length }})
+        Finder sessions <span>{{ savedRecommendations().length }}</span>
       </button>
-
       <button
-        class="dash-tab-btn"
+        type="button"
         [class.active]="activeTab() === 'saved-blogs'"
         (click)="setActiveTab('saved-blogs')"
-        type="button"
       >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-        Saved Articles ({{ savedBlogs().length }})
+        Saved insights <span>{{ savedBlogs().length }}</span>
       </button>
     </nav>
 
-    <!-- Tab 1: Overview & Recent Activity (GET /api/v1/student/dashboard/recent-activity) -->
     @if (activeTab() === 'overview') {
-      <div class="dashboard-main-grid">
-        <!-- Subject Performance Breakdown -->
-        <div class="dashboard-section-card">
-          <div class="section-header">
-            <h2>Subject Accuracy Breakdown</h2>
-            <a routerLink="/dynamic/neet/leaderboard" class="section-link">Performance &rarr;</a>
-          </div>
+      <section class="overview-grid">
+        <article class="panel performance-panel">
+          <header class="panel-header">
+            <div>
+              <span class="eyebrow">Subject performance</span>
+              <h2>Accuracy by discipline</h2>
+              <p>Compare your latest performance across attempted subjects.</p>
+            </div>
+            <a routerLink="/dynamic/neet/leaderboard"
+              >Full report <app-icon name="arrow-right" [size]="15"
+            /></a>
+          </header>
+          @if (data.subject_breakdown.length) {
+            <div class="performance-chart" role="img" aria-label="Subject accuracy comparison">
+              @for (subject of data.subject_breakdown; track subject.subject) {
+                <div class="chart-column">
+                  <div class="chart-value">{{ subject.accuracy | number: '1.0-0' }}%</div>
+                  <div class="chart-track">
+                    <span [style.height.%]="barHeight(subject.accuracy)"></span>
+                  </div>
+                  <strong>{{ subject.subject }}</strong
+                  ><small>{{ subject.tests_taken }} tests</small>
+                </div>
+              }
+            </div>
+            <div class="performance-legend">
+              <span
+                ><i class="correct-dot"></i
+                >{{ data.performance_summary.total_correct }} correct</span
+              ><span
+                ><i class="wrong-dot"></i>{{ data.performance_summary.total_wrong }} incorrect</span
+              ><span
+                ><i class="skip-dot"></i>{{ data.performance_summary.total_skipped }} skipped</span
+              >
+            </div>
+          } @else {
+            <div class="empty-panel">
+              <app-icon name="chart" [size]="22" />
+              <h3>Your subject chart starts with your first test</h3>
+              <p>Complete a practice session to see a useful comparison here.</p>
+              <a routerLink="/dynamic/neet/quick-test">Create a test</a>
+            </div>
+          }
+        </article>
 
-          <div class="subjects-list">
-            @for (subj of data.subject_breakdown; track subj.subject) {
-              <div class="subject-row">
-                <div class="subject-info">
-                  <span class="subject-name">{{ subj.subject }}</span>
-                  <span class="subject-accuracy">{{ subj.accuracy }}% accuracy</span>
+        <aside class="panel action-panel">
+          <header>
+            <span class="eyebrow">Recommended next</span>
+            <h2>
+              {{
+                data.streak.answered_today ? 'Build on today’s work' : 'Complete today’s question'
+              }}
+            </h2>
+          </header>
+          <div class="action-illustration">
+            <span
+              class="ring"
+              [style.--value]="data.performance_summary.overall_accuracy_percentage"
+              ><strong
+                >{{
+                  data.performance_summary.overall_accuracy_percentage | number: '1.0-0'
+                }}%</strong
+              ><small>accuracy</small></span
+            >
+          </div>
+          <p>
+            {{
+              data.streak.answered_today
+                ? 'Use a focused test to turn your strongest subject into reliable exam-day performance.'
+                : 'A single daily question keeps your recall active and protects your current streak.'
+            }}
+          </p>
+          <a
+            [routerLink]="data.streak.answered_today ? '/dynamic/neet/quick-test' : '/dynamic/neet'"
+            >{{ data.streak.answered_today ? 'Create focused test' : 'Solve daily question'
+            }}<app-icon name="arrow-right" [size]="16"
+          /></a>
+        </aside>
+
+        <article class="panel activity-panel">
+          <header class="panel-header">
+            <div>
+              <span class="eyebrow">Recent work</span>
+              <h2>Latest activity</h2>
+            </div>
+            <a routerLink="/dynamic/neet/quick-test"
+              >New test <app-icon name="arrow-right" [size]="15"
+            /></a>
+          </header>
+          <div class="activity-list">
+            @for (
+              activity of recentActivities().length ? recentActivities() : data.recent_tests;
+              track activity.id ?? activity._id
+            ) {
+              <div class="activity-row">
+                <span class="activity-icon"><app-icon name="test" [size]="17" /></span>
+                <div>
+                  <strong>{{ activity.title || activity.test_type }}</strong
+                  ><small>{{
+                    activity.timestamp || activity.started_at | date: 'mediumDate'
+                  }}</small>
                 </div>
-                <div class="progress-bar-bg">
-                  <div class="progress-bar-fill" [style.width.%]="subj.accuracy"></div>
+                <div class="activity-score">
+                  <strong>{{ activity.score ?? '—' }}</strong
+                  ><span>{{ activity.accuracy ?? 0 }}%</span>
                 </div>
-                <div class="subject-details">
-                  <small>{{ subj.total_correct }} correct &bull; {{ subj.total_wrong }} wrong &bull; {{ subj.tests_taken }} tests</small>
-                </div>
+              </div>
+            } @empty {
+              <div class="empty-panel compact">
+                <h3>No recent activity</h3>
+                <p>Your completed tests will appear here.</p>
               </div>
             }
           </div>
-        </div>
+        </article>
 
-        <!-- Recent Activity Timeline (GET /api/v1/student/dashboard/recent-activity) -->
-        <div class="dashboard-section-card">
-          <div class="section-header">
-            <h2>Recent Activity Timeline</h2>
-            <a routerLink="/dynamic/neet/quick-test" class="section-link">Take Test &rarr;</a>
-          </div>
-
-          <div class="activity-list">
-            @if (recentActivities().length) {
-              @for (act of recentActivities(); track act.id) {
-                <div class="activity-item">
-                  <div class="activity-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                  </div>
-                  <div class="activity-details">
-                    <strong class="activity-title">{{ act.title }}</strong>
-                    <span class="activity-date">{{ act.timestamp | date:'mediumDate' }}</span>
-                  </div>
-                  <div class="activity-metrics">
-                    <span class="activity-score">Score: {{ act.score }}</span>
-                    <span class="activity-badge">{{ act.accuracy }}% accuracy</span>
-                  </div>
-                </div>
-              }
-            } @else {
-              @for (test of data.recent_tests; track test._id) {
-                <div class="activity-item">
-                  <div class="activity-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                  </div>
-                  <div class="activity-details">
-                    <strong class="activity-title">{{ test.test_type }}</strong>
-                    <span class="activity-date">{{ test.started_at | date:'mediumDate' }}</span>
-                  </div>
-                  <div class="activity-metrics">
-                    <span class="activity-score">Score: {{ test.score }}</span>
-                    <span class="activity-badge">{{ test.accuracy }}% accuracy</span>
-                  </div>
-                </div>
-              }
-            }
-          </div>
-        </div>
-      </div>
+        <aside class="panel saved-panel">
+          <header>
+            <span class="eyebrow">Research workspace</span>
+            <h2>Saved for later</h2>
+          </header>
+          <button type="button" (click)="setActiveTab('universities')">
+            <span><app-icon name="globe" [size]="17" />Universities</span
+            ><strong>{{ savedUniversities().length }}</strong>
+          </button>
+          <button type="button" (click)="setActiveTab('recommendations')">
+            <span><app-icon name="sparkles" [size]="17" />Finder sessions</span
+            ><strong>{{ savedRecommendations().length }}</strong>
+          </button>
+          <button type="button" (click)="setActiveTab('saved-blogs')">
+            <span><app-icon name="bookmark" [size]="17" />Insights</span
+            ><strong>{{ savedBlogs().length }}</strong>
+          </button>
+        </aside>
+      </section>
     }
 
-    <!-- Tab 2: Saved Universities (GET & DELETE /api/v1/student/dashboard/university-finder/save-university) -->
     @if (activeTab() === 'universities') {
-      <div class="dashboard-section-card wide">
-        <div class="section-header">
-          <h2>Saved Target MBBS Universities</h2>
-          <a routerLink="/dynamic/cse" class="section-link">Find More Universities &rarr;</a>
-        </div>
-
+      <section class="collection-panel">
+        <header class="panel-header">
+          <div>
+            <span class="eyebrow">University research</span>
+            <h2>Your shortlist</h2>
+            <p>Medical universities saved from the finder.</p>
+          </div>
+          <a routerLink="/dynamic/cse">Explore more <app-icon name="arrow-right" [size]="15" /></a>
+        </header>
         @if (savedUniversities().length) {
-          <div class="universities-grid">
-            @for (uni of savedUniversities(); track uni.university_id) {
-              <div class="uni-card">
-                <div class="uni-header">
-                  <div class="uni-meta">
-                    <strong class="uni-title">{{ uni.university_name }}</strong>
-                    <span class="uni-country">{{ uni.country || 'Target Country' }}</span>
-                  </div>
-                  <button type="button" class="unsave-btn" (click)="removeSavedUniversity(uni.university_id, $event)" title="Remove from saved list">&times;</button>
+          <div class="collection-grid">
+            @for (university of savedUniversities(); track university.university_id) {
+              <article class="university-item">
+                <span class="item-icon"><app-icon name="globe" [size]="20" /></span>
+                <div>
+                  <span>{{ university.country || 'Medical programme' }}</span>
+                  <h3>{{ university.university_name }}</h3>
+                  <p>
+                    {{
+                      university.annual_tuition ||
+                        'Fee information available in the university profile'
+                    }}
+                  </p>
                 </div>
-                <div class="uni-details">
-                  <span class="uni-fee">{{ uni.annual_tuition || 'Recognised Medical Programme' }}</span>
-                </div>
-              </div>
+                <button
+                  type="button"
+                  aria-label="Remove saved university"
+                  (click)="removeSavedUniversity(university.university_id, $event)"
+                >
+                  <app-icon name="close" [size]="16" />
+                </button>
+              </article>
             }
           </div>
         } @else {
-          <div class="empty-state">
-            <p>No target universities saved yet.</p>
-            <a routerLink="/dynamic/cse" class="btn-primary">Explore University Finder</a>
+          <div class="empty-panel">
+            <app-icon name="globe" [size]="22" />
+            <h3>No universities saved yet</h3>
+            <p>Explore destinations and save universities to compare later.</p>
+            <a routerLink="/dynamic/cse">Open university finder</a>
           </div>
         }
-      </div>
+      </section>
     }
 
-    <!-- Tab 3: Finder Quiz Sessions (GET /api/v1/student/dashboard/university-finder/recommendations) -->
     @if (activeTab() === 'recommendations') {
-      <div class="dashboard-section-card wide">
-        <div class="section-header">
-          <h2>Saved University Finder Quiz Sessions</h2>
-          <a routerLink="/dynamic/cse" class="section-link">New Quiz Search &rarr;</a>
-        </div>
-
+      <section class="collection-panel">
+        <header class="panel-header">
+          <div>
+            <span class="eyebrow">University finder</span>
+            <h2>Saved finder sessions</h2>
+            <p>Return to recommendations created from your preferences.</p>
+          </div>
+          <a routerLink="/dynamic/cse"
+            >Start new search <app-icon name="arrow-right" [size]="15"
+          /></a>
+        </header>
         @if (savedRecommendations().length) {
-          <div class="recommendations-list">
-            @for (rec of savedRecommendations(); track rec._id) {
-              <div class="rec-card">
-                <div class="rec-header">
-                  <strong>Target: {{ rec.target_country }}</strong>
-                  <span class="rec-date">{{ rec.created_at | date:'mediumDate' }}</span>
-                </div>
-                <p class="rec-budget">Budget: {{ rec.budget_range }}</p>
-                <div class="rec-unis">
-                  <span class="rec-label">Recommended Matches:</span>
-                  <div class="rec-tags">
-                    @for (uName of rec.recommended_universities; track uName) {
-                      <span class="rec-tag-pill">{{ uName }}</span>
+          <div class="session-list">
+            @for (session of savedRecommendations(); track session._id) {
+              <article>
+                <span class="item-icon"><app-icon name="sparkles" [size]="20" /></span>
+                <div>
+                  <span>{{ session.created_at | date: 'mediumDate' }}</span>
+                  <h3>{{ session.target_country }}</h3>
+                  <p>{{ session.budget_range }}</p>
+                  <div class="tags">
+                    @for (university of session.recommended_universities; track university) {
+                      <span>{{ university }}</span>
                     }
                   </div>
                 </div>
-              </div>
+              </article>
             }
           </div>
         } @else {
-          <div class="empty-state">
-            <p>No quiz recommendation sessions saved yet.</p>
-            <a routerLink="/dynamic/cse" class="btn-primary">Start University Finder Quiz</a>
+          <div class="empty-panel">
+            <app-icon name="sparkles" [size]="22" />
+            <h3>No saved finder sessions</h3>
+            <p>Answer a short preference quiz to receive personalised matches.</p>
+            <a routerLink="/dynamic/cse">Start university finder</a>
           </div>
         }
-      </div>
+      </section>
     }
 
-    <!-- Tab 4: Saved Articles (GET /api/v1/student/dashboard/saved-blogs) -->
     @if (activeTab() === 'saved-blogs') {
-      <div class="dashboard-section-card wide">
-        <div class="section-header">
-          <h2>Saved Medical Articles</h2>
-          <a routerLink="/dynamic/blogs" class="section-link">Explore Blogs Feed &rarr;</a>
-        </div>
-
+      <section class="collection-panel">
+        <header class="panel-header">
+          <div>
+            <span class="eyebrow">Knowledge centre</span>
+            <h2>Saved insights</h2>
+            <p>Articles you bookmarked for focused reading.</p>
+          </div>
+          <a routerLink="/dynamic/blogs"
+            >Browse insights <app-icon name="arrow-right" [size]="15"
+          /></a>
+        </header>
         @if (savedBlogs().length) {
-          <div class="saved-blogs-grid">
-            @for (b of savedBlogs(); track b._id) {
-              <div class="saved-blog-card">
-                <strong class="blog-title">{{ b.title }}</strong>
-                <p class="blog-desc">{{ b.shortDescription }}</p>
-                <a [routerLink]="['/dynamic/blogs', b.slug]" class="read-link">Read Full Article &rarr;</a>
-              </div>
+          <div class="article-list">
+            @for (article of savedBlogs(); track article._id) {
+              <a [routerLink]="['/dynamic/blogs', article.slug]"
+                ><span class="item-icon"><app-icon name="bookmark" [size]="18" /></span>
+                <div>
+                  <h3>{{ article.title }}</h3>
+                  <p>{{ article.shortDescription }}</p>
+                </div>
+                <app-icon name="arrow-right" [size]="16"
+              /></a>
             }
           </div>
         } @else {
-          <div class="empty-state">
-            <p>No saved articles yet.</p>
-            <a routerLink="/dynamic/blogs" class="btn-primary">Browse Blog Feed</a>
+          <div class="empty-panel">
+            <app-icon name="bookmark" [size]="22" />
+            <h3>No saved insights</h3>
+            <p>Bookmark useful medical admission articles to find them here.</p>
+            <a routerLink="/dynamic/blogs">Explore insights</a>
           </div>
         }
-      </div>
+      </section>
     }
   }
-</div>
+</main>

@@ -1,0 +1,398 @@
+/* Portal-wide readable typography scale.
+   The legacy screens used many 7–11px labels. This layer normalizes every
+   interactive surface without altering feature layout or business logic. */
+
+body {
+  font-size: var(--type-body);
+  font-family: var(--font-sans);
+  font-optical-sizing: auto;
+  font-variant-ligatures: common-ligatures;
+}
+
+body * {
+  font-family: var(--font-sans) !important;
+}
+
+body :where(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--font-display) !important;
+  font-optical-sizing: auto;
+  letter-spacing: -0.035em;
+}
+
+body
+  :where(
+    .brand-name strong,
+    .brand strong,
+    .metric-card > strong,
+    .stat-value,
+    .streak-visual strong,
+    .chart-value,
+    .activity-score strong,
+    .rank-position strong,
+    .rank-stat strong,
+    .score-value,
+    .result-score,
+    .accuracy-orbit strong,
+    .mini-ring
+  ) {
+  font-family: var(--font-display) !important;
+  font-variant-numeric: tabular-nums;
+}
+
+body :where(button, input, select, textarea) {
+  font-size: var(--type-small);
+}
+
+body :where(.eyebrow, .ui-eyebrow, .section-kicker, .banner-kicker) {
+  font-size: var(--type-micro) !important;
+  line-height: 1.35;
+}
+
+/* Student shell */
+body :where(.sidebar-nav > a, .nav-parent) {
+  font-size: var(--type-small) !important;
+}
+
+body .subnav a {
+  font-size: var(--type-caption) !important;
+}
+
+body :where(.nav-label, .brand-name small, .topbar-title span) {
+  font-size: 0.6875rem !important;
+}
+
+body .brand-name strong {
+  font-size: 1.0625rem !important;
+}
+
+body .topbar-title strong {
+  font-size: 1.25rem !important;
+}
+
+body :where(.search-trigger, .topbar-profile) {
+  font-size: var(--type-caption) !important;
+}
+
+body .profile-copy strong {
+  font-size: var(--type-caption) !important;
+}
+
+body .profile-copy small {
+  font-size: var(--type-micro) !important;
+}
+
+body .progress-callout strong {
+  font-size: var(--type-micro) !important;
+}
+
+body .progress-callout span:not(.progress-icon) {
+  font-size: 0.6875rem !important;
+}
+
+body :where(.notification-list article strong, .profile-summary strong) {
+  font-size: var(--type-caption) !important;
+}
+
+body :where(.notification-list article small, .profile-summary small) {
+  font-size: var(--type-micro) !important;
+}
+
+body .command-results strong {
+  font-size: var(--type-small) !important;
+}
+
+body .command-results small {
+  font-size: var(--type-caption) !important;
+}
+
+/* Dashboard */
+body .dashboard-page {
+  font-size: var(--type-body);
+}
+
+body .hero-copy > p {
+  font-size: var(--type-body) !important;
+  line-height: 1.6 !important;
+}
+
+body .hero-actions a {
+  font-size: var(--type-small) !important;
+}
+
+body :where(.status-copy > span, .status-copy small, .metric-card header) {
+  font-size: var(--type-micro) !important;
+}
+
+body .streak-visual span {
+  font-size: var(--type-micro) !important;
+}
+
+body .metric-card footer {
+  font-size: var(--type-caption) !important;
+}
+
+body .dashboard-tabs button {
+  font-size: var(--type-small) !important;
+}
+
+body :where(.panel-header p, .action-panel > p, .empty-panel p, .dashboard-error p) {
+  font-size: var(--type-caption) !important;
+  line-height: 1.55 !important;
+}
+
+body
+  :where(.panel-header > a, .collection-panel header > a, .empty-panel a, .dashboard-error button) {
+  font-size: var(--type-caption) !important;
+}
+
+body .chart-value {
+  font-size: var(--type-micro) !important;
+}
+
+body .chart-column strong {
+  font-size: var(--type-caption) !important;
+}
+
+body .chart-column small {
+  font-size: var(--type-micro) !important;
+}
+
+body .performance-legend {
+  font-size: var(--type-micro) !important;
+}
+
+body .activity-row strong,
+body .saved-panel button span {
+  font-size: var(--type-caption) !important;
+}
+
+body :where(.activity-row small, .activity-score span) {
+  font-size: var(--type-micro) !important;
+}
+
+body :where(.university-item h3, .session-list h3, .article-list h3) {
+  font-size: var(--type-small) !important;
+}
+
+body :where(.university-item p, .session-list p, .article-list p) {
+  font-size: var(--type-caption) !important;
+}
+
+/* Authentication */
+body .form-heading > span {
+  font-size: var(--type-micro) !important;
+}
+
+body .form-heading p {
+  font-size: var(--type-caption) !important;
+}
+
+body :where(.field label, .field-header label, .remember-label, .switch-link) {
+  font-size: var(--type-caption) !important;
+}
+
+body .field-header a {
+  font-size: var(--type-micro) !important;
+}
+
+body .auth-shell input:not([type='checkbox']) {
+  font-size: var(--type-small) !important;
+}
+
+body :where(.secondary-button, .submit-button) {
+  font-size: var(--type-small) !important;
+}
+
+body :where(.field-error, .form-alert, .legal-notice) {
+  font-size: var(--type-micro) !important;
+  line-height: 1.45;
+}
+
+/* Public experience */
+body .site-header > nav :where(a, button),
+body .header-actions a {
+  font-size: var(--type-small) !important;
+}
+
+body .mega-intro > span,
+body .mega-links a {
+  font-size: var(--type-micro) !important;
+}
+
+body .mega-intro p {
+  font-size: var(--type-caption) !important;
+}
+
+body .landing-page .hero-copy > p {
+  font-size: var(--type-lead) !important;
+}
+
+body .landing-page .hero-actions > a {
+  font-size: var(--type-small) !important;
+}
+
+body .trust-row {
+  font-size: var(--type-micro) !important;
+}
+
+body .signal-strip strong {
+  font-size: var(--type-body) !important;
+}
+
+body .signal-strip p,
+body .section-heading > p,
+body .feature-card p,
+body .country-card p,
+body .guidance-copy > p,
+body .contact-intro > p {
+  font-size: var(--type-small) !important;
+  line-height: 1.65 !important;
+}
+
+body :where(.feature-card a, .guidance-copy li, .guidance-copy > a) {
+  font-size: var(--type-caption) !important;
+}
+
+body .contact-section :where(label > span, input, textarea, footer button) {
+  font-size: var(--type-caption) !important;
+}
+
+body .contact-section form footer p {
+  font-size: var(--type-micro) !important;
+}
+
+body .site-footer :where(p, a, strong) {
+  font-size: var(--type-caption) !important;
+}
+
+/* NEET / UCAT setup, test and result experiences */
+body :where(.quick-test-shell, .previous-year-page, .leaderboard-page, .ucat-container) {
+  font-size: var(--type-body) !important;
+}
+
+body
+  :where(.quick-test-shell, .previous-year-page, .leaderboard-page, .ucat-container)
+  :where(p, label, input, select, textarea, button, a, small, li, td, th) {
+  font-size: var(--type-small) !important;
+  line-height: 1.45;
+}
+
+body
+  :where(.quick-test-shell, .previous-year-page, .leaderboard-page, .ucat-container)
+  :where(.eyebrow, .section-label, .meta-label, .card-label, .step-label, th) {
+  font-size: var(--type-micro) !important;
+}
+
+body :where(.quick-test-shell, .previous-year-page, .leaderboard-page, .ucat-container) h2 {
+  font-size: var(--type-title) !important;
+}
+
+body :where(.quick-test-shell, .previous-year-page, .leaderboard-page, .ucat-container) h3 {
+  font-size: var(--type-lead) !important;
+}
+
+body .leaderboard-page td {
+  font-size: var(--type-caption) !important;
+}
+
+/* University finder */
+body
+  :where(
+    .country-selection-page,
+    .questionnaire-page,
+    .student-details-page,
+    .recommendations-page,
+    .university-details-page
+  ) {
+  font-size: var(--type-body) !important;
+}
+
+body
+  :where(
+    .country-selection-page,
+    .questionnaire-page,
+    .student-details-page,
+    .recommendations-page,
+    .university-details-page
+  )
+  :where(p, label, input, select, textarea, button, a, small, li, td, th) {
+  font-size: var(--type-small) !important;
+  line-height: 1.5;
+}
+
+body .cinematic-subtitle {
+  font-size: var(--type-small) !important;
+}
+
+body :where(.country-input, .search-submit-btn, .cat-pill, .reset-selection-btn) {
+  font-size: var(--type-caption) !important;
+}
+
+body .country-name {
+  font-size: var(--type-lead) !important;
+}
+
+body :where(.uni-count-text, .courses-tag, .metric-pill, .rec-tag) {
+  font-size: var(--type-micro) !important;
+}
+
+body .section-subtext,
+body .hint-text {
+  font-size: var(--type-caption) !important;
+}
+
+/* Insights and article reading */
+body :where(.insights-page, .detail-page, .cp-page) {
+  font-size: var(--type-body) !important;
+}
+
+body .insights-hero > div > p {
+  font-size: var(--type-small) !important;
+  line-height: 1.6;
+}
+
+body :where(.feed-tabs > button, .active-topic, .topics-grid button, .clear-topics) {
+  font-size: var(--type-caption) !important;
+}
+
+body
+  :where(
+    .medium-card .header-meta,
+    .medium-card .action-btn,
+    .staff-picks .author-info,
+    .staff-picks .pick-date
+  ) {
+  font-size: var(--type-micro) !important;
+}
+
+body .medium-card .card-title {
+  font-size: var(--type-title) !important;
+}
+
+body .medium-card .card-excerpt {
+  font-size: var(--type-small) !important;
+}
+
+body .staff-picks .pick-title {
+  font-size: var(--type-small) !important;
+}
+
+body :where(.detail-page, .cp-page) :where(p, li, label, input, textarea, button, a, small) {
+  font-size: var(--type-small) !important;
+  line-height: 1.6;
+}
+
+@media (max-width: 560px) {
+  body {
+    --type-body: 0.9375rem;
+    --type-lead: 1.0625rem;
+  }
+
+  body .topbar-title strong {
+    font-size: 1.0625rem !important;
+  }
+
+  body .medium-card .card-title {
+    font-size: 1.125rem !important;
+  }
+}

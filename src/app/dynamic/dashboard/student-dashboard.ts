@@ -1,7 +1,18 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  isDevMode,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { StudentDashboardService, StudentDashboardSummaryResponse } from './services/student-dashboard.service';
+import {
+  StudentDashboardService,
+  StudentDashboardSummaryResponse,
+} from './services/student-dashboard.service';
+import { Icon } from '../../shared/ui/icon/icon';
 
 export interface SavedUniversityItem {
   university_id: string;
@@ -22,17 +33,20 @@ export interface SavedRecommendationItem {
 @Component({
   selector: 'app-student-dashboard',
   standalone: true,
-  imports: [DatePipe, DecimalPipe, RouterLink],
+  imports: [DatePipe, DecimalPipe, RouterLink, Icon],
   templateUrl: './student-dashboard.html',
   styleUrl: './student-dashboard.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StudentDashboard implements OnInit {
   private readonly dashboardService = inject(StudentDashboardService);
 
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
-  readonly activeTab = signal<'overview' | 'saved-blogs' | 'universities' | 'recommendations'>('overview');
+  readonly previewMode = signal(false);
+  readonly activeTab = signal<'overview' | 'saved-blogs' | 'universities' | 'recommendations'>(
+    'overview',
+  );
 
   readonly summaryData = signal<StudentDashboardSummaryResponse['data'] | null>(null);
   readonly recentActivities = signal<any[]>([]);
@@ -57,19 +71,25 @@ export class StudentDashboard implements OnInit {
         this.loading.set(false);
       },
       error: () => {
-        this.loadMockFallbackData();
+        if (isDevMode()) {
+          this.loadDevelopmentPreviewData();
+          this.previewMode.set(true);
+        } else {
+          this.error.set(
+            'We could not load your dashboard right now. Your saved work is safe; please try again.',
+          );
+        }
         this.loading.set(false);
-      }
+      },
     });
 
     // 2. GET /api/v1/student/dashboard/recent-activity
     this.dashboardService.getRecentActivity(1, 10).subscribe({
       next: (res) => {
-        if (res.data && Array.isArray(res.data)) {
-          this.recentActivities.set(res.data);
-        }
+        const activities = Array.isArray(res.data) ? res.data : res.data?.activities;
+        if (Array.isArray(activities)) this.recentActivities.set(activities);
       },
-      error: () => {}
+      error: () => {},
     });
 
     // 3. GET /api/v1/student/dashboard/saved-blogs
@@ -79,7 +99,7 @@ export class StudentDashboard implements OnInit {
           this.savedBlogs.set(res.data);
         }
       },
-      error: () => {}
+      error: () => {},
     });
 
     // 4. GET /api/v1/student/dashboard/university-finder/saved-universities
@@ -89,7 +109,7 @@ export class StudentDashboard implements OnInit {
           this.savedUniversities.set(res.data);
         }
       },
-      error: () => {}
+      error: () => {},
     });
 
     // 5. GET /api/v1/student/dashboard/university-finder/recommendations
@@ -99,7 +119,7 @@ export class StudentDashboard implements OnInit {
           this.savedRecommendations.set(res.data);
         }
       },
-      error: () => {}
+      error: () => {},
     });
   }
 
@@ -110,12 +130,16 @@ export class StudentDashboard implements OnInit {
 
     this.dashboardService.unsaveUniversity(universityId).subscribe({
       next: () => {
-        this.savedUniversities.update(list => list.filter(u => u.university_id !== universityId));
+        this.savedUniversities.update((list) =>
+          list.filter((u) => u.university_id !== universityId),
+        );
       },
       error: () => {
         // Local removal fallback
-        this.savedUniversities.update(list => list.filter(u => u.university_id !== universityId));
-      }
+        this.savedUniversities.update((list) =>
+          list.filter((u) => u.university_id !== universityId),
+        );
+      },
     });
   }
 
@@ -123,7 +147,25 @@ export class StudentDashboard implements OnInit {
     this.activeTab.set(tab);
   }
 
-  private loadMockFallbackData(): void {
+  completionRate(data: StudentDashboardSummaryResponse['data']): number {
+    const started = data.performance_summary.total_tests_started;
+    return started
+      ? Math.round((data.performance_summary.total_tests_completed / started) * 100)
+      : 0;
+  }
+
+  practiceHours(minutes: number): string {
+    if (minutes < 60) return `${minutes}m`;
+    const hours = Math.floor(minutes / 60);
+    const remainder = minutes % 60;
+    return remainder ? `${hours}h ${remainder}m` : `${hours}h`;
+  }
+
+  barHeight(accuracy: number): number {
+    return Math.max(18, Math.min(100, Number(accuracy) || 0));
+  }
+
+  private loadDevelopmentPreviewData(): void {
     this.summaryData.set({
       profile: {
         student_id: '1001',
@@ -141,7 +183,7 @@ export class StudentDashboard implements OnInit {
         subscription_expires_at: null,
         is_verified: true,
         is_institution_student: true,
-        last_login: new Date().toISOString()
+        last_login: new Date().toISOString(),
       },
       streak: {
         current_streak: 5,
@@ -149,7 +191,7 @@ export class StudentDashboard implements OnInit {
         total_days_answered: 18,
         correct_answer_count: 24,
         last_answered_date: new Date().toISOString(),
-        answered_today: true
+        answered_today: true,
       },
       performance_summary: {
         total_tests_started: 15,
@@ -160,12 +202,33 @@ export class StudentDashboard implements OnInit {
         total_skipped: 10,
         total_score: 792,
         total_practice_time_minutes: 360,
-        overall_accuracy_percentage: 82.5
+        overall_accuracy_percentage: 82.5,
       },
       subject_breakdown: [
-        { subject: 'Biology', tests_taken: 6, total_correct: 90, total_wrong: 10, total_skipped: 2, accuracy: 90.0 },
-        { subject: 'Chemistry', tests_taken: 4, total_correct: 62, total_wrong: 18, total_skipped: 3, accuracy: 77.5 },
-        { subject: 'Physics', tests_taken: 3, total_correct: 46, total_wrong: 14, total_skipped: 5, accuracy: 76.7 }
+        {
+          subject: 'Biology',
+          tests_taken: 6,
+          total_correct: 90,
+          total_wrong: 10,
+          total_skipped: 2,
+          accuracy: 90.0,
+        },
+        {
+          subject: 'Chemistry',
+          tests_taken: 4,
+          total_correct: 62,
+          total_wrong: 18,
+          total_skipped: 3,
+          accuracy: 77.5,
+        },
+        {
+          subject: 'Physics',
+          tests_taken: 3,
+          total_correct: 46,
+          total_wrong: 14,
+          total_skipped: 5,
+          accuracy: 76.7,
+        },
       ],
       insights: null,
       recent_tests: [
@@ -179,27 +242,57 @@ export class StudentDashboard implements OnInit {
           correct: 18,
           wrong: 2,
           status: 'Completed',
-          started_at: new Date().toISOString()
-        }
+          started_at: new Date().toISOString(),
+        },
       ],
       notifications: {
         unread_count: 2,
-        recent: []
-      }
+        recent: [],
+      },
     });
 
     this.savedUniversities.set([
-      { university_id: 'uni_1', university_name: 'Semmelweis University', country: 'Hungary', annual_tuition: '€18,200/year', saved_at: new Date().toISOString() },
-      { university_id: 'uni_2', university_name: 'Tbilisi State Medical University', country: 'Georgia', annual_tuition: '$8,000/year', saved_at: new Date().toISOString() },
-      { university_id: 'uni_3', university_name: 'University of Nicosia', country: 'Cyprus', annual_tuition: '€24,000/year', saved_at: new Date().toISOString() }
+      {
+        university_id: 'uni_1',
+        university_name: 'Semmelweis University',
+        country: 'Hungary',
+        annual_tuition: '€18,200/year',
+        saved_at: new Date().toISOString(),
+      },
+      {
+        university_id: 'uni_2',
+        university_name: 'Tbilisi State Medical University',
+        country: 'Georgia',
+        annual_tuition: '$8,000/year',
+        saved_at: new Date().toISOString(),
+      },
+      {
+        university_id: 'uni_3',
+        university_name: 'University of Nicosia',
+        country: 'Cyprus',
+        annual_tuition: '€24,000/year',
+        saved_at: new Date().toISOString(),
+      },
     ]);
 
     this.savedRecommendations.set([
-      { _id: 'rec_1', target_country: 'Hungary & Central Europe', budget_range: '$10,000 - $20,000/yr', recommended_universities: ['Semmelweis University', 'University of Pécs'], created_at: new Date().toISOString() }
+      {
+        _id: 'rec_1',
+        target_country: 'Hungary & Central Europe',
+        budget_range: '$10,000 - $20,000/yr',
+        recommended_universities: ['Semmelweis University', 'University of Pécs'],
+        created_at: new Date().toISOString(),
+      },
     ]);
 
     this.savedBlogs.set([
-      { _id: 'blog_1', title: 'Updated NEET Biology Preparation Guide', slug: 'updated-neet-biology-preparation-guide', shortDescription: 'Learn how to prepare for NEET Biology using NCERT and structured revision.' }
+      {
+        _id: 'blog_1',
+        title: 'Updated NEET Biology Preparation Guide',
+        slug: 'updated-neet-biology-preparation-guide',
+        shortDescription:
+          'Learn how to prepare for NEET Biology using NCERT and structured revision.',
+      },
     ]);
   }
 }

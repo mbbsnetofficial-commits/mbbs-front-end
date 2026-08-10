@@ -1,27 +1,40 @@
-<div class="layout" [class.sidebar-collapsed]="sidebarCollapsed()">
+<div class="workspace" [class.is-collapsed]="sidebarCollapsed()">
   @if (sidebarOpen()) {
-    <button class="nav-backdrop" type="button" aria-label="Close navigation" (click)="closeMobileNav()"></button>
+    <button
+      class="nav-backdrop"
+      type="button"
+      aria-label="Close navigation"
+      (click)="closeMobileNav()"
+    ></button>
   }
 
   <aside class="sidebar" [class.open]="sidebarOpen()" aria-label="Student navigation">
-    <div class="brand">
-      <a class="brand-link" routerLink="/dynamic/neet" aria-label="MBBS.NET learning area" (click)="closeMobileNav()">
-        <img class="brand-logo-img" src="images/app-logo.png" alt="MBBS.NET Logo" />
-        <span class="brand-copy"><strong>MBBS<span>.NET</span></strong><small>STUDENT SUITE</small></span>
+    <div class="brand-row">
+      <a
+        class="brand"
+        routerLink="/dynamic/dashboard"
+        aria-label="MBBS.NET dashboard"
+        (click)="closeMobileNav()"
+      >
+        <span class="brand-mark"><app-icon name="activity" [size]="21" [strokeWidth]="2.2" /></span>
+        <span class="brand-name"
+          ><strong>MBBS<span>.NET</span></strong
+          ><small>Student workspace</small></span
+        >
       </a>
       <button
         class="collapse-button"
         type="button"
-        [attr.aria-label]="sidebarCollapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
+        [attr.aria-label]="sidebarCollapsed() ? 'Expand navigation' : 'Collapse navigation'"
         [attr.aria-expanded]="!sidebarCollapsed()"
         (click)="sidebarCollapsed.set(!sidebarCollapsed())"
-      ><app-icon name="chevron" [size]="15"/></button>
+      >
+        <app-icon name="chevron" [size]="15" />
+      </button>
     </div>
 
-    <div class="header-divider"></div>
-
-    <nav aria-label="Primary" class="sidebar-nav">
-      <!-- Dashboard -->
+    <nav class="sidebar-nav" aria-label="Primary">
+      <p class="nav-label">Workspace</p>
       <a
         routerLink="/dynamic/dashboard"
         routerLinkActive="active"
@@ -29,17 +42,11 @@
         data-label="Dashboard"
         (click)="closeMobileNav()"
       >
-        <span class="nav-icon">
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="3" width="7" height="7"></rect>
-            <rect x="14" y="3" width="7" height="7"></rect>
-            <rect x="14" y="14" width="7" height="7"></rect>
-            <rect x="3" y="14" width="7" height="7"></rect>
-          </svg>
-        </span>
-        <span>Dashboard</span>
+        <span class="nav-icon"><app-icon name="dashboard" [size]="19" /></span
+        ><span>Dashboard</span>
       </a>
 
+      <p class="nav-label">Preparation</p>
       <button
         class="nav-parent"
         type="button"
@@ -49,18 +56,39 @@
         aria-controls="neet-subnav"
         (click)="neetOpen.set(!neetOpen())"
       >
-        <span class="nav-icon"><app-icon name="test" [size]="20"/></span>
-        <span>NEET</span>
-        <app-icon class="nav-chevron" name="chevron" [size]="15"/>
+        <span class="nav-icon"><app-icon name="test" [size]="19" /></span><span>NEET</span
+        ><app-icon class="nav-chevron" name="chevron" [size]="14" />
       </button>
       @if (neetOpen() && !sidebarCollapsed()) {
         <div id="neet-subnav" class="subnav">
-          <a routerLink="/dynamic/neet/quick-test" routerLinkActive="active" (click)="closeMobileNav()">Practice Tests</a>
-          <a routerLink="/dynamic/neet/previous-year-tests" routerLinkActive="active" (click)="closeMobileNav()">Previous Year Questions</a>
-          <a routerLink="/dynamic/neet" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMobileNav()">Question of the Day</a>
-          <a routerLink="/dynamic/neet/leaderboard" routerLinkActive="active" (click)="closeMobileNav()">Performance</a>
+          <a
+            routerLink="/dynamic/neet"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            (click)="closeMobileNav()"
+            >Practice hub</a
+          >
+          <a
+            routerLink="/dynamic/neet/quick-test"
+            routerLinkActive="active"
+            (click)="closeMobileNav()"
+            >Custom test</a
+          >
+          <a
+            routerLink="/dynamic/neet/previous-year-tests"
+            routerLinkActive="active"
+            (click)="closeMobileNav()"
+            >Previous papers</a
+          >
+          <a
+            routerLink="/dynamic/neet/leaderboard"
+            routerLinkActive="active"
+            (click)="closeMobileNav()"
+            >Leaderboard</a
+          >
         </div>
       }
+
       <button
         class="nav-parent"
         type="button"
@@ -70,56 +98,213 @@
         aria-controls="ucat-subnav"
         (click)="ucatOpen.set(!ucatOpen())"
       >
-        <span class="nav-icon"><app-icon name="test" [size]="20"/></span>
-        <span>UCAT</span>
-        <app-icon class="nav-chevron" name="chevron" [size]="15"/>
+        <span class="nav-icon"><app-icon name="activity" [size]="19" /></span><span>UCAT</span
+        ><app-icon class="nav-chevron" name="chevron" [size]="14" />
       </button>
       @if (ucatOpen() && !sidebarCollapsed()) {
         <div id="ucat-subnav" class="subnav">
-          <a routerLink="/dynamic/ucat" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMobileNav()">Practice Test</a>
-          <a routerLink="/dynamic/ucat/previous-year" routerLinkActive="active" (click)="closeMobileNav()">Previous Year Papers</a>
+          <a
+            routerLink="/dynamic/ucat"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            (click)="closeMobileNav()"
+            >Practice tests</a
+          >
+          <a
+            routerLink="/dynamic/ucat/previous-year"
+            routerLinkActive="active"
+            (click)="closeMobileNav()"
+            >Previous papers</a
+          >
         </div>
       }
 
+      <p class="nav-label">Discover</p>
       <a
         routerLink="/dynamic/cse"
         routerLinkActive="active"
-        data-label="University Finder"
+        data-label="University finder"
         (click)="closeMobileNav()"
       >
-        <span class="nav-icon"><app-icon name="globe" [size]="20"/></span>
-        <span>University Finder</span>
+        <span class="nav-icon"><app-icon name="globe" [size]="19" /></span
+        ><span>University finder</span>
       </a>
-
       <a
         routerLink="/dynamic/blogs"
         routerLinkActive="active"
-        data-label="Blogs"
+        data-label="Insights"
         (click)="closeMobileNav()"
       >
-        <span class="nav-icon"><app-icon name="bookmark" [size]="20"/></span>
-        <span>Blogs</span>
+        <span class="nav-icon"><app-icon name="bookmark" [size]="19" /></span><span>Insights</span>
       </a>
     </nav>
 
     <div class="sidebar-footer">
-      <div class="footer-profile">
-        <div class="profile-avatar">
-          <span>ST</span>
-        </div>
-        <div class="profile-info">
-          <span class="profile-name">Student Account</span>
-          <span class="profile-role">MBBS STUDENT</span>
-        </div>
+      <div class="progress-callout">
+        <span class="progress-icon"><app-icon name="sparkles" [size]="17" /></span>
+        <div><strong>Keep your momentum</strong><span>One focused session today.</span></div>
+        <a
+          routerLink="/dynamic/neet/quick-test"
+          aria-label="Start a test"
+          (click)="closeMobileNav()"
+          ><app-icon name="arrow-right" [size]="15"
+        /></a>
       </div>
-      <button class="logout-button" type="button" [disabled]="loggingOut()" (click)="onLogout()" title="Logout">
-        <app-icon name="logout" [size]="18"/>
-        <span>{{ loggingOut() ? 'Signing out…' : 'Logout' }}</span>
+      <button
+        class="sidebar-profile"
+        type="button"
+        (click)="toggleProfile()"
+        [attr.aria-expanded]="profileOpen()"
+      >
+        <span class="avatar">{{ initials }}</span>
+        <span class="profile-copy"
+          ><strong>{{ displayName }}</strong
+          ><small>{{ userEmail }}</small></span
+        >
+        <app-icon class="profile-chevron" name="chevron" [size]="14" />
       </button>
     </div>
   </aside>
 
-  <div class="main">
-    <main class="content" tabindex="-1"><router-outlet/></main>
-  </div>
+  <section class="main-shell">
+    <header class="topbar">
+      <div class="topbar-title">
+        <button
+          class="mobile-menu"
+          type="button"
+          aria-label="Open navigation"
+          (click)="sidebarOpen.set(true)"
+        >
+          <app-icon name="menu" [size]="20" />
+        </button>
+        <div>
+          <span>{{ pageMeta().eyebrow }}</span
+          ><strong>{{ pageMeta().title }}</strong>
+        </div>
+      </div>
+
+      <div class="topbar-actions">
+        <button class="search-trigger" type="button" (click)="openCommand()">
+          <app-icon name="search" [size]="17" /><span>Search workspace</span><kbd>⌘ K</kbd>
+        </button>
+        <button
+          class="icon-button"
+          type="button"
+          aria-label="Notifications"
+          [attr.aria-expanded]="notificationOpen()"
+          (click)="toggleNotifications()"
+        >
+          <app-icon name="bell" [size]="19" />
+          @if (unreadCount() > 0) {
+            <span class="notification-dot">{{ unreadCount() > 9 ? '9+' : unreadCount() }}</span>
+          }
+        </button>
+        <button
+          class="topbar-profile"
+          type="button"
+          [attr.aria-label]="'Open profile menu for ' + displayName"
+          [attr.aria-expanded]="profileOpen()"
+          (click)="toggleProfile()"
+        >
+          <span class="avatar">{{ initials }}</span
+          ><span>{{ displayName }}</span
+          ><app-icon name="chevron" [size]="14" />
+        </button>
+      </div>
+
+      @if (notificationOpen()) {
+        <section class="popover notification-popover" aria-label="Notifications">
+          <header>
+            <div><span>Updates</span><strong>Notifications</strong></div>
+            <small>{{ unreadCount() }} unread</small>
+          </header>
+          <div class="notification-list">
+            @if (notifications().length) {
+              @for (
+                notification of notifications();
+                track notification._id ?? notification.id ?? $index
+              ) {
+                <article>
+                  <span class="notification-icon"><app-icon name="bell" [size]="16" /></span>
+                  <div>
+                    <strong>{{ notificationTitle(notification) }}</strong
+                    ><small>{{ notificationMeta(notification) }}</small>
+                  </div>
+                </article>
+              }
+            } @else {
+              <div class="popover-empty">
+                <app-icon name="check" [size]="20" /><strong>You’re all caught up</strong
+                ><span>No new student updates right now.</span>
+              </div>
+            }
+          </div>
+        </section>
+      }
+
+      @if (profileOpen()) {
+        <section class="popover profile-popover" aria-label="Account menu">
+          <div class="profile-summary">
+            <span class="avatar large">{{ initials }}</span>
+            <div>
+              <strong>{{ displayName }}</strong
+              ><small>{{ userEmail }}</small>
+            </div>
+          </div>
+          <a routerLink="/dynamic/dashboard" (click)="closeOverlays()"
+            ><app-icon name="profile" [size]="17" />Account overview</a
+          >
+          <button type="button" [disabled]="loggingOut()" (click)="onLogout()">
+            <app-icon name="logout" [size]="17" />{{ loggingOut() ? 'Signing out…' : 'Sign out' }}
+          </button>
+        </section>
+      }
+    </header>
+
+    <main class="content" tabindex="-1"><router-outlet /></main>
+  </section>
 </div>
+
+@if (commandOpen()) {
+  <div class="command-layer" role="presentation" (click)="closeOverlays()">
+    <section
+      class="command-dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="command-title"
+      (click)="$event.stopPropagation()"
+    >
+      <header>
+        <app-icon name="search" [size]="20" /><input
+          id="workspace-search"
+          type="search"
+          aria-label="Search workspace"
+          placeholder="Where do you want to go?"
+          [value]="searchQuery()"
+          (input)="searchQuery.set($any($event.target).value)"
+        /><button type="button" aria-label="Close search" (click)="closeOverlays()">
+          <app-icon name="close" [size]="17" />
+        </button>
+      </header>
+      <div class="command-results">
+        <p id="command-title">
+          {{ searchQuery() ? 'Matching destinations' : 'Quick destinations' }}
+        </p>
+        @for (item of filteredDestinations; track item.route) {
+          <button type="button" (click)="navigateTo(item.route)">
+            <span class="result-icon"><app-icon [name]="item.icon" [size]="18" /></span
+            ><span
+              ><strong>{{ item.label }}</strong
+              ><small>{{ item.description }}</small></span
+            ><app-icon class="result-arrow" name="arrow-right" [size]="16" />
+          </button>
+        } @empty {
+          <div class="command-empty">
+            <strong>No destination found</strong
+            ><span>Try “NEET”, “UCAT”, “university”, or “insights”.</span>
+          </div>
+        }
+      </div>
+    </section>
+  </div>
+}

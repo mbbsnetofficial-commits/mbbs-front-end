@@ -1,133 +1,83 @@
-/* ==============================================
-   MEDIUM STAFF PICKS SIDEBAR COMPONENT
-   ============================================== */
-
 :host {
   display: block;
   width: 100%;
 }
-
+* {
+  box-sizing: border-box;
+}
 .staff-picks {
-  margin-bottom: 32px;
+  border: 1px solid var(--line);
+  border-radius: 19px;
+  padding: 18px;
+  background: #fff;
+  box-shadow: var(--shadow-sm);
 }
-
 .section-title {
-  margin: 0 0 16px 0;
-  font-family: sohne, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  margin-bottom: 14px;
   font-size: 16px;
-  line-height: 20px;
-  letter-spacing: -0.016em;
-  font-weight: 700;
-  color: #242424;
 }
-
 .picks-list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  display: grid;
+  gap: 0;
 }
-
 .pick-item {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+  display: grid;
+  gap: 5px;
+  border-top: 1px solid var(--line);
+  padding: 13px 0;
 }
-
+.pick-item:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
 .author-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  line-height: 16px;
-  letter-spacing: 0;
-  color: #242424;
+  gap: 6px;
+  min-width: 0;
 }
-
 .author-avatar {
   width: 20px;
   height: 20px;
+  flex: 0 0 auto;
   border-radius: 50%;
   object-fit: cover;
-  background: #e6e6e6;
-  flex-shrink: 0;
 }
-
-.author-avatar-placeholder {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #102638 0%, #1e5ca8 100%);
-  color: #ffffff;
+.author-info {
+  overflow: hidden;
+  color: var(--ink-muted);
+  font-size: 7px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.author-info strong {
+  color: var(--ink-soft);
+}
+.pick-title {
+  font-size: 11px;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+}
+.pick-title a {
+  color: inherit;
+  text-decoration: none;
+}
+.pick-title a:hover {
+  color: var(--brand);
+}
+.pick-date {
+  color: var(--ink-muted);
+  font-size: 7px;
+}
+.see-full-list {
+  display: inline-flex;
+  margin-top: 10px;
+  color: var(--brand);
   font-size: 8px;
   font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  text-transform: uppercase;
-}
-
-.author-info {
-  font-size: 13px;
-  line-height: 16px;
-  letter-spacing: 0;
-  color: #242424;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-
-  strong {
-    font-weight: 600;
-    color: #242424;
-  }
-}
-
-.pick-title {
-  margin: 2px 0 0 0;
-  font-family: sohne, "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-size: 15px;
-  line-height: 19px;
-  letter-spacing: -0.014em;
-  font-weight: 700;
-  color: #242424;
-
-  a {
-    color: inherit;
-    text-decoration: none;
-
-    &:hover {
-      color: #000000;
-      text-decoration: underline;
-    }
-  }
-}
-
-.pick-date {
-  font-size: 13px;
-  line-height: 16px;
-  letter-spacing: 0;
-  color: #6b6b6b;
-  margin-top: 2px;
-}
-
-.see-full-list {
-  display: inline-block;
-  margin-top: 16px;
-  font-size: 13px;
-  line-height: 16px;
-  letter-spacing: 0;
-  color: #168477;
   text-decoration: none;
-  font-weight: 500;
-
-  &:hover {
-    color: #0f5c53;
-    text-decoration: underline;
-  }
 }
-
 .empty-picks {
-  font-size: 14px;
-  line-height: 20px;
-  color: #6b6b6b;
+  color: var(--ink-muted);
+  font-size: 9px;
 }

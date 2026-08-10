@@ -1,0 +1,416 @@
+/* Cross-feature presentation layer. These rules deliberately sit above the
+   legacy component skins while leaving Angular state, forms and API bindings intact. */
+body .quick-test-shell,
+body .previous-year-page,
+body .leaderboard-page,
+body .ucat-container,
+body .questionnaire-page,
+body .student-details-page,
+body .recommendations-page,
+body .university-details-page,
+body .detail-page,
+body .cp-page {
+  color: var(--ink);
+  font-family: var(--font-sans);
+}
+
+body .quick-test-shell,
+body .previous-year-page,
+body .leaderboard-page,
+body .ucat-container {
+  width: min(100%, var(--content-max));
+  margin-inline: auto;
+  padding: 26px;
+}
+
+body .quick-test-shell .page-header,
+body .previous-year-page > .page-header,
+body .leaderboard-page > .page-header,
+body .ucat-container > .top-nav-bar {
+  border: 0 !important;
+  border-radius: 23px !important;
+  color: #fff !important;
+  background: var(--dark) !important;
+  box-shadow: none !important;
+}
+
+body .quick-test-shell .page-header,
+body .previous-year-page > .page-header,
+body .leaderboard-page > .page-header {
+  padding: 25px !important;
+}
+
+body .quick-test-shell .page-header h1,
+body .previous-year-page > .page-header h1,
+body .leaderboard-page > .page-header h1,
+body .ucat-container > .top-nav-bar h1 {
+  color: #fff !important;
+  letter-spacing: -0.045em !important;
+}
+
+body .quick-test-shell .page-header p,
+body .quick-test-shell .page-header a,
+body .previous-year-page > .page-header p,
+body .previous-year-page > .page-header a,
+body .leaderboard-page > .page-header p,
+body .leaderboard-page > .page-header a,
+body .ucat-container > .top-nav-bar small {
+  color: #9da2ab !important;
+}
+
+body .quick-test-shell .wizard-card,
+body .quick-test-shell .config-card,
+body .previous-year-page .paper-card,
+body .previous-year-page .config-card,
+body .leaderboard-page .my-rank-section,
+body .leaderboard-page .board-section,
+body .ucat-container .ucat-card,
+body .ucat-container .streak-widget-banner,
+body .ucat-container .history-card,
+body .ucat-container .result-card {
+  border-color: var(--line) !important;
+  border-radius: 20px !important;
+  background: var(--surface) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+body .quick-test-shell .selection-card,
+body .quick-test-shell .chapter-card,
+body .previous-year-page .paper-card,
+body .ucat-container .select-card,
+body .ucat-container .paper-card,
+body .ucat-container .history-item {
+  border-color: var(--line) !important;
+  border-radius: 14px !important;
+  background: var(--surface) !important;
+  box-shadow: none !important;
+}
+
+body .quick-test-shell .selection-card:hover,
+body .quick-test-shell .chapter-card:hover,
+body .previous-year-page .paper-card:hover,
+body .ucat-container .select-card:hover,
+body .ucat-container .paper-card:hover {
+  border-color: #b8cdf5 !important;
+  transform: translateY(-2px);
+}
+
+body .quick-test-shell .selected,
+body .ucat-container .select-card.selected,
+body .ucat-container .mode-btn.active,
+body .ucat-container .tab-btn.active,
+body .previous-year-page .paper-card.selected {
+  border-color: var(--brand) !important;
+  color: var(--brand-deep) !important;
+  background: var(--brand-soft) !important;
+  box-shadow: 0 0 0 3px rgba(52, 120, 246, 0.1) !important;
+}
+
+body .quick-test-shell .btn-primary,
+body .quick-test-shell .start-button,
+body .quick-test-shell .submit-button,
+body .previous-year-page .primary-button,
+body .previous-year-page .start-button,
+body .previous-year-page .submit-button,
+body .ucat-container .btn-primary,
+body .ucat-container .btn-start,
+body .ucat-container .btn-submit,
+body .ucat-container .start-test-btn {
+  border: 0 !important;
+  border-radius: 999px !important;
+  color: #fff !important;
+  background: var(--brand) !important;
+  box-shadow: none !important;
+}
+
+body .quick-test-shell .test-shell,
+body .previous-year-page .test-shell,
+body .ucat-container .test-layout,
+body .ucat-container .test-screen {
+  background: var(--app) !important;
+}
+
+body .quick-test-shell .question-card,
+body .previous-year-page .question-card,
+body .ucat-container .question-panel,
+body .ucat-container .question-card {
+  border-color: var(--line) !important;
+  border-radius: 20px !important;
+  background: var(--surface) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+body .quick-test-shell .option,
+body .previous-year-page .option,
+body .ucat-container .option-btn,
+body .ucat-container .answer-option {
+  border-color: var(--line) !important;
+  border-radius: 13px !important;
+  background: var(--surface) !important;
+}
+
+body .quick-test-shell .option.selected,
+body .previous-year-page .option.selected,
+body .ucat-container .option-btn.selected,
+body .ucat-container .answer-option.selected {
+  border-color: var(--brand) !important;
+  color: var(--brand-deep) !important;
+  background: var(--brand-soft) !important;
+}
+
+body .quick-test-shell .modal-backdrop,
+body .quick-test-shell .chat-backdrop,
+body .previous-year-page .modal-backdrop,
+body .previous-year-page .chat-backdrop,
+body .ucat-container .modal-backdrop {
+  background: rgba(16, 17, 20, 0.55) !important;
+  backdrop-filter: blur(5px);
+}
+
+body .chat-modal-backdrop,
+body .insights-modal-backdrop {
+  background: rgba(16, 17, 20, 0.55) !important;
+  backdrop-filter: blur(5px);
+}
+body .chat-modal-card,
+body .insights-modal-card {
+  border-color: var(--line) !important;
+  border-radius: 22px !important;
+  background: var(--surface) !important;
+  box-shadow: var(--shadow-md) !important;
+}
+body .chat-modal-card .chat-header,
+body .insights-modal-card .modal-header {
+  border-color: var(--line) !important;
+  background: var(--dark) !important;
+  color: #fff !important;
+}
+body .chat-modal-card .btn-send,
+body .insights-modal-card .btn-primary,
+body .quick-test-shell .gemini-button,
+body .quick-test-shell .insights-button,
+body .previous-year-page .gemini-button,
+body .previous-year-page .insights-button {
+  border: 0 !important;
+  border-radius: 999px !important;
+  color: #fff !important;
+  background: var(--brand) !important;
+}
+body .quick-test-shell .ask-question-button,
+body .previous-year-page .ask-question-button,
+body .chat-modal-card .prompt-chip {
+  border-color: #dce7ff !important;
+  border-radius: 999px !important;
+  color: var(--brand-deep) !important;
+  background: var(--brand-soft) !important;
+}
+body .quick-test-shell .ai-panel,
+body .previous-year-page .ai-panel,
+body .insights-modal-card .section-card,
+body .insights-modal-card .focus-topics-card,
+body .insights-modal-card .summary-banner-card {
+  border-color: var(--line) !important;
+  border-radius: 17px !important;
+  background: var(--surface) !important;
+  box-shadow: none !important;
+}
+
+body .quick-test-shell .modal-card,
+body .quick-test-shell .chat-panel,
+body .previous-year-page .modal-card,
+body .previous-year-page .chat-panel,
+body .ucat-container .modal-content,
+body .ucat-container .ai-modal {
+  border-color: var(--line) !important;
+  border-radius: 22px !important;
+  background: var(--surface) !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+body .leaderboard-page table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+body .leaderboard-page th {
+  color: var(--ink-muted) !important;
+  background: var(--surface-soft) !important;
+  font-size: 10px !important;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+body .leaderboard-page td {
+  border-color: var(--line) !important;
+}
+body .leaderboard-page tbody tr:hover td {
+  background: #fafcff !important;
+}
+body .leaderboard-page .current-student td {
+  background: var(--brand-soft) !important;
+}
+
+body .questionnaire-page,
+body .student-details-page,
+body .recommendations-page,
+body .university-details-page {
+  width: min(100%, 1240px);
+  min-height: 100%;
+  margin-inline: auto;
+  padding: 25px !important;
+}
+
+body .questionnaire-page .quiz-card-wrapper,
+body .student-details-page .form-container,
+body .recommendations-page .loading-box,
+body .recommendations-page .empty-recs,
+body .recommendations-page .consultation-banner,
+body .university-details-page .overview-section,
+body .university-details-page .fees-section,
+body .university-details-page .details-section {
+  border: 1px solid var(--line) !important;
+  border-radius: 22px !important;
+  background: var(--surface) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+body .student-details-page .form-header,
+body .recommendations-page .recs-header {
+  color: var(--ink) !important;
+  background: transparent !important;
+}
+body .student-details-page .form-header h2,
+body .recommendations-page .recs-header h1 {
+  letter-spacing: -0.045em !important;
+}
+body .student-details-page .form-header p,
+body .recommendations-page .recs-header p {
+  color: var(--ink-muted) !important;
+}
+body .student-details-page .form-section {
+  border-color: var(--line) !important;
+}
+body .student-details-page .form-control,
+body .questionnaire-page input,
+body .questionnaire-page select,
+body .questionnaire-page textarea {
+  border-color: var(--line-strong) !important;
+  border-radius: 11px !important;
+  background: var(--surface) !important;
+}
+body .student-details-page .btn-submit,
+body .questionnaire-page .btn-next,
+body .recommendations-page .restart-btn,
+body .recommendations-page .consult-btn {
+  border: 0 !important;
+  border-radius: 999px !important;
+  color: #fff !important;
+  background: var(--brand) !important;
+  box-shadow: none !important;
+}
+body .questionnaire-page .progress-bar-fill,
+body .student-details-page .progress-fill {
+  background: var(--brand) !important;
+}
+
+body .recommendations-page .recs-grid {
+  gap: 13px !important;
+}
+body .recommendation-card,
+body .university-card {
+  overflow: hidden;
+  border-color: var(--line) !important;
+  border-radius: 19px !important;
+  background: var(--surface) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+body .recommendation-card.is-top-match {
+  border-color: var(--brand) !important;
+}
+body .recommendation-card .match-score-badge,
+body .recommendation-card .rank-badge,
+body .university-card .ranking-badge {
+  background: var(--brand) !important;
+}
+body .recommendation-card .hl-chip,
+body .university-card .acc-chip {
+  color: var(--brand-deep) !important;
+  background: var(--brand-soft) !important;
+  border-color: #dce7ff !important;
+}
+body .recommendation-card .view-btn,
+body .university-card .explore-btn {
+  border-radius: 999px !important;
+  color: #fff !important;
+  background: var(--dark) !important;
+}
+body .stepper-nav {
+  border-color: var(--line) !important;
+  border-radius: 17px !important;
+  background: var(--surface) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+body .stepper-nav .step-item.active .step-indicator,
+body .stepper-nav .step-item.completed .step-indicator,
+body .stepper-nav .step-connector.completed {
+  color: #fff !important;
+  background: var(--brand) !important;
+  border-color: var(--brand) !important;
+}
+body .stepper-nav .step-item.active .step-title {
+  color: var(--brand) !important;
+}
+body .university-details-page .uni-hero-header {
+  min-height: 300px !important;
+  overflow: hidden;
+  border-radius: 24px !important;
+}
+body .university-details-page table th {
+  background: var(--surface-soft) !important;
+}
+body .university-details-page table td,
+body .university-details-page table th {
+  border-color: var(--line) !important;
+}
+
+body .detail-page {
+  background: var(--app) !important;
+}
+body .detail-page .article-shell {
+  max-width: 1120px !important;
+}
+body .detail-page article,
+body .detail-page aside,
+body .cp-page .cp-composer,
+body .cp-page .cp-comment {
+  border-color: var(--line) !important;
+  border-radius: 18px !important;
+  background: var(--surface) !important;
+}
+
+body .cp-page {
+  width: min(100%, 900px) !important;
+  margin-inline: auto !important;
+  padding: 25px !important;
+}
+body .cp-page .cp-submit {
+  border-radius: 999px !important;
+  background: var(--brand) !important;
+}
+
+@media (max-width: 760px) {
+  body .quick-test-shell,
+  body .previous-year-page,
+  body .leaderboard-page,
+  body .ucat-container,
+  body .questionnaire-page,
+  body .student-details-page,
+  body .recommendations-page,
+  body .university-details-page {
+    padding: 12px !important;
+  }
+  body .quick-test-shell .page-header,
+  body .previous-year-page > .page-header,
+  body .leaderboard-page > .page-header,
+  body .ucat-container > .top-nav-bar {
+    border-radius: 18px !important;
+  }
+}

@@ -1,276 +1,171 @@
-/* ==============================================
-   MEDIUM.COM EXACT TYPOGRAPHY & CARD DESIGN
-   ============================================== */
-
 :host {
   display: block;
   width: 100%;
 }
-
+* {
+  box-sizing: border-box;
+}
 .medium-card {
   display: flex;
   flex-direction: column;
-  padding: 24px 0;
-  border-bottom: 1px solid #f2f2f2;
-  background: #ffffff;
-  box-sizing: border-box;
+  border-bottom: 1px solid var(--line);
+  padding: 22px 2px;
+  background: transparent;
 }
-
-/* ── Card Header Row ── */
 .card-header {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 8px;
-  font-size: 13px;
-  line-height: 16px;
-  letter-spacing: 0;
-  color: #242424;
+  margin-bottom: 11px;
 }
-
 .author-avatar {
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
+  flex: 0 0 auto;
   border-radius: 50%;
   object-fit: cover;
-  background: #e6e6e6;
-  flex-shrink: 0;
+  background: var(--surface-soft);
 }
-
-.author-avatar-placeholder {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #102638 0%, #1e5ca8 100%);
-  color: #ffffff;
-  font-size: 9px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  text-transform: uppercase;
-}
-
 .header-meta {
   display: flex;
   align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
+  gap: 5px;
+  min-width: 0;
+  color: var(--ink-muted);
+  font-size: 8px;
 }
-
 .pub-byline {
-  color: #242424;
-  font-size: 13px;
-  line-height: 16px;
-  font-weight: 400;
-  letter-spacing: 0;
-
-  .pub-name, .author-name {
-    color: #242424;
-    font-weight: 600;
-  }
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-
-.dot-separator {
-  color: #6b6b6b;
-  font-size: 13px;
+.pub-name,
+.author-name {
+  color: var(--ink-soft);
+  font-weight: 700;
 }
-
-.pub-date {
-  color: #6b6b6b;
-  font-size: 13px;
-  line-height: 16px;
-  letter-spacing: 0;
-}
-
-/* ── Main Content Row: Title & Excerpt (Left) + Cover Image (Right) ── */
 .card-content {
   display: flex;
-  justify-content: space-between;
   align-items: flex-start;
+  justify-content: space-between;
   gap: 24px;
-  margin-bottom: 16px;
 }
-
 .text-col {
-  flex: 1;
   min-width: 0;
+  flex: 1;
 }
-
 .card-title {
-  margin: 0 0 6px 0;
-  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
   font-size: 21px;
-  line-height: 26px;
-  letter-spacing: -0.018em;
-  font-weight: 700;
-  color: #0f172a;
-
-  a {
-    color: inherit;
-    text-decoration: none;
-    transition: color 0.15s ease;
-
-    &:hover {
-      color: #6d28d9;
-    }
-  }
+  line-height: 1.22;
+  letter-spacing: -0.035em;
 }
-
+.card-title a,
+.card-excerpt a {
+  color: inherit;
+  text-decoration: none;
+}
+.card-title a:hover {
+  color: var(--brand);
+}
 .card-excerpt {
-  margin: 4px 0 0 0;
-  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
-  font-size: 14px;
-  line-height: 21px;
-  letter-spacing: -0.003em;
-  font-weight: 400;
-  color: #475569;
   display: -webkit-box;
+  overflow: hidden;
+  margin-top: 8px;
+  color: var(--ink-muted);
+  font-size: 10px;
+  line-height: 1.6;
   -webkit-box-orient: vertical;
-  overflow: hidden;
-  word-break: break-word;
-
-  a {
-    color: inherit;
-    text-decoration: none;
-
-    &:hover {
-      color: #1e293b;
-    }
-  }
+  -webkit-line-clamp: 3;
 }
-
 .thumb-col {
-  display: block;
-  width: 144px;
-  height: 96px;
-  flex-shrink: 0;
+  width: 170px;
+  height: 108px;
+  flex: 0 0 auto;
   overflow: hidden;
-  border-radius: 12px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    transition: transform 0.25s ease;
-
-    &:hover {
-      transform: scale(1.04);
-    }
-  }
-
-  .no-image-placeholder {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-    color: #cbd5e1;
-
-    svg {
-      width: 22px;
-      height: 22px;
-      stroke: #a855f7;
-    }
-
-    .no-image-text {
-      font-size: 10px;
-      font-weight: 700;
-      color: #94a3b8;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-    }
-  }
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface-soft);
 }
-
-/* ── Bottom Action Toolbar ── */
+.thumb-col img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+.thumb-col:hover img {
+  transform: scale(1.035);
+}
+.no-image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  color: #7e8490;
+  background: var(--dark);
+}
+.no-image-placeholder svg {
+  width: 22px;
+}
+.no-image-text {
+  font-size: 7px;
+  text-transform: uppercase;
+}
 .card-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  margin-top: 12px;
+  margin-top: 13px;
 }
-
-.footer-left, .footer-right {
+.footer-left,
+.footer-right {
   display: flex;
-  align-items: center;
-  gap: 10px;
 }
-
 .action-btn {
+  min-height: 31px;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  color: #475569;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 6px 14px;
-  border-radius: 20px;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  gap: 5px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0 9px;
+  color: var(--ink-muted);
+  background: #fff;
+  font-size: 8px;
   text-decoration: none;
-
-  &:hover {
-    color: #0f172a;
-    background: #f1f5f9;
-    border-color: #cbd5e1;
-  }
-
-  .icon {
-    width: 18px;
-    height: 18px;
-    flex-shrink: 0;
-    stroke: currentColor;
-  }
-
-  &.bookmark-btn {
-    padding: 6px 12px;
-
-    &.active {
-      background: #7c3aed;
-      color: #ffffff;
-      border-color: #7c3aed;
-      box-shadow: 0 4px 12px rgba(124, 58, 237, 0.35);
-    }
-  }
 }
-
-/* ── Responsive Mobile Styling ── */
-@media (max-width: 640px) {
+.action-btn .icon {
+  width: 14px;
+  height: 14px;
+}
+.action-btn:hover {
+  color: var(--ink);
+  background: var(--surface-soft);
+}
+.bookmark-btn.active {
+  border-color: var(--brand);
+  color: #fff;
+  background: var(--brand);
+}
+@media (max-width: 560px) {
   .medium-card {
-    padding: 16px 0;
+    padding: 17px 0;
   }
-
   .card-content {
-    gap: 16px;
-    margin-bottom: 12px;
+    gap: 12px;
   }
-
   .thumb-col {
-    width: 80px;
-    height: 80px;
+    width: 92px;
+    height: 85px;
   }
-
   .card-title {
     font-size: 16px;
-    line-height: 20px;
-    letter-spacing: -0.01em;
   }
-
   .card-excerpt {
-    font-size: 13px;
-    line-height: 18px;
-    // -webkit-line-clamp: 2;
+    font-size: 9px;
+    -webkit-line-clamp: 2;
   }
 }

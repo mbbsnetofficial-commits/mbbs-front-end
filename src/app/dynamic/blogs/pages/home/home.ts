@@ -6,32 +6,27 @@ import { FeaturedBlogs } from '../../components/featured-blogs/featured-blogs';
 import { LatestBlogs } from '../../components/latest-blogs/latest-blogs';
 import { Loading } from '../../components/loading/loading';
 import { PageStore } from '../../state/page.store';
+import { Icon } from '../../../../shared/ui/icon/icon';
 
 @Component({
   selector: 'app-blog-home',
   standalone: true,
-  imports: [
-    AuthorCard,
-    ErrorState,
-    FeaturedBlogs,
-    LatestBlogs,
-    Loading
-  ],
+  imports: [AuthorCard, ErrorState, FeaturedBlogs, LatestBlogs, Loading, Icon],
   templateUrl: './home.html',
   styleUrl: './home.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BlogHome implements OnInit {
   readonly store = inject(PageStore);
   readonly showBanner = signal(true);
 
   readonly defaultRecommendedTopics = [
-    { name: 'Programming', slug: 'programming' },
-    { name: 'Self Improvement', slug: 'self-improvement' },
-    { name: 'Data Science', slug: 'data-science' },
-    { name: 'Writing', slug: 'writing' },
-    { name: 'Technology', slug: 'technology' },
-    { name: 'Relationships', slug: 'relationships' }
+    { name: 'NEET Preparation', slug: 'neet-preparation' },
+    { name: 'MBBS Abroad', slug: 'mbbs-abroad' },
+    { name: 'University Guidance', slug: 'university-guidance' },
+    { name: 'Clinical Learning', slug: 'clinical-learning' },
+    { name: 'Admissions', slug: 'admissions' },
+    { name: 'Student Life', slug: 'student-life' },
   ];
 
   ngOnInit(): void {
