@@ -128,4 +128,28 @@ export class StudentDashboardService {
   getRecentActivity(page: number = 1, limit: number = 10): Observable<StudentRecentActivityResponse> {
     return this.http.get<StudentRecentActivityResponse>(`${this.baseUrl}/recent-activity?page=${page}&limit=${limit}`);
   }
+
+  getSavedBlogs(page: number = 1, limit: number = 10): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/saved-blogs?page=${page}&limit=${limit}`);
+  }
+
+  getSavedUniversities(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/university-finder/saved-universities`);
+  }
+
+  saveUniversity(payload: { university_id: string; university_name: string; country?: string }): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/university-finder/save-university`, payload);
+  }
+
+  unsaveUniversity(universityId: string): Observable<any> {
+    return this.http.delete<any>(`${this.baseUrl}/university-finder/save-university/${universityId}`);
+  }
+
+  getRecommendations(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/university-finder/recommendations`);
+  }
+
+  saveRecommendation(payload: any): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/university-finder/recommendations`, payload);
+  }
 }
