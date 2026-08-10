@@ -142,10 +142,10 @@ nav > a, .nav-parent {
   border: 0;
   border-radius: 14px;
   padding: 0 16px;
-  color: #475569;
+  color: #1e293b;
   background: transparent;
   font-size: 15px;
-  font-weight: 500;
+  font-weight: 600;
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
@@ -154,14 +154,14 @@ nav > a, .nav-parent {
 
 nav > a:hover, .nav-parent:hover {
   color: #0f172a;
-  background: #f8fafc;
+  background: #f1f5f9;
 }
 
 nav > a.active, .nav-parent.active {
   color: #ffffff;
   background: linear-gradient(135deg, #6d28d9 0%, #9333ea 100%);
-  box-shadow: 0 6px 18px rgba(124, 58, 237, 0.35);
-  font-weight: 600;
+  box-shadow: 0 6px 20px rgba(109, 40, 217, 0.35);
+  font-weight: 700;
 }
 
 .nav-icon {
