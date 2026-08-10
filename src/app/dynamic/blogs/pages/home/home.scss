@@ -105,7 +105,7 @@
   }
 }
 
-/* ── Right Sidebar Column ── */
+/* ── Right Sidebar Column (Fixed Second Div) ── */
 .right-sidebar-col {
   min-width: 0;
   padding-top: 36px;
@@ -113,7 +113,17 @@
   border-left: 1px solid #f2f2f2;
   position: sticky;
   top: 24px;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
   align-self: start;
+
+  /* Clean invisible scrollbar */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .sidebar-title {

@@ -5,11 +5,9 @@
 
   <aside class="sidebar" [class.open]="sidebarOpen()" aria-label="Student navigation">
     <div class="brand">
-      <a class="brand-link" routerLink="/dynamic/neet" aria-label="MBBS.NET NEET learning area" (click)="closeMobileNav()">
-        <span class="brand-mark" aria-hidden="true">
-          <svg viewBox="0 0 34 34"><path d="M17 4v26M4 17h26"/><path d="M11 8h12v18H11z"/></svg>
-        </span>
-        <span class="brand-copy"><strong>MBBS<span>.NET</span></strong><small>Learn medicine differently</small></span>
+      <a class="brand-link" routerLink="/dynamic/neet" aria-label="MBBS.NET learning area" (click)="closeMobileNav()">
+        <img class="brand-logo-img" src="images/app-logo.png" alt="MBBS.NET Logo" />
+        <span class="brand-copy"><strong>MBBS<span>.NET</span></strong><small>STUDENT SUITE</small></span>
       </a>
       <button
         class="collapse-button"
@@ -20,8 +18,9 @@
       ><app-icon name="chevron" [size]="15"/></button>
     </div>
 
-    <nav aria-label="Primary">
-      <span class="nav-label">Preparation</span>
+    <div class="header-divider"></div>
+
+    <nav aria-label="Primary" class="sidebar-nav">
       <button
         class="nav-parent"
         type="button"
@@ -31,7 +30,7 @@
         aria-controls="neet-subnav"
         (click)="neetOpen.set(!neetOpen())"
       >
-        <span class="nav-icon"><app-icon name="test" [size]="19"/></span>
+        <span class="nav-icon"><app-icon name="test" [size]="20"/></span>
         <span>NEET</span>
         <app-icon class="nav-chevron" name="chevron" [size]="15"/>
       </button>
@@ -52,7 +51,7 @@
         aria-controls="ucat-subnav"
         (click)="ucatOpen.set(!ucatOpen())"
       >
-        <span class="nav-icon"><app-icon name="test" [size]="19"/></span>
+        <span class="nav-icon"><app-icon name="test" [size]="20"/></span>
         <span>UCAT</span>
         <app-icon class="nav-chevron" name="chevron" [size]="15"/>
       </button>
@@ -62,29 +61,40 @@
           <a routerLink="/dynamic/ucat/previous-year" routerLinkActive="active" (click)="closeMobileNav()">Previous Year Papers</a>
         </div>
       }
+
       <a
         routerLink="/dynamic/cse"
         routerLinkActive="active"
         data-label="University Finder"
         (click)="closeMobileNav()"
       >
-        <span class="nav-icon"><app-icon name="globe" [size]="19"/></span>
+        <span class="nav-icon"><app-icon name="globe" [size]="20"/></span>
         <span>University Finder</span>
       </a>
+
       <a
         routerLink="/dynamic/blogs"
         routerLinkActive="active"
         data-label="Blogs"
         (click)="closeMobileNav()"
       >
-        <span class="nav-icon"><app-icon name="bookmark" [size]="19"/></span>
+        <span class="nav-icon"><app-icon name="bookmark" [size]="20"/></span>
         <span>Blogs</span>
       </a>
     </nav>
 
     <div class="sidebar-footer">
-      <button class="logout-button" type="button" [disabled]="loggingOut()" (click)="onLogout()">
-        <app-icon name="logout" [size]="19"/>
+      <div class="footer-profile">
+        <div class="profile-avatar">
+          <span>ST</span>
+        </div>
+        <div class="profile-info">
+          <span class="profile-name">Student Account</span>
+          <span class="profile-role">MBBS STUDENT</span>
+        </div>
+      </div>
+      <button class="logout-button" type="button" [disabled]="loggingOut()" (click)="onLogout()" title="Logout">
+        <app-icon name="logout" [size]="18"/>
         <span>{{ loggingOut() ? 'Signing out…' : 'Logout' }}</span>
       </button>
     </div>
