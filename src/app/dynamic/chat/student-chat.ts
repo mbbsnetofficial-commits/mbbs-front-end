@@ -2,6 +2,7 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
+import { TokenService } from '../../core/serivce/token.service';
 import {
   ChatMessageItem,
   ConversationItem,
@@ -19,11 +20,13 @@ import { StudentSocketService } from './services/student-socket.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class StudentChat implements OnInit, OnDestroy {
+  private readonly tokenService = inject(TokenService);
   private readonly chatService = inject(StudentChatService);
   private readonly socketService = inject(StudentSocketService);
 
-  readonly currentUserId = '6a63554e323b3e70a7c0f9d5';
-  readonly currentUserName = 'Student STU1784894798825OBDD4J';
+  /* Dynamic Student Identity Signals (Different ID per student login / session) */
+  readonly currentUserId = signal<string>('6a63554e323b3e70a7c0f9d5');
+  readonly currentUserName = signal<string>('Student STU1784894798825OBDD4J');
 
   /* ── State ── */
   readonly loading = signal(true);
@@ -60,15 +63,16 @@ export class StudentChat implements OnInit, OnDestroy {
 
   private socketSub: Subscription | null = null;
 
-  /* In-Memory Conversation Message Store (No HTTP History API calls in Network Tab) */
+  /* In-Memory Conversation Message Store */
   private readonly conversationMessageMap = new Map<string, ChatMessageItem[]>();
 
   ngOnInit(): void {
+    this.initStudentIdentity();
     this.seedDefaultHistoryMap();
     this.initChat();
 
-    // ⚡ Initialize Real-Time Socket.IO WebSocket Connection (Pure WebSockets - No HTTP API calls!)
-    this.socketService.connect(this.currentUserId);
+    // ⚡ Initialize Real-Time Socket.IO WebSocket Connection with dynamic student ID
+    this.socketService.connect(this.currentUserId());
 
     // Listen for incoming real-time socket messages
     this.socketSub = this.socketService.onMessage$.subscribe((msg) => {
@@ -92,37 +96,63 @@ export class StudentChat implements OnInit, OnDestroy {
     this.socketService.disconnect();
   }
 
+  /** Initialize Unique Student Credentials from Auth / Session Storage */
+  private initStudentIdentity(): void {
+    const loggedStudentId = this.tokenService.getStudentId();
+    const loggedUserName = this.tokenService.getUserDisplayName();
+
+    if (loggedStudentId && loggedStudentId.trim()) {
+      this.currentUserId.set(loggedStudentId.trim());
+      this.currentUserName.set(loggedUserName && loggedUserName !== 'Student' ? loggedUserName : `Student STU_${loggedStudentId.substring(0, 6).toUpperCase()}`);
+      return;
+    }
+
+    // Dynamic Multi-Session ID for testing multiple browser tabs / incognito windows
+    let sessionUserId = sessionStorage.getItem('mbbs_chat_session_user_id');
+    let sessionUserName = sessionStorage.getItem('mbbs_chat_session_user_name');
+
+    if (!sessionUserId) {
+      const randHex = Math.random().toString(16).substring(2, 10);
+      sessionUserId = `student_${randHex}`;
+      sessionUserName = `Student STU_${randHex.toUpperCase()}`;
+      sessionStorage.setItem('mbbs_chat_session_user_id', sessionUserId);
+      sessionStorage.setItem('mbbs_chat_session_user_name', sessionUserName);
+    }
+
+    this.currentUserId.set(sessionUserId);
+    this.currentUserName.set(sessionUserName || `Student STU_${sessionUserId.substring(0, 6).toUpperCase()}`);
+  }
+
   initChat(): void {
     this.loading.set(true);
 
-    // Initial group setup (Pure WebSocket / Local State - Zero Network tab HTTP history polling)
     const defaultConvs: ConversationItem[] = [
       {
         _id: '6a7890ec8559d01cd87f85b7',
         type: 'group_country',
         title: 'official',
-        participants: [this.currentUserId, 'student_priya_202'],
-        last_message: { text: 'hello mam', sender_name: 'Student STU1784894798825OBDD4J' }
+        participants: [this.currentUserId(), 'student_priya_202'],
+        last_message: { text: 'hello mam', sender_name: 'Priya Patel' }
       },
       {
         _id: '6a788890d1daf3219b5f7095',
         type: 'group_university',
         title: 'russia',
-        participants: [this.currentUserId],
-        last_message: { text: 'hiii', sender_name: 'Student STU1784894798825OBDD4J' }
+        participants: [this.currentUserId()],
+        last_message: { text: 'hiii', sender_name: 'Priya Patel' }
       },
       {
         _id: '6a7888aad1daf3219b5f7096',
         type: 'group_country',
         title: 'russia',
-        participants: [this.currentUserId],
+        participants: [this.currentUserId()],
         last_message: { text: 'No messages yet' }
       },
       {
         _id: '6a7766e1a11062f0e0c6290b',
         type: 'group_batch',
         title: 'BATCH Group',
-        participants: ['admin_official_01', this.currentUserId],
+        participants: ['admin_official_01', this.currentUserId()],
         last_message: { text: 'hoho', sender_name: 'Priya Patel' }
       }
     ];
@@ -137,10 +167,9 @@ export class StudentChat implements OnInit, OnDestroy {
     this.replyToMessage.set(null);
     this.editingMessage.set(null);
 
-    // ⚡ Join Socket.IO room for real-time WebSocket messaging
+    // Join Socket.IO room for real-time WebSocket messaging
     this.socketService.joinConversation(conv._id);
 
-    // Read messages from local WebSocket memory map (No HTTP API call in Network tab!)
     const history = this.conversationMessageMap.get(conv._id) || [];
     this.messages.set(history);
   }
@@ -154,16 +183,19 @@ export class StudentChat implements OnInit, OnDestroy {
   }
 
   /** WhatsApp Style Sender Alignment:
-   * Returns TRUE ONLY for messages sent by the logged-in user -> RIGHT SIDE
+   * Returns TRUE ONLY for messages sent by the current logged-in user -> RIGHT SIDE
    * Returns FALSE for messages from all other users -> LEFT SIDE
    */
   isOutgoing(msg: ChatMessageItem): boolean {
     if (!msg) return false;
+    const myId = this.currentUserId();
+    const myName = this.currentUserName().toLowerCase().trim();
+
     const senderId = String(msg.sender_id || '');
     const senderName = String(msg.sender_name || msg.sender_info?.name || '').toLowerCase().trim();
 
-    if (senderId === this.currentUserId) return true;
-    if (senderName && (senderName.includes('stu1784894798825') || senderName === this.currentUserName.toLowerCase())) return true;
+    if (senderId && myId && senderId === myId) return true;
+    if (senderName && myName && (senderName === myName || senderName.includes(myId))) return true;
 
     return false;
   }
@@ -185,7 +217,7 @@ export class StudentChat implements OnInit, OnDestroy {
     this.messageText.update(text => text + emoji);
   }
 
-  // Send Message via Socket.IO WebSocket (Zero HTTP calls in Network tab!)
+  // Send Message via Socket.IO WebSocket with Dynamic Student Credentials
   sendMessage(): void {
     const text = this.messageText().trim();
     const activeConv = this.selectedConversation();
@@ -199,11 +231,14 @@ export class StudentChat implements OnInit, OnDestroy {
       return;
     }
 
+    const myId = this.currentUserId();
+    const myName = this.currentUserName();
+
     const newMsg: ChatMessageItem = {
       _id: 'msg_' + Date.now(),
       conversation_id: activeConv._id,
-      sender_id: this.currentUserId,
-      sender_name: this.currentUserName,
+      sender_id: myId,
+      sender_name: myName,
       text,
       reply_to: this.replyToMessage() ? {
         message_id: this.replyToMessage()!._id,
@@ -216,15 +251,15 @@ export class StudentChat implements OnInit, OnDestroy {
     const payload = {
       conversation_id: activeConv._id,
       text,
-      userId: this.currentUserId,
-      sender_info: { name: this.currentUserName },
+      userId: myId,
+      sender_info: { name: myName },
       reply_to: newMsg.reply_to
     };
 
-    // ⚡ 1. Emit real-time WebSocket event (No HTTP post in Network tab!)
+    // ⚡ 1. Emit real-time WebSocket event
     this.socketService.sendMessage(payload);
 
-    // ⚡ 2. Store & render outgoing message locally on RIGHT side
+    // ⚡ 2. Render outgoing message locally on RIGHT side
     const currentHistory = this.conversationMessageMap.get(activeConv._id) || [];
     const updatedHistory = [...currentHistory, newMsg];
     this.conversationMessageMap.set(activeConv._id, updatedHistory);
@@ -233,7 +268,7 @@ export class StudentChat implements OnInit, OnDestroy {
     // Update last message in active conversation preview
     this.conversations.update(list => list.map(c => c._id === activeConv._id ? {
       ...c,
-      last_message: { text, sender_name: this.currentUserName }
+      last_message: { text, sender_name: myName }
     } : c));
 
     this.messageText.set('');
@@ -251,7 +286,6 @@ export class StudentChat implements OnInit, OnDestroy {
     this.messageText.set('');
   }
 
-  // Soft Delete Message locally
   deleteMsg(msg: ChatMessageItem): void {
     if (!confirm('Delete this message?')) return;
     this.messages.update(list => list.map(m => m._id === msg._id ? { ...m, text: 'This message was deleted', is_deleted: true } : m));
@@ -262,7 +296,6 @@ export class StudentChat implements OnInit, OnDestroy {
     }
   }
 
-  // 1-on-1 Direct Chat Modal
   createDirectChat(): void {
     const target = this.targetDirectUserId().trim();
     if (!target) return;
@@ -271,7 +304,7 @@ export class StudentChat implements OnInit, OnDestroy {
       _id: 'direct_' + Date.now(),
       type: 'direct',
       title: target,
-      participants: [target, this.currentUserId],
+      participants: [target, this.currentUserId()],
       last_message: { text: 'Conversation started', createdAt: new Date().toISOString() }
     };
     this.conversations.update(list => [newConv, ...list]);
@@ -288,7 +321,6 @@ export class StudentChat implements OnInit, OnDestroy {
     this.directModalOpen.set(false);
   }
 
-  // Community Group Modal
   joinPublicGroup(grp: PublicGroupItem): void {
     this.publicGroups.update(list => list.map(g => g._id === grp._id ? { ...g, is_member: true } : g));
     this.addOrSelectGroupConv(grp);
@@ -301,7 +333,7 @@ export class StudentChat implements OnInit, OnDestroy {
         _id: grp._id,
         type: grp.type,
         title: grp.title,
-        participants: [this.currentUserId],
+        participants: [this.currentUserId()],
         last_message: { text: 'Joined community group', createdAt: new Date().toISOString() }
       };
       this.conversations.update(list => [existing!, ...list]);
@@ -318,7 +350,6 @@ export class StudentChat implements OnInit, OnDestroy {
     this.groupModalOpen.set(false);
   }
 
-  // Report Modal
   submitReport(): void {
     const reason = this.reportReason().trim();
     if (!reason) return;
@@ -337,7 +368,6 @@ export class StudentChat implements OnInit, OnDestroy {
     this.reportDetails.set('');
   }
 
-  // Helper Badge Formatters
   getTypeTag(type: string): string {
     if (type === 'group_university') return 'UNIVERSITY';
     if (type === 'group_country') return 'COUNTRY';
@@ -353,7 +383,6 @@ export class StudentChat implements OnInit, OnDestroy {
   }
 
   private seedDefaultHistoryMap(): void {
-    // Seed initial chat history for the groups
     this.conversationMessageMap.set('6a7890ec8559d01cd87f85b7', [
       {
         _id: 'm1',
@@ -362,14 +391,6 @@ export class StudentChat implements OnInit, OnDestroy {
         sender_name: 'Priya Patel',
         text: 'hiii',
         createdAt: new Date(Date.now() - 7200000).toISOString()
-      },
-      {
-        _id: 'm2',
-        conversation_id: '6a7890ec8559d01cd87f85b7',
-        sender_id: this.currentUserId,
-        sender_name: this.currentUserName,
-        text: 'hello mam',
-        createdAt: new Date(Date.now() - 3600000).toISOString()
       }
     ]);
 
@@ -381,22 +402,6 @@ export class StudentChat implements OnInit, OnDestroy {
         sender_name: 'Priya Patel',
         text: 'hoho',
         createdAt: new Date(Date.now() - 5400000).toISOString()
-      },
-      {
-        _id: 'mb2',
-        conversation_id: '6a7766e1a11062f0e0c6290b',
-        sender_id: this.currentUserId,
-        sender_name: this.currentUserName,
-        text: 'hii',
-        createdAt: new Date(Date.now() - 3600000).toISOString()
-      },
-      {
-        _id: 'mb3',
-        conversation_id: '6a7766e1a11062f0e0c6290b',
-        sender_id: this.currentUserId,
-        sender_name: this.currentUserName,
-        text: 'hello',
-        createdAt: new Date(Date.now() - 1800000).toISOString()
       }
     ]);
   }
