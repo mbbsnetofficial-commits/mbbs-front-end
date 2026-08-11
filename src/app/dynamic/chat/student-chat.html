@@ -1,175 +1,139 @@
 <div class="chat-app-layout">
-  <!-- Left Sidebar: Conversations & Public Groups -->
+  <!-- Left Sidebar: Conversations & Action Buttons -->
   <aside class="chat-sidebar">
     <div class="sidebar-header">
-      <h2>Student Chat & Community</h2>
-      <span class="user-badge">{{ currentUserName }}</span>
+      <h2>Conversations</h2>
+      <div class="top-action-buttons">
+        <button class="action-btn primary-purple" (click)="openDirectModal()" type="button">
+          <span>+ 1-on-1 Direct</span>
+        </button>
+        <button class="action-btn secondary-blue" (click)="openGroupModal()" type="button">
+          <span>+ Join Community Group</span>
+        </button>
+      </div>
     </div>
 
-    <!-- Search Bar (GET /api/v1/chat/search) -->
-    <div class="chat-search-box">
-      <input
-        type="text"
-        placeholder="Search messages..."
-        [ngModel]="searchQuery()"
-        (ngModelChange)="searchQuery.set($event)"
-        (keyup.enter)="performSearch()"
-      />
-      <button class="search-btn" (click)="performSearch()" type="button">Search</button>
+    <!-- Category Filter Pills Row (Image 2) -->
+    <div class="filter-pills-row">
+      <button
+        class="filter-pill"
+        [class.active]="activeCategory() === 'all'"
+        (click)="activeCategory.set('all')"
+        type="button"
+      >All</button>
+      <button
+        class="filter-pill"
+        [class.active]="activeCategory() === 'direct'"
+        (click)="activeCategory.set('direct')"
+        type="button"
+      >1-to-1</button>
+      <button
+        class="filter-pill"
+        [class.active]="activeCategory() === 'university'"
+        (click)="activeCategory.set('university')"
+        type="button"
+      >Universities</button>
+      <button
+        class="filter-pill"
+        [class.active]="activeCategory() === 'country'"
+        (click)="activeCategory.set('country')"
+        type="button"
+      >Countries</button>
+      <button
+        class="filter-pill"
+        [class.active]="activeCategory() === 'batch'"
+        (click)="activeCategory.set('batch')"
+        type="button"
+      >Batches</button>
     </div>
 
-    <!-- Tabs: Active Chats / Public Groups / Blocked Users -->
-    <div class="sidebar-tabs">
-      <button
-        class="tab-btn"
-        [class.active]="activeTab() === 'chats'"
-        (click)="activeTab.set('chats')"
-        type="button"
-      >
-        My Chats
-      </button>
-      <button
-        class="tab-btn"
-        [class.active]="activeTab() === 'groups'"
-        (click)="activeTab.set('groups')"
-        type="button"
-      >
-        Public Groups
-      </button>
-      <button
-        class="tab-btn"
-        [class.active]="activeTab() === 'blocked'"
-        (click)="activeTab.set('blocked'); loadBlockedUsers()"
-        type="button"
-      >
-        Blocked
-      </button>
-    </div>
-
-    <!-- Tab 1: Conversations List (GET /api/v1/chat/conversations) -->
-    @if (activeTab() === 'chats') {
-      <div class="conversations-list">
-        @for (conv of conversations(); track conv._id) {
-          <div
-            class="conv-item"
-            [class.active]="selectedConversation()?._id === conv._id"
-            (click)="selectConversation(conv)"
-          >
-            <div class="conv-avatar">
-              <span>{{ conv.type === 'direct' ? '👤' : '👥' }}</span>
-            </div>
-            <div class="conv-info">
-              <div class="conv-name-row">
-                <strong class="conv-name">{{ conv.title || 'Chat Conversation' }}</strong>
-                @if (conv.last_message?.createdAt) {
-                  <small class="conv-time">{{ conv.last_message?.createdAt | date:'shortTime' }}</small>
-                }
-              </div>
-              <p class="conv-preview">{{ conv.last_message?.text || 'No messages yet' }}</p>
-            </div>
-            @if (conv.unread_count) {
-              <span class="unread-badge">{{ conv.unread_count }}</span>
-            }
+    <!-- Conversations List (Image 2 Design Layout) -->
+    <div class="conversations-list">
+      @for (conv of filteredConversations; track conv._id) {
+        <div
+          class="conv-card-item"
+          [class.active]="selectedConversation()?._id === conv._id"
+          (click)="selectConversation(conv)"
+        >
+          <div class="conv-icon-avatar">
+            <span>{{ getTypeIcon(conv.type) }}</span>
           </div>
-        }
-      </div>
-    }
 
-    <!-- Tab 2: Public Communities (GET /api/v1/chat/groups/public & POST /api/v1/chat/group/join) -->
-    @if (activeTab() === 'groups') {
-      <div class="groups-list">
-        @for (grp of publicGroups(); track grp._id) {
-          <div class="group-card">
-            <div class="group-info">
-              <strong class="group-title">{{ grp.title }}</strong>
-              <small class="group-meta">{{ grp.member_count }} members &bull; {{ grp.type }}</small>
+          <div class="conv-card-body">
+            <div class="conv-header-row">
+              <strong class="conv-title-text">{{ conv.title || 'Conversation' }}</strong>
+              <span class="conv-tag-badge" [class]="conv.type">{{ getTypeTag(conv.type) }}</span>
             </div>
-            @if (grp.is_member) {
-              <span class="joined-badge">Joined</span>
-            } @else {
-              <button class="join-btn" type="button" (click)="joinPublicGroup(grp)">Join Group</button>
-            }
+            <p class="conv-last-text">{{ conv.last_message?.text || 'No messages yet' }}</p>
           </div>
-        }
-      </div>
-    }
-
-    <!-- Tab 3: Blocked Users (GET /api/v1/chat/blocked & POST /api/v1/chat/unblock) -->
-    @if (activeTab() === 'blocked') {
-      <div class="blocked-list">
-        @if (blockedUsers().length) {
-          @for (user of blockedUsers(); track user.userId) {
-            <div class="blocked-item">
-              <span>{{ user.name || user.userId }}</span>
-              <button class="unblock-btn" (click)="unblockTargetUser(user.userId)" type="button">Unblock</button>
-            </div>
-          }
-        } @else {
-          <p class="empty-text">No blocked users.</p>
-        }
-      </div>
-    }
-  </aside>
-
-  <!-- Right Main Area: Active Thread Messages & Composer -->
-  <main class="chat-main-window">
-    @if (selectedConversation(); as conv) {
-      <!-- Thread Header -->
-      <header class="thread-header">
-        <div class="thread-title-info">
-          <h2>{{ conv.title || 'Chat Thread' }}</h2>
-          <span class="thread-type-badge">{{ conv.type }}</span>
-        </div>
-        <div class="thread-actions">
-          @if (conv.type === 'direct') {
-            <button class="action-link danger" (click)="blockTargetUser(conv._id)" type="button">Block User</button>
-          }
-          <button class="action-link danger" (click)="openReportModal(conv._id)" type="button">Report</button>
-        </div>
-      </header>
-
-      <!-- Message Search Results Bar -->
-      @if (isSearching() && searchResults().length) {
-        <div class="search-results-banner">
-          <span>Found {{ searchResults().length }} matching message(s)</span>
-          <button (click)="isSearching.set(false); searchQuery.set('')" type="button">&times;</button>
         </div>
       }
+    </div>
+  </aside>
 
-      <!-- Messages History Area (GET /api/v1/chat/messages/:id) -->
-      <div class="messages-history">
+  <!-- Right Main Area: Chat Thread (Image 2 Structure) -->
+  <main class="chat-main-window">
+    @if (selectedConversation(); as conv) {
+      <!-- Thread Top Bar (Image 2) -->
+      <header class="thread-top-bar">
+        <div class="thread-title-group">
+          <div class="thread-icon-badge">
+            <span>{{ getTypeIcon(conv.type) }}</span>
+          </div>
+          <div class="thread-name-meta">
+            <div class="thread-name-row">
+              <h2>{{ conv.title || 'Official Thread' }}</h2>
+              <span class="type-badge-pill">{{ conv.type.toUpperCase() }}</span>
+            </div>
+            <span class="participant-count">&bull; {{ conv.participants.length || 2 }} participant(s)</span>
+          </div>
+        </div>
+
+        <button class="top-report-btn" (click)="openReportModal()" type="button">
+          <span>🚩 Report</span>
+        </button>
+      </header>
+
+      <!-- Message History List (Image 2 Avatar & Bubble Layout) -->
+      <div class="messages-viewport">
         @if (loadingMessages()) {
-          <div class="loading-msgs">Loading message history…</div>
+          <div class="loading-state">Loading messages…</div>
         } @else {
-          @for (msg of (isSearching() ? searchResults() : messages()); track msg._id) {
-            <div class="message-bubble-wrapper" [class.outgoing]="msg.sender_id === currentUserId">
-              <div class="message-bubble">
-                <div class="msg-sender-row">
-                  <strong class="sender-name">{{ msg.sender_name || msg.sender_id }}</strong>
-                  <span class="msg-time">{{ msg.createdAt | date:'shortTime' }}</span>
+          @for (msg of messages(); track msg._id) {
+            <div class="message-row" [class.outgoing]="msg.sender_id === currentUserId">
+              <!-- Avatar -->
+              <div class="message-avatar">
+                <span>{{ msg.sender_id === currentUserId ? '🧔' : '🧑‍⚕️' }}</span>
+              </div>
+
+              <!-- Content Column -->
+              <div class="message-content-col">
+                <div class="msg-header">
+                  <span class="msg-sender-name">{{ msg.sender_name || msg.sender_id }}</span>
+                  <span class="msg-time-stamp">{{ msg.createdAt | date:'shortTime' }}</span>
                 </div>
 
                 @if (msg.reply_to) {
                   <div class="quoted-reply-box">
-                    <small>Replying to <strong>{{ msg.reply_to.sender_name }}</strong>:</small>
+                    <small>Replying to {{ msg.reply_to.sender_name }}:</small>
                     <p>{{ msg.reply_to.text }}</p>
                   </div>
                 }
 
-                <p class="msg-text" [class.deleted]="msg.is_deleted">{{ msg.text }}</p>
-                @if (msg.is_edited) {
-                  <small class="edited-tag">(edited)</small>
-                }
+                <div class="msg-bubble" [class.deleted]="msg.is_deleted">
+                  <p>{{ msg.text }}</p>
+                </div>
 
-                @if (msg.sender_id === currentUserId && !msg.is_deleted) {
-                  <div class="msg-actions">
-                    <button (click)="startEdit(msg)" type="button">Edit</button>
-                    <button (click)="deleteMsg(msg)" type="button">Delete</button>
-                  </div>
-                } @else if (msg.sender_id !== currentUserId && !msg.is_deleted) {
-                  <div class="msg-actions">
-                    <button (click)="replyToMessage.set(msg)" type="button">Reply</button>
-                    <button (click)="openReportModal(msg.sender_id)" type="button">Report</button>
+                <!-- Hover Actions -->
+                @if (!msg.is_deleted) {
+                  <div class="bubble-actions">
+                    @if (msg.sender_id === currentUserId) {
+                      <button (click)="startEdit(msg)" type="button">Edit</button>
+                      <button (click)="deleteMsg(msg)" type="button">Delete</button>
+                    } @else {
+                      <button (click)="replyToMessage.set(msg)" type="button">Reply</button>
+                      <button (click)="openReportModal(msg.sender_id)" type="button">Report</button>
+                    }
                   </div>
                 }
               </div>
@@ -178,64 +142,119 @@
         }
       </div>
 
-      <!-- Reply / Edit Indicator Banner -->
-      @if (editingMessage(); as editMsg) {
-        <div class="composer-mode-banner edit">
-          <span>Editing message: "{{ editMsg.text }}"</span>
-          <button (click)="cancelEdit()" type="button">&times;</button>
-        </div>
-      } @else if (replyToMessage(); as replyMsg) {
-        <div class="composer-mode-banner reply">
-          <span>Replying to {{ replyMsg.sender_name }}: "{{ replyMsg.text }}"</span>
-          <button (click)="replyToMessage.set(null)" type="button">&times;</button>
-        </div>
-      }
-
-      <!-- Message Composer Box (POST /api/v1/chat/messages) -->
-      <footer class="chat-composer-box">
-        <textarea
-          rows="1"
-          placeholder="Type a message (supports text & emojis 🩺😊)..."
-          [ngModel]="messageText()"
-          (ngModelChange)="messageText.set($event)"
-          (keyup.enter)="sendMessage()"
-        ></textarea>
-        <button class="send-msg-btn" (click)="sendMessage()" type="button">Send</button>
-      </footer>
-    } @else {
-      <div class="empty-thread-state">
-        <p>Select a conversation or join a community group to start messaging.</p>
+      <!-- Quick Emoji Bar (Image 2 Quick Bar) -->
+      <div class="quick-emoji-bar">
+        @for (emoji of quickEmojis; track emoji) {
+          <button class="emoji-btn" type="button" (click)="addEmoji(emoji)">{{ emoji }}</button>
+        }
       </div>
+
+      <!-- Composer Input Footer (Image 2 Footer) -->
+      <footer class="composer-footer">
+        @if (editingMessage(); as editMsg) {
+          <div class="mode-bar edit">
+            <span>Editing message: "{{ editMsg.text }}"</span>
+            <button (click)="cancelEdit()" type="button">&times;</button>
+          </div>
+        } @else if (replyToMessage(); as replyMsg) {
+          <div class="mode-bar reply">
+            <span>Replying to {{ replyMsg.sender_name }}: "{{ replyMsg.text }}"</span>
+            <button (click)="replyToMessage.set(null)" type="button">&times;</button>
+          </div>
+        }
+
+        <div class="input-send-row">
+          <input
+            type="text"
+            placeholder="Type your message here (emojis & replies supported)..."
+            [ngModel]="messageText()"
+            (ngModelChange)="messageText.set($event)"
+            (keyup.enter)="sendMessage()"
+          />
+          <button class="send-btn" (click)="sendMessage()" type="button">
+            <span>✈️ Send</span>
+          </button>
+        </div>
+      </footer>
     }
   </main>
 </div>
 
-<!-- Report Modal (POST /api/v1/chat/report) -->
+<!-- Modal 1: 1-on-1 Direct Chat -->
+@if (directModalOpen()) {
+  <div class="modal-backdrop">
+    <div class="modal-card">
+      <h3>Start 1-on-1 Direct Chat</h3>
+      <div class="form-group">
+        <label>Enter Student ID / Target User ID</label>
+        <input
+          type="text"
+          placeholder="e.g. user_202 or doctor@mbbs.net"
+          [ngModel]="targetDirectUserId()"
+          (ngModelChange)="targetDirectUserId.set($event)"
+        />
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" (click)="closeDirectModal()" type="button">Cancel</button>
+        <button class="btn-primary" (click)="createDirectChat()" type="button">Start Chat</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Modal 2: Join Community Groups -->
+@if (groupModalOpen()) {
+  <div class="modal-backdrop">
+    <div class="modal-card wide">
+      <h3>Browse & Join Community Groups</h3>
+      <div class="modal-groups-list">
+        @for (grp of publicGroups(); track grp._id) {
+          <div class="modal-group-item">
+            <div class="grp-meta">
+              <strong>{{ grp.title }}</strong>
+              <small>{{ grp.member_count }} members &bull; {{ grp.type }}</small>
+            </div>
+            @if (grp.is_member) {
+              <span class="joined-tag">Joined</span>
+            } @else {
+              <button class="btn-primary" (click)="joinPublicGroup(grp)" type="button">Join Group</button>
+            }
+          </div>
+        }
+      </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" (click)="closeGroupModal()" type="button">Close</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Modal 3: Report Modal -->
 @if (reportModalOpen()) {
   <div class="modal-backdrop">
-    <div class="report-modal">
+    <div class="modal-card">
       <h3>Report Message or User</h3>
       <div class="form-group">
         <label>Reason for Report</label>
         <input
           type="text"
-          placeholder="Inappropriate language, spamming, harassment..."
+          placeholder="Inappropriate language, spam..."
           [ngModel]="reportReason()"
           (ngModelChange)="reportReason.set($event)"
         />
       </div>
       <div class="form-group">
-        <label>Additional Details</label>
+        <label>Details (Optional)</label>
         <textarea
           rows="3"
-          placeholder="Provide optional detail..."
+          placeholder="Provide additional details..."
           [ngModel]="reportDetails()"
           (ngModelChange)="reportDetails.set($event)"
         ></textarea>
       </div>
       <div class="modal-actions">
-        <button class="btn-cancel" (click)="closeReportModal()" type="button">Cancel</button>
-        <button class="btn-submit" (click)="submitReport()" type="button">Submit Report</button>
+        <button class="btn-secondary" (click)="closeReportModal()" type="button">Cancel</button>
+        <button class="btn-danger" (click)="submitReport()" type="button">Submit Report</button>
       </div>
     </div>
   </div>

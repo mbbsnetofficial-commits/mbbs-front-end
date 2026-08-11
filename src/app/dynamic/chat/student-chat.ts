@@ -21,14 +21,14 @@ export class StudentChat implements OnInit {
   private readonly chatService = inject(StudentChatService);
 
   readonly currentUserId = 'user_student_101';
-  readonly currentUserName = 'Student Account';
+  readonly currentUserName = 'Student ST17848947988250BDD4J';
 
   /* ── State ── */
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
   readonly directChatEnabled = signal(true);
 
-  readonly activeTab = signal<'chats' | 'groups' | 'blocked'>('chats');
+  readonly activeCategory = signal<'all' | 'direct' | 'university' | 'country' | 'batch'>('all');
 
   readonly conversations = signal<ConversationItem[]>([]);
   readonly publicGroups = signal<PublicGroupItem[]>([]);
@@ -42,9 +42,14 @@ export class StudentChat implements OnInit {
   readonly replyToMessage = signal<ChatMessageItem | null>(null);
   readonly editingMessage = signal<ChatMessageItem | null>(null);
 
-  readonly searchQuery = signal('');
-  readonly searchResults = signal<ChatMessageItem[]>([]);
-  readonly isSearching = signal(false);
+  /* Quick Emojis */
+  readonly quickEmojis = ['🩺', '📚', '🎓', '🚀', '😃', '💊', '🙏', '🔥', '❤️', '👍', '💡', '🏥'];
+
+  /* Modals */
+  readonly directModalOpen = signal(false);
+  readonly targetDirectUserId = signal('');
+
+  readonly groupModalOpen = signal(false);
 
   readonly reportModalOpen = signal(false);
   readonly reportReason = signal('');
@@ -88,16 +93,14 @@ export class StudentChat implements OnInit {
     // 3. GET /api/v1/chat/groups/public
     this.chatService.getPublicGroups().subscribe({
       next: (res) => {
-        if (res.groups) {
+        if (res.groups && res.groups.length) {
           this.publicGroups.set(res.groups);
+        } else {
+          this.loadDefaultPublicGroups();
         }
       },
       error: () => {
-        this.publicGroups.set([
-          { _id: 'grp_101', title: 'Altai State Medical University Group', type: 'group_university', member_count: 142, is_member: false },
-          { _id: 'grp_102', title: 'MBBS Hungary Aspirants 2026', type: 'group_country', member_count: 98, is_member: false },
-          { _id: 'grp_103', title: 'NEET 2026 Batch A Community', type: 'group_batch', member_count: 215, is_member: true }
-        ]);
+        this.loadDefaultPublicGroups();
       }
     });
   }
@@ -111,7 +114,11 @@ export class StudentChat implements OnInit {
     // GET /api/v1/chat/messages/:conversationId
     this.chatService.getMessages(conv._id).subscribe({
       next: (res) => {
-        this.messages.set(res.messages || []);
+        if (res.messages && res.messages.length) {
+          this.messages.set(res.messages);
+        } else {
+          this.loadMockMessages(conv);
+        }
         this.loadingMessages.set(false);
       },
       error: () => {
@@ -119,6 +126,23 @@ export class StudentChat implements OnInit {
         this.loadingMessages.set(false);
       }
     });
+  }
+
+  // Filtered Conversations List
+  get filteredConversations(): ConversationItem[] {
+    const cat = this.activeCategory();
+    const list = this.conversations();
+
+    if (cat === 'direct') return list.filter(c => c.type === 'direct');
+    if (cat === 'university') return list.filter(c => c.type === 'group_university');
+    if (cat === 'country') return list.filter(c => c.type === 'group_country');
+    if (cat === 'batch') return list.filter(c => c.type === 'group_batch');
+    return list;
+  }
+
+  // Quick Emoji Insertion
+  addEmoji(emoji: string): void {
+    this.messageText.update(text => text + emoji);
   }
 
   // POST /api/v1/chat/messages or PATCH /api/v1/chat/messages/:messageId
@@ -204,73 +228,79 @@ export class StudentChat implements OnInit {
     });
   }
 
+  // POST /api/v1/chat/direct
+  createDirectChat(): void {
+    const target = this.targetDirectUserId().trim();
+    if (!target) return;
+
+    this.chatService.getOrCreateDirectChat(this.currentUserId, target).subscribe({
+      next: (res) => {
+        if (res.conversation) {
+          this.conversations.update(list => [res.conversation, ...list]);
+          this.selectConversation(res.conversation);
+        }
+        this.closeDirectModal();
+      },
+      error: () => {
+        const newConv: ConversationItem = {
+          _id: 'direct_' + Date.now(),
+          type: 'direct',
+          title: target,
+          participants: [{ userId: target, name: target }],
+          last_message: { text: 'Conversation started', createdAt: new Date().toISOString() }
+        };
+        this.conversations.update(list => [newConv, ...list]);
+        this.selectConversation(newConv);
+        this.closeDirectModal();
+      }
+    });
+  }
+
+  openDirectModal(): void {
+    this.directModalOpen.set(true);
+    this.targetDirectUserId.set('');
+  }
+
+  closeDirectModal(): void {
+    this.directModalOpen.set(false);
+  }
+
   // POST /api/v1/chat/group/join
   joinPublicGroup(grp: PublicGroupItem): void {
     this.chatService.joinGroup(this.currentUserId, grp._id).subscribe({
       next: () => {
         this.publicGroups.update(list => list.map(g => g._id === grp._id ? { ...g, is_member: true } : g));
+        this.addOrSelectGroupConv(grp);
       },
       error: () => {
         this.publicGroups.update(list => list.map(g => g._id === grp._id ? { ...g, is_member: true } : g));
+        this.addOrSelectGroupConv(grp);
       }
     });
   }
 
-  // GET /api/v1/chat/search?userId=...&q=...
-  performSearch(): void {
-    const q = this.searchQuery().trim();
-    if (!q) {
-      this.isSearching.set(false);
-      this.searchResults.set([]);
-      return;
+  private addOrSelectGroupConv(grp: PublicGroupItem): void {
+    let existing = this.conversations().find(c => c._id === grp._id);
+    if (!existing) {
+      existing = {
+        _id: grp._id,
+        type: grp.type,
+        title: grp.title,
+        participants: [{ userId: this.currentUserId, name: this.currentUserName }],
+        last_message: { text: 'Joined community group', createdAt: new Date().toISOString() }
+      };
+      this.conversations.update(list => [existing!, ...list]);
     }
-
-    this.isSearching.set(true);
-    this.chatService.searchConversations(this.currentUserId, q).subscribe({
-      next: (res) => {
-        this.searchResults.set(res.results || []);
-      },
-      error: () => {
-        this.searchResults.set(
-          this.messages().filter(m => m.text.toLowerCase().includes(q.toLowerCase()))
-        );
-      }
-    });
+    this.selectConversation(existing);
+    this.closeGroupModal();
   }
 
-  // POST /api/v1/chat/block
-  blockTargetUser(targetUserId: string): void {
-    if (!confirm('Block this user from messaging you?')) return;
-    this.chatService.blockUser(this.currentUserId, targetUserId, 'User requested block').subscribe({
-      next: () => {
-        alert('User blocked successfully.');
-        this.loadBlockedUsers();
-      },
-      error: () => {
-        alert('User blocked successfully.');
-      }
-    });
+  openGroupModal(): void {
+    this.groupModalOpen.set(true);
   }
 
-  // POST /api/v1/chat/unblock
-  unblockTargetUser(targetUserId: string): void {
-    this.chatService.unblockUser(this.currentUserId, targetUserId).subscribe({
-      next: () => {
-        this.blockedUsers.update(list => list.filter(u => u.userId !== targetUserId));
-      },
-      error: () => {
-        this.blockedUsers.update(list => list.filter(u => u.userId !== targetUserId));
-      }
-    });
-  }
-
-  loadBlockedUsers(): void {
-    this.chatService.getBlockedUsers(this.currentUserId).subscribe({
-      next: (res) => {
-        this.blockedUsers.set(res.blocked_users || []);
-      },
-      error: () => {}
-    });
+  closeGroupModal(): void {
+    this.groupModalOpen.set(false);
   }
 
   // POST /api/v1/chat/report
@@ -295,8 +325,8 @@ export class StudentChat implements OnInit {
     });
   }
 
-  openReportModal(userId: string): void {
-    this.targetReportUser.set(userId);
+  openReportModal(userId?: string): void {
+    this.targetReportUser.set(userId || 'community_user');
     this.reportModalOpen.set(true);
   }
 
@@ -306,56 +336,79 @@ export class StudentChat implements OnInit {
     this.reportDetails.set('');
   }
 
+  // Helper Badge Formatters
+  getTypeTag(type: string): string {
+    if (type === 'group_university') return 'UNIVERSITY';
+    if (type === 'group_country') return 'COUNTRY';
+    if (type === 'group_batch') return 'BATCH';
+    return '1-to-1';
+  }
+
+  getTypeIcon(type: string): string {
+    if (type === 'group_university') return '🏛️';
+    if (type === 'group_country') return '🌐';
+    if (type === 'group_batch') return '🎓';
+    return '👤';
+  }
+
   private loadMockConversations(): void {
     this.conversations.set([
       {
-        _id: 'conv_1',
-        type: 'group_university',
-        title: 'Altai State Medical University Group',
-        participants: [{ userId: 'user_1', name: 'Dr. Sanjay' }],
-        last_message: { text: 'Welcome to the 2026 Batch discussion!', createdAt: new Date().toISOString(), sender_name: 'Dr. Sanjay' },
-        unread_count: 3
+        _id: 'conv_batch',
+        type: 'group_batch',
+        title: 'BATCH Group',
+        participants: [{ userId: 'user_1', name: 'Priya Patel' }, { userId: this.currentUserId, name: this.currentUserName }],
+        last_message: { text: 'Priya Patel: hoho', createdAt: new Date(Date.now() - 300000).toISOString(), sender_name: 'Priya Patel' },
+        unread_count: 2
       },
       {
-        _id: 'conv_2',
-        type: 'direct',
-        title: 'Dr. Sanjay Kumar',
-        participants: [{ userId: 'user_doc_1', name: 'Dr. Sanjay Kumar', role: 'Medical Specialist' }],
-        last_message: { text: 'Make sure to review NCERT Biology Chapter 4.', createdAt: new Date(Date.now() - 3600000).toISOString(), sender_name: 'Dr. Sanjay Kumar' },
+        _id: 'conv_russia',
+        type: 'group_university',
+        title: 'russia',
+        participants: [{ userId: 'user_2', name: 'Altai Medical' }, { userId: this.currentUserId, name: this.currentUserName }],
+        last_message: { text: `${this.currentUserName}: hiii`, createdAt: new Date(Date.now() - 600000).toISOString(), sender_name: this.currentUserName },
         unread_count: 0
       },
       {
-        _id: 'conv_3',
+        _id: 'conv_hungary',
         type: 'group_country',
-        title: 'MBBS Hungary Aspirants 2026',
-        participants: [{ userId: 'user_2', name: 'Swetha' }],
-        last_message: { text: 'Tuition details for Semmelweis University attached.', createdAt: new Date(Date.now() - 7200000).toISOString(), sender_name: 'Swetha' },
+        title: 'official',
+        participants: [{ userId: 'user_priya', name: 'Priya Patel' }, { userId: this.currentUserId, name: this.currentUserName }],
+        last_message: { text: 'Priya Patel: hiii', createdAt: new Date(Date.now() - 900000).toISOString(), sender_name: 'Priya Patel' },
         unread_count: 1
       }
     ]);
     if (this.conversations().length) {
-      this.selectConversation(this.conversations()[0]);
+      this.selectConversation(this.conversations()[2]);
     }
   }
 
   private loadMockMessages(conv: ConversationItem): void {
     this.messages.set([
       {
-        _id: 'm1',
+        _id: 'msg_1',
         conversation_id: conv._id,
-        sender_id: 'user_doc_1',
-        sender_name: conv.title || 'Dr. Sanjay',
-        text: 'Hello aspirants! 🩺 Welcome to the official study group.',
-        createdAt: new Date(Date.now() - 10000000).toISOString()
+        sender_id: 'user_priya',
+        sender_name: 'Priya Patel',
+        text: 'hiii',
+        createdAt: new Date(Date.now() - 3600000).toISOString()
       },
       {
-        _id: 'm2',
+        _id: 'msg_2',
         conversation_id: conv._id,
         sender_id: this.currentUserId,
         sender_name: this.currentUserName,
-        text: 'Thank you Doctor! Excited to learn.',
-        createdAt: new Date(Date.now() - 5000000).toISOString()
+        text: 'hello mam',
+        createdAt: new Date(Date.now() - 1800000).toISOString()
       }
+    ]);
+  }
+
+  private loadDefaultPublicGroups(): void {
+    this.publicGroups.set([
+      { _id: 'grp_1', title: 'BATCH Group 2026', type: 'group_batch', member_count: 156, is_member: true },
+      { _id: 'grp_2', title: 'Altai State Medical University', type: 'group_university', member_count: 210, is_member: true },
+      { _id: 'grp_3', title: 'MBBS Hungary Official Community', type: 'group_country', member_count: 340, is_member: true }
     ]);
   }
 }
