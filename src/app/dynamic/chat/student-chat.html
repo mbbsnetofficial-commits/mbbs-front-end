@@ -174,8 +174,8 @@
         </div>
 
         <div class="thread-content">
-          <div class="messages-panel">
-            <div class="messages-board" #messagesBoard>
+          <div class="messages-panel" #messagesBoard>
+            <div class="messages-board">
               @if (loadingMessages()) {
                 <div class="messages-loading">Loading messages…</div>
               } @else if (messages().length === 0) {
