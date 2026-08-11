@@ -136,7 +136,23 @@ The **Student Dashboard** ([student-dashboard.ts](file:///Users/sajay/Documents/
 
 ---
 
-### 4.6 Public Landing & Help Desk (`/dashboard`)
+### 4.6 Real-Time Student Chat & Community Workflow (`/dynamic/chat`)
+1. **Component & Service Architecture:**
+   - Component: [StudentChat](file:///Users/sajay/Documents/frontend-mvp/mbbs-front-end/src/app/dynamic/chat/student-chat.ts) (`src/app/dynamic/chat/student-chat.ts`, `student-chat.html`, `student-chat.scss`)
+   - Service: [StudentChatService](file:///Users/sajay/Documents/frontend-mvp/mbbs-front-end/src/app/dynamic/chat/services/student-chat.service.ts)
+   - Route Path: `/dynamic/chat`
+2. **Key Capabilities & API Binding:**
+   - **System Chat Settings:** Checks global 1-to-1 direct chat status (`GET /api/v1/chat/settings`).
+   - **Active Conversations List:** Fetches 1-to-1 direct chats and joined group threads (`GET /api/v1/chat/conversations?userId=...`).
+   - **Public Communities Discovery:** Browses admin-created university, country, and batch groups (`GET /api/v1/chat/groups/public`) and allows students to join (`POST /api/v1/chat/group/join`).
+   - **Direct 1-to-1 Messaging:** Initializes thread with fellow students (`POST /api/v1/chat/direct`).
+   - **Message History & Composer:** Loads paginated message history (`GET /api/v1/chat/messages/:conversationId`) and sends text/emojis (`POST /api/v1/chat/messages`).
+   - **Edit & Delete Messaging:** Allows students to edit (`PATCH /api/v1/chat/messages/:messageId`) or soft delete sent messages (`DELETE /api/v1/chat/messages/:messageId`).
+   - **Search & Moderation:** Global message search (`GET /api/v1/chat/search?userId=...&q=...`), user blocking (`POST /api/v1/chat/block`), unblocking (`POST /api/v1/chat/unblock`), and reporting (`POST /api/v1/chat/report`).
+
+---
+
+### 4.7 Public Landing & Help Desk (`/dashboard`)
 - Public marketing landing page ([dashboard.ts](file:///Users/sajay/Documents/frontend-mvp/mbbs-front-end/src/app/static/dashboard/dashboard.ts)) featuring University & NEET mega-menus, featured university logos, country cards, and an interactive contact support form that prepares a Gmail compose draft (`mbbs.net.official@gmail.com`).
 
 ---
@@ -154,6 +170,20 @@ The **Student Dashboard** ([student-dashboard.ts](file:///Users/sajay/Documents/
 | `/api/v1/student/dashboard/university-finder/save-university/:id` | `DELETE` | Dashboard | Unsave `×` button on university cards. |
 | `/api/v1/student/dashboard/university-finder/recommendations` | `GET` | Dashboard | Finder Quiz Sessions tab list. |
 | `/api/v1/student/dashboard/university-finder/recommendations` | `POST` | Dashboard | Archives University Finder quiz result session. |
+| `/api/v1/chat/settings` | `GET` | Student Chat | Checks global 1-to-1 direct chat system settings. |
+| `/api/v1/chat/conversations` | `GET` | Student Chat | Fetches list of active conversations for student. |
+| `/api/v1/chat/groups/public` | `GET` | Student Chat | Browses available public community groups. |
+| `/api/v1/chat/group/join` | `POST` | Student Chat | Student joins an admin-created community group. |
+| `/api/v1/chat/direct` | `POST` | Student Chat | Initializes 1-to-1 direct chat thread. |
+| `/api/v1/chat/messages/:conversationId` | `GET` | Student Chat | Loads paginated conversation message history. |
+| `/api/v1/chat/messages` | `POST` | Student Chat | Sends text/emoji message in a conversation. |
+| `/api/v1/chat/messages/:messageId` | `PATCH` | Student Chat | Edits sent message content. |
+| `/api/v1/chat/messages/:messageId` | `DELETE` | Student Chat | Soft deletes sent message. |
+| `/api/v1/chat/search` | `GET` | Student Chat | Searches messages across student conversations. |
+| `/api/v1/chat/block` | `POST` | Student Chat | Blocks a user from direct messaging. |
+| `/api/v1/chat/unblock` | `POST` | Student Chat | Unblocks a user. |
+| `/api/v1/chat/blocked` | `GET` | Student Chat | Gets list of blocked users. |
+| `/api/v1/chat/report` | `POST` | Student Chat | Reports an inappropriate message or user. |
 | `/api/v1/pages/home` | `GET` | Blogs | Main blog feed articles, categories, and staff picks. |
 | `/api/v1/blogs/:id/bookmark` | `POST` | Blogs | Bookmarks blog post for student account. |
 | `/api/v1/auth/login` | `POST` | Auth | Authenticates student and returns JWT tokens. |
@@ -164,6 +194,6 @@ The **Student Dashboard** ([student-dashboard.ts](file:///Users/sajay/Documents/
 
 ## 6. Verification & Execution
 
-- **Local Dev Server:** `http://localhost:4200/dynamic/dashboard`
+- **Local Dev Server:** `http://localhost:4200/dynamic/chat`
 - **Build Status:** Verified compilation clean (`HTTP/1.1 200 OK`).
 - **GitHub Repository:** `https://github.com/mbbsnetofficial-commits/mbbs-front-end.git`.

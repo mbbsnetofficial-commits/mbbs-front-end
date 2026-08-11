@@ -25,6 +25,13 @@ export const dynamicRoutes: Routes = [
           ),
       },
       {
+        path: 'chat',
+        loadComponent: () =>
+          import('./chat/student-chat').then(
+            ({ StudentChat }) => StudentChat
+          ),
+      },
+      {
         path: 'blogs',
         loadChildren: () =>
           import('./blogs/blogs.routes').then(({ blogRoutes }) => blogRoutes),
