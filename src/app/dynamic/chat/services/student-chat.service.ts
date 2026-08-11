@@ -67,7 +67,7 @@ export interface UserPresenceResponse {
 })
 export class StudentChatService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = `${environment.apiBaseUrl}/chat`;
+  private readonly baseUrl = `${environment.cseApiBaseUrl || 'https://api2.mbbs.net/api/v1'}/chat`;
 
   /** GET /api/v1/chat/settings */
   getChatSettings(): Observable<ChatSettingsResponse> {

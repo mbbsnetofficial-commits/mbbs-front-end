@@ -111,6 +111,14 @@ export class StudentChat implements OnInit {
     this.replyToMessage.set(null);
     this.editingMessage.set(null);
 
+    // Only query backend API if conversation ID is a valid 24-character Mongo ObjectId
+    const isMongoId = /^[0-9a-fA-F]{24}$/.test(conv._id);
+    if (!isMongoId) {
+      this.loadMockMessages(conv);
+      this.loadingMessages.set(false);
+      return;
+    }
+
     // GET /api/v1/chat/messages/:conversationId
     this.chatService.getMessages(conv._id).subscribe({
       next: (res) => {
