@@ -55,21 +55,27 @@ export class StudentChat implements OnInit, OnDestroy {
   readonly reportDetails = signal('');
   readonly targetReportUser = signal<string | null>(null);
 
-  /* Live Refresh Interval */
-  private pollIntervalId: any = null;
-
   ngOnInit(): void {
     this.initChat();
-    // Live Auto Polling every 3 seconds to sync messages across multiple tabs / users
-    this.pollIntervalId = setInterval(() => {
-      this.pollActiveMessages();
-    }, 3000);
   }
 
-  ngOnDestroy(): void {
-    if (this.pollIntervalId) {
-      clearInterval(this.pollIntervalId);
+  ngOnDestroy(): void {}
+
+  refreshActiveMessages(): void {
+    const activeConv = this.selectedConversation();
+    if (activeConv) {
+      this.fetchMessagesForConv(activeConv._id);
     }
+  }
+
+  isOutgoing(msg: ChatMessageItem): boolean {
+    if (!msg) return false;
+    return (
+      msg.sender_id === this.currentUserId ||
+      msg.sender_name === this.currentUserName ||
+      msg.sender_info?.name === this.currentUserName ||
+      msg.sender_id === '6a63554e323b3e70a7c0f9d5'
+    );
   }
 
   initChat(): void {

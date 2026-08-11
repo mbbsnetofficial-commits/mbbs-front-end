@@ -89,9 +89,14 @@
           </div>
         </div>
 
-        <button class="top-report-btn" (click)="openReportModal()" type="button">
-          <span>🚩 Report</span>
-        </button>
+        <div class="top-header-actions">
+          <button class="top-refresh-btn" (click)="refreshActiveMessages()" type="button" title="Refresh messages">
+            <span>🔄 Refresh</span>
+          </button>
+          <button class="top-report-btn" (click)="openReportModal()" type="button">
+            <span>🚩 Report</span>
+          </button>
+        </div>
       </header>
 
       <!-- Message History List (Image 2 Avatar & Bubble Layout) -->
@@ -100,10 +105,10 @@
           <div class="loading-state">Loading messages…</div>
         } @else {
           @for (msg of messages(); track msg._id) {
-            <div class="message-row" [class.outgoing]="msg.sender_id === currentUserId">
+            <div class="message-row" [class.outgoing]="isOutgoing(msg)">
               <!-- Avatar -->
               <div class="message-avatar">
-                <span>{{ msg.sender_id === currentUserId ? '🧔' : '🧑‍⚕️' }}</span>
+                <span>{{ isOutgoing(msg) ? '🧔' : '🧑‍⚕️' }}</span>
               </div>
 
               <!-- Content Column -->
@@ -113,9 +118,9 @@
                   <span class="msg-time-stamp">{{ msg.createdAt | date:'shortTime' }}</span>
                 </div>
 
-                @if (msg.reply_to) {
+                @if (msg.reply_to && msg.reply_to.text) {
                   <div class="quoted-reply-box">
-                    <small>Replying to {{ msg.reply_to.sender_name }}:</small>
+                    <small>Replying to {{ msg.reply_to.sender_name || 'Message' }}:</small>
                     <p>{{ msg.reply_to.text }}</p>
                   </div>
                 }
@@ -127,7 +132,7 @@
                 <!-- Hover Actions -->
                 @if (!msg.is_deleted) {
                   <div class="bubble-actions">
-                    @if (msg.sender_id === currentUserId) {
+                    @if (isOutgoing(msg)) {
                       <button (click)="startEdit(msg)" type="button">Edit</button>
                       <button (click)="deleteMsg(msg)" type="button">Delete</button>
                     } @else {
