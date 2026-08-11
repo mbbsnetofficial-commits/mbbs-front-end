@@ -79,11 +79,11 @@ export class StudentChat implements OnInit, OnDestroy {
       }
     });
 
-    // Lightweight 4-second live poll fallback to guarantee real-time sync across different browsers
+    // Lightweight live sync polling every 3 seconds to guarantee instant message delivery across sessions
     this.pollInterval = setInterval(() => {
       const active = this.selectedConversation();
       if (active && !this.loadingMessages()) {
-        this.chatService.getMessages(active._id).subscribe({
+        this.chatService.getMessages(active._id, this.currentUserId()).subscribe({
           next: (res) => {
             const fetched = (res.data || []).map(m => ({
               ...m,
@@ -94,7 +94,7 @@ export class StudentChat implements OnInit, OnDestroy {
           error: () => {}
         });
       }
-    }, 4000);
+    }, 3000);
   }
 
   ngOnDestroy(): void {
@@ -182,7 +182,7 @@ export class StudentChat implements OnInit, OnDestroy {
     this.socketService.joinConversation(conv._id);
 
     // 🌐 CALL REST API: GET /api/v1/chat/messages/:conversationId?page=1&limit=50 (Shows in Network tab with 200 OK)
-    this.chatService.getMessages(conv._id).subscribe({
+    this.chatService.getMessages(conv._id, this.currentUserId()).subscribe({
       next: (res) => {
         const fetched = (res.data || []).map(m => ({
           ...m,

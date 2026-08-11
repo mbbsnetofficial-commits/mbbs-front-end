@@ -1,71 +1,61 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 
 export interface BackendApiResponse<T> {
   status: string;
+  message?: string;
   count?: number;
   data: T;
-  message?: string;
 }
 
 export interface ConversationItem {
   _id: string;
   type: 'direct' | 'group_university' | 'group_country' | 'group_batch';
   title?: string;
-  avatar?: string;
-  participants: (string | {
-    userId?: string;
-    name?: string;
-    role?: string;
-    avatar?: string;
-  })[];
+  participants: string[];
   last_message?: {
-    message_id?: string;
     text: string;
-    sender_id?: string;
     sender_name?: string;
     sent_at?: string;
     createdAt?: string;
   };
   unread_count?: number;
-  updatedAt?: string;
-  createdAt?: string;
+  created_at?: string;
+}
+
+export interface PublicGroupItem {
+  _id: string;
+  type: 'group_university' | 'group_country' | 'group_batch';
+  title: string;
+  country_id?: string;
+  university_id?: string;
+  batch_year?: string;
+  member_count: number;
+  is_member?: boolean;
+  participants?: string[];
 }
 
 export interface ChatMessageItem {
   _id: string;
   conversation_id: string;
   sender_id: string;
-  sender_info?: {
-    name?: string;
-    avatar?: string;
-    email?: string;
-  };
   sender_name?: string;
+  sender_info?: {
+    name: string;
+    email?: string;
+    avatar?: string;
+  };
   text: string;
-  is_edited?: boolean;
-  is_deleted?: boolean;
   reply_to?: {
     message_id?: string;
     text?: string;
     sender_name?: string;
   };
+  is_edited?: boolean;
+  is_deleted?: boolean;
   createdAt: string;
-}
-
-export interface PublicGroupItem {
-  _id: string;
-  title: string;
-  type: 'group_university' | 'group_country' | 'group_batch';
-  university_id?: string;
-  country_id?: string;
-  batch_year?: string;
-  member_count?: number;
-  participants?: any[];
-  last_message?: any;
-  is_member?: boolean;
 }
 
 export interface UserPresenceResponse {
@@ -111,15 +101,28 @@ export class StudentChatService {
   }
 
   /** GET /api/v1/chat/messages/{conversationId}?page=1&limit=50 */
-  getMessages(conversationId: string, page = 1, limit = 50): Observable<BackendApiResponse<ChatMessageItem[]>> {
-    const params = new HttpParams().set('page', page).set('limit', limit);
-    return this.http.get<BackendApiResponse<ChatMessageItem[]>>(`${this.baseUrl}/messages/${conversationId}`, { params });
+  getMessages(conversationId: string, userId?: string, page = 1, limit = 50): Observable<BackendApiResponse<ChatMessageItem[]>> {
+    let params = new HttpParams().set('page', page).set('limit', limit);
+    const headers: Record<string, string> = {};
+    if (userId) {
+      params = params.set('userId', userId);
+      headers['x-user-id'] = userId;
+    }
+    return this.http.get<BackendApiResponse<ChatMessageItem[]>>(`${this.baseUrl}/messages/${conversationId}`, { params, headers });
   }
 
   /** POST /api/v1/chat/messages */
   sendMessage(payload: { conversation_id: string; text: string; userId: string; sender_info?: any; reply_to?: any }): Observable<BackendApiResponse<ChatMessageItem>> {
     const headers = { 'x-user-id': payload.userId };
-    return this.http.post<BackendApiResponse<ChatMessageItem>>(`${this.baseUrl}/messages`, payload, { headers });
+    const body = {
+      conversation_id: payload.conversation_id,
+      text: payload.text,
+      userId: payload.userId,
+      sender_id: payload.userId,
+      sender_info: payload.sender_info,
+      reply_to: payload.reply_to
+    };
+    return this.http.post<BackendApiResponse<ChatMessageItem>>(`${this.baseUrl}/messages`, body, { headers });
   }
 
   /** PATCH /api/v1/chat/messages/{messageId} */
@@ -139,32 +142,30 @@ export class StudentChatService {
     return this.http.get<BackendApiResponse<UserPresenceResponse>>(`${this.baseUrl}/presence/${userId}`);
   }
 
-  /** GET /api/v1/chat/search?userId={userId}&q={query} */
-  searchConversations(userId: string, query: string): Observable<BackendApiResponse<ChatMessageItem[]>> {
+  /** GET /api/v1/chat/search?q={query} */
+  searchConversations(userId: string, query: string): Observable<BackendApiResponse<any[]>> {
     const params = new HttpParams().set('userId', userId).set('q', query);
-    return this.http.get<BackendApiResponse<ChatMessageItem[]>>(`${this.baseUrl}/search`, { params });
+    return this.http.get<BackendApiResponse<any[]>>(`${this.baseUrl}/search`, { params });
   }
 
   /** POST /api/v1/chat/block */
   blockUser(userId: string, targetUserId: string, reason?: string): Observable<BackendApiResponse<any>> {
-    const headers = { 'x-user-id': userId };
-    return this.http.post<BackendApiResponse<any>>(`${this.baseUrl}/block`, { userId, targetUserId, reason }, { headers });
+    return this.http.post<BackendApiResponse<any>>(`${this.baseUrl}/block`, { userId, targetUserId, reason });
   }
 
   /** POST /api/v1/chat/unblock */
   unblockUser(userId: string, targetUserId: string): Observable<BackendApiResponse<any>> {
-    const headers = { 'x-user-id': userId };
-    return this.http.post<BackendApiResponse<any>>(`${this.baseUrl}/unblock`, { userId, targetUserId }, { headers });
+    return this.http.post<BackendApiResponse<any>>(`${this.baseUrl}/unblock`, { userId, targetUserId });
   }
 
-  /** GET /api/v1/chat/blocked?userId={userId} */
+  /** GET /api/v1/chat/blocked */
   getBlockedUsers(userId: string): Observable<BackendApiResponse<any[]>> {
     const params = new HttpParams().set('userId', userId);
     return this.http.get<BackendApiResponse<any[]>>(`${this.baseUrl}/blocked`, { params });
   }
 
   /** POST /api/v1/chat/report */
-  reportUserOrMessage(payload: { reporter_id: string; reported_user_id: string; message_id?: string; conversation_id?: string; reason: string; details?: string }): Observable<BackendApiResponse<any>> {
+  reportUserOrMessage(payload: { reporter_id: string; reported_user_id?: string; message_id?: string; reason: string; details?: string }): Observable<BackendApiResponse<any>> {
     return this.http.post<BackendApiResponse<any>>(`${this.baseUrl}/report`, payload);
   }
 }
