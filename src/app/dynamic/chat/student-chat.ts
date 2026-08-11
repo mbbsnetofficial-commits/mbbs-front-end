@@ -1,12 +1,14 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Subscription } from 'rxjs';
 import {
   ChatMessageItem,
   ConversationItem,
   PublicGroupItem,
   StudentChatService
 } from './services/student-chat.service';
+import { StudentSocketService } from './services/student-socket.service';
 
 @Component({
   selector: 'app-student-chat',
@@ -18,6 +20,7 @@ import {
 })
 export class StudentChat implements OnInit, OnDestroy {
   private readonly chatService = inject(StudentChatService);
+  private readonly socketService = inject(StudentSocketService);
 
   readonly currentUserId = '6a63554e323b3e70a7c0f9d5';
   readonly currentUserName = 'Student STU1784894798825OBDD4J';
@@ -55,27 +58,32 @@ export class StudentChat implements OnInit, OnDestroy {
   readonly reportDetails = signal('');
   readonly targetReportUser = signal<string | null>(null);
 
+  private socketSub: Subscription | null = null;
+
   ngOnInit(): void {
     this.initChat();
+
+    // ⚡ Initialize Real-Time Socket.IO WebSocket Connection (No HTTP XHR polling!)
+    this.socketService.connect(this.currentUserId);
+
+    // Listen for incoming real-time socket messages
+    this.socketSub = this.socketService.onMessage$.subscribe((msg) => {
+      const activeConv = this.selectedConversation();
+      if (activeConv && msg.conversation_id === activeConv._id) {
+        // Prevent duplicate messages if sender already appended locally
+        this.messages.update(list => {
+          if (list.some(m => m._id === msg._id)) return list;
+          return [...list, msg];
+        });
+      }
+    });
   }
 
-  ngOnDestroy(): void {}
-
-  refreshActiveMessages(): void {
-    const activeConv = this.selectedConversation();
-    if (activeConv) {
-      this.fetchMessagesForConv(activeConv._id);
+  ngOnDestroy(): void {
+    if (this.socketSub) {
+      this.socketSub.unsubscribe();
     }
-  }
-
-  isOutgoing(msg: ChatMessageItem): boolean {
-    if (!msg) return false;
-    return (
-      msg.sender_id === this.currentUserId ||
-      msg.sender_name === this.currentUserName ||
-      msg.sender_info?.name === this.currentUserName ||
-      msg.sender_id === '6a63554e323b3e70a7c0f9d5'
-    );
+    this.socketService.disconnect();
   }
 
   initChat(): void {
@@ -87,7 +95,6 @@ export class StudentChat implements OnInit, OnDestroy {
         const groups = res.data || [];
         this.publicGroups.set(groups);
 
-        // Convert public groups to ConversationItem format for the left sidebar
         const groupConvs: ConversationItem[] = groups.map(g => ({
           _id: g._id,
           type: g.type,
@@ -102,7 +109,6 @@ export class StudentChat implements OnInit, OnDestroy {
 
         if (groupConvs.length) {
           this.conversations.set(groupConvs);
-          // Select default group (e.g. "official" or "BATCH Group")
           const defaultConv = groupConvs.find(c => c.title === 'official') || groupConvs[0];
           this.selectConversation(defaultConv);
         } else {
@@ -120,7 +126,6 @@ export class StudentChat implements OnInit, OnDestroy {
     this.chatService.getUserConversations(this.currentUserId).subscribe({
       next: (res) => {
         if (res.data && res.data.length) {
-          // Merge user direct conversations with public groups
           this.conversations.update(existing => {
             const map = new Map<string, ConversationItem>();
             existing.forEach(c => map.set(c._id, c));
@@ -139,7 +144,17 @@ export class StudentChat implements OnInit, OnDestroy {
     this.replyToMessage.set(null);
     this.editingMessage.set(null);
 
+    // Join Socket.IO room for real-time room events
+    this.socketService.joinConversation(conv._id);
+
     this.fetchMessagesForConv(conv._id);
+  }
+
+  refreshActiveMessages(): void {
+    const activeConv = this.selectedConversation();
+    if (activeConv) {
+      this.fetchMessagesForConv(activeConv._id);
+    }
   }
 
   private fetchMessagesForConv(convId: string): void {
@@ -159,24 +174,19 @@ export class StudentChat implements OnInit, OnDestroy {
     });
   }
 
-  private pollActiveMessages(): void {
-    const activeConv = this.selectedConversation();
-    if (activeConv && activeConv._id) {
-      this.chatService.getMessages(activeConv._id).subscribe({
-        next: (res) => {
-          const fetched = (res.data || []).map(m => ({
-            ...m,
-            sender_name: m.sender_info?.name || m.sender_name || m.sender_id
-          }));
-          // Only update if count or latest message ID changed
-          if (fetched.length !== this.messages().length || 
-              (fetched.length > 0 && fetched[fetched.length - 1]._id !== this.messages()[this.messages().length - 1]?._id)) {
-            this.messages.set(fetched);
-          }
-        },
-        error: () => {}
-      });
-    }
+  /** WhatsApp Style Sender Alignment:
+   * Returns TRUE ONLY for messages sent by the logged-in user -> RIGHT SIDE
+   * Returns FALSE for messages from all other users -> LEFT SIDE
+   */
+  isOutgoing(msg: ChatMessageItem): boolean {
+    if (!msg) return false;
+    const senderId = String(msg.sender_id || '');
+    const senderName = String(msg.sender_name || msg.sender_info?.name || '').toLowerCase().trim();
+
+    if (senderId === this.currentUserId) return true;
+    if (senderName && (senderName.includes('stu1784894798825') || senderName === this.currentUserName.toLowerCase())) return true;
+
+    return false;
   }
 
   // Filtered Conversations List
@@ -196,7 +206,7 @@ export class StudentChat implements OnInit, OnDestroy {
     this.messageText.update(text => text + emoji);
   }
 
-  // POST /api/v1/chat/messages or PATCH /api/v1/chat/messages/:messageId
+  // Send Message via Socket.IO WebSocket (Zero HTTP calls in Network tab!)
   sendMessage(): void {
     const text = this.messageText().trim();
     const activeConv = this.selectedConversation();
@@ -231,40 +241,30 @@ export class StudentChat implements OnInit, OnDestroy {
       } : undefined
     };
 
-    // POST /api/v1/chat/messages
-    this.chatService.sendMessage(payload).subscribe({
-      next: (res) => {
-        if (res.data) {
-          const formatted: ChatMessageItem = {
-            ...res.data,
-            sender_name: res.data.sender_info?.name || this.currentUserName
-          };
-          this.messages.update(list => [...list, formatted]);
+    // ⚡ 1. Emit real-time WebSocket event (No HTTP post in Network tab!)
+    this.socketService.sendMessage(payload);
 
-          // Update last message in active conversation preview
-          this.conversations.update(list => list.map(c => c._id === activeConv._id ? {
-            ...c,
-            last_message: { text, sender_name: this.currentUserName }
-          } : c));
-        }
-        this.messageText.set('');
-        this.replyToMessage.set(null);
-      },
-      error: () => {
-        const newMsg: ChatMessageItem = {
-          _id: 'msg_' + Date.now(),
-          conversation_id: activeConv._id,
-          sender_id: this.currentUserId,
-          sender_name: this.currentUserName,
-          text,
-          reply_to: payload.reply_to,
-          createdAt: new Date().toISOString()
-        };
-        this.messages.update(list => [...list, newMsg]);
-        this.messageText.set('');
-        this.replyToMessage.set(null);
-      }
-    });
+    // ⚡ 2. Instantly render outgoing message locally on RIGHT side
+    const newMsg: ChatMessageItem = {
+      _id: 'msg_' + Date.now(),
+      conversation_id: activeConv._id,
+      sender_id: this.currentUserId,
+      sender_name: this.currentUserName,
+      text,
+      reply_to: payload.reply_to,
+      createdAt: new Date().toISOString()
+    };
+
+    this.messages.update(list => [...list, newMsg]);
+
+    // Update last message in active conversation preview
+    this.conversations.update(list => list.map(c => c._id === activeConv._id ? {
+      ...c,
+      last_message: { text, sender_name: this.currentUserName }
+    } : c));
+
+    this.messageText.set('');
+    this.replyToMessage.set(null);
   }
 
   startEdit(msg: ChatMessageItem): void {
