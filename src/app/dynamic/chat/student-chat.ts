@@ -2,8 +2,10 @@ import { DatePipe } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
   OnDestroy,
   OnInit,
+  ViewChild,
   computed,
   inject,
   signal
@@ -35,6 +37,7 @@ export class StudentChat implements OnInit, OnDestroy {
   private readonly tokenService = inject(TokenService);
   private readonly chatService = inject(StudentChatService);
   private readonly socketService = inject(StudentSocketService);
+  @ViewChild('messagesBoard') private messagesBoard?: ElementRef<HTMLDivElement>;
 
   readonly currentUserId = signal('');
   readonly currentUserName = signal('');
@@ -128,6 +131,7 @@ export class StudentChat implements OnInit, OnDestroy {
 
   private socketSub: Subscription | null = null;
   private pollInterval: ReturnType<typeof setInterval> | null = null;
+  private readonly joinedGroupsStorageKeyPrefix = 'mbbs_joined_groups';
 
   ngOnInit(): void {
     this.initStudentIdentity();
@@ -144,7 +148,9 @@ export class StudentChat implements OnInit, OnDestroy {
           if (items.some((item) => item._id === message._id)) {
             return items;
           }
-          return [...items, this.normalizeMessage(message)];
+          const nextItems = [...items, this.normalizeMessage(message)];
+          this.queueScrollToBottom();
+          return nextItems;
         });
       }
     });
@@ -197,9 +203,13 @@ export class StudentChat implements OnInit, OnDestroy {
     this.chatService.getPublicGroups().subscribe({
       next: (response) => {
         const groups = response.data || [];
+        const persistedJoinedGroups = this.getPersistedJoinedGroups();
         this.publicGroups.set(groups);
         this.joinedGroupIds.set(
-          new Set(groups.filter((group) => group.is_member).map((group) => group._id))
+          new Set([
+            ...persistedJoinedGroups,
+            ...groups.filter((group) => group.is_member).map((group) => group._id)
+          ])
         );
 
         const conversations = groups.map((group) => this.groupToConversation(group));
@@ -254,6 +264,7 @@ export class StudentChat implements OnInit, OnDestroy {
             (response.data || []).map((message) => this.normalizeMessage(message))
           );
           this.loadingMessages.set(false);
+          this.queueScrollToBottom();
         },
         error: () => {
           this.loadingMessages.set(false);
@@ -294,6 +305,7 @@ export class StudentChat implements OnInit, OnDestroy {
 
   private applyJoinState(conversationId: string): void {
     this.joinedGroupIds.update((set) => new Set(set).add(conversationId));
+    this.persistJoinedGroups();
     this.publicGroups.update((groups) =>
       groups.map((group) =>
         group._id === conversationId ? { ...group, is_member: true } : group
@@ -403,6 +415,7 @@ export class StudentChat implements OnInit, OnDestroy {
         this.messageText.set('');
         this.replyToMessage.set(null);
         this.sending.set(false);
+        this.queueScrollToBottom();
       },
       error: () => {
         const fallbackMessage = this.createLocalMessage(text);
@@ -411,6 +424,7 @@ export class StudentChat implements OnInit, OnDestroy {
         this.messageText.set('');
         this.replyToMessage.set(null);
         this.sending.set(false);
+        this.queueScrollToBottom();
       }
     });
   }
@@ -586,5 +600,38 @@ export class StudentChat implements OnInit, OnDestroy {
           : conversation
       )
     );
+  }
+
+  private get joinedGroupsStorageKey(): string {
+    return `${this.joinedGroupsStorageKeyPrefix}:${this.currentUserId()}`;
+  }
+
+  private getPersistedJoinedGroups(): string[] {
+    try {
+      const raw = localStorage.getItem(this.joinedGroupsStorageKey);
+      if (!raw) {
+        return [];
+      }
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed.filter((item) => typeof item === 'string') : [];
+    } catch {
+      return [];
+    }
+  }
+
+  private persistJoinedGroups(): void {
+    localStorage.setItem(
+      this.joinedGroupsStorageKey,
+      JSON.stringify(Array.from(this.joinedGroupIds()))
+    );
+  }
+
+  private queueScrollToBottom(): void {
+    setTimeout(() => {
+      const board = this.messagesBoard?.nativeElement;
+      if (board) {
+        board.scrollTop = board.scrollHeight;
+      }
+    }, 0);
   }
 }
