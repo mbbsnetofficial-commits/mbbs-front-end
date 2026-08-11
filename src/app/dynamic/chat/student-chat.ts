@@ -65,7 +65,6 @@ export class StudentChat implements OnInit, OnDestroy {
   readonly targetReportUser = signal<string | null>(null);
 
   private socketSub: Subscription | null = null;
-  private readonly conversationMessageMap = new Map<string, ChatMessageItem[]>();
 
   ngOnInit(): void {
     this.initStudentIdentity();
@@ -77,11 +76,13 @@ export class StudentChat implements OnInit, OnDestroy {
     // Listen for incoming real-time socket messages
     this.socketSub = this.socketService.onMessage$.subscribe((msg) => {
       const convId = msg.conversation_id;
-      const currentList = this.messages();
       if (this.selectedConversation()?._id === convId) {
-        if (!currentList.some(m => m._id === msg._id)) {
-          this.messages.update(list => [...list, msg]);
-        }
+        this.messages.update(list => {
+          if (list.some(m => m._id === msg._id)) return list;
+          const updated = [...list, msg];
+          localStorage.setItem(`mbbs_chat_history_${convId}`, JSON.stringify(updated));
+          return updated;
+        });
       }
     });
   }
@@ -172,29 +173,41 @@ export class StudentChat implements OnInit, OnDestroy {
     });
   }
 
-  /** Select Conversation & Call GET /api/v1/chat/messages/:id HTTP API for Chat History */
+  /** Select Conversation & Call GET /api/v1/chat/messages/:id REST API for Persistent Chat History */
   selectConversation(conv: ConversationItem): void {
     this.selectedConversation.set(conv);
     this.loadingMessages.set(true);
     this.replyToMessage.set(null);
     this.editingMessage.set(null);
 
-    // ⚡ Join Socket.IO room for real-time room events
+    // 1. Instantly render cached history from localStorage so UI displays messages on refresh
+    const cachedStr = localStorage.getItem(`mbbs_chat_history_${conv._id}`);
+    if (cachedStr) {
+      try {
+        const cachedMsgs = JSON.parse(cachedStr);
+        if (Array.isArray(cachedMsgs) && cachedMsgs.length) {
+          this.messages.set(cachedMsgs);
+        }
+      } catch (e) {}
+    }
+
+    // 2. Join Socket.IO room for real-time room events
     this.socketService.joinConversation(conv._id);
 
-    // 🌐 CALL REST API: GET /api/v1/chat/messages/:conversationId?page=1&limit=50
+    // 3. 🌐 CALL REST API: GET /api/v1/chat/messages/:conversationId?page=1&limit=50 (Shows in Network tab with 200 OK)
     this.chatService.getMessages(conv._id).subscribe({
       next: (res) => {
         const fetched = (res.data || []).map(m => ({
           ...m,
           sender_name: m.sender_info?.name || m.sender_name || m.sender_id
         }));
-        this.messages.set(fetched);
+        if (fetched.length) {
+          this.messages.set(fetched);
+          localStorage.setItem(`mbbs_chat_history_${conv._id}`, JSON.stringify(fetched));
+        }
         this.loadingMessages.set(false);
       },
       error: () => {
-        const local = this.conversationMessageMap.get(conv._id) || [];
-        this.messages.set(local);
         this.loadingMessages.set(false);
       }
     });
@@ -268,7 +281,7 @@ export class StudentChat implements OnInit, OnDestroy {
     this.messageText.update(text => text + emoji);
   }
 
-  /** Send Message via REST API POST /api/v1/chat/messages & Emit via Socket.IO */
+  /** Send Message via REST API POST /api/v1/chat/messages (Shows in Network tab with 201 Created) */
   sendMessage(): void {
     const text = this.messageText().trim();
     const activeConv = this.selectedConversation();
@@ -311,48 +324,45 @@ export class StudentChat implements OnInit, OnDestroy {
       } : undefined
     };
 
-    // ⚡ 1. Emit Socket.IO event to notify room members
+    // ⚡ 1. Emit Socket.IO event to notify online room members
     this.socketService.sendMessage(payload);
 
     // 🌐 2. CALL REST API POST /api/v1/chat/messages (Triggers HTTP POST call in Network tab)
     this.chatService.sendMessage(payload).subscribe({
       next: (res) => {
-        if (res.data) {
-          const formatted: ChatMessageItem = {
-            ...res.data,
-            sender_name: res.data.sender_info?.name || myName
-          };
-          this.messages.update(list => [...list, formatted]);
-        } else {
-          this.appendLocalOutgoingMsg(activeConv._id, text, myId, myName, payload.reply_to);
-        }
+        const formatted: ChatMessageItem = res.data ? {
+          ...res.data,
+          sender_name: res.data.sender_info?.name || myName
+        } : {
+          _id: 'msg_' + Date.now(),
+          conversation_id: activeConv._id,
+          sender_id: myId,
+          sender_name: myName,
+          text,
+          createdAt: new Date().toISOString()
+        };
+
+        this.messages.update(list => [...list, formatted]);
+        localStorage.setItem(`mbbs_chat_history_${activeConv._id}`, JSON.stringify(this.messages()));
+
         this.messageText.set('');
         this.replyToMessage.set(null);
       },
       error: () => {
-        this.appendLocalOutgoingMsg(activeConv._id, text, myId, myName, payload.reply_to);
+        const fallbackMsg: ChatMessageItem = {
+          _id: 'msg_' + Date.now(),
+          conversation_id: activeConv._id,
+          sender_id: myId,
+          sender_name: myName,
+          text,
+          createdAt: new Date().toISOString()
+        };
+        this.messages.update(list => [...list, fallbackMsg]);
+        localStorage.setItem(`mbbs_chat_history_${activeConv._id}`, JSON.stringify(this.messages()));
         this.messageText.set('');
         this.replyToMessage.set(null);
       }
     });
-  }
-
-  private appendLocalOutgoingMsg(convId: string, text: string, myId: string, myName: string, replyTo?: any): void {
-    const newMsg: ChatMessageItem = {
-      _id: 'msg_' + Date.now(),
-      conversation_id: convId,
-      sender_id: myId,
-      sender_name: myName,
-      text,
-      reply_to: replyTo,
-      createdAt: new Date().toISOString()
-    };
-    this.messages.update(list => [...list, newMsg]);
-
-    this.conversations.update(list => list.map(c => c._id === convId ? {
-      ...c,
-      last_message: { text, sender_name: myName }
-    } : c));
   }
 
   startEdit(msg: ChatMessageItem): void {
