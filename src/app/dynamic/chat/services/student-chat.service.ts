@@ -103,7 +103,8 @@ export class StudentChatService {
 
   /** POST /api/v1/chat/messages */
   sendMessage(payload: { conversation_id: string; text: string; userId?: string; reply_to?: any }): Observable<{ success: boolean; message: ChatMessageItem }> {
-    return this.http.post<{ success: boolean; message: ChatMessageItem }>(`${this.baseUrl}/messages`, payload);
+    const headers = { 'x-user-id': payload.userId || 'user_student_101' };
+    return this.http.post<{ success: boolean; message: ChatMessageItem }>(`${this.baseUrl}/messages`, payload, { headers });
   }
 
   /** PATCH /api/v1/chat/messages/{messageId} */

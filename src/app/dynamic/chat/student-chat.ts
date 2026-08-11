@@ -161,6 +161,14 @@ export class StudentChat implements OnInit {
 
     if (this.editingMessage()) {
       const msgId = this.editingMessage()!._id;
+      const isMongoMsgId = /^[0-9a-fA-F]{24}$/.test(msgId);
+      if (!isMongoMsgId) {
+        this.messages.update(list => list.map(m => m._id === msgId ? { ...m, text, is_edited: true } : m));
+        this.editingMessage.set(null);
+        this.messageText.set('');
+        return;
+      }
+
       this.chatService.editMessage(msgId, text).subscribe({
         next: () => {
           this.messages.update(list => list.map(m => m._id === msgId ? { ...m, text, is_edited: true } : m));
@@ -176,35 +184,47 @@ export class StudentChat implements OnInit {
       return;
     }
 
-    const payload = {
+    const newMsg: ChatMessageItem = {
+      _id: 'msg_' + Date.now(),
       conversation_id: activeConv._id,
+      sender_id: this.currentUserId,
+      sender_name: this.currentUserName,
       text,
-      userId: this.currentUserId,
       reply_to: this.replyToMessage() ? {
         message_id: this.replyToMessage()!._id,
         text: this.replyToMessage()!.text,
         sender_name: this.replyToMessage()!.sender_name
-      } : undefined
+      } : undefined,
+      createdAt: new Date().toISOString()
+    };
+
+    const isMongoConvId = /^[0-9a-fA-F]{24}$/.test(activeConv._id);
+    if (!isMongoConvId) {
+      // Local conversation thread - update state directly without making HTTP request that would return 400
+      this.messages.update(list => [...list, newMsg]);
+      this.messageText.set('');
+      this.replyToMessage.set(null);
+      return;
+    }
+
+    const payload = {
+      conversation_id: activeConv._id,
+      text,
+      userId: this.currentUserId,
+      reply_to: newMsg.reply_to
     };
 
     this.chatService.sendMessage(payload).subscribe({
       next: (res) => {
         if (res.message) {
           this.messages.update(list => [...list, res.message]);
+        } else {
+          this.messages.update(list => [...list, newMsg]);
         }
         this.messageText.set('');
         this.replyToMessage.set(null);
       },
       error: () => {
-        const newMsg: ChatMessageItem = {
-          _id: 'msg_' + Date.now(),
-          conversation_id: activeConv._id,
-          sender_id: this.currentUserId,
-          sender_name: this.currentUserName,
-          text,
-          reply_to: payload.reply_to,
-          createdAt: new Date().toISOString()
-        };
         this.messages.update(list => [...list, newMsg]);
         this.messageText.set('');
         this.replyToMessage.set(null);
