@@ -35,6 +35,12 @@ export interface PublicGroupItem {
   member_count: number;
   is_member?: boolean;
   participants?: string[];
+  last_message?: {
+    text?: string;
+    sender_name?: string;
+    sent_at?: string;
+    createdAt?: string;
+  };
 }
 
 export interface ChatMessageItem {

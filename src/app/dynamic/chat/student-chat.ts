@@ -143,7 +143,7 @@ export class StudentChat implements OnInit, OnDestroy {
         const groups = res.data || [];
         this.publicGroups.set(groups);
 
-        const groupConvs: ConversationItem[] = groups.map((g: any) => ({
+        const groupConvs: ConversationItem[] = groups.map((g: PublicGroupItem) => ({
           _id: g._id,
           type: g.type,
           title: g.title,
