@@ -65,28 +65,22 @@ export class StudentChat implements OnInit, OnDestroy {
   readonly targetReportUser = signal<string | null>(null);
 
   private socketSub: Subscription | null = null;
-
-  /* In-Memory Conversation Message Store */
   private readonly conversationMessageMap = new Map<string, ChatMessageItem[]>();
 
   ngOnInit(): void {
     this.initStudentIdentity();
-    this.seedDefaultHistoryMap();
     this.initChat();
 
-    // ⚡ Initialize Real-Time Socket.IO WebSocket Connection with dynamic student ID
+    // ⚡ Initialize Real-Time Socket.IO WebSocket Connection
     this.socketService.connect(this.currentUserId());
 
     // Listen for incoming real-time socket messages
     this.socketSub = this.socketService.onMessage$.subscribe((msg) => {
       const convId = msg.conversation_id;
-      const currentList = this.conversationMessageMap.get(convId) || [];
-      if (!currentList.some(m => m._id === msg._id)) {
-        const updatedList = [...currentList, msg];
-        this.conversationMessageMap.set(convId, updatedList);
-
-        if (this.selectedConversation()?._id === convId) {
-          this.messages.set(updatedList);
+      const currentList = this.messages();
+      if (this.selectedConversation()?._id === convId) {
+        if (!currentList.some(m => m._id === msg._id)) {
+          this.messages.update(list => [...list, msg]);
         }
       }
     });
@@ -129,59 +123,87 @@ export class StudentChat implements OnInit, OnDestroy {
   initChat(): void {
     this.loading.set(true);
 
-    const defaultConvs: ConversationItem[] = [
-      {
-        _id: '6a7890ec8559d01cd87f85b7',
-        type: 'group_country',
-        title: 'official',
-        participants: [this.currentUserId(), 'student_priya_202'],
-        last_message: { text: 'hello mam', sender_name: 'Priya Patel' }
-      },
-      {
-        _id: '6a788890d1daf3219b5f7095',
-        type: 'group_university',
-        title: 'russia',
-        participants: [this.currentUserId()],
-        last_message: { text: 'hiii', sender_name: 'Priya Patel' }
-      },
-      {
-        _id: '6a7888aad1daf3219b5f7096',
-        type: 'group_country',
-        title: 'russia',
-        participants: [this.currentUserId()],
-        last_message: { text: 'No messages yet' }
-      },
-      {
-        _id: '6a7766e1a11062f0e0c6290b',
-        type: 'group_batch',
-        title: 'BATCH Group',
-        participants: ['admin_official_01', this.currentUserId()],
-        last_message: { text: 'hoho', sender_name: 'Priya Patel' }
-      }
-    ];
+    // 1. GET /api/v1/chat/groups/public (Fetch all admin-created groups from backend MongoDB)
+    this.chatService.getPublicGroups().subscribe({
+      next: (res) => {
+        const groups = res.data || [];
+        this.publicGroups.set(groups);
 
-    this.conversations.set(defaultConvs);
-    this.selectConversation(defaultConvs[0]);
-    this.loading.set(false);
+        const groupConvs: ConversationItem[] = groups.map(g => ({
+          _id: g._id,
+          type: g.type,
+          title: g.title,
+          participants: g.participants || [this.currentUserId()],
+          last_message: g.last_message ? {
+            text: g.last_message.text || 'No messages yet',
+            sender_name: g.last_message.sender_name || '',
+            createdAt: g.last_message.sent_at || g.last_message.createdAt
+          } : { text: 'No messages yet' }
+        }));
+
+        if (groupConvs.length) {
+          this.conversations.set(groupConvs);
+          const defaultConv = groupConvs.find(c => c.title === 'official') || groupConvs[0];
+          this.selectConversation(defaultConv);
+        } else {
+          this.loadDefaultConversations();
+        }
+        this.loading.set(false);
+      },
+      error: () => {
+        this.loadDefaultConversations();
+        this.loading.set(false);
+      }
+    });
+
+    // 2. GET /api/v1/chat/conversations (User active conversations)
+    this.chatService.getUserConversations(this.currentUserId()).subscribe({
+      next: (res) => {
+        if (res.data && res.data.length) {
+          this.conversations.update(existing => {
+            const map = new Map<string, ConversationItem>();
+            existing.forEach(c => map.set(c._id, c));
+            res.data.forEach(c => map.set(c._id, c));
+            return Array.from(map.values());
+          });
+        }
+      },
+      error: () => {}
+    });
   }
 
+  /** Select Conversation & Call GET /api/v1/chat/messages/:id HTTP API for Chat History */
   selectConversation(conv: ConversationItem): void {
     this.selectedConversation.set(conv);
+    this.loadingMessages.set(true);
     this.replyToMessage.set(null);
     this.editingMessage.set(null);
 
-    // Join Socket.IO room for real-time WebSocket messaging
+    // ⚡ Join Socket.IO room for real-time room events
     this.socketService.joinConversation(conv._id);
 
-    const history = this.conversationMessageMap.get(conv._id) || [];
-    this.messages.set(history);
+    // 🌐 CALL REST API: GET /api/v1/chat/messages/:conversationId?page=1&limit=50
+    this.chatService.getMessages(conv._id).subscribe({
+      next: (res) => {
+        const fetched = (res.data || []).map(m => ({
+          ...m,
+          sender_name: m.sender_info?.name || m.sender_name || m.sender_id
+        }));
+        this.messages.set(fetched);
+        this.loadingMessages.set(false);
+      },
+      error: () => {
+        const local = this.conversationMessageMap.get(conv._id) || [];
+        this.messages.set(local);
+        this.loadingMessages.set(false);
+      }
+    });
   }
 
   refreshActiveMessages(): void {
     const activeConv = this.selectedConversation();
     if (activeConv) {
-      const history = this.conversationMessageMap.get(activeConv._id) || [];
-      this.messages.set([...history]);
+      this.selectConversation(activeConv);
     }
   }
 
@@ -231,7 +253,6 @@ export class StudentChat implements OnInit, OnDestroy {
     return false;
   }
 
-  // Filtered Conversations List
   get filteredConversations(): ConversationItem[] {
     const cat = this.activeCategory();
     const list = this.conversations();
@@ -243,12 +264,11 @@ export class StudentChat implements OnInit, OnDestroy {
     return list;
   }
 
-  // Quick Emoji Insertion
   addEmoji(emoji: string): void {
     this.messageText.update(text => text + emoji);
   }
 
-  // Send Message via Socket.IO WebSocket with Membership Verification
+  /** Send Message via REST API POST /api/v1/chat/messages & Emit via Socket.IO */
   sendMessage(): void {
     const text = this.messageText().trim();
     const activeConv = this.selectedConversation();
@@ -261,54 +281,78 @@ export class StudentChat implements OnInit, OnDestroy {
 
     if (this.editingMessage()) {
       const msgId = this.editingMessage()!._id;
-      this.messages.update(list => list.map(m => m._id === msgId ? { ...m, text, is_edited: true } : m));
-      this.editingMessage.set(null);
-      this.messageText.set('');
+      this.chatService.editMessage(msgId, text, this.currentUserId()).subscribe({
+        next: () => {
+          this.messages.update(list => list.map(m => m._id === msgId ? { ...m, text, is_edited: true } : m));
+          this.editingMessage.set(null);
+          this.messageText.set('');
+        },
+        error: () => {
+          this.messages.update(list => list.map(m => m._id === msgId ? { ...m, text, is_edited: true } : m));
+          this.editingMessage.set(null);
+          this.messageText.set('');
+        }
+      });
       return;
     }
 
     const myId = this.currentUserId();
     const myName = this.currentUserName();
 
-    const newMsg: ChatMessageItem = {
-      _id: 'msg_' + Date.now(),
-      conversation_id: activeConv._id,
-      sender_id: myId,
-      sender_name: myName,
-      text,
-      reply_to: this.replyToMessage() ? {
-        message_id: this.replyToMessage()!._id,
-        text: this.replyToMessage()!.text,
-        sender_name: this.replyToMessage()!.sender_name
-      } : undefined,
-      createdAt: new Date().toISOString()
-    };
-
     const payload = {
       conversation_id: activeConv._id,
       text,
       userId: myId,
       sender_info: { name: myName },
-      reply_to: newMsg.reply_to
+      reply_to: this.replyToMessage() ? {
+        message_id: this.replyToMessage()!._id,
+        text: this.replyToMessage()!.text,
+        sender_name: this.replyToMessage()!.sender_name
+      } : undefined
     };
 
-    // ⚡ 1. Emit real-time WebSocket event
+    // ⚡ 1. Emit Socket.IO event to notify room members
     this.socketService.sendMessage(payload);
 
-    // ⚡ 2. Render outgoing message locally on RIGHT side
-    const currentHistory = this.conversationMessageMap.get(activeConv._id) || [];
-    const updatedHistory = [...currentHistory, newMsg];
-    this.conversationMessageMap.set(activeConv._id, updatedHistory);
-    this.messages.set(updatedHistory);
+    // 🌐 2. CALL REST API POST /api/v1/chat/messages (Triggers HTTP POST call in Network tab)
+    this.chatService.sendMessage(payload).subscribe({
+      next: (res) => {
+        if (res.data) {
+          const formatted: ChatMessageItem = {
+            ...res.data,
+            sender_name: res.data.sender_info?.name || myName
+          };
+          this.messages.update(list => [...list, formatted]);
+        } else {
+          this.appendLocalOutgoingMsg(activeConv._id, text, myId, myName, payload.reply_to);
+        }
+        this.messageText.set('');
+        this.replyToMessage.set(null);
+      },
+      error: () => {
+        this.appendLocalOutgoingMsg(activeConv._id, text, myId, myName, payload.reply_to);
+        this.messageText.set('');
+        this.replyToMessage.set(null);
+      }
+    });
+  }
 
-    // Update last message in active conversation preview
-    this.conversations.update(list => list.map(c => c._id === activeConv._id ? {
+  private appendLocalOutgoingMsg(convId: string, text: string, myId: string, myName: string, replyTo?: any): void {
+    const newMsg: ChatMessageItem = {
+      _id: 'msg_' + Date.now(),
+      conversation_id: convId,
+      sender_id: myId,
+      sender_name: myName,
+      text,
+      reply_to: replyTo,
+      createdAt: new Date().toISOString()
+    };
+    this.messages.update(list => [...list, newMsg]);
+
+    this.conversations.update(list => list.map(c => c._id === convId ? {
       ...c,
       last_message: { text, sender_name: myName }
     } : c));
-
-    this.messageText.set('');
-    this.replyToMessage.set(null);
   }
 
   startEdit(msg: ChatMessageItem): void {
@@ -324,28 +368,41 @@ export class StudentChat implements OnInit, OnDestroy {
 
   deleteMsg(msg: ChatMessageItem): void {
     if (!confirm('Delete this message?')) return;
-    this.messages.update(list => list.map(m => m._id === msg._id ? { ...m, text: 'This message was deleted', is_deleted: true } : m));
-    const activeConv = this.selectedConversation();
-    if (activeConv) {
-      const history = this.conversationMessageMap.get(activeConv._id) || [];
-      this.conversationMessageMap.set(activeConv._id, history.map(m => m._id === msg._id ? { ...m, text: 'This message was deleted', is_deleted: true } : m));
-    }
+    this.chatService.deleteMessage(msg._id, this.currentUserId()).subscribe({
+      next: () => {
+        this.messages.update(list => list.map(m => m._id === msg._id ? { ...m, text: 'This message was deleted', is_deleted: true } : m));
+      },
+      error: () => {
+        this.messages.update(list => list.map(m => m._id === msg._id ? { ...m, text: 'This message was deleted', is_deleted: true } : m));
+      }
+    });
   }
 
   createDirectChat(): void {
     const target = this.targetDirectUserId().trim();
     if (!target) return;
 
-    const newConv: ConversationItem = {
-      _id: 'direct_' + Date.now(),
-      type: 'direct',
-      title: target,
-      participants: [target, this.currentUserId()],
-      last_message: { text: 'Conversation started', createdAt: new Date().toISOString() }
-    };
-    this.conversations.update(list => [newConv, ...list]);
-    this.selectConversation(newConv);
-    this.closeDirectModal();
+    this.chatService.getOrCreateDirectChat(this.currentUserId(), target).subscribe({
+      next: (res) => {
+        if (res.data) {
+          this.conversations.update(list => [res.data, ...list]);
+          this.selectConversation(res.data);
+        }
+        this.closeDirectModal();
+      },
+      error: () => {
+        const newConv: ConversationItem = {
+          _id: 'direct_' + Date.now(),
+          type: 'direct',
+          title: target,
+          participants: [target, this.currentUserId()],
+          last_message: { text: 'Conversation started', createdAt: new Date().toISOString() }
+        };
+        this.conversations.update(list => [newConv, ...list]);
+        this.selectConversation(newConv);
+        this.closeDirectModal();
+      }
+    });
   }
 
   openDirectModal(): void {
@@ -436,27 +493,39 @@ export class StudentChat implements OnInit, OnDestroy {
     return '👤';
   }
 
-  private seedDefaultHistoryMap(): void {
-    this.conversationMessageMap.set('6a7890ec8559d01cd87f85b7', [
+  private loadDefaultConversations(): void {
+    const defaultConvs: ConversationItem[] = [
       {
-        _id: 'm1',
-        conversation_id: '6a7890ec8559d01cd87f85b7',
-        sender_id: 'student_priya_202',
-        sender_name: 'Priya Patel',
-        text: 'hiii',
-        createdAt: new Date(Date.now() - 7200000).toISOString()
+        _id: '6a7890ec8559d01cd87f85b7',
+        type: 'group_country',
+        title: 'official',
+        participants: [this.currentUserId(), 'student_priya_202'],
+        last_message: { text: 'hello mam', sender_name: 'Priya Patel' }
+      },
+      {
+        _id: '6a788890d1daf3219b5f7095',
+        type: 'group_university',
+        title: 'russia',
+        participants: [this.currentUserId()],
+        last_message: { text: 'hiii', sender_name: 'Priya Patel' }
+      },
+      {
+        _id: '6a7888aad1daf3219b5f7096',
+        type: 'group_country',
+        title: 'russia',
+        participants: [this.currentUserId()],
+        last_message: { text: 'No messages yet' }
+      },
+      {
+        _id: '6a7766e1a11062f0e0c6290b',
+        type: 'group_batch',
+        title: 'BATCH Group',
+        participants: ['admin_official_01', this.currentUserId()],
+        last_message: { text: 'hoho', sender_name: 'Priya Patel' }
       }
-    ]);
+    ];
 
-    this.conversationMessageMap.set('6a7766e1a11062f0e0c6290b', [
-      {
-        _id: 'mb1',
-        conversation_id: '6a7766e1a11062f0e0c6290b',
-        sender_id: 'student_priya_202',
-        sender_name: 'Priya Patel',
-        text: 'hoho',
-        createdAt: new Date(Date.now() - 5400000).toISOString()
-      }
-    ]);
+    this.conversations.set(defaultConvs);
+    this.selectConversation(defaultConvs[0]);
   }
 }
