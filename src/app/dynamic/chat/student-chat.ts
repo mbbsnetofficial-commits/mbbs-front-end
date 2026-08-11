@@ -132,6 +132,7 @@ export class StudentChat implements OnInit, OnDestroy {
   private socketSub: Subscription | null = null;
   private pollInterval: ReturnType<typeof setInterval> | null = null;
   private readonly joinedGroupsStorageKeyPrefix = 'mbbs_joined_groups';
+  private readonly scrollThreshold = 96;
 
   ngOnInit(): void {
     this.initStudentIdentity();
@@ -144,12 +145,13 @@ export class StudentChat implements OnInit, OnDestroy {
         activeConversation &&
         String(message.conversation_id) === String(activeConversation._id)
       ) {
+        const shouldStickToBottom = this.isNearBottom();
         this.messages.update((items) => {
           if (items.some((item) => item._id === message._id)) {
             return items;
           }
           const nextItems = [...items, this.normalizeMessage(message)];
-          this.queueScrollToBottom();
+          this.queueScrollToBottom(shouldStickToBottom, true);
           return nextItems;
         });
       }
@@ -252,6 +254,7 @@ export class StudentChat implements OnInit, OnDestroy {
   }
 
   fetchMessages(conversation: ConversationItem, showLoader: boolean): void {
+    const shouldStickToBottom = showLoader || this.isNearBottom();
     if (showLoader) {
       this.loadingMessages.set(true);
     }
@@ -264,7 +267,7 @@ export class StudentChat implements OnInit, OnDestroy {
             (response.data || []).map((message) => this.normalizeMessage(message))
           );
           this.loadingMessages.set(false);
-          this.queueScrollToBottom();
+          this.queueScrollToBottom(shouldStickToBottom, !showLoader);
         },
         error: () => {
           this.loadingMessages.set(false);
@@ -377,6 +380,7 @@ export class StudentChat implements OnInit, OnDestroy {
             this.messageText.set('');
             this.editingMessage.set(null);
             this.sending.set(false);
+            this.queueScrollToBottom(true, true);
           },
           error: () => {
             this.error.set('We could not update the message right now.');
@@ -415,7 +419,7 @@ export class StudentChat implements OnInit, OnDestroy {
         this.messageText.set('');
         this.replyToMessage.set(null);
         this.sending.set(false);
-        this.queueScrollToBottom();
+        this.queueScrollToBottom(true, true);
       },
       error: () => {
         const fallbackMessage = this.createLocalMessage(text);
@@ -424,7 +428,7 @@ export class StudentChat implements OnInit, OnDestroy {
         this.messageText.set('');
         this.replyToMessage.set(null);
         this.sending.set(false);
-        this.queueScrollToBottom();
+        this.queueScrollToBottom(true, true);
       }
     });
   }
@@ -626,11 +630,26 @@ export class StudentChat implements OnInit, OnDestroy {
     );
   }
 
-  private queueScrollToBottom(): void {
+  private isNearBottom(): boolean {
+    const board = this.messagesBoard?.nativeElement;
+    if (!board) {
+      return true;
+    }
+
+    const distanceFromBottom =
+      board.scrollHeight - board.clientHeight - board.scrollTop;
+
+    return distanceFromBottom <= this.scrollThreshold;
+  }
+
+  private queueScrollToBottom(force = false, smooth = false): void {
     setTimeout(() => {
       const board = this.messagesBoard?.nativeElement;
-      if (board) {
-        board.scrollTop = board.scrollHeight;
+      if (board && force) {
+        board.scrollTo({
+          top: board.scrollHeight,
+          behavior: smooth ? 'smooth' : 'auto'
+        });
       }
     }, 0);
   }

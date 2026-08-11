@@ -1,6 +1,7 @@
 :host {
   display: block;
-  min-height: calc(100vh - 48px);
+  height: 100%;
+  min-height: 0;
 }
 
 .community-chat-shell {
@@ -14,6 +15,11 @@
   --chat-accent: #d97706;
   --chat-danger: #b91c1c;
   padding: 1.5rem;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   background:
     radial-gradient(circle at top left, rgba(15, 118, 110, 0.16), transparent 28%),
     radial-gradient(circle at top right, rgba(217, 119, 6, 0.12), transparent 22%),
@@ -22,6 +28,7 @@
 }
 
 .community-chat-hero {
+  flex-shrink: 0;
   display: grid;
   grid-template-columns: minmax(0, 1.3fr) minmax(320px, 0.8fr);
   gap: 1.25rem;
@@ -110,9 +117,10 @@
 }
 
 .chat-workspace {
+  flex: 1;
+  min-height: 0;
   display: grid;
   grid-template-columns: 360px minmax(0, 1fr);
-  height: calc(100vh - 205px);
   border-radius: 1.75rem;
   overflow: hidden;
   border: 1px solid rgba(215, 226, 236, 0.95);
@@ -123,11 +131,15 @@
 .groups-panel,
 .thread-panel {
   min-width: 0;
+  min-height: 0;
 }
 
 .groups-panel {
+  display: flex;
+  flex-direction: column;
   padding: 1.2rem;
   border-right: 1px solid var(--chat-line);
+  overflow: hidden;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.97) 0%, rgba(244, 248, 251, 0.96) 100%);
 }
@@ -272,10 +284,11 @@
 }
 
 .conversation-list {
+  flex: 1;
+  min-height: 0;
   display: grid;
   gap: 0.7rem;
   margin-top: 1rem;
-  max-height: calc(100vh - 470px);
   overflow: auto;
 }
 
@@ -506,6 +519,8 @@
   gap: 1rem;
   padding: 1.1rem 0.6rem 1rem;
   overflow: auto;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
 }
 
 .message-row {
@@ -591,6 +606,8 @@
   border: 1px solid rgba(215, 226, 236, 0.8);
   line-height: 1.55;
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 
   &.deleted {
     color: var(--chat-muted);
@@ -818,10 +835,6 @@
     grid-template-columns: 1fr;
   }
 
-  .chat-workspace {
-    height: auto;
-  }
-
   .groups-panel {
     border-right: 0;
     border-bottom: 1px solid var(--chat-line);
@@ -834,7 +847,7 @@
 
 @media (max-width: 720px) {
   .community-chat-shell {
-    padding: 1rem;
+    padding: 0.75rem;
   }
 
   .thread-head,
