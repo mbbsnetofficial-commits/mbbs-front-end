@@ -91,7 +91,7 @@ export class StudentChat implements OnInit, OnDestroy {
             }));
             this.messages.set(fetched);
           },
-          error: () => {}
+          error: () => { }
         });
       }
     }, 3000);
@@ -143,15 +143,15 @@ export class StudentChat implements OnInit, OnDestroy {
         const groups = res.data || [];
         this.publicGroups.set(groups);
 
-        const groupConvs: ConversationItem[] = groups.map(g => ({
+        const groupConvs: ConversationItem[] = groups.map((g: any) => ({
           _id: g._id,
           type: g.type,
           title: g.title,
           participants: g.participants || [this.currentUserId()],
           last_message: g.last_message ? {
-            text: g.last_message.text || 'No messages yet',
-            sender_name: g.last_message.sender_name || '',
-            createdAt: g.last_message.sent_at || g.last_message.createdAt
+            text: String(g.last_message.text || 'No messages yet'),
+            sender_name: String(g.last_message.sender_name || ''),
+            createdAt: String(g.last_message.sent_at || g.last_message.createdAt || '')
           } : { text: 'No messages yet' }
         }));
 
