@@ -436,18 +436,13 @@
   min-height: 0;
   width: 100%;
   margin-top: 10px;
-  display: flex;
+  display: block;
   border-radius: 24px;
   background: var(--app);
   outline: 0;
   overflow-y: auto;
   overflow-x: hidden;
   scrollbar-gutter: stable;
-}
-.content > * {
-  flex: 1 1 auto;
-  min-width: 0;
-  min-height: 0;
 }
 .popover {
   position: absolute;
