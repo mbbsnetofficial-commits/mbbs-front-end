@@ -1,15 +1,27 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnDestroy,
+  OnInit,
+  computed,
+  inject,
+  signal
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
+
 import { TokenService } from '../../core/serivce/token.service';
 import {
   ChatMessageItem,
+  CommunityConversationType,
   ConversationItem,
   PublicGroupItem,
   StudentChatService
 } from './services/student-chat.service';
 import { StudentSocketService } from './services/student-socket.service';
+
+type ChatFilter = 'all' | 'university' | 'country' | 'batch';
 
 @Component({
   selector: 'app-student-chat',
@@ -24,331 +36,295 @@ export class StudentChat implements OnInit, OnDestroy {
   private readonly chatService = inject(StudentChatService);
   private readonly socketService = inject(StudentSocketService);
 
-  /* Dynamic Student Identity Signals per user session */
-  readonly currentUserId = signal<string>('');
-  readonly currentUserName = signal<string>('');
+  readonly currentUserId = signal('');
+  readonly currentUserName = signal('');
 
-  /* Group Membership Tracking */
-  readonly joinedGroupIds = signal<Set<string>>(new Set(['6a7890ec8559d01cd87f85b7', '6a7766e1a11062f0e0c6290b']));
-
-  /* ── State ── */
   readonly loading = signal(true);
+  readonly loadingMessages = signal(false);
+  readonly sending = signal(false);
+  readonly joiningGroupId = signal<string | null>(null);
   readonly error = signal<string | null>(null);
+  readonly successMessage = signal<string | null>(null);
 
-  readonly activeCategory = signal<'all' | 'university' | 'country' | 'batch'>('all');
+  readonly activeFilter = signal<ChatFilter>('all');
+  readonly searchQuery = signal('');
+  readonly groupSearchQuery = signal('');
 
   readonly conversations = signal<ConversationItem[]>([]);
   readonly publicGroups = signal<PublicGroupItem[]>([]);
-
   readonly selectedConversation = signal<ConversationItem | null>(null);
   readonly messages = signal<ChatMessageItem[]>([]);
-  readonly loadingMessages = signal(false);
+  readonly joinedGroupIds = signal<Set<string>>(new Set());
 
   readonly messageText = signal('');
   readonly replyToMessage = signal<ChatMessageItem | null>(null);
   readonly editingMessage = signal<ChatMessageItem | null>(null);
 
-  /* Quick Emojis */
-  readonly quickEmojis = ['🩺', '📚', '🎓', '🚀', '😃', '💊', '🙏', '🔥', '❤️', '👍', '💡', '🏥'];
-
-  /* Modals */
   readonly groupModalOpen = signal(false);
   readonly reportModalOpen = signal(false);
   readonly reportReason = signal('');
   readonly reportDetails = signal('');
   readonly targetReportUser = signal<string | null>(null);
+  readonly targetReportMessageId = signal<string | null>(null);
+
+  readonly quickEmojis = ['👍', '🔥', '🎓', '📚', '💡', '🙏', '✅', '🙌'];
+
+  readonly filteredConversations = computed(() => {
+    const filter = this.activeFilter();
+    const query = this.searchQuery().trim().toLowerCase();
+
+    return this.conversations().filter((conversation) => {
+      const matchesFilter =
+        filter === 'all'
+          ? true
+          : filter === 'university'
+            ? conversation.type === 'group_university'
+            : filter === 'country'
+              ? conversation.type === 'group_country'
+              : conversation.type === 'group_batch';
+
+      if (!matchesFilter) {
+        return false;
+      }
+
+      if (!query) {
+        return true;
+      }
+
+      return (
+        (conversation.title || '').toLowerCase().includes(query) ||
+        (conversation.last_message?.text || '').toLowerCase().includes(query)
+      );
+    });
+  });
+
+  readonly filteredPublicGroups = computed(() => {
+    const query = this.groupSearchQuery().trim().toLowerCase();
+    if (!query) {
+      return this.publicGroups();
+    }
+
+    return this.publicGroups().filter((group) => {
+      return (
+        group.title.toLowerCase().includes(query) ||
+        this.getTypeLabel(group.type).toLowerCase().includes(query)
+      );
+    });
+  });
+
+  readonly selectedConversationMembers = computed(() => {
+    return this.selectedConversation()?.participants.length || 0;
+  });
+
+  readonly emptyStateTitle = computed(() => {
+    if (this.searchQuery().trim()) {
+      return 'No community groups match your search';
+    }
+    if (this.activeFilter() !== 'all') {
+      return 'No groups in this category yet';
+    }
+    return 'No community groups available yet';
+  });
 
   private socketSub: Subscription | null = null;
-  private pollInterval: any = null;
+  private pollInterval: ReturnType<typeof setInterval> | null = null;
 
   ngOnInit(): void {
     this.initStudentIdentity();
-    this.initChat();
-
-    // ⚡ Initialize Real-Time Socket.IO WebSocket Connection for current user
+    this.loadCommunityGroups();
     this.socketService.connect(this.currentUserId());
 
-    // Listen for incoming real-time socket messages from other users
-    this.socketSub = this.socketService.onMessage$.subscribe((msg) => {
-      const active = this.selectedConversation();
-      if (active && String(msg.conversation_id) === String(active._id)) {
-        this.messages.update(list => {
-          if (list.some(m => String(m._id) === String(msg._id))) return list;
-          return [...list, msg];
+    this.socketSub = this.socketService.onMessage$.subscribe((message) => {
+      const activeConversation = this.selectedConversation();
+      if (
+        activeConversation &&
+        String(message.conversation_id) === String(activeConversation._id)
+      ) {
+        this.messages.update((items) => {
+          if (items.some((item) => item._id === message._id)) {
+            return items;
+          }
+          return [...items, this.normalizeMessage(message)];
         });
       }
     });
 
-    // Lightweight live sync polling every 3 seconds to guarantee instant message delivery across sessions
     this.pollInterval = setInterval(() => {
-      const active = this.selectedConversation();
-      if (active && !this.loadingMessages()) {
-        this.chatService.getMessages(active._id, this.currentUserId()).subscribe({
-          next: (res) => {
-            const fetched = (res.data || []).map(m => ({
-              ...m,
-              sender_name: m.sender_info?.name || m.sender_name || m.sender_id
-            }));
-            this.messages.set(fetched);
-          },
-          error: () => { }
-        });
+      const activeConversation = this.selectedConversation();
+      if (activeConversation && !this.loadingMessages()) {
+        this.fetchMessages(activeConversation, false);
       }
-    }, 3000);
+    }, 5000);
   }
 
   ngOnDestroy(): void {
-    if (this.socketSub) {
-      this.socketSub.unsubscribe();
-    }
+    this.socketSub?.unsubscribe();
     if (this.pollInterval) {
       clearInterval(this.pollInterval);
     }
     this.socketService.disconnect();
   }
 
-  /** Initialize Unique Student Credentials from Auth / Session Storage */
   private initStudentIdentity(): void {
-    const loggedStudentId = this.tokenService.getStudentId();
-    const loggedUserName = this.tokenService.getUserDisplayName();
+    const studentId = this.tokenService.getStudentId()?.trim();
+    const displayName = this.tokenService.getUserDisplayName()?.trim();
 
-    if (loggedStudentId && loggedStudentId.trim()) {
-      this.currentUserId.set(loggedStudentId.trim());
-      this.currentUserName.set(loggedUserName && loggedUserName !== 'Student' ? loggedUserName : `Student_${loggedStudentId.substring(0, 6)}`);
+    if (studentId) {
+      this.currentUserId.set(studentId);
+      this.currentUserName.set(displayName || `Student_${studentId.slice(0, 6)}`);
       return;
     }
 
-    // Dynamic Session ID for testing multiple browser tabs / incognito windows
-    let sessionUserId = sessionStorage.getItem('mbbs_chat_user_id');
-    let sessionUserName = sessionStorage.getItem('mbbs_chat_user_name');
+    let fallbackId = sessionStorage.getItem('mbbs_chat_user_id');
+    let fallbackName = sessionStorage.getItem('mbbs_chat_user_name');
 
-    if (!sessionUserId) {
-      const randHex = Math.random().toString(16).substring(2, 8);
-      sessionUserId = `student_${randHex}`;
-      sessionUserName = `Student User ${randHex.toUpperCase()}`;
-      sessionStorage.setItem('mbbs_chat_user_id', sessionUserId);
-      sessionStorage.setItem('mbbs_chat_user_name', sessionUserName);
+    if (!fallbackId) {
+      const randomKey = Math.random().toString(16).slice(2, 8);
+      fallbackId = `student_${randomKey}`;
+      fallbackName = `Student ${randomKey.toUpperCase()}`;
+      sessionStorage.setItem('mbbs_chat_user_id', fallbackId);
+      sessionStorage.setItem('mbbs_chat_user_name', fallbackName);
     }
 
-    this.currentUserId.set(sessionUserId);
-    this.currentUserName.set(sessionUserName || `Student ${sessionUserId}`);
+    this.currentUserId.set(fallbackId);
+    this.currentUserName.set(fallbackName || fallbackId);
   }
 
-  initChat(): void {
+  loadCommunityGroups(): void {
     this.loading.set(true);
+    this.error.set(null);
 
-    // GET /api/v1/chat/groups/public (Fetch all admin-created groups from MongoDB)
     this.chatService.getPublicGroups().subscribe({
-      next: (res) => {
-        const groups = res.data || [];
+      next: (response) => {
+        const groups = response.data || [];
         this.publicGroups.set(groups);
+        this.joinedGroupIds.set(
+          new Set(groups.filter((group) => group.is_member).map((group) => group._id))
+        );
 
-        const groupConvs: ConversationItem[] = groups.map((g: PublicGroupItem) => ({
-          _id: g._id,
-          type: g.type,
-          title: g.title,
-          participants: g.participants || [this.currentUserId()],
-          last_message: g.last_message ? {
-            text: String(g.last_message.text || 'No messages yet'),
-            sender_name: String(g.last_message.sender_name || ''),
-            createdAt: String(g.last_message.sent_at || g.last_message.createdAt || '')
-          } : { text: 'No messages yet' }
-        }));
+        const conversations = groups.map((group) => this.groupToConversation(group));
+        this.conversations.set(conversations);
 
-        if (groupConvs.length) {
-          this.conversations.set(groupConvs);
-          const defaultConv = groupConvs.find(c => c.title === 'official') || groupConvs[0];
-          this.selectConversation(defaultConv);
-        } else {
-          this.loadDefaultConversations();
+        const firstConversation =
+          conversations.find((conversation) => this.isMember(conversation._id)) ||
+          conversations[0] ||
+          null;
+
+        if (firstConversation) {
+          this.selectConversation(firstConversation);
         }
+
         this.loading.set(false);
       },
       error: () => {
-        this.loadDefaultConversations();
+        this.error.set(
+          'We could not load the community groups right now. Please refresh and try again.'
+        );
         this.loading.set(false);
       }
     });
   }
 
-  /** Select Conversation & Fetch Fresh Messages from GET /api/v1/chat/messages/:id REST API */
-  selectConversation(conv: ConversationItem): void {
-    this.selectedConversation.set(conv);
-    this.loadingMessages.set(true);
+  selectConversation(conversation: ConversationItem): void {
+    this.selectedConversation.set(conversation);
     this.replyToMessage.set(null);
     this.editingMessage.set(null);
-
-    // Join Socket.IO room for real-time room events
-    this.socketService.joinConversation(conv._id);
-
-    // 🌐 CALL REST API: GET /api/v1/chat/messages/:conversationId?page=1&limit=50 (Shows in Network tab with 200 OK)
-    this.chatService.getMessages(conv._id, this.currentUserId()).subscribe({
-      next: (res) => {
-        const fetched = (res.data || []).map(m => ({
-          ...m,
-          sender_name: m.sender_info?.name || m.sender_name || m.sender_id
-        }));
-        this.messages.set(fetched);
-        this.loadingMessages.set(false);
-      },
-      error: () => {
-        this.loadingMessages.set(false);
-      }
-    });
+    this.successMessage.set(null);
+    this.socketService.joinConversation(conversation._id);
+    this.fetchMessages(conversation, true);
   }
 
   refreshActiveMessages(): void {
-    const activeConv = this.selectedConversation();
-    if (activeConv) {
-      this.selectConversation(activeConv);
+    const conversation = this.selectedConversation();
+    if (conversation) {
+      this.fetchMessages(conversation, true);
     }
   }
 
-  /** Check Group Membership */
-  isMember(convId?: string): boolean {
-    if (!convId) return false;
-    const conv = this.conversations().find(c => c._id === convId);
-    if (!conv) return true;
-    return this.joinedGroupIds().has(convId);
+  fetchMessages(conversation: ConversationItem, showLoader: boolean): void {
+    if (showLoader) {
+      this.loadingMessages.set(true);
+    }
+
+    this.chatService
+      .getMessages(conversation._id, this.currentUserId(), 1, 100)
+      .subscribe({
+        next: (response) => {
+          this.messages.set(
+            (response.data || []).map((message) => this.normalizeMessage(message))
+          );
+          this.loadingMessages.set(false);
+        },
+        error: () => {
+          this.loadingMessages.set(false);
+        }
+      });
   }
 
-  /** Join Group directly from banner */
-  joinGroupDirectly(conv: ConversationItem): void {
-    this.chatService.joinGroup(this.currentUserId(), conv._id).subscribe({
+  isMember(conversationId?: string): boolean {
+    return conversationId ? this.joinedGroupIds().has(conversationId) : false;
+  }
+
+  joinSelectedConversation(): void {
+    const conversation = this.selectedConversation();
+    if (conversation) {
+      this.joinGroupById(conversation._id);
+    }
+  }
+
+  joinPublicGroup(group: PublicGroupItem): void {
+    this.joinGroupById(group._id);
+  }
+
+  private joinGroupById(conversationId: string): void {
+    if (this.joiningGroupId() === conversationId) {
+      return;
+    }
+
+    this.joiningGroupId.set(conversationId);
+    this.chatService.joinGroup(this.currentUserId(), conversationId).subscribe({
       next: () => {
-        this.joinedGroupIds.update(set => {
-          const next = new Set(set);
-          next.add(conv._id);
-          return next;
-        });
+        this.applyJoinState(conversationId);
       },
       error: () => {
-        this.joinedGroupIds.update(set => {
-          const next = new Set(set);
-          next.add(conv._id);
-          return next;
-        });
+        this.applyJoinState(conversationId);
       }
     });
   }
 
-  /** WhatsApp Style Sender Alignment:
-   * Returns TRUE ONLY for messages sent by current logged-in user -> RIGHT SIDE
-   * Returns FALSE for messages sent by all other users -> LEFT SIDE
-   */
-  isOutgoing(msg: ChatMessageItem): boolean {
-    if (!msg) return false;
-    const myId = String(this.currentUserId() || '').trim();
-    const myName = String(this.currentUserName() || '').toLowerCase().trim();
+  private applyJoinState(conversationId: string): void {
+    this.joinedGroupIds.update((set) => new Set(set).add(conversationId));
+    this.publicGroups.update((groups) =>
+      groups.map((group) =>
+        group._id === conversationId ? { ...group, is_member: true } : group
+      )
+    );
+    this.successMessage.set('You have joined the group and can start messaging now.');
+    this.joiningGroupId.set(null);
 
-    const senderId = String(msg.sender_id || '').trim();
-    const senderName = String(msg.sender_name || msg.sender_info?.name || '').toLowerCase().trim();
-
-    if (senderId && myId && senderId === myId) return true;
-    if (senderName && myName && senderName === myName) return true;
-
-    return false;
-  }
-
-  get filteredConversations(): ConversationItem[] {
-    const cat = this.activeCategory();
-    const list = this.conversations();
-
-    if (cat === 'university') return list.filter(c => c.type === 'group_university');
-    if (cat === 'country') return list.filter(c => c.type === 'group_country');
-    if (cat === 'batch') return list.filter(c => c.type === 'group_batch');
-    return list;
+    const conversation = this.conversations().find((item) => item._id === conversationId);
+    if (conversation) {
+      this.selectConversation(conversation);
+    }
   }
 
   addEmoji(emoji: string): void {
-    this.messageText.update(text => text + emoji);
+    this.messageText.update((value) => `${value}${emoji}`);
   }
 
-  /** Send Message via REST API POST /api/v1/chat/messages (Shows in Network tab with 201 Created) */
-  sendMessage(): void {
-    const text = this.messageText().trim();
-    const activeConv = this.selectedConversation();
-    if (!text || !activeConv) return;
-
-    if (!this.isMember(activeConv._id)) {
-      alert('Please join this community group first to send messages.');
-      return;
-    }
-
-    if (this.editingMessage()) {
-      const msgId = this.editingMessage()!._id;
-      this.chatService.editMessage(msgId, text, this.currentUserId()).subscribe({
-        next: () => {
-          this.messages.update(list => list.map(m => m._id === msgId ? { ...m, text, is_edited: true } : m));
-          this.editingMessage.set(null);
-          this.messageText.set('');
-        },
-        error: () => {
-          this.messages.update(list => list.map(m => m._id === msgId ? { ...m, text, is_edited: true } : m));
-          this.editingMessage.set(null);
-          this.messageText.set('');
-        }
-      });
-      return;
-    }
-
-    const myId = this.currentUserId();
-    const myName = this.currentUserName();
-
-    const payload = {
-      conversation_id: activeConv._id,
-      text,
-      userId: myId,
-      sender_info: { name: myName },
-      reply_to: this.replyToMessage() ? {
-        message_id: this.replyToMessage()!._id,
-        text: this.replyToMessage()!.text,
-        sender_name: this.replyToMessage()!.sender_name
-      } : undefined
-    };
-
-    // ⚡ 1. Emit Socket.IO event to notify room members
-    this.socketService.sendMessage(payload);
-
-    // 🌐 2. CALL REST API POST /api/v1/chat/messages (Triggers HTTP POST call in Network tab with 201 Created)
-    this.chatService.sendMessage(payload).subscribe({
-      next: (res) => {
-        const formatted: ChatMessageItem = res.data ? {
-          ...res.data,
-          sender_name: res.data.sender_info?.name || myName
-        } : {
-          _id: 'msg_' + Date.now(),
-          conversation_id: activeConv._id,
-          sender_id: myId,
-          sender_name: myName,
-          text,
-          createdAt: new Date().toISOString()
-        };
-
-        this.messages.update(list => [...list, formatted]);
-        this.messageText.set('');
-        this.replyToMessage.set(null);
-      },
-      error: () => {
-        const fallbackMsg: ChatMessageItem = {
-          _id: 'msg_' + Date.now(),
-          conversation_id: activeConv._id,
-          sender_id: myId,
-          sender_name: myName,
-          text,
-          createdAt: new Date().toISOString()
-        };
-        this.messages.update(list => [...list, fallbackMsg]);
-        this.messageText.set('');
-        this.replyToMessage.set(null);
-      }
-    });
+  startReply(message: ChatMessageItem): void {
+    this.replyToMessage.set(message);
+    this.editingMessage.set(null);
   }
 
-  startEdit(msg: ChatMessageItem): void {
-    this.editingMessage.set(msg);
-    this.messageText.set(msg.text);
+  cancelReply(): void {
     this.replyToMessage.set(null);
+  }
+
+  startEdit(message: ChatMessageItem): void {
+    this.editingMessage.set(message);
+    this.replyToMessage.set(null);
+    this.messageText.set(message.text);
   }
 
   cancelEdit(): void {
@@ -356,55 +332,120 @@ export class StudentChat implements OnInit, OnDestroy {
     this.messageText.set('');
   }
 
-  deleteMsg(msg: ChatMessageItem): void {
-    if (!confirm('Delete this message?')) return;
-    this.chatService.deleteMessage(msg._id, this.currentUserId()).subscribe({
-      next: () => {
-        this.messages.update(list => list.map(m => m._id === msg._id ? { ...m, text: 'This message was deleted', is_deleted: true } : m));
-      },
-      error: () => {
-        this.messages.update(list => list.map(m => m._id === msg._id ? { ...m, text: 'This message was deleted', is_deleted: true } : m));
-      }
-    });
-  }
+  sendMessage(): void {
+    const conversation = this.selectedConversation();
+    const text = this.messageText().trim();
 
-  joinPublicGroup(grp: PublicGroupItem): void {
-    this.chatService.joinGroup(this.currentUserId(), grp._id).subscribe({
-      next: () => {
-        this.joinedGroupIds.update(set => {
-          const next = new Set(set);
-          next.add(grp._id);
-          return next;
-        });
-        this.publicGroups.update(list => list.map(g => g._id === grp._id ? { ...g, is_member: true } : g));
-        this.addOrSelectGroupConv(grp);
-      },
-      error: () => {
-        this.joinedGroupIds.update(set => {
-          const next = new Set(set);
-          next.add(grp._id);
-          return next;
-        });
-        this.publicGroups.update(list => list.map(g => g._id === grp._id ? { ...g, is_member: true } : g));
-        this.addOrSelectGroupConv(grp);
-      }
-    });
-  }
-
-  private addOrSelectGroupConv(grp: PublicGroupItem): void {
-    let existing = this.conversations().find(c => c._id === grp._id);
-    if (!existing) {
-      existing = {
-        _id: grp._id,
-        type: grp.type,
-        title: grp.title,
-        participants: [this.currentUserId()],
-        last_message: { text: 'Joined community group', createdAt: new Date().toISOString() }
-      };
-      this.conversations.update(list => [existing!, ...list]);
+    if (!conversation || !text || this.sending()) {
+      return;
     }
-    this.selectConversation(existing);
-    this.closeGroupModal();
+
+    if (!this.isMember(conversation._id)) {
+      this.error.set('Join this community group first before sending a message.');
+      return;
+    }
+
+    this.sending.set(true);
+    this.error.set(null);
+    this.successMessage.set(null);
+
+    if (this.editingMessage()) {
+      const editing = this.editingMessage()!;
+      this.chatService
+        .editMessage(editing._id, text, this.currentUserId())
+        .subscribe({
+          next: () => {
+            this.messages.update((messages) =>
+              messages.map((message) =>
+                message._id === editing._id
+                  ? { ...message, text, is_edited: true }
+                  : message
+              )
+            );
+            this.messageText.set('');
+            this.editingMessage.set(null);
+            this.sending.set(false);
+          },
+          error: () => {
+            this.error.set('We could not update the message right now.');
+            this.sending.set(false);
+          }
+        });
+      return;
+    }
+
+    const payload = {
+      conversation_id: conversation._id,
+      text,
+      userId: this.currentUserId(),
+      sender_info: {
+        name: this.currentUserName()
+      },
+      reply_to: this.replyToMessage()
+        ? {
+            message_id: this.replyToMessage()!._id,
+            text: this.replyToMessage()!.text,
+            sender_name: this.replyToMessage()!.sender_name
+          }
+        : undefined
+    };
+
+    this.socketService.sendMessage(payload);
+
+    this.chatService.sendMessage(payload).subscribe({
+      next: (response) => {
+        const message = response.data
+          ? this.normalizeMessage(response.data)
+          : this.createLocalMessage(text);
+
+        this.messages.update((messages) => [...messages, message]);
+        this.updateConversationPreview(conversation._id, text);
+        this.messageText.set('');
+        this.replyToMessage.set(null);
+        this.sending.set(false);
+      },
+      error: () => {
+        const fallbackMessage = this.createLocalMessage(text);
+        this.messages.update((messages) => [...messages, fallbackMessage]);
+        this.updateConversationPreview(conversation._id, text);
+        this.messageText.set('');
+        this.replyToMessage.set(null);
+        this.sending.set(false);
+      }
+    });
+  }
+
+  deleteMessage(message: ChatMessageItem): void {
+    if (!confirm('Delete this message from the group thread?')) {
+      return;
+    }
+
+    this.chatService.deleteMessage(message._id, this.currentUserId()).subscribe({
+      next: () => {
+        this.markMessageDeleted(message._id);
+      },
+      error: () => {
+        this.markMessageDeleted(message._id);
+      }
+    });
+  }
+
+  private markMessageDeleted(messageId: string): void {
+    this.messages.update((messages) =>
+      messages.map((message) =>
+        message._id === messageId
+          ? {
+              ...message,
+              text: 'This message was deleted',
+              is_deleted: true
+            }
+          : message
+      )
+    );
+  }
+
+  isOutgoing(message: ChatMessageItem): boolean {
+    return String(message.sender_id || '').trim() === this.currentUserId().trim();
   }
 
   openGroupModal(): void {
@@ -413,17 +454,12 @@ export class StudentChat implements OnInit, OnDestroy {
 
   closeGroupModal(): void {
     this.groupModalOpen.set(false);
+    this.groupSearchQuery.set('');
   }
 
-  submitReport(): void {
-    const reason = this.reportReason().trim();
-    if (!reason) return;
-    alert('Report submitted to moderation team.');
-    this.closeReportModal();
-  }
-
-  openReportModal(userId?: string): void {
-    this.targetReportUser.set(userId || 'community_user');
+  openReportModal(message?: ChatMessageItem): void {
+    this.targetReportUser.set(message?.sender_id || null);
+    this.targetReportMessageId.set(message?._id || null);
     this.reportModalOpen.set(true);
   }
 
@@ -431,55 +467,124 @@ export class StudentChat implements OnInit, OnDestroy {
     this.reportModalOpen.set(false);
     this.reportReason.set('');
     this.reportDetails.set('');
+    this.targetReportUser.set(null);
+    this.targetReportMessageId.set(null);
   }
 
-  getTypeTag(type: string): string {
-    if (type === 'group_university') return 'UNIVERSITY';
-    if (type === 'group_country') return 'COUNTRY';
-    if (type === 'group_batch') return 'BATCH';
-    return 'GROUP';
+  submitReport(): void {
+    const reason = this.reportReason().trim();
+    if (!reason) {
+      return;
+    }
+
+    this.chatService
+      .reportUserOrMessage({
+        reporter_id: this.currentUserId(),
+        reported_user_id: this.targetReportUser() || undefined,
+        message_id: this.targetReportMessageId() || undefined,
+        reason,
+        details: this.reportDetails().trim() || undefined
+      })
+      .subscribe({
+        next: () => {
+          this.successMessage.set('Your report has been submitted to the moderation team.');
+          this.closeReportModal();
+        },
+        error: () => {
+          this.successMessage.set('Your report has been submitted to the moderation team.');
+          this.closeReportModal();
+        }
+      });
   }
 
-  getTypeIcon(type: string): string {
-    if (type === 'group_university') return '🏛️';
-    if (type === 'group_country') return '🌐';
-    if (type === 'group_batch') return '🎓';
-    return '👥';
+  getTypeLabel(type: CommunityConversationType): string {
+    if (type === 'group_university') {
+      return 'University Group';
+    }
+    if (type === 'group_country') {
+      return 'Country Group';
+    }
+    return 'Batch Group';
   }
 
-  private loadDefaultConversations(): void {
-    const defaultConvs: ConversationItem[] = [
-      {
-        _id: '6a7890ec8559d01cd87f85b7',
-        type: 'group_country',
-        title: 'official',
-        participants: [this.currentUserId(), 'student_priya_202'],
-        last_message: { text: 'hello mam', sender_name: 'Priya Patel' }
-      },
-      {
-        _id: '6a788890d1daf3219b5f7095',
-        type: 'group_university',
-        title: 'russia',
-        participants: [this.currentUserId()],
-        last_message: { text: 'hiii', sender_name: 'Priya Patel' }
-      },
-      {
-        _id: '6a7888aad1daf3219b5f7096',
-        type: 'group_country',
-        title: 'russia',
-        participants: [this.currentUserId()],
-        last_message: { text: 'No messages yet' }
-      },
-      {
-        _id: '6a7766e1a11062f0e0c6290b',
-        type: 'group_batch',
-        title: 'BATCH Group',
-        participants: ['admin_official_01', this.currentUserId()],
-        last_message: { text: 'hoho', sender_name: 'Priya Patel' }
-      }
-    ];
+  getTypeTag(type: CommunityConversationType): string {
+    if (type === 'group_university') {
+      return 'UNIVERSITY';
+    }
+    if (type === 'group_country') {
+      return 'COUNTRY';
+    }
+    return 'BATCH';
+  }
 
-    this.conversations.set(defaultConvs);
-    this.selectConversation(defaultConvs[0]);
+  getTypeIcon(type: CommunityConversationType): string {
+    if (type === 'group_university') {
+      return '🏛';
+    }
+    if (type === 'group_country') {
+      return '🌍';
+    }
+    return '🎓';
+  }
+
+  private groupToConversation(group: PublicGroupItem): ConversationItem {
+    return {
+      _id: group._id,
+      type: group.type,
+      title: group.title,
+      participants: group.participants || [],
+      unread_count: 0,
+      last_message: group.last_message
+        ? {
+            text: String(group.last_message.text || 'No messages yet'),
+            sender_name: group.last_message.sender_name,
+            sent_at: group.last_message.sent_at,
+            createdAt: group.last_message.createdAt
+          }
+        : { text: 'No messages yet' }
+    };
+  }
+
+  private normalizeMessage(message: ChatMessageItem): ChatMessageItem {
+    return {
+      ...message,
+      sender_name:
+        message.sender_info?.name || message.sender_name || message.sender_id
+    };
+  }
+
+  private createLocalMessage(text: string): ChatMessageItem {
+    return {
+      _id: `msg_${Date.now()}`,
+      conversation_id: this.selectedConversation()?._id || '',
+      sender_id: this.currentUserId(),
+      sender_name: this.currentUserName(),
+      text,
+      reply_to: this.replyToMessage()
+        ? {
+            message_id: this.replyToMessage()!._id,
+            text: this.replyToMessage()!.text,
+            sender_name: this.replyToMessage()!.sender_name
+          }
+        : undefined,
+      createdAt: new Date().toISOString()
+    };
+  }
+
+  private updateConversationPreview(conversationId: string, text: string): void {
+    this.conversations.update((conversations) =>
+      conversations.map((conversation) =>
+        conversation._id === conversationId
+          ? {
+              ...conversation,
+              last_message: {
+                text,
+                sender_name: this.currentUserName(),
+                createdAt: new Date().toISOString()
+              }
+            }
+          : conversation
+      )
+    );
   }
 }

@@ -1,250 +1,364 @@
-<div class="chat-app-layout">
-  <!-- Left Sidebar: Community Groups & Join Group Button -->
-  <aside class="chat-sidebar">
-    <div class="sidebar-header">
-      <h2>Conversations</h2>
-      <div class="top-action-buttons">
-        <button class="action-btn secondary-blue full-width" (click)="openGroupModal()" type="button">
-          <span>+ Join Community Group</span>
+<section class="community-chat-shell">
+  <header class="community-chat-hero">
+    <div class="hero-copy">
+      <span class="hero-eyebrow">Real-Time Student Chat & Community</span>
+      <h1>Community Groups</h1>
+      <p>
+        Join a country, university, or batch group, read live discussions, and send
+        text-only messages in a clear WhatsApp-style layout.
+      </p>
+    </div>
+
+    <div class="hero-process">
+      <strong>How it works</strong>
+      <ol>
+        <li>Join a group from the community list.</li>
+        <li>Open the thread to read recent messages.</li>
+        <li>Send text, reply, edit your own message, or report a message.</li>
+      </ol>
+      <div class="support-grid">
+        <span class="supported">Supported: Text messages, replies, edit, delete, report</span>
+        <span class="unsupported">Not included: media, calls, voice notes, location, 1-1 chat</span>
+      </div>
+    </div>
+  </header>
+
+  @if (error()) {
+    <div class="status-banner error">{{ error() }}</div>
+  }
+
+  @if (successMessage()) {
+    <div class="status-banner success">{{ successMessage() }}</div>
+  }
+
+  <div class="chat-workspace">
+    <aside class="groups-panel">
+      <div class="panel-head">
+        <div>
+          <h2>Community Groups</h2>
+          <p>Choose the group you want to read or join.</p>
+        </div>
+        <button type="button" class="join-groups-btn" (click)="openGroupModal()">
+          Browse Groups
         </button>
       </div>
-    </div>
 
-    <!-- Category Filter Pills Row -->
-    <div class="filter-pills-row">
-      <button
-        class="filter-pill"
-        [class.active]="activeCategory() === 'all'"
-        (click)="activeCategory.set('all')"
-        type="button"
-      >All</button>
-      <button
-        class="filter-pill"
-        [class.active]="activeCategory() === 'university'"
-        (click)="activeCategory.set('university')"
-        type="button"
-      >Universities</button>
-      <button
-        class="filter-pill"
-        [class.active]="activeCategory() === 'country'"
-        (click)="activeCategory.set('country')"
-        type="button"
-      >Countries</button>
-      <button
-        class="filter-pill"
-        [class.active]="activeCategory() === 'batch'"
-        (click)="activeCategory.set('batch')"
-        type="button"
-      >Batches</button>
-    </div>
+      <label class="search-field">
+        <span>Search groups</span>
+        <input
+          type="text"
+          [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event)"
+          placeholder="Search by title or last message"
+        />
+      </label>
 
-    <!-- Conversations List -->
-    <div class="conversations-list">
-      @for (conv of filteredConversations; track conv._id) {
-        <div
-          class="conv-card-item"
-          [class.active]="selectedConversation()?._id === conv._id"
-          (click)="selectConversation(conv)"
+      <div class="filter-row" aria-label="Group type filters">
+        <button
+          type="button"
+          [class.active]="activeFilter() === 'all'"
+          (click)="activeFilter.set('all')"
         >
-          <div class="conv-icon-avatar">
-            <span>{{ getTypeIcon(conv.type) }}</span>
-          </div>
-
-          <div class="conv-card-body">
-            <div class="conv-header-row">
-              <strong class="conv-title-text">{{ conv.title || 'Conversation' }}</strong>
-              <span class="conv-tag-badge" [class]="conv.type">{{ getTypeTag(conv.type) }}</span>
-            </div>
-            <p class="conv-last-text">{{ conv.last_message?.text || 'No messages yet' }}</p>
-          </div>
-        </div>
-      }
-    </div>
-  </aside>
-
-  <!-- Right Main Area: Chat Thread -->
-  <main class="chat-main-window">
-    @if (selectedConversation(); as conv) {
-      <!-- Thread Top Bar -->
-      <header class="thread-top-bar">
-        <div class="thread-title-group">
-          <div class="thread-icon-badge">
-            <span>{{ getTypeIcon(conv.type) }}</span>
-          </div>
-          <div class="thread-name-meta">
-            <div class="thread-name-row">
-              <h2>{{ conv.title || 'Official Thread' }}</h2>
-              <span class="type-badge-pill">{{ conv.type.toUpperCase() }}</span>
-            </div>
-            <span class="participant-count">&bull; {{ conv.participants.length || 2 }} participant(s)</span>
-          </div>
-        </div>
-
-        <div class="top-header-actions">
-          <button class="top-refresh-btn" (click)="refreshActiveMessages()" type="button" title="Refresh messages">
-            <span>🔄 Refresh</span>
-          </button>
-          <button class="top-report-btn" (click)="openReportModal()" type="button">
-            <span>🚩 Report</span>
-          </button>
-        </div>
-      </header>
-
-      <!-- Message History List (WhatsApp Dual-Side Layout) -->
-      <div class="messages-viewport">
-        @if (loadingMessages()) {
-          <div class="loading-state">Loading group messages…</div>
-        } @else {
-          @for (msg of messages(); track msg._id) {
-            <div class="message-row" [class.outgoing]="isOutgoing(msg)">
-              <!-- Avatar -->
-              <div class="message-avatar">
-                <span>{{ isOutgoing(msg) ? '🧔' : '🧑‍⚕️' }}</span>
-              </div>
-
-              <!-- Content Column -->
-              <div class="message-content-col">
-                <div class="msg-header">
-                  <span class="msg-sender-name">{{ msg.sender_name || msg.sender_id }}</span>
-                  <span class="msg-time-stamp">{{ msg.createdAt | date:'shortTime' }}</span>
-                </div>
-
-                @if (msg.reply_to && msg.reply_to.text) {
-                  <div class="quoted-reply-box">
-                    <small>Replying to {{ msg.reply_to.sender_name || 'Message' }}:</small>
-                    <p>{{ msg.reply_to.text }}</p>
-                  </div>
-                }
-
-                <div class="msg-bubble" [class.deleted]="msg.is_deleted">
-                  <p>{{ msg.text }}</p>
-                </div>
-
-                <!-- Actions -->
-                @if (!msg.is_deleted) {
-                  <div class="bubble-actions">
-                    @if (isOutgoing(msg)) {
-                      <button (click)="startEdit(msg)" type="button">Edit</button>
-                      <button (click)="deleteMsg(msg)" type="button">Delete</button>
-                    } @else {
-                      <button (click)="replyToMessage.set(msg)" type="button">Reply</button>
-                      <button (click)="openReportModal(msg.sender_id)" type="button">Report</button>
-                    }
-                  </div>
-                }
-              </div>
-            </div>
-          }
-        }
+          All
+        </button>
+        <button
+          type="button"
+          [class.active]="activeFilter() === 'country'"
+          (click)="activeFilter.set('country')"
+        >
+          Country
+        </button>
+        <button
+          type="button"
+          [class.active]="activeFilter() === 'university'"
+          (click)="activeFilter.set('university')"
+        >
+          University
+        </button>
+        <button
+          type="button"
+          [class.active]="activeFilter() === 'batch'"
+          (click)="activeFilter.set('batch')"
+        >
+          Batch
+        </button>
       </div>
 
-      <!-- Quick Emoji Bar & Composer Footer (Only shown if student is a group member) -->
-      @if (isMember(conv._id)) {
-        <div class="quick-emoji-bar">
-          @for (emoji of quickEmojis; track emoji) {
-            <button class="emoji-btn" type="button" (click)="addEmoji(emoji)">{{ emoji }}</button>
+      @if (loading()) {
+        <div class="list-placeholder">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      } @else if (filteredConversations().length === 0) {
+        <div class="groups-empty-state">
+          <strong>{{ emptyStateTitle() }}</strong>
+          <p>Try another filter or open the group browser to join a community.</p>
+        </div>
+      } @else {
+        <div class="conversation-list">
+          @for (conversation of filteredConversations(); track conversation._id) {
+            <button
+              type="button"
+              class="conversation-card"
+              [class.active]="selectedConversation()?._id === conversation._id"
+              (click)="selectConversation(conversation)"
+            >
+              <div class="conversation-avatar">{{ getTypeIcon(conversation.type) }}</div>
+              <div class="conversation-copy">
+                <div class="conversation-title-row">
+                  <strong>{{ conversation.title || 'Community Group' }}</strong>
+                  <span class="conversation-tag" [class]="conversation.type">
+                    {{ getTypeTag(conversation.type) }}
+                  </span>
+                </div>
+                <p>{{ conversation.last_message?.text || 'No messages yet' }}</p>
+              </div>
+            </button>
           }
         </div>
-
-        <footer class="composer-footer">
-          @if (editingMessage(); as editMsg) {
-            <div class="mode-bar edit">
-              <span>Editing message: "{{ editMsg.text }}"</span>
-              <button (click)="cancelEdit()" type="button">&times;</button>
-            </div>
-          } @else if (replyToMessage(); as replyMsg) {
-            <div class="mode-bar reply">
-              <span>Replying to {{ replyMsg.sender_name }}: "{{ replyMsg.text }}"</span>
-              <button (click)="replyToMessage.set(null)" type="button">&times;</button>
-            </div>
-          }
-
-          <div class="input-send-row">
-            <input
-              type="text"
-              placeholder="Type your message here (emojis & replies supported)..."
-              [ngModel]="messageText()"
-              (ngModelChange)="messageText.set($event)"
-              (keyup.enter)="sendMessage()"
-            />
-            <button class="send-btn" (click)="sendMessage()" type="button">
-              <span>✈️ Send</span>
-            </button>
-          </div>
-        </footer>
-      } @else {
-        <!-- Locked Join Group Banner -->
-        <footer class="locked-join-footer">
-          <div class="join-group-locked-banner">
-            <div class="locked-icon">🔒</div>
-            <div class="locked-text">
-              <strong>Join Group to Participate</strong>
-              <p>You must join <strong>{{ conv.title }}</strong> to send messages in this community group.</p>
-            </div>
-            <button class="join-group-banner-btn" (click)="joinGroupDirectly(conv)" type="button">
-              <span>👥 Join Community Group</span>
-            </button>
-          </div>
-        </footer>
       }
-    }
-  </main>
-</div>
+    </aside>
 
-<!-- Join Community Groups Modal -->
-@if (groupModalOpen()) {
-  <div class="modal-backdrop">
-    <div class="modal-card wide">
-      <h3>Browse & Join Community Groups</h3>
-      <div class="modal-groups-list">
-        @for (grp of publicGroups(); track grp._id) {
-          <div class="modal-group-item">
-            <div class="grp-meta">
-              <strong>{{ grp.title }}</strong>
-              <small>{{ grp.member_count }} members &bull; {{ grp.type }}</small>
+    <main class="thread-panel">
+      @if (selectedConversation(); as conversation) {
+        <header class="thread-head">
+          <div class="thread-title">
+            <div class="thread-badge">{{ getTypeIcon(conversation.type) }}</div>
+            <div>
+              <h2>{{ conversation.title || 'Community Group' }}</h2>
+              <p>
+                {{ getTypeLabel(conversation.type) }} •
+                {{ selectedConversationMembers() || 0 }} participant(s)
+              </p>
             </div>
-            @if (grp.is_member) {
-              <span class="joined-tag">Joined</span>
-            } @else {
-              <button class="btn-primary" (click)="joinPublicGroup(grp)" type="button">Join Group</button>
+          </div>
+
+          <div class="thread-actions">
+            <button type="button" class="ghost-btn" (click)="refreshActiveMessages()">
+              Refresh
+            </button>
+            @if (!isMember(conversation._id)) {
+              <button
+                type="button"
+                class="primary-btn"
+                [disabled]="joiningGroupId() === conversation._id"
+                (click)="joinSelectedConversation()"
+              >
+                {{ joiningGroupId() === conversation._id ? 'Joining...' : 'Join Group' }}
+              </button>
             }
           </div>
+        </header>
+
+        <div class="thread-guide">
+          <span>Thread process:</span>
+          <strong>Read messages</strong>
+          <strong>Reply or edit text</strong>
+          <strong>Report if needed</strong>
+        </div>
+
+        <div class="messages-board">
+          @if (loadingMessages()) {
+            <div class="messages-loading">Loading messages…</div>
+          } @else if (messages().length === 0) {
+            <div class="messages-empty">
+              <strong>No messages in this group yet</strong>
+              <p>Once members start chatting, the conversation will appear here.</p>
+            </div>
+          } @else {
+            @for (message of messages(); track message._id) {
+              <article class="message-row" [class.outgoing]="isOutgoing(message)">
+                <div class="message-persona">
+                  {{ isOutgoing(message) ? 'You' : (message.sender_name || 'Student').slice(0, 1) }}
+                </div>
+
+                <div class="message-stack">
+                  <div class="message-meta">
+                    <strong>{{ isOutgoing(message) ? 'You' : (message.sender_name || message.sender_id) }}</strong>
+                    <span>{{ message.createdAt | date: 'shortTime' }}</span>
+                    @if (message.is_edited && !message.is_deleted) {
+                      <em>edited</em>
+                    }
+                  </div>
+
+                  @if (message.reply_to?.text) {
+                    <div class="reply-preview">
+                      <small>{{ message.reply_to?.sender_name || 'Reply' }}</small>
+                      <p>{{ message.reply_to?.text }}</p>
+                    </div>
+                  }
+
+                  <div class="message-bubble" [class.deleted]="message.is_deleted">
+                    {{ message.text }}
+                  </div>
+
+                  @if (!message.is_deleted) {
+                    <div class="message-tools">
+                      @if (isOutgoing(message)) {
+                        <button type="button" (click)="startEdit(message)">Edit</button>
+                        <button type="button" (click)="deleteMessage(message)">Delete</button>
+                      } @else {
+                        <button type="button" (click)="startReply(message)">Reply</button>
+                        <button type="button" (click)="openReportModal(message)">Report</button>
+                      }
+                    </div>
+                  }
+                </div>
+              </article>
+            }
+          }
+        </div>
+
+        @if (isMember(conversation._id)) {
+          <div class="composer-area">
+            <div class="emoji-strip">
+              @for (emoji of quickEmojis; track emoji) {
+                <button type="button" (click)="addEmoji(emoji)">{{ emoji }}</button>
+              }
+            </div>
+
+            @if (editingMessage(); as editing) {
+              <div class="composer-mode edit-mode">
+                <span>Editing: "{{ editing.text }}"</span>
+                <button type="button" (click)="cancelEdit()">Cancel</button>
+              </div>
+            } @else if (replyToMessage(); as replying) {
+              <div class="composer-mode reply-mode">
+                <span>Replying to {{ replying.sender_name || replying.sender_id }}: "{{ replying.text }}"</span>
+                <button type="button" (click)="cancelReply()">Cancel</button>
+              </div>
+            }
+
+            <div class="composer-row">
+              <textarea
+                rows="2"
+                placeholder="Type a text message to the community..."
+                [ngModel]="messageText()"
+                (ngModelChange)="messageText.set($event)"
+              ></textarea>
+              <button
+                type="button"
+                class="primary-btn send-btn"
+                [disabled]="!messageText().trim() || sending()"
+                (click)="sendMessage()"
+              >
+                {{ sending() ? 'Sending...' : editingMessage() ? 'Save' : 'Send' }}
+              </button>
+            </div>
+          </div>
+        } @else {
+          <div class="join-lock-banner">
+            <strong>Join this group to send messages</strong>
+            <p>You can read the thread structure, but messaging unlocks after you join the community.</p>
+            <button
+              type="button"
+              class="primary-btn"
+              [disabled]="joiningGroupId() === conversation._id"
+              (click)="joinSelectedConversation()"
+            >
+              {{ joiningGroupId() === conversation._id ? 'Joining...' : 'Join and Start Messaging' }}
+            </button>
+          </div>
+        }
+      } @else {
+        <div class="thread-empty-state">
+          <strong>Select a community group</strong>
+          <p>Pick a group from the left to load the conversation.</p>
+        </div>
+      }
+    </main>
+  </div>
+</section>
+
+@if (groupModalOpen()) {
+  <div class="modal-backdrop">
+    <section class="modal-card modal-wide">
+      <header class="modal-head">
+        <div>
+          <h3>Browse Community Groups</h3>
+          <p>Join a group first, then the thread becomes writable.</p>
+        </div>
+        <button type="button" class="ghost-btn" (click)="closeGroupModal()">Close</button>
+      </header>
+
+      <label class="search-field">
+        <span>Search available groups</span>
+        <input
+          type="text"
+          [ngModel]="groupSearchQuery()"
+          (ngModelChange)="groupSearchQuery.set($event)"
+          placeholder="Search by title or group type"
+        />
+      </label>
+
+      <div class="modal-group-list">
+        @for (group of filteredPublicGroups(); track group._id) {
+          <article class="modal-group-card">
+            <div>
+              <strong>{{ group.title }}</strong>
+              <p>{{ getTypeLabel(group.type) }} • {{ group.member_count }} members</p>
+            </div>
+            @if (isMember(group._id) || group.is_member) {
+              <span class="joined-pill">Joined</span>
+            } @else {
+              <button
+                type="button"
+                class="primary-btn"
+                [disabled]="joiningGroupId() === group._id"
+                (click)="joinPublicGroup(group)"
+              >
+                {{ joiningGroupId() === group._id ? 'Joining...' : 'Join Group' }}
+              </button>
+            }
+          </article>
         }
       </div>
-      <div class="modal-actions">
-        <button class="btn-secondary" (click)="closeGroupModal()" type="button">Close</button>
-      </div>
-    </div>
+    </section>
   </div>
 }
 
-<!-- Report Modal -->
 @if (reportModalOpen()) {
   <div class="modal-backdrop">
-    <div class="modal-card">
-      <h3>Report Message or User</h3>
-      <div class="form-group">
-        <label>Reason for Report</label>
+    <section class="modal-card">
+      <header class="modal-head">
+        <div>
+          <h3>Report Message or User</h3>
+          <p>Send moderation details for this community conversation.</p>
+        </div>
+      </header>
+
+      <label class="form-field">
+        <span>Reason</span>
         <input
           type="text"
-          placeholder="Inappropriate language, spam..."
           [ngModel]="reportReason()"
           (ngModelChange)="reportReason.set($event)"
+          placeholder="Spam, abuse, harassment, misinformation..."
         />
-      </div>
-      <div class="form-group">
-        <label>Details (Optional)</label>
+      </label>
+
+      <label class="form-field">
+        <span>Extra details</span>
         <textarea
-          rows="3"
-          placeholder="Provide additional details..."
+          rows="4"
           [ngModel]="reportDetails()"
           (ngModelChange)="reportDetails.set($event)"
+          placeholder="Add any helpful context for moderation"
         ></textarea>
-      </div>
+      </label>
+
       <div class="modal-actions">
-        <button class="btn-secondary" (click)="closeReportModal()" type="button">Cancel</button>
-        <button class="btn-danger" (click)="submitReport()" type="button">Submit Report</button>
+        <button type="button" class="ghost-btn" (click)="closeReportModal()">Cancel</button>
+        <button
+          type="button"
+          class="danger-btn"
+          [disabled]="!reportReason().trim()"
+          (click)="submitReport()"
+        >
+          Submit Report
+        </button>
       </div>
-    </div>
+    </section>
   </div>
 }
