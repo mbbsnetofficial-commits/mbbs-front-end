@@ -8,7 +8,13 @@
     <div class="form-header">
       <div class="badge-pill">Personalized AI Evaluation</div>
       <h2>Tell Us About Yourself</h2>
-      <p>Enter your contact and academic details so our medical counseling experts can calculate your eligibility match.</p>
+      <p>Enter your contact and academic details so we can turn your answers into a focused shortlist instead of generic results.</p>
+      @if (store.selectedCountry(); as country) {
+        <div class="process-summary">
+          <span>Selected country: <strong>{{ country.name }}</strong></span>
+          <span>Next step: we generate your recommendation list after this form</span>
+        </div>
+      }
     </div>
 
     <form class="details-form" (ngSubmit)="onSubmit()">

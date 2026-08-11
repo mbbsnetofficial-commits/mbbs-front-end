@@ -7,7 +7,7 @@
     margin-top: 1.5rem;
   }
 
-  .recs-header {
+.recs-header {
     text-align: center;
     margin-bottom: 2.5rem;
 
@@ -158,6 +158,19 @@
         width: 100%;
       }
     }
+  }
+}
+
+.result-context {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  color: #475569;
+  font-size: 0.95rem;
+
+  strong {
+    color: #0f172a;
   }
 }
 

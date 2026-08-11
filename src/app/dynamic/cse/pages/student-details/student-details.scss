@@ -15,7 +15,7 @@
     }
   }
 
-  .form-header {
+.form-header {
     text-align: center;
     margin-bottom: 2rem;
 
@@ -181,5 +181,21 @@
         }
       }
     }
+  }
+}
+
+.process-summary {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  border-radius: 0.9rem;
+  background: #f8fafc;
+  border: 1px solid #dbeafe;
+  color: #334155;
+
+  strong {
+    color: #0f172a;
   }
 }

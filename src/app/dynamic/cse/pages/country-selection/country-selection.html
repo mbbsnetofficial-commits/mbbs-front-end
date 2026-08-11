@@ -22,7 +22,7 @@
 
   <app-cse-search-header
     title="Find the perfect course from the right university"
-    subtitle="Answer a few simple questions and we'll match you with the best courses and universities worldwide."
+    subtitle="Pick a destination, answer the assessment, add your details, and we will build a clear university shortlist."
     [searchValue]="store.searchQuery()"
     (searchChange)="onSearchQueryChange($event)"
     (filterSelect)="onFilterSelect($event)"
@@ -33,6 +33,7 @@
       <div>
         <h2>Top Destinations for Medical Studies</h2>
         <p class="section-subtext">Select a destination country to begin your medical preference evaluation</p>
+        <p class="section-subtext">Process: 1. Choose country 2. Answer questions 3. Add student details 4. Review recommendations</p>
       </div>
     </div>
 
@@ -93,5 +94,4 @@
     </div>
   </main>
 </div>
-
 

@@ -6,12 +6,14 @@
 
   <main class="recommendations-container">
     <header class="recs-header">
-      <!-- <div class="header-badge">
-        <span class="ai-sparkle">✨</span>
-        <span>AI Recommendation Engine</span>
-      </div> -->
       <h1>Your Tailored Medical School Matches</h1>
       <p>Based on your country preference, academic profile, and budget requirements, here are your top recommended universities.</p>
+      @if (store.selectedCountry(); as country) {
+        <div class="result-context">
+          <span>Destination: <strong>{{ country.name }}</strong></span>
+          <span>Process: Country -> Questions -> Details -> Recommendations</span>
+        </div>
+      }
     </header>
 
     @if (store.loading()) {
@@ -30,15 +32,15 @@
       </div>
     } @else if (store.error()) {
       <div class="empty-recs error-recs">
-        <h3>Destination Selection Required</h3>
-        <p>Please select a medical destination country to view tailored university recommendations.</p>
-        <button type="button" class="restart-btn" (click)="restartQuiz()">Choose Destination Country</button>
+        <h3>We could not complete your shortlist</h3>
+        <p>{{ store.error() }}</p>
+        <button type="button" class="restart-btn" (click)="restartQuiz()">Start Again</button>
       </div>
     } @else {
       <div class="empty-recs">
         <h3>No matching universities found</h3>
-        <p>Try modifying your budget or country selection preferences to explore more options.</p>
-        <button type="button" class="restart-btn" (click)="restartQuiz()">Choose Destination Country</button>
+        <p>Try adjusting your destination, budget, or academic inputs to explore a broader set of options.</p>
+        <button type="button" class="restart-btn" (click)="restartQuiz()">Refine Your Inputs</button>
       </div>
     }
 

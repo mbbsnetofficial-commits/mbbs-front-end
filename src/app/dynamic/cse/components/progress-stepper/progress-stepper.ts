@@ -19,8 +19,8 @@ export class ProgressStepper {
   readonly steps = input<StepItem[]>([
     { number: 1, title: 'Choose Destination', subtitle: 'Select your preferred country' },
     { number: 2, title: 'Answer Questions', subtitle: 'Tell us about your preferences' },
-    { number: 3, title: 'View Courses', subtitle: 'See matching programs' },
-    { number: 4, title: 'Shortlist & Apply', subtitle: 'Save and start application' }
+    { number: 3, title: 'Student Details', subtitle: 'Add your contact and academic profile' },
+    { number: 4, title: 'Recommendations', subtitle: 'Review your best-fit universities' }
   ]);
 
   readonly stepClick = output<number>();

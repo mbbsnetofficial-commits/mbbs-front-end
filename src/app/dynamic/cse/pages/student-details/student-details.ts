@@ -27,6 +27,11 @@ export class StudentDetails implements OnInit {
   city = '';
 
   ngOnInit(): void {
+    if (!this.store.selectedCountry()) {
+      this.router.navigate(['/dynamic/cse/country-selection']);
+      return;
+    }
+
     this.store.setStep(3);
     const existing = this.store.studentDetails();
     if (existing) {

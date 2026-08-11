@@ -96,6 +96,10 @@ export class CseStore {
     return this.recommendationsState().slice(0, 3);
   });
 
+  readonly hasProcessContext = computed(() => {
+    return !!this.selectedCountryState();
+  });
+
   // Actions
   clearError(): void {
     this.errorState.set(null);
@@ -270,7 +274,8 @@ export class CseStore {
       },
       error: (err) => {
         console.error('Failed to get recommendations:', err);
-        this.errorState.set(null);
+        this.recommendationsState.set([]);
+        this.errorState.set('We could not generate recommendations right now. Please review your details and try again.');
         this.currentStepState.set(4);
       }
     });
