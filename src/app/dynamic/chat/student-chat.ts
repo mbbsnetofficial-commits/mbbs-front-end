@@ -24,9 +24,9 @@ export class StudentChat implements OnInit, OnDestroy {
   private readonly chatService = inject(StudentChatService);
   private readonly socketService = inject(StudentSocketService);
 
-  /* Dynamic Student Identity Signals */
-  readonly currentUserId = signal<string>('6a63554e323b3e70a7c0f9d5');
-  readonly currentUserName = signal<string>('Student STU1784894798825OBDD4J');
+  /* Dynamic Student Identity Signals per user session */
+  readonly currentUserId = signal<string>('');
+  readonly currentUserName = signal<string>('');
 
   /* Group Membership Tracking */
   readonly joinedGroupIds = signal<Set<string>>(new Set(['6a7890ec8559d01cd87f85b7', '6a7766e1a11062f0e0c6290b']));
@@ -59,31 +59,50 @@ export class StudentChat implements OnInit, OnDestroy {
   readonly targetReportUser = signal<string | null>(null);
 
   private socketSub: Subscription | null = null;
+  private pollInterval: any = null;
 
   ngOnInit(): void {
     this.initStudentIdentity();
     this.initChat();
 
-    // ⚡ Initialize Real-Time Socket.IO WebSocket Connection
+    // ⚡ Initialize Real-Time Socket.IO WebSocket Connection for current user
     this.socketService.connect(this.currentUserId());
 
-    // Listen for incoming real-time socket messages
+    // Listen for incoming real-time socket messages from other users
     this.socketSub = this.socketService.onMessage$.subscribe((msg) => {
-      const convId = msg.conversation_id;
-      if (this.selectedConversation()?._id === convId) {
+      const active = this.selectedConversation();
+      if (active && String(msg.conversation_id) === String(active._id)) {
         this.messages.update(list => {
-          if (list.some(m => m._id === msg._id)) return list;
-          const updated = [...list, msg];
-          localStorage.setItem(`mbbs_chat_history_${convId}`, JSON.stringify(updated));
-          return updated;
+          if (list.some(m => String(m._id) === String(msg._id))) return list;
+          return [...list, msg];
         });
       }
     });
+
+    // Lightweight 4-second live poll fallback to guarantee real-time sync across different browsers
+    this.pollInterval = setInterval(() => {
+      const active = this.selectedConversation();
+      if (active && !this.loadingMessages()) {
+        this.chatService.getMessages(active._id).subscribe({
+          next: (res) => {
+            const fetched = (res.data || []).map(m => ({
+              ...m,
+              sender_name: m.sender_info?.name || m.sender_name || m.sender_id
+            }));
+            this.messages.set(fetched);
+          },
+          error: () => {}
+        });
+      }
+    }, 4000);
   }
 
   ngOnDestroy(): void {
     if (this.socketSub) {
       this.socketSub.unsubscribe();
+    }
+    if (this.pollInterval) {
+      clearInterval(this.pollInterval);
     }
     this.socketService.disconnect();
   }
@@ -95,30 +114,30 @@ export class StudentChat implements OnInit, OnDestroy {
 
     if (loggedStudentId && loggedStudentId.trim()) {
       this.currentUserId.set(loggedStudentId.trim());
-      this.currentUserName.set(loggedUserName && loggedUserName !== 'Student' ? loggedUserName : `Student STU_${loggedStudentId.substring(0, 6).toUpperCase()}`);
+      this.currentUserName.set(loggedUserName && loggedUserName !== 'Student' ? loggedUserName : `Student_${loggedStudentId.substring(0, 6)}`);
       return;
     }
 
-    // Dynamic Multi-Session ID for testing multiple browser tabs / incognito windows
-    let sessionUserId = sessionStorage.getItem('mbbs_chat_session_user_id');
-    let sessionUserName = sessionStorage.getItem('mbbs_chat_session_user_name');
+    // Dynamic Session ID for testing multiple browser tabs / incognito windows
+    let sessionUserId = sessionStorage.getItem('mbbs_chat_user_id');
+    let sessionUserName = sessionStorage.getItem('mbbs_chat_user_name');
 
     if (!sessionUserId) {
-      const randHex = Math.random().toString(16).substring(2, 10);
+      const randHex = Math.random().toString(16).substring(2, 8);
       sessionUserId = `student_${randHex}`;
-      sessionUserName = `Student STU_${randHex.toUpperCase()}`;
-      sessionStorage.setItem('mbbs_chat_session_user_id', sessionUserId);
-      sessionStorage.setItem('mbbs_chat_session_user_name', sessionUserName);
+      sessionUserName = `Student User ${randHex.toUpperCase()}`;
+      sessionStorage.setItem('mbbs_chat_user_id', sessionUserId);
+      sessionStorage.setItem('mbbs_chat_user_name', sessionUserName);
     }
 
     this.currentUserId.set(sessionUserId);
-    this.currentUserName.set(sessionUserName || `Student STU_${sessionUserId.substring(0, 6).toUpperCase()}`);
+    this.currentUserName.set(sessionUserName || `Student ${sessionUserId}`);
   }
 
   initChat(): void {
     this.loading.set(true);
 
-    // 1. GET /api/v1/chat/groups/public (Fetch all admin-created groups from backend MongoDB)
+    // GET /api/v1/chat/groups/public (Fetch all admin-created groups from MongoDB)
     this.chatService.getPublicGroups().subscribe({
       next: (res) => {
         const groups = res.data || [];
@@ -152,38 +171,24 @@ export class StudentChat implements OnInit, OnDestroy {
     });
   }
 
-  /** Select Conversation & Call GET /api/v1/chat/messages/:id REST API for Persistent Chat History */
+  /** Select Conversation & Fetch Fresh Messages from GET /api/v1/chat/messages/:id REST API */
   selectConversation(conv: ConversationItem): void {
     this.selectedConversation.set(conv);
     this.loadingMessages.set(true);
     this.replyToMessage.set(null);
     this.editingMessage.set(null);
 
-    // 1. Instantly render cached history from localStorage so UI displays messages immediately
-    const cachedStr = localStorage.getItem(`mbbs_chat_history_${conv._id}`);
-    if (cachedStr) {
-      try {
-        const cachedMsgs = JSON.parse(cachedStr);
-        if (Array.isArray(cachedMsgs) && cachedMsgs.length) {
-          this.messages.set(cachedMsgs);
-        }
-      } catch (e) {}
-    }
-
-    // 2. Join Socket.IO room for real-time room events
+    // Join Socket.IO room for real-time room events
     this.socketService.joinConversation(conv._id);
 
-    // 3. 🌐 CALL REST API: GET /api/v1/chat/messages/:conversationId?page=1&limit=50 (Shows in Network tab with 200 OK)
+    // 🌐 CALL REST API: GET /api/v1/chat/messages/:conversationId?page=1&limit=50 (Shows in Network tab with 200 OK)
     this.chatService.getMessages(conv._id).subscribe({
       next: (res) => {
         const fetched = (res.data || []).map(m => ({
           ...m,
           sender_name: m.sender_info?.name || m.sender_name || m.sender_id
         }));
-        if (fetched.length) {
-          this.messages.set(fetched);
-          localStorage.setItem(`mbbs_chat_history_${conv._id}`, JSON.stringify(fetched));
-        }
+        this.messages.set(fetched);
         this.loadingMessages.set(false);
       },
       error: () => {
@@ -228,19 +233,19 @@ export class StudentChat implements OnInit, OnDestroy {
   }
 
   /** WhatsApp Style Sender Alignment:
-   * Returns TRUE ONLY for messages sent by the current logged-in user -> RIGHT SIDE
-   * Returns FALSE for messages from all other users -> LEFT SIDE
+   * Returns TRUE ONLY for messages sent by current logged-in user -> RIGHT SIDE
+   * Returns FALSE for messages sent by all other users -> LEFT SIDE
    */
   isOutgoing(msg: ChatMessageItem): boolean {
     if (!msg) return false;
-    const myId = this.currentUserId();
-    const myName = this.currentUserName().toLowerCase().trim();
+    const myId = String(this.currentUserId() || '').trim();
+    const myName = String(this.currentUserName() || '').toLowerCase().trim();
 
-    const senderId = String(msg.sender_id || '');
+    const senderId = String(msg.sender_id || '').trim();
     const senderName = String(msg.sender_name || msg.sender_info?.name || '').toLowerCase().trim();
 
     if (senderId && myId && senderId === myId) return true;
-    if (senderName && myName && (senderName === myName || senderName.includes(myId))) return true;
+    if (senderName && myName && senderName === myName) return true;
 
     return false;
   }
@@ -302,10 +307,10 @@ export class StudentChat implements OnInit, OnDestroy {
       } : undefined
     };
 
-    // ⚡ 1. Emit Socket.IO event to notify online room members
+    // ⚡ 1. Emit Socket.IO event to notify room members
     this.socketService.sendMessage(payload);
 
-    // 🌐 2. CALL REST API POST /api/v1/chat/messages (Triggers HTTP POST call in Network tab)
+    // 🌐 2. CALL REST API POST /api/v1/chat/messages (Triggers HTTP POST call in Network tab with 201 Created)
     this.chatService.sendMessage(payload).subscribe({
       next: (res) => {
         const formatted: ChatMessageItem = res.data ? {
@@ -321,8 +326,6 @@ export class StudentChat implements OnInit, OnDestroy {
         };
 
         this.messages.update(list => [...list, formatted]);
-        localStorage.setItem(`mbbs_chat_history_${activeConv._id}`, JSON.stringify(this.messages()));
-
         this.messageText.set('');
         this.replyToMessage.set(null);
       },
@@ -336,7 +339,6 @@ export class StudentChat implements OnInit, OnDestroy {
           createdAt: new Date().toISOString()
         };
         this.messages.update(list => [...list, fallbackMsg]);
-        localStorage.setItem(`mbbs_chat_history_${activeConv._id}`, JSON.stringify(this.messages()));
         this.messageText.set('');
         this.replyToMessage.set(null);
       }
