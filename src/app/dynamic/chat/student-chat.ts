@@ -1,9 +1,8 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
   ChatMessageItem,
-  ChatSettingsResponse,
   ConversationItem,
   PublicGroupItem,
   StudentChatService
@@ -17,11 +16,11 @@ import {
   styleUrl: './student-chat.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class StudentChat implements OnInit {
+export class StudentChat implements OnInit, OnDestroy {
   private readonly chatService = inject(StudentChatService);
 
-  readonly currentUserId = 'user_student_101';
-  readonly currentUserName = 'Student ST17848947988250BDD4J';
+  readonly currentUserId = '6a63554e323b3e70a7c0f9d5';
+  readonly currentUserName = 'Student STU1784894798825OBDD4J';
 
   /* ── State ── */
   readonly loading = signal(true);
@@ -56,52 +55,75 @@ export class StudentChat implements OnInit {
   readonly reportDetails = signal('');
   readonly targetReportUser = signal<string | null>(null);
 
+  /* Live Refresh Interval */
+  private pollIntervalId: any = null;
+
   ngOnInit(): void {
     this.initChat();
+    // Live Auto Polling every 3 seconds to sync messages across multiple tabs / users
+    this.pollIntervalId = setInterval(() => {
+      this.pollActiveMessages();
+    }, 3000);
+  }
+
+  ngOnDestroy(): void {
+    if (this.pollIntervalId) {
+      clearInterval(this.pollIntervalId);
+    }
   }
 
   initChat(): void {
     this.loading.set(true);
 
-    // 1. GET /api/v1/chat/settings
-    this.chatService.getChatSettings().subscribe({
-      next: (res: ChatSettingsResponse) => {
-        if (res.settings) {
-          this.directChatEnabled.set(res.settings.direct_chat_enabled ?? true);
+    // 1. GET /api/v1/chat/groups/public (Fetch all admin-created groups from database)
+    this.chatService.getPublicGroups().subscribe({
+      next: (res) => {
+        const groups = res.data || [];
+        this.publicGroups.set(groups);
+
+        // Convert public groups to ConversationItem format for the left sidebar
+        const groupConvs: ConversationItem[] = groups.map(g => ({
+          _id: g._id,
+          type: g.type,
+          title: g.title,
+          participants: g.participants || [this.currentUserId],
+          last_message: g.last_message ? {
+            text: g.last_message.text || 'No messages yet',
+            sender_name: g.last_message.sender_name || '',
+            createdAt: g.last_message.sent_at || g.last_message.createdAt
+          } : { text: 'No messages yet' }
+        }));
+
+        if (groupConvs.length) {
+          this.conversations.set(groupConvs);
+          // Select default group (e.g. "official" or "BATCH Group")
+          const defaultConv = groupConvs.find(c => c.title === 'official') || groupConvs[0];
+          this.selectConversation(defaultConv);
+        } else {
+          this.loadDefaultConversations();
+        }
+        this.loading.set(false);
+      },
+      error: () => {
+        this.loadDefaultConversations();
+        this.loading.set(false);
+      }
+    });
+
+    // 2. Fetch User Joined Conversations: GET /api/v1/chat/conversations
+    this.chatService.getUserConversations(this.currentUserId).subscribe({
+      next: (res) => {
+        if (res.data && res.data.length) {
+          // Merge user direct conversations with public groups
+          this.conversations.update(existing => {
+            const map = new Map<string, ConversationItem>();
+            existing.forEach(c => map.set(c._id, c));
+            res.data.forEach(c => map.set(c._id, c));
+            return Array.from(map.values());
+          });
         }
       },
       error: () => {}
-    });
-
-    // 2. GET /api/v1/chat/conversations?userId=...
-    this.chatService.getUserConversations(this.currentUserId).subscribe({
-      next: (res) => {
-        if (res.conversations && res.conversations.length) {
-          this.conversations.set(res.conversations);
-          this.selectConversation(res.conversations[0]);
-        } else {
-          this.loadMockConversations();
-        }
-        this.loading.set(false);
-      },
-      error: () => {
-        this.loadMockConversations();
-        this.loading.set(false);
-      }
-    });
-
-    // 3. GET /api/v1/chat/groups/public
-    this.chatService.getPublicGroups().subscribe({
-      next: (res) => {
-        if (res.groups && res.groups.length) {
-          this.publicGroups.set(res.groups);
-        } else {
-          this.loadDefaultPublicGroups();
-        }
-      },
-      error: () => {
-        this.loadDefaultPublicGroups();
-      }
     });
   }
 
@@ -111,29 +133,44 @@ export class StudentChat implements OnInit {
     this.replyToMessage.set(null);
     this.editingMessage.set(null);
 
-    // Only query backend API if conversation ID is a valid 24-character Mongo ObjectId
-    const isMongoId = /^[0-9a-fA-F]{24}$/.test(conv._id);
-    if (!isMongoId) {
-      this.loadMockMessages(conv);
-      this.loadingMessages.set(false);
-      return;
-    }
+    this.fetchMessagesForConv(conv._id);
+  }
 
+  private fetchMessagesForConv(convId: string): void {
     // GET /api/v1/chat/messages/:conversationId
-    this.chatService.getMessages(conv._id).subscribe({
+    this.chatService.getMessages(convId).subscribe({
       next: (res) => {
-        if (res.messages && res.messages.length) {
-          this.messages.set(res.messages);
-        } else {
-          this.loadMockMessages(conv);
-        }
+        const fetched = (res.data || []).map(m => ({
+          ...m,
+          sender_name: m.sender_info?.name || m.sender_name || m.sender_id
+        }));
+        this.messages.set(fetched);
         this.loadingMessages.set(false);
       },
       error: () => {
-        this.loadMockMessages(conv);
         this.loadingMessages.set(false);
       }
     });
+  }
+
+  private pollActiveMessages(): void {
+    const activeConv = this.selectedConversation();
+    if (activeConv && activeConv._id) {
+      this.chatService.getMessages(activeConv._id).subscribe({
+        next: (res) => {
+          const fetched = (res.data || []).map(m => ({
+            ...m,
+            sender_name: m.sender_info?.name || m.sender_name || m.sender_id
+          }));
+          // Only update if count or latest message ID changed
+          if (fetched.length !== this.messages().length || 
+              (fetched.length > 0 && fetched[fetched.length - 1]._id !== this.messages()[this.messages().length - 1]?._id)) {
+            this.messages.set(fetched);
+          }
+        },
+        error: () => {}
+      });
+    }
   }
 
   // Filtered Conversations List
@@ -161,15 +198,7 @@ export class StudentChat implements OnInit {
 
     if (this.editingMessage()) {
       const msgId = this.editingMessage()!._id;
-      const isMongoMsgId = /^[0-9a-fA-F]{24}$/.test(msgId);
-      if (!isMongoMsgId) {
-        this.messages.update(list => list.map(m => m._id === msgId ? { ...m, text, is_edited: true } : m));
-        this.editingMessage.set(null);
-        this.messageText.set('');
-        return;
-      }
-
-      this.chatService.editMessage(msgId, text).subscribe({
+      this.chatService.editMessage(msgId, text, this.currentUserId).subscribe({
         next: () => {
           this.messages.update(list => list.map(m => m._id === msgId ? { ...m, text, is_edited: true } : m));
           this.editingMessage.set(null);
@@ -184,47 +213,47 @@ export class StudentChat implements OnInit {
       return;
     }
 
-    const newMsg: ChatMessageItem = {
-      _id: 'msg_' + Date.now(),
-      conversation_id: activeConv._id,
-      sender_id: this.currentUserId,
-      sender_name: this.currentUserName,
-      text,
-      reply_to: this.replyToMessage() ? {
-        message_id: this.replyToMessage()!._id,
-        text: this.replyToMessage()!.text,
-        sender_name: this.replyToMessage()!.sender_name
-      } : undefined,
-      createdAt: new Date().toISOString()
-    };
-
-    const isMongoConvId = /^[0-9a-fA-F]{24}$/.test(activeConv._id);
-    if (!isMongoConvId) {
-      // Local conversation thread - update state directly without making HTTP request that would return 400
-      this.messages.update(list => [...list, newMsg]);
-      this.messageText.set('');
-      this.replyToMessage.set(null);
-      return;
-    }
-
     const payload = {
       conversation_id: activeConv._id,
       text,
       userId: this.currentUserId,
-      reply_to: newMsg.reply_to
+      sender_info: { name: this.currentUserName },
+      reply_to: this.replyToMessage() ? {
+        message_id: this.replyToMessage()!._id,
+        text: this.replyToMessage()!.text,
+        sender_name: this.replyToMessage()!.sender_name
+      } : undefined
     };
 
+    // POST /api/v1/chat/messages
     this.chatService.sendMessage(payload).subscribe({
       next: (res) => {
-        if (res.message) {
-          this.messages.update(list => [...list, res.message]);
-        } else {
-          this.messages.update(list => [...list, newMsg]);
+        if (res.data) {
+          const formatted: ChatMessageItem = {
+            ...res.data,
+            sender_name: res.data.sender_info?.name || this.currentUserName
+          };
+          this.messages.update(list => [...list, formatted]);
+
+          // Update last message in active conversation preview
+          this.conversations.update(list => list.map(c => c._id === activeConv._id ? {
+            ...c,
+            last_message: { text, sender_name: this.currentUserName }
+          } : c));
         }
         this.messageText.set('');
         this.replyToMessage.set(null);
       },
       error: () => {
+        const newMsg: ChatMessageItem = {
+          _id: 'msg_' + Date.now(),
+          conversation_id: activeConv._id,
+          sender_id: this.currentUserId,
+          sender_name: this.currentUserName,
+          text,
+          reply_to: payload.reply_to,
+          createdAt: new Date().toISOString()
+        };
         this.messages.update(list => [...list, newMsg]);
         this.messageText.set('');
         this.replyToMessage.set(null);
@@ -246,7 +275,7 @@ export class StudentChat implements OnInit {
   // DELETE /api/v1/chat/messages/:messageId
   deleteMsg(msg: ChatMessageItem): void {
     if (!confirm('Delete this message?')) return;
-    this.chatService.deleteMessage(msg._id).subscribe({
+    this.chatService.deleteMessage(msg._id, this.currentUserId).subscribe({
       next: () => {
         this.messages.update(list => list.map(m => m._id === msg._id ? { ...m, text: 'This message was deleted', is_deleted: true } : m));
       },
@@ -263,9 +292,9 @@ export class StudentChat implements OnInit {
 
     this.chatService.getOrCreateDirectChat(this.currentUserId, target).subscribe({
       next: (res) => {
-        if (res.conversation) {
-          this.conversations.update(list => [res.conversation, ...list]);
-          this.selectConversation(res.conversation);
+        if (res.data) {
+          this.conversations.update(list => [res.data, ...list]);
+          this.selectConversation(res.data);
         }
         this.closeDirectModal();
       },
@@ -274,7 +303,7 @@ export class StudentChat implements OnInit {
           _id: 'direct_' + Date.now(),
           type: 'direct',
           title: target,
-          participants: [{ userId: target, name: target }],
+          participants: [target, this.currentUserId],
           last_message: { text: 'Conversation started', createdAt: new Date().toISOString() }
         };
         this.conversations.update(list => [newConv, ...list]);
@@ -314,7 +343,7 @@ export class StudentChat implements OnInit {
         _id: grp._id,
         type: grp.type,
         title: grp.title,
-        participants: [{ userId: this.currentUserId, name: this.currentUserName }],
+        participants: [this.currentUserId],
         last_message: { text: 'Joined community group', createdAt: new Date().toISOString() }
       };
       this.conversations.update(list => [existing!, ...list]);
@@ -338,7 +367,7 @@ export class StudentChat implements OnInit {
 
     this.chatService.reportUserOrMessage({
       reporter_id: this.currentUserId,
-      reported_user_id: this.targetReportUser() || 'unknown',
+      reported_user_id: this.targetReportUser() || 'community_user',
       reason,
       details: this.reportDetails()
     }).subscribe({
@@ -369,7 +398,7 @@ export class StudentChat implements OnInit {
     if (type === 'group_university') return 'UNIVERSITY';
     if (type === 'group_country') return 'COUNTRY';
     if (type === 'group_batch') return 'BATCH';
-    return '1-to-1';
+    return '1-TO-1';
   }
 
   getTypeIcon(type: string): string {
@@ -379,64 +408,38 @@ export class StudentChat implements OnInit {
     return '👤';
   }
 
-  private loadMockConversations(): void {
-    this.conversations.set([
+  private loadDefaultConversations(): void {
+    const defaultConvs: ConversationItem[] = [
       {
-        _id: 'conv_batch',
-        type: 'group_batch',
-        title: 'BATCH Group',
-        participants: [{ userId: 'user_1', name: 'Priya Patel' }, { userId: this.currentUserId, name: this.currentUserName }],
-        last_message: { text: 'Priya Patel: hoho', createdAt: new Date(Date.now() - 300000).toISOString(), sender_name: 'Priya Patel' },
-        unread_count: 2
-      },
-      {
-        _id: 'conv_russia',
-        type: 'group_university',
-        title: 'russia',
-        participants: [{ userId: 'user_2', name: 'Altai Medical' }, { userId: this.currentUserId, name: this.currentUserName }],
-        last_message: { text: `${this.currentUserName}: hiii`, createdAt: new Date(Date.now() - 600000).toISOString(), sender_name: this.currentUserName },
-        unread_count: 0
-      },
-      {
-        _id: 'conv_hungary',
+        _id: '6a7890ec8559d01cd87f85b7',
         type: 'group_country',
         title: 'official',
-        participants: [{ userId: 'user_priya', name: 'Priya Patel' }, { userId: this.currentUserId, name: this.currentUserName }],
-        last_message: { text: 'Priya Patel: hiii', createdAt: new Date(Date.now() - 900000).toISOString(), sender_name: 'Priya Patel' },
-        unread_count: 1
-      }
-    ]);
-    if (this.conversations().length) {
-      this.selectConversation(this.conversations()[2]);
-    }
-  }
-
-  private loadMockMessages(conv: ConversationItem): void {
-    this.messages.set([
-      {
-        _id: 'msg_1',
-        conversation_id: conv._id,
-        sender_id: 'user_priya',
-        sender_name: 'Priya Patel',
-        text: 'hiii',
-        createdAt: new Date(Date.now() - 3600000).toISOString()
+        participants: [this.currentUserId, 'student_priya_202'],
+        last_message: { text: 'hello mam', sender_name: 'Student STU1784894798825OBDD4J' }
       },
       {
-        _id: 'msg_2',
-        conversation_id: conv._id,
-        sender_id: this.currentUserId,
-        sender_name: this.currentUserName,
-        text: 'hello mam',
-        createdAt: new Date(Date.now() - 1800000).toISOString()
+        _id: '6a788890d1daf3219b5f7095',
+        type: 'group_university',
+        title: 'russia',
+        participants: [this.currentUserId],
+        last_message: { text: 'hiii', sender_name: 'Student STU1784894798825OBDD4J' }
+      },
+      {
+        _id: '6a7888aad1daf3219b5f7096',
+        type: 'group_country',
+        title: 'russia',
+        participants: [this.currentUserId],
+        last_message: { text: 'No messages yet' }
+      },
+      {
+        _id: '6a7766e1a11062f0e0c6290b',
+        type: 'group_batch',
+        title: 'BATCH Group',
+        participants: ['admin_official_01', this.currentUserId],
+        last_message: { text: 'hoho', sender_name: 'Priya Patel' }
       }
-    ]);
-  }
-
-  private loadDefaultPublicGroups(): void {
-    this.publicGroups.set([
-      { _id: 'grp_1', title: 'BATCH Group 2026', type: 'group_batch', member_count: 156, is_member: true },
-      { _id: 'grp_2', title: 'Altai State Medical University', type: 'group_university', member_count: 210, is_member: true },
-      { _id: 'grp_3', title: 'MBBS Hungary Official Community', type: 'group_country', member_count: 340, is_member: true }
-    ]);
+    ];
+    this.conversations.set(defaultConvs);
+    this.selectConversation(defaultConvs[0]);
   }
 }
