@@ -1,19 +1,16 @@
 <div class="chat-app-layout">
-  <!-- Left Sidebar: Conversations & Action Buttons -->
+  <!-- Left Sidebar: Community Groups & Join Group Button -->
   <aside class="chat-sidebar">
     <div class="sidebar-header">
       <h2>Conversations</h2>
       <div class="top-action-buttons">
-        <button class="action-btn primary-purple" (click)="openDirectModal()" type="button">
-          <span>+ 1-on-1 Direct</span>
-        </button>
-        <button class="action-btn secondary-blue" (click)="openGroupModal()" type="button">
+        <button class="action-btn secondary-blue full-width" (click)="openGroupModal()" type="button">
           <span>+ Join Community Group</span>
         </button>
       </div>
     </div>
 
-    <!-- Category Filter Pills Row (Image 2) -->
+    <!-- Category Filter Pills Row -->
     <div class="filter-pills-row">
       <button
         class="filter-pill"
@@ -21,12 +18,6 @@
         (click)="activeCategory.set('all')"
         type="button"
       >All</button>
-      <button
-        class="filter-pill"
-        [class.active]="activeCategory() === 'direct'"
-        (click)="activeCategory.set('direct')"
-        type="button"
-      >1-to-1</button>
       <button
         class="filter-pill"
         [class.active]="activeCategory() === 'university'"
@@ -47,7 +38,7 @@
       >Batches</button>
     </div>
 
-    <!-- Conversations List (Image 2 Design Layout) -->
+    <!-- Conversations List -->
     <div class="conversations-list">
       @for (conv of filteredConversations; track conv._id) {
         <div
@@ -71,10 +62,10 @@
     </div>
   </aside>
 
-  <!-- Right Main Area: Chat Thread (Image 2 Structure) -->
+  <!-- Right Main Area: Chat Thread -->
   <main class="chat-main-window">
     @if (selectedConversation(); as conv) {
-      <!-- Thread Top Bar (Image 2) -->
+      <!-- Thread Top Bar -->
       <header class="thread-top-bar">
         <div class="thread-title-group">
           <div class="thread-icon-badge">
@@ -99,10 +90,10 @@
         </div>
       </header>
 
-      <!-- Message History List (Image 2 Avatar & Bubble Layout) -->
+      <!-- Message History List (WhatsApp Dual-Side Layout) -->
       <div class="messages-viewport">
         @if (loadingMessages()) {
-          <div class="loading-state">Loading messages…</div>
+          <div class="loading-state">Loading group messages…</div>
         } @else {
           @for (msg of messages(); track msg._id) {
             <div class="message-row" [class.outgoing]="isOutgoing(msg)">
@@ -129,7 +120,7 @@
                   <p>{{ msg.text }}</p>
                 </div>
 
-                <!-- Hover Actions -->
+                <!-- Actions -->
                 @if (!msg.is_deleted) {
                   <div class="bubble-actions">
                     @if (isOutgoing(msg)) {
@@ -200,29 +191,7 @@
   </main>
 </div>
 
-<!-- Modal 1: 1-on-1 Direct Chat -->
-@if (directModalOpen()) {
-  <div class="modal-backdrop">
-    <div class="modal-card">
-      <h3>Start 1-on-1 Direct Chat</h3>
-      <div class="form-group">
-        <label>Enter Student ID / Target User ID</label>
-        <input
-          type="text"
-          placeholder="e.g. user_202 or doctor@mbbs.net"
-          [ngModel]="targetDirectUserId()"
-          (ngModelChange)="targetDirectUserId.set($event)"
-        />
-      </div>
-      <div class="modal-actions">
-        <button class="btn-secondary" (click)="closeDirectModal()" type="button">Cancel</button>
-        <button class="btn-primary" (click)="createDirectChat()" type="button">Start Chat</button>
-      </div>
-    </div>
-  </div>
-}
-
-<!-- Modal 2: Join Community Groups -->
+<!-- Join Community Groups Modal -->
 @if (groupModalOpen()) {
   <div class="modal-backdrop">
     <div class="modal-card wide">
@@ -249,7 +218,7 @@
   </div>
 }
 
-<!-- Modal 3: Report Modal -->
+<!-- Report Modal -->
 @if (reportModalOpen()) {
   <div class="modal-backdrop">
     <div class="modal-card">

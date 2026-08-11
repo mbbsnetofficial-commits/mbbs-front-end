@@ -34,13 +34,11 @@ export class StudentChat implements OnInit, OnDestroy {
   /* ── State ── */
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
-  readonly directChatEnabled = signal(true);
 
-  readonly activeCategory = signal<'all' | 'direct' | 'university' | 'country' | 'batch'>('all');
+  readonly activeCategory = signal<'all' | 'university' | 'country' | 'batch'>('all');
 
   readonly conversations = signal<ConversationItem[]>([]);
   readonly publicGroups = signal<PublicGroupItem[]>([]);
-  readonly blockedUsers = signal<any[]>([]);
 
   readonly selectedConversation = signal<ConversationItem | null>(null);
   readonly messages = signal<ChatMessageItem[]>([]);
@@ -54,11 +52,7 @@ export class StudentChat implements OnInit, OnDestroy {
   readonly quickEmojis = ['🩺', '📚', '🎓', '🚀', '😃', '💊', '🙏', '🔥', '❤️', '👍', '💡', '🏥'];
 
   /* Modals */
-  readonly directModalOpen = signal(false);
-  readonly targetDirectUserId = signal('');
-
   readonly groupModalOpen = signal(false);
-
   readonly reportModalOpen = signal(false);
   readonly reportReason = signal('');
   readonly reportDetails = signal('');
@@ -156,21 +150,6 @@ export class StudentChat implements OnInit, OnDestroy {
         this.loading.set(false);
       }
     });
-
-    // 2. GET /api/v1/chat/conversations (User active conversations)
-    this.chatService.getUserConversations(this.currentUserId()).subscribe({
-      next: (res) => {
-        if (res.data && res.data.length) {
-          this.conversations.update(existing => {
-            const map = new Map<string, ConversationItem>();
-            existing.forEach(c => map.set(c._id, c));
-            res.data.forEach(c => map.set(c._id, c));
-            return Array.from(map.values());
-          });
-        }
-      },
-      error: () => {}
-    });
   }
 
   /** Select Conversation & Call GET /api/v1/chat/messages/:id REST API for Persistent Chat History */
@@ -180,7 +159,7 @@ export class StudentChat implements OnInit, OnDestroy {
     this.replyToMessage.set(null);
     this.editingMessage.set(null);
 
-    // 1. Instantly render cached history from localStorage so UI displays messages on refresh
+    // 1. Instantly render cached history from localStorage so UI displays messages immediately
     const cachedStr = localStorage.getItem(`mbbs_chat_history_${conv._id}`);
     if (cachedStr) {
       try {
@@ -224,7 +203,7 @@ export class StudentChat implements OnInit, OnDestroy {
   isMember(convId?: string): boolean {
     if (!convId) return false;
     const conv = this.conversations().find(c => c._id === convId);
-    if (!conv || conv.type === 'direct') return true;
+    if (!conv) return true;
     return this.joinedGroupIds().has(convId);
   }
 
@@ -270,7 +249,6 @@ export class StudentChat implements OnInit, OnDestroy {
     const cat = this.activeCategory();
     const list = this.conversations();
 
-    if (cat === 'direct') return list.filter(c => c.type === 'direct');
     if (cat === 'university') return list.filter(c => c.type === 'group_university');
     if (cat === 'country') return list.filter(c => c.type === 'group_country');
     if (cat === 'batch') return list.filter(c => c.type === 'group_batch');
@@ -388,42 +366,6 @@ export class StudentChat implements OnInit, OnDestroy {
     });
   }
 
-  createDirectChat(): void {
-    const target = this.targetDirectUserId().trim();
-    if (!target) return;
-
-    this.chatService.getOrCreateDirectChat(this.currentUserId(), target).subscribe({
-      next: (res) => {
-        if (res.data) {
-          this.conversations.update(list => [res.data, ...list]);
-          this.selectConversation(res.data);
-        }
-        this.closeDirectModal();
-      },
-      error: () => {
-        const newConv: ConversationItem = {
-          _id: 'direct_' + Date.now(),
-          type: 'direct',
-          title: target,
-          participants: [target, this.currentUserId()],
-          last_message: { text: 'Conversation started', createdAt: new Date().toISOString() }
-        };
-        this.conversations.update(list => [newConv, ...list]);
-        this.selectConversation(newConv);
-        this.closeDirectModal();
-      }
-    });
-  }
-
-  openDirectModal(): void {
-    this.directModalOpen.set(true);
-    this.targetDirectUserId.set('');
-  }
-
-  closeDirectModal(): void {
-    this.directModalOpen.set(false);
-  }
-
   joinPublicGroup(grp: PublicGroupItem): void {
     this.chatService.joinGroup(this.currentUserId(), grp._id).subscribe({
       next: () => {
@@ -493,14 +435,14 @@ export class StudentChat implements OnInit, OnDestroy {
     if (type === 'group_university') return 'UNIVERSITY';
     if (type === 'group_country') return 'COUNTRY';
     if (type === 'group_batch') return 'BATCH';
-    return '1-TO-1';
+    return 'GROUP';
   }
 
   getTypeIcon(type: string): string {
     if (type === 'group_university') return '🏛️';
     if (type === 'group_country') return '🌐';
     if (type === 'group_batch') return '🎓';
-    return '👤';
+    return '👥';
   }
 
   private loadDefaultConversations(): void {
