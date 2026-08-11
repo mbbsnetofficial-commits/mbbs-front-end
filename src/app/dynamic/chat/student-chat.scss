@@ -465,12 +465,60 @@
     }
   }
 
-  /* Composer Footer */
-  .composer-footer {
-    display: flex;
-    flex-direction: column;
+  /* Locked Join Group Footer */
+  .locked-join-footer {
+    padding: 16px 24px;
     background: #ffffff;
     border-top: 1px solid #e2e8f0;
+
+    .join-group-locked-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 20px;
+      background: #f8fafc;
+      border: 1px dashed #cbd5e1;
+      border-radius: 14px;
+
+      .locked-icon {
+        font-size: 24px;
+      }
+
+      .locked-text {
+        flex: 1;
+
+        strong {
+          display: block;
+          font-size: 14px;
+          color: #0f172a;
+        }
+
+        p {
+          margin: 2px 0 0 0;
+          font-size: 12px;
+          color: #64748b;
+        }
+      }
+
+      .join-group-banner-btn {
+        background: linear-gradient(135deg, #6d28d9 0%, #9333ea 100%);
+        color: #ffffff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(109, 40, 217, 0.25);
+        transition: transform 0.15s ease;
+
+        &:hover {
+          transform: translateY(-1px);
+        }
+      }
+    }
+  }
 
     .mode-bar {
       display: flex;

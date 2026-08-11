@@ -24,9 +24,12 @@ export class StudentChat implements OnInit, OnDestroy {
   private readonly chatService = inject(StudentChatService);
   private readonly socketService = inject(StudentSocketService);
 
-  /* Dynamic Student Identity Signals (Different ID per student login / session) */
+  /* Dynamic Student Identity Signals */
   readonly currentUserId = signal<string>('6a63554e323b3e70a7c0f9d5');
   readonly currentUserName = signal<string>('Student STU1784894798825OBDD4J');
+
+  /* Group Membership Tracking */
+  readonly joinedGroupIds = signal<Set<string>>(new Set(['6a7890ec8559d01cd87f85b7', '6a7766e1a11062f0e0c6290b']));
 
   /* ── State ── */
   readonly loading = signal(true);
@@ -182,6 +185,34 @@ export class StudentChat implements OnInit, OnDestroy {
     }
   }
 
+  /** Check Group Membership */
+  isMember(convId?: string): boolean {
+    if (!convId) return false;
+    const conv = this.conversations().find(c => c._id === convId);
+    if (!conv || conv.type === 'direct') return true;
+    return this.joinedGroupIds().has(convId);
+  }
+
+  /** Join Group directly from banner */
+  joinGroupDirectly(conv: ConversationItem): void {
+    this.chatService.joinGroup(this.currentUserId(), conv._id).subscribe({
+      next: () => {
+        this.joinedGroupIds.update(set => {
+          const next = new Set(set);
+          next.add(conv._id);
+          return next;
+        });
+      },
+      error: () => {
+        this.joinedGroupIds.update(set => {
+          const next = new Set(set);
+          next.add(conv._id);
+          return next;
+        });
+      }
+    });
+  }
+
   /** WhatsApp Style Sender Alignment:
    * Returns TRUE ONLY for messages sent by the current logged-in user -> RIGHT SIDE
    * Returns FALSE for messages from all other users -> LEFT SIDE
@@ -217,11 +248,16 @@ export class StudentChat implements OnInit, OnDestroy {
     this.messageText.update(text => text + emoji);
   }
 
-  // Send Message via Socket.IO WebSocket with Dynamic Student Credentials
+  // Send Message via Socket.IO WebSocket with Membership Verification
   sendMessage(): void {
     const text = this.messageText().trim();
     const activeConv = this.selectedConversation();
     if (!text || !activeConv) return;
+
+    if (!this.isMember(activeConv._id)) {
+      alert('Please join this community group first to send messages.');
+      return;
+    }
 
     if (this.editingMessage()) {
       const msgId = this.editingMessage()!._id;
@@ -322,8 +358,26 @@ export class StudentChat implements OnInit, OnDestroy {
   }
 
   joinPublicGroup(grp: PublicGroupItem): void {
-    this.publicGroups.update(list => list.map(g => g._id === grp._id ? { ...g, is_member: true } : g));
-    this.addOrSelectGroupConv(grp);
+    this.chatService.joinGroup(this.currentUserId(), grp._id).subscribe({
+      next: () => {
+        this.joinedGroupIds.update(set => {
+          const next = new Set(set);
+          next.add(grp._id);
+          return next;
+        });
+        this.publicGroups.update(list => list.map(g => g._id === grp._id ? { ...g, is_member: true } : g));
+        this.addOrSelectGroupConv(grp);
+      },
+      error: () => {
+        this.joinedGroupIds.update(set => {
+          const next = new Set(set);
+          next.add(grp._id);
+          return next;
+        });
+        this.publicGroups.update(list => list.map(g => g._id === grp._id ? { ...g, is_member: true } : g));
+        this.addOrSelectGroupConv(grp);
+      }
+    });
   }
 
   private addOrSelectGroupConv(grp: PublicGroupItem): void {

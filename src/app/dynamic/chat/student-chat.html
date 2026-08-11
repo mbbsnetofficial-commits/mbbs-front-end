@@ -147,40 +147,55 @@
         }
       </div>
 
-      <!-- Quick Emoji Bar (Image 2 Quick Bar) -->
-      <div class="quick-emoji-bar">
-        @for (emoji of quickEmojis; track emoji) {
-          <button class="emoji-btn" type="button" (click)="addEmoji(emoji)">{{ emoji }}</button>
-        }
-      </div>
-
-      <!-- Composer Input Footer (Image 2 Footer) -->
-      <footer class="composer-footer">
-        @if (editingMessage(); as editMsg) {
-          <div class="mode-bar edit">
-            <span>Editing message: "{{ editMsg.text }}"</span>
-            <button (click)="cancelEdit()" type="button">&times;</button>
-          </div>
-        } @else if (replyToMessage(); as replyMsg) {
-          <div class="mode-bar reply">
-            <span>Replying to {{ replyMsg.sender_name }}: "{{ replyMsg.text }}"</span>
-            <button (click)="replyToMessage.set(null)" type="button">&times;</button>
-          </div>
-        }
-
-        <div class="input-send-row">
-          <input
-            type="text"
-            placeholder="Type your message here (emojis & replies supported)..."
-            [ngModel]="messageText()"
-            (ngModelChange)="messageText.set($event)"
-            (keyup.enter)="sendMessage()"
-          />
-          <button class="send-btn" (click)="sendMessage()" type="button">
-            <span>✈️ Send</span>
-          </button>
+      <!-- Quick Emoji Bar & Composer Footer (Only shown if student is a group member) -->
+      @if (isMember(conv._id)) {
+        <div class="quick-emoji-bar">
+          @for (emoji of quickEmojis; track emoji) {
+            <button class="emoji-btn" type="button" (click)="addEmoji(emoji)">{{ emoji }}</button>
+          }
         </div>
-      </footer>
+
+        <footer class="composer-footer">
+          @if (editingMessage(); as editMsg) {
+            <div class="mode-bar edit">
+              <span>Editing message: "{{ editMsg.text }}"</span>
+              <button (click)="cancelEdit()" type="button">&times;</button>
+            </div>
+          } @else if (replyToMessage(); as replyMsg) {
+            <div class="mode-bar reply">
+              <span>Replying to {{ replyMsg.sender_name }}: "{{ replyMsg.text }}"</span>
+              <button (click)="replyToMessage.set(null)" type="button">&times;</button>
+            </div>
+          }
+
+          <div class="input-send-row">
+            <input
+              type="text"
+              placeholder="Type your message here (emojis & replies supported)..."
+              [ngModel]="messageText()"
+              (ngModelChange)="messageText.set($event)"
+              (keyup.enter)="sendMessage()"
+            />
+            <button class="send-btn" (click)="sendMessage()" type="button">
+              <span>✈️ Send</span>
+            </button>
+          </div>
+        </footer>
+      } @else {
+        <!-- Locked Join Group Banner -->
+        <footer class="locked-join-footer">
+          <div class="join-group-locked-banner">
+            <div class="locked-icon">🔒</div>
+            <div class="locked-text">
+              <strong>Join Group to Participate</strong>
+              <p>You must join <strong>{{ conv.title }}</strong> to send messages in this community group.</p>
+            </div>
+            <button class="join-group-banner-btn" (click)="joinGroupDirectly(conv)" type="button">
+              <span>👥 Join Community Group</span>
+            </button>
+          </div>
+        </footer>
+      }
     }
   </main>
 </div>
