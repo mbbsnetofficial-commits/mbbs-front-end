@@ -1,130 +1,31 @@
 <main class="insights-page">
   <header class="insights-hero">
+    <div class="hero-backdrop"></div>
+    <div class="hero-glow"></div>
+
     <div class="hero-copy">
-      <span class="eyebrow">A clearer path into medicine</span>
-      <h1>
-        Prepare well.<br>
-        <span>Choose wisely.</span>
-      </h1>
+      <span class="eyebrow">MBBS.NET knowledge centre</span>
+      <h1>Medical guidance,<br />made useful.</h1>
       <p>
-        One focused platform for entrance preparation, medical university research, and
-        reliable admissions guidance.
+        Practical articles for entrance preparation, university decisions, and the path into
+        medicine in one clear reading space.
       </p>
 
-      <div class="hero-actions">
-        <a class="primary-cta" routerLink="/dynamic/neet">
-          Start your journey
-          <span aria-hidden="true">→</span>
-        </a>
-        <a class="secondary-cta" routerLink="/dynamic/cse">
-          <span class="spark-badge"><app-icon name="sparkles" [size]="15" /></span>
-          Explore the platform
-        </a>
-      </div>
-
-      <div class="hero-meta" aria-label="Hero benefits">
-        <span>Built for medical aspirants</span>
-        <span>Data-led preparation</span>
-        <span>Global university discovery</span>
+      <div class="hero-tags" aria-label="Hero highlights">
+        <span>Entrance prep</span>
+        <span>Study abroad</span>
+        <span>Career guidance</span>
       </div>
     </div>
 
-    <aside class="hero-preview" aria-label="Platform preview">
-      <div class="preview-shell">
-        <div class="preview-topbar">
-          <div class="preview-brand">
-            <span class="preview-dot"></span>
-            <strong>MBBS.NET</strong>
-          </div>
-          <span class="preview-pill">Student workspace</span>
-          <span class="preview-avatar">ST</span>
-        </div>
-
-        <div class="preview-body">
-          <div class="preview-rail">
-            <span class="active"></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
-
-          <div class="preview-content">
-            <div class="preview-heading">
-              <div>
-                <small>Preparation overview</small>
-                <h2>Your progress, at a glance.</h2>
-              </div>
-              <span class="new-test-pill">New test</span>
-            </div>
-
-            <div class="preview-metrics">
-              <article>
-                <small>Accuracy</small>
-                <strong>82.5%</strong>
-                <span>↑ 4.2% this month</span>
-              </article>
-              <article>
-                <small>Tests complete</small>
-                <strong>12</strong>
-                <span>of 15 started</span>
-              </article>
-              <article class="dark">
-                <small>Study streak</small>
-                <strong>5 days</strong>
-                <span>Personal best: 12</span>
-              </article>
-            </div>
-
-            <div class="preview-lower">
-              <div class="chart-card">
-                <small>Subject performance</small>
-                <div class="chart-bars" aria-hidden="true">
-                  <span class="tall"></span>
-                  <span class="mid dark"></span>
-                  <span class="short soft"></span>
-                  <span class="mid"></span>
-                </div>
-              </div>
-
-              <div class="focus-card">
-                <small>Recommended next</small>
-                <strong>Build a focused test</strong>
-                <div class="goal-ring">
-                  <div><span>82%</span></div>
-                </div>
-                <div class="goal-toast">
-                  <span class="goal-check">✓</span>
-                  <div>
-                    <strong>Daily goal complete</strong>
-                    <small>Your streak is protected.</small>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+    <aside class="hero-panel">
+      <span><app-icon name="sparkles" [size]="17" /></span>
+      <div>
+        <strong>Read with intent</strong>
+        <p>Explore trusted guidance, save useful articles, and return to your reading flow anytime.</p>
       </div>
     </aside>
   </header>
-
-  <section class="hero-process" aria-label="Platform process">
-    <article>
-      <small>01</small>
-      <h3>Focused exam practice</h3>
-      <p>Build custom NEET and UCAT sessions around the areas that need your attention.</p>
-    </article>
-    <article>
-      <small>02</small>
-      <h3>Performance intelligence</h3>
-      <p>Understand accuracy, weak subjects, timing, and progress without visual clutter.</p>
-    </article>
-    <article>
-      <small>03</small>
-      <h3>University matching</h3>
-      <p>Compare study destinations and discover medical programmes aligned to your goals.</p>
-    </article>
-  </section>
 
   @if (store.loading()) {
     <app-blog-loading />
