@@ -17,6 +17,7 @@ export interface NeetCourseItem {
   dateRange: string;
   learningTime: string;
   score: string;
+  scoreNum: number;
   category: string;
   iconBg: string;
   iconName: string;
@@ -40,6 +41,9 @@ export class NeetComponent {
   readonly searchQuery = signal('');
   readonly activeTab = signal<'all' | 'in-progress' | 'completed'>('all');
   readonly filterDropdownOpen = signal(false);
+
+  readonly sortField = signal<string>('title');
+  readonly sortDirection = signal<'asc' | 'desc'>('asc');
 
   readonly availableCategories = signal([
     'Human Resources',
@@ -66,6 +70,7 @@ export class NeetComponent {
       dateRange: '05 Jan 2026',
       learningTime: '2h 13m',
       score: '518 / 720',
+      scoreNum: 518,
       category: 'Human Resources',
       iconBg: '#ff6b4a',
       iconName: 'test'
@@ -82,6 +87,7 @@ export class NeetComponent {
       dateRange: '12 Jan 2026',
       learningTime: '2h 13m',
       score: '490 / 720',
+      scoreNum: 490,
       category: 'Leadership',
       iconBg: '#34d399',
       iconName: 'chat'
@@ -98,6 +104,7 @@ export class NeetComponent {
       dateRange: '18 Jan 2026',
       learningTime: '9h 34m',
       score: '576 / 720',
+      scoreNum: 576,
       category: 'Conflict Management',
       iconBg: '#ff4081',
       iconName: 'chat'
@@ -114,6 +121,7 @@ export class NeetComponent {
       dateRange: '22 Jan 2026',
       learningTime: '12h 37m',
       score: '640 / 720',
+      scoreNum: 640,
       category: 'Communication Skills',
       iconBg: '#26c6da',
       iconName: 'sparkles'
@@ -130,6 +138,7 @@ export class NeetComponent {
       dateRange: '01 - 15 Jan 2026',
       learningTime: '6h 21m',
       score: '684 / 720',
+      scoreNum: 684,
       category: 'Team Building',
       iconBg: '#42a5f5',
       iconName: 'like'
@@ -146,6 +155,7 @@ export class NeetComponent {
       dateRange: '28 Jan 2026',
       learningTime: '4h 9m',
       score: '532 / 720',
+      scoreNum: 532,
       category: 'Problem-Solving',
       iconBg: '#7e57c2',
       iconName: 'flame'
@@ -162,6 +172,7 @@ export class NeetComponent {
       dateRange: '08 Jan - 02 Feb 2026',
       learningTime: '18h 21m',
       score: '655 / 720',
+      scoreNum: 655,
       category: 'Leadership',
       iconBg: '#78909c',
       iconName: 'profile'
@@ -172,8 +183,10 @@ export class NeetComponent {
     const query = this.searchQuery().trim().toLowerCase();
     const tab = this.activeTab();
     const categories = this.activeCategories();
+    const field = this.sortField();
+    const dir = this.sortDirection();
 
-    return this.courses().filter((item) => {
+    let list = this.courses().filter((item) => {
       // Tab filter
       if (tab === 'in-progress' && item.status !== 'In Progress') {
         return false;
@@ -198,7 +211,38 @@ export class NeetComponent {
 
       return true;
     });
+
+    // Sorting
+    list = [...list].sort((a, b) => {
+      let res = 0;
+      if (field === 'title') {
+        res = a.title.localeCompare(b.title);
+      } else if (field === 'level') {
+        const orderMap = { Beginner: 1, Intermediate: 2, Advanced: 3 };
+        res = orderMap[a.level] - orderMap[b.level];
+      } else if (field === 'status') {
+        res = a.status.localeCompare(b.status);
+      } else if (field === 'progress') {
+        res = a.progressPercent - b.progressPercent;
+      } else if (field === 'time') {
+        res = this.parseMinutes(a.learningTime) - this.parseMinutes(b.learningTime);
+      } else if (field === 'score') {
+        res = a.scoreNum - b.scoreNum;
+      }
+      return dir === 'asc' ? res : -res;
+    });
+
+    return list;
   });
+
+  toggleSort(field: string): void {
+    if (this.sortField() === field) {
+      this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
+    } else {
+      this.sortField.set(field);
+      this.sortDirection.set('asc');
+    }
+  }
 
   setTab(tab: 'all' | 'in-progress' | 'completed'): void {
     this.activeTab.set(tab);
@@ -223,5 +267,13 @@ export class NeetComponent {
 
   isCategorySelected(cat: string): boolean {
     return this.activeCategories().includes(cat);
+  }
+
+  private parseMinutes(timeStr: string): number {
+    const hoursMatch = timeStr.match(/(\d+)h/);
+    const minsMatch = timeStr.match(/(\d+)m/);
+    const hours = hoursMatch ? parseInt(hoursMatch[1], 10) : 0;
+    const mins = minsMatch ? parseInt(minsMatch[1], 10) : 0;
+    return hours * 60 + mins;
   }
 }

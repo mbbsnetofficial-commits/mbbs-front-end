@@ -138,12 +138,66 @@
       <table class="report-table">
         <thead>
           <tr>
-            <th class="col-course">Course Name ⇅</th>
-            <th class="col-level">Level</th>
-            <th class="col-status">Status</th>
-            <th class="col-progress">Progress ⇅</th>
-            <th class="col-time">Time Spent</th>
-            <th class="col-score">Score</th>
+            <!-- 1. Course Name -->
+            <th class="col-course">
+              <button type="button" class="th-sort-btn" (click)="toggleSort('title')">
+                <span>Course Name</span>
+                <svg class="sort-icon" [class.sort-active]="sortField() === 'title'" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M8 18V6M5 9l3-3 3 3M16 6v12m-3-3 3 3 3-3"/>
+                </svg>
+              </button>
+            </th>
+
+            <!-- 2. Level -->
+            <th class="col-level">
+              <button type="button" class="th-sort-btn" (click)="toggleSort('level')">
+                <span>Level</span>
+                <svg class="sort-icon" [class.sort-active]="sortField() === 'level'" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M8 18V6M5 9l3-3 3 3M16 6v12m-3-3 3 3 3-3"/>
+                </svg>
+              </button>
+            </th>
+
+            <!-- 3. Status -->
+            <th class="col-status">
+              <button type="button" class="th-sort-btn" (click)="toggleSort('status')">
+                <span>Status</span>
+                <svg class="sort-icon" [class.sort-active]="sortField() === 'status'" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M8 18V6M5 9l3-3 3 3M16 6v12m-3-3 3 3 3-3"/>
+                </svg>
+              </button>
+            </th>
+
+            <!-- 4. Progress -->
+            <th class="col-progress">
+              <button type="button" class="th-sort-btn" (click)="toggleSort('progress')">
+                <span>Progress</span>
+                <svg class="sort-icon" [class.sort-active]="sortField() === 'progress'" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M8 18V6M5 9l3-3 3 3M16 6v12m-3-3 3 3 3-3"/>
+                </svg>
+              </button>
+            </th>
+
+            <!-- 5. Time Spent -->
+            <th class="col-time">
+              <button type="button" class="th-sort-btn" (click)="toggleSort('time')">
+                <span>Time Spent</span>
+                <svg class="sort-icon" [class.sort-active]="sortField() === 'time'" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M8 18V6M5 9l3-3 3 3M16 6v12m-3-3 3 3 3-3"/>
+                </svg>
+              </button>
+            </th>
+
+            <!-- 6. Score -->
+            <th class="col-score">
+              <button type="button" class="th-sort-btn" (click)="toggleSort('score')">
+                <span>Score</span>
+                <svg class="sort-icon" [class.sort-active]="sortField() === 'score'" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M8 18V6M5 9l3-3 3 3M16 6v12m-3-3 3 3 3-3"/>
+                </svg>
+              </button>
+            </th>
+
             <th class="col-more"></th>
           </tr>
         </thead>
@@ -213,7 +267,7 @@
                 </div>
               </td>
 
-              <!-- 7. Score -->
+              <!-- 6. Score -->
               <td class="col-score">
                 <span class="score-badge">{{ course.score }}</span>
               </td>
