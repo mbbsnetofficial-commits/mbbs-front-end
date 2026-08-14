@@ -160,54 +160,6 @@
         </div>
       </div>
 
-      <div class="topbar-actions">
-        <button class="search-trigger" type="button" (click)="openCommand()">
-          <app-icon name="search" [size]="17" /><span>Search workspace</span><kbd>⌘ K</kbd>
-        </button>
-        <button
-          class="icon-button"
-          type="button"
-          aria-label="Notifications"
-          [attr.aria-expanded]="notificationOpen()"
-          (click)="toggleNotifications()"
-        >
-          <app-icon name="bell" [size]="19" />
-          @if (unreadCount() > 0) {
-            <span class="notification-dot">{{ unreadCount() > 9 ? '9+' : unreadCount() }}</span>
-          }
-        </button>
-        <button
-          class="topbar-profile"
-          type="button"
-          [attr.aria-label]="'Open profile menu for ' + displayName"
-          [attr.aria-expanded]="profileOpen()"
-          (click)="toggleProfile()"
-        >
-          <span class="avatar"><img src="/images/profile.jpg" alt="Profile" /></span
-          ><span>{{ displayName }}</span
-          ><app-icon name="chevron" [size]="14" />
-        </button>
-      </div>
-
-
-
-      @if (profileOpen()) {
-        <section class="popover profile-popover" aria-label="Account menu">
-          <div class="profile-summary">
-            <span class="avatar large"><img src="/images/profile.jpg" alt="Profile" /></span>
-            <div>
-              <strong>{{ displayName }}</strong
-              ><small>{{ userEmail }}</small>
-            </div>
-          </div>
-          <a routerLink="/dynamic/dashboard" (click)="closeOverlays()"
-            ><app-icon name="profile" [size]="17" />Account overview</a
-          >
-          <button type="button" [disabled]="loggingOut()" (click)="onLogout()">
-            <app-icon name="logout" [size]="17" />{{ loggingOut() ? 'Signing out…' : 'Sign out' }}
-          </button>
-        </section>
-      }
     </header>
 
     <main class="content" tabindex="-1"><router-outlet /></main>
