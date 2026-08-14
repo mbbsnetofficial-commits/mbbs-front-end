@@ -15,6 +15,7 @@ import { TokenService } from '../../core/serivce/token.service';
 import { StudentDashboardService } from '../../dynamic/dashboard/services/student-dashboard.service';
 
 import { QuickTest } from '../../dynamic/neet/quick-test/quick-test';
+import { NeetModalService } from '../../core/serivce/neet-modal.service';
 
 interface NavigationItem {
   label: string;
@@ -202,18 +203,19 @@ export class DynamicLayouts implements OnDestroy {
     this.sidebarOpen.set(false);
   }
 
+  protected readonly neetModalService = inject(NeetModalService);
+
   protected triggerBuildTestModal(event?: MouseEvent): void {
     if (event) event.preventDefault();
-    window.dispatchEvent(new CustomEvent('open-build-test'));
-  }
-
-  protected openQuickTestModal(event?: MouseEvent): void {
-    if (event) event.preventDefault();
-    this.quickTestModalOpen.set(true);
+    this.neetModalService.openBuildTestModal();
   }
 
   protected closeQuickTestModal(): void {
-    this.quickTestModalOpen.set(false);
+    this.neetModalService.closeBuildTestModal();
+  }
+
+  protected onTestSaved(payload: any): void {
+    this.neetModalService.saveTest(payload);
   }
 
   protected closeOverlays(): void {
