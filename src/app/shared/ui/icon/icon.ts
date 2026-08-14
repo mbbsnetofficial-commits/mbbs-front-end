@@ -42,7 +42,9 @@ export type IconName =
   | 'graduation-cap'
   | 'code'
   | 'coffee'
-  | 'lightbulb';
+  | 'lightbulb'
+  | 'hand'
+  | 'arrow-down';
 
 @Component({
   selector: 'app-icon',

@@ -1,77 +1,73 @@
-<main class="ai-chat-page">
-  <div class="chat-container">
-    <header class="chat-header">
-      <app-icon name="asterisk" [size]="48" [strokeWidth]="2.5" class="brand-asterisk" />
-      <h1>What can we tackle together?</h1>
-    </header>
+<main class="ai-chat-thread-page">
+  <div class="messages-container" #scrollContainer>
+    <div class="messages-list">
+      @for (msg of messages(); track msg.id) {
+        @if (msg.sender === 'assistant') {
+          <div class="message-row assistant-row">
+            <div class="assistant-msg">
+              {{ msg.text }}
+            </div>
+          </div>
+        } @else {
+          <div class="message-row user-row">
+            <div class="user-msg">
+              {{ msg.text }}
+            </div>
+          </div>
+        }
+      }
+    </div>
 
+    <!-- Scroll down floating button -->
+    <button
+      type="button"
+      class="scroll-bottom-btn"
+      aria-label="Scroll to bottom"
+      (click)="scrollToBottom()"
+    >
+      <app-icon name="arrow-down" [size]="16" />
+    </button>
+  </div>
+
+  <!-- Bottom Input Section -->
+  <div class="chat-footer-dock">
     <div class="prompt-box">
       <textarea
-        placeholder="How can I help you today?"
+        placeholder="Write a message..."
         [(ngModel)]="promptText"
+        (keydown.enter)="$event.preventDefault(); sendMessage()"
         rows="1"
       ></textarea>
-      
+
       <div class="prompt-controls">
         <div class="controls-left">
           <button type="button" class="icon-btn" aria-label="Add attachment">
-            <app-icon name="plus" [size]="20" />
+            <app-icon name="plus" [size]="18" />
           </button>
-          <div class="mode-toggle">
-            <button 
-              type="button" 
-              [class.active]="currentMode() === 'chat'"
-              (click)="setMode('chat')"
-            >
-              Chat
-            </button>
-            <button 
-              type="button" 
-              [class.active]="currentMode() === 'cowork'"
-              (click)="setMode('cowork')"
-            >
-              Cowork
-            </button>
-          </div>
+
+          <button type="button" class="mode-dropdown-btn">
+            <app-icon name="hand" [size]="16" />
+            <span>Manual</span>
+            <app-icon name="chevron" [size]="12" class="chevron-icon" />
+          </button>
         </div>
 
         <div class="controls-right">
-          <button type="button" class="model-selector">
-            <span>Opus 5</span>
+          <button type="button" class="model-selector-btn">
+            <span>Sonnet 5</span>
             <span class="model-badge">High</span>
-            <app-icon name="chevron" [size]="14" class="chevron-down" />
+            <app-icon name="chevron" [size]="12" class="chevron-icon" />
           </button>
+
           <button type="button" class="icon-btn" aria-label="Voice input">
-            <app-icon name="mic" [size]="20" />
-          </button>
-          <button type="button" class="icon-btn" aria-label="Audio wave">
-            <app-icon name="waveform" [size]="20" />
+            <app-icon name="mic" [size]="18" />
           </button>
         </div>
       </div>
     </div>
 
-    <div class="suggestions-row">
-      <button type="button" class="suggestion-chip">
-        <app-icon name="pencil" [size]="16" />
-        <span>Write</span>
-      </button>
-      <button type="button" class="suggestion-chip">
-        <app-icon name="graduation-cap" [size]="16" />
-        <span>Learn</span>
-      </button>
-      <button type="button" class="suggestion-chip">
-        <app-icon name="code" [size]="16" />
-        <span>Code</span>
-      </button>
-      <button type="button" class="suggestion-chip">
-        <app-icon name="coffee" [size]="16" />
-        <span>Life stuff</span>
-      </button>
-      <button type="button" class="suggestion-chip">
-        <app-icon name="lightbulb" [size]="16" />
-        <span>Claude's choice</span>
-      </button>
-    </div>
+    <p class="disclaimer-text">
+      Claude is AI and can make mistakes. Please double-check responses.
+    </p>
   </div>
 </main>
