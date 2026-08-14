@@ -32,7 +32,7 @@
   justify-content: center;
   min-height: 48px;
   padding: 0 0 16px;
-  border-bottom: 1px solid var(--line);
+  border-bottom: none;
 }
 .brand {
   min-width: 0;
@@ -103,6 +103,9 @@
 }
 .active .nav-icon {
   color: #fff;
+}
+.sidebar-footer {
+  margin-top: auto;
 }
 .sidebar-profile {
   display: flex;
