@@ -1,53 +1,252 @@
-<main class="neet-page">
-  <header class="page-header">
-    <div>
-      <span>NEET preparation</span>
-      <h1>Practice with purpose</h1>
-      <p>Build a focused test, work through previous papers, or complete today’s question.</p>
+<main class="neet-report-page">
+  <!-- Top Navigation Bar -->
+  <header class="report-header">
+    <div class="header-left">
+      <button type="button" class="back-btn" aria-label="Go back">
+        <app-icon name="chevron" [size]="16" class="back-chevron" />
+      </button>
+      <h1>Learning Report</h1>
     </div>
-    <a routerLink="/dynamic/neet/leaderboard">View performance <app-icon name="arrow-right" [size]="16"/></a>
+
+    <div class="header-right">
+      <div class="search-input-wrap">
+        <app-icon name="search" [size]="16" class="search-icon" />
+        <input
+          type="text"
+          placeholder="Search progress"
+          [(ngModel)]="searchQuery"
+        />
+      </div>
+
+      <button type="button" class="share-btn">
+        Share Report
+      </button>
+
+      <button type="button" class="icon-circle-btn" aria-label="Notifications">
+        <app-icon name="bell" [size]="18" />
+        <span class="dot-badge"></span>
+      </button>
+
+      <button type="button" class="icon-circle-btn" aria-label="Settings">
+        <app-icon name="settings" [size]="18" />
+      </button>
+    </div>
   </header>
 
-  <app-qod/>
-
-  <section class="neet-actions" aria-labelledby="practice-options-title">
-    <header class="section-heading">
-      <div><span>Practice tools</span><h2 id="practice-options-title">Choose your next session</h2></div>
-    </header>
-    <div class="action-grid">
-      <article class="test-card">
-        <span class="test-icon"><app-icon name="test" [size]="22"/></span>
-        <div class="test-copy">
-          <small>Personalised practice</small>
-          <h3>Create your own test</h3>
-          <p>Choose subjects and chapters, then set the question count and duration.</p>
+  <!-- Top 3 Stat Cards -->
+  <section class="stats-grid">
+    <!-- Stat 1 -->
+    <article class="stat-card">
+      <div class="stat-card-header">
+        <div class="stat-title-wrap">
+          <div class="stat-icon-box">
+            <app-icon name="bookmark" [size]="18" />
+          </div>
+          <span class="stat-title">Total Role-Play Time</span>
         </div>
-        <a routerLink="/dynamic/neet/quick-test">Create test <app-icon name="arrow-right" [size]="15"/></a>
-      </article>
+        <span class="badge green-badge">↗ 8%</span>
+      </div>
+      <div class="stat-value">45h 21m</div>
+      <p class="stat-subtext">From last month's total time was 44 hours</p>
+    </article>
 
-      <article class="test-card">
-        <span class="test-icon green"><app-icon name="history" [size]="22"/></span>
-        <div class="test-copy">
-          <small>Exam-pattern practice</small>
-          <h3>Previous year papers</h3>
-          <p>Attempt mapped NEET papers in a focused, timed test environment.</p>
+    <!-- Stat 2 -->
+    <article class="stat-card">
+      <div class="stat-card-header">
+        <div class="stat-title-wrap">
+          <div class="stat-icon-box">
+            <app-icon name="test" [size]="18" />
+          </div>
+          <span class="stat-title">Average Score</span>
         </div>
-        <a routerLink="/dynamic/neet/previous-year-tests">View papers <app-icon name="arrow-right" [size]="15"/></a>
-      </article>
+        <span class="badge green-badge">↗ 23%</span>
+      </div>
+      <div class="stat-value">82%</div>
+      <p class="stat-subtext">From last month's average score was 70%</p>
+    </article>
 
-      <article class="test-card">
-        <span class="test-icon orange"><app-icon name="chart" [size]="22"/></span>
-        <div class="test-copy">
-          <small>Student rankings</small>
-          <h3>Test leaderboard</h3>
-          <p>Review top test performances and see your current leaderboard rank.</p>
+    <!-- Stat 3 -->
+    <article class="stat-card">
+      <div class="stat-card-header">
+        <div class="stat-title-wrap">
+          <div class="stat-icon-box">
+            <app-icon name="check" [size]="18" />
+          </div>
+          <span class="stat-title">Completed Course</span>
         </div>
-        <a
-          routerLink="/dynamic/neet/leaderboard"
-          [queryParams]="{ test_type: 'Previous Year', previous_year_paper_id: 15, period: 'ALL' }"
-        >View rankings <app-icon name="arrow-right" [size]="15"/></a>
-      </article>
+        <span class="badge red-badge">↘ 12%</span>
+      </div>
+      <div class="stat-value">13</div>
+      <p class="stat-subtext">From last month's completed course was 14</p>
+    </article>
+  </section>
+
+  <!-- Main Table Section -->
+  <section class="table-card">
+    <!-- Filter Controls Header -->
+    <div class="filter-controls-row">
+      <!-- Left Tabs -->
+      <div class="tabs-group">
+        <button
+          type="button"
+          class="tab-btn"
+          [class.active]="activeTab() === 'all'"
+          (click)="setTab('all')"
+        >
+          All
+        </button>
+        <button
+          type="button"
+          class="tab-btn"
+          [class.active]="activeTab() === 'in-progress'"
+          (click)="setTab('in-progress')"
+        >
+          In Progress
+        </button>
+        <button
+          type="button"
+          class="tab-btn"
+          [class.active]="activeTab() === 'completed'"
+          (click)="setTab('completed')"
+        >
+          Completed
+        </button>
+      </div>
+
+      <!-- Right Active Tags & Filter Dropdown -->
+      <div class="filters-group">
+        @for (cat of activeCategories(); track cat) {
+          <span class="category-chip">
+            <span>{{ cat }}</span>
+            <button type="button" (click)="removeCategory(cat)" aria-label="Remove category">
+              ✕
+            </button>
+          </span>
+        }
+
+        <div class="filter-dropdown-wrap">
+          <button
+            type="button"
+            class="filter-btn"
+            (click)="toggleFilterDropdown()"
+          >
+            <span>Filter</span>
+            <span class="filter-count-badge">{{ activeCategories().length }}</span>
+          </button>
+
+          @if (filterDropdownOpen()) {
+            <div class="filter-popover">
+              @for (cat of availableCategories(); track cat) {
+                <label class="filter-checkbox-item">
+                  <input
+                    type="checkbox"
+                    [checked]="isCategorySelected(cat)"
+                    (change)="toggleCategory(cat)"
+                  />
+                  <span>{{ cat }}</span>
+                </label>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Courses Table -->
+    <div class="table-container">
+      <table class="report-table">
+        <thead>
+          <tr>
+            <th class="col-course">Course ⇅</th>
+            <th class="col-progress">Progress ⇅</th>
+            <th class="col-status">Status</th>
+            <th class="col-time">Learning Time</th>
+            <th class="col-action"></th>
+            <th class="col-more"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (course of filteredCourses(); track course.id) {
+            <tr>
+              <!-- Course info -->
+              <td class="col-course">
+                <div class="course-cell">
+                  <div
+                    class="course-icon-bg"
+                    [style.background-color]="course.iconBg"
+                  >
+                    <app-icon [name]="$any(course.iconName)" [size]="18" />
+                  </div>
+                  <div class="course-meta">
+                    <strong class="course-title">{{ course.title }}</strong>
+                    <small class="course-subtitle">{{ course.subtitle }}</small>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Progress bar -->
+              <td class="col-progress">
+                <div class="progress-cell">
+                  <div class="progress-meta">
+                    <span class="stage-text">{{ course.stageInfo }}</span>
+                    <span class="percent-text">{{ course.progressPercent }}%</span>
+                  </div>
+                  <div class="progress-bar-track">
+                    <div
+                      class="progress-bar-fill"
+                      [style.width.%]="course.progressPercent"
+                      [style.background-color]="course.progressColor"
+                    ></div>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Status pill -->
+              <td class="col-status">
+                <span
+                  class="status-pill"
+                  [class.status-completed]="course.status === 'Completed'"
+                  [class.status-in-progress]="course.status === 'In Progress'"
+                >
+                  • {{ course.status }}
+                </span>
+              </td>
+
+              <!-- Learning Time -->
+              <td class="col-time">
+                <div class="time-cell">
+                  <app-icon name="clock" [size]="15" class="time-icon" />
+                  <span>{{ course.learningTime }}</span>
+                </div>
+              </td>
+
+              <!-- Action Link -->
+              <td class="col-action">
+                @if (course.actionType === 'certificate') {
+                  <a href="#certificate" class="action-link link-certificate">
+                    <span>{{ course.actionText }}</span>
+                    <app-icon name="bookmark" [size]="14" />
+                  </a>
+                } @else if (course.actionType === 'review') {
+                  <span class="action-link link-review">
+                    <span>{{ course.actionText }}</span>
+                    <span class="alert-icon">🛈</span>
+                  </span>
+                } @else {
+                  <span class="text-disabled">Not yet available</span>
+                }
+              </td>
+
+              <!-- Options dots -->
+              <td class="col-more">
+                <button type="button" class="more-btn" aria-label="More options">
+                  ⋮
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
     </div>
   </section>
 </main>
-<app-previous-year-questions></app-previous-year-questions>
