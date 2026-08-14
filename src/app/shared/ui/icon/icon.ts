@@ -32,7 +32,8 @@ export type IconName =
   | 'share'
   | 'sparkles'
   | 'sun'
-  | 'test';
+  | 'test'
+  | 'uk';
 
 @Component({
   selector: 'app-icon',

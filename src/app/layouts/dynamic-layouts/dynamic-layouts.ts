@@ -101,7 +101,7 @@ export class DynamicLayouts implements OnDestroy {
       label: 'UCAT practice',
       description: 'Create a UCAT practice session',
       route: '/dynamic/ucat',
-      icon: 'activity',
+      icon: 'uk',
     },
     {
       label: 'Previous UCAT papers',
