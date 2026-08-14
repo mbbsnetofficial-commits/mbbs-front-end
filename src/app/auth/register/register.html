@@ -7,7 +7,7 @@
     <header class="form-heading">
       <span>Student registration</span>
       <h2>Create your account</h2>
-      <p>Use your details below. You’ll verify your phone number next.</p>
+      <p>Use your details below. We'll verify you with WhatsApp OTP.</p>
     </header>
 
     <div class="name-grid">
@@ -24,42 +24,16 @@
     </div>
 
     <div class="field">
-      <label for="register-email">Email address</label>
-      <input id="register-email" type="email" formControlName="email" autocomplete="email" placeholder="you@example.com" [class.invalid]="registerForm.controls.email.invalid && registerForm.controls.email.touched">
-      @if (registerForm.controls.email.invalid && registerForm.controls.email.touched) { <p class="field-error">Enter a valid email address.</p> }
+      <label for="register-whatsapp">WhatsApp Number</label>
+      <input id="register-whatsapp" type="tel" inputmode="tel" formControlName="whatsappNumber" autocomplete="tel" placeholder="+91 98765 43210" [class.invalid]="registerForm.controls.whatsappNumber.invalid && registerForm.controls.whatsappNumber.touched">
+      @if (registerForm.controls.whatsappNumber.invalid && registerForm.controls.whatsappNumber.touched) { <p class="field-error">Enter a valid 10–15 digit WhatsApp number.</p> }
     </div>
 
     <div class="field">
-      <label for="register-phone">Phone number</label>
-      <input id="register-phone" type="tel" inputmode="tel" formControlName="phoneNumber" autocomplete="tel" placeholder="+91 98765 43210" [class.invalid]="registerForm.controls.phoneNumber.invalid && registerForm.controls.phoneNumber.touched">
-      @if (registerForm.controls.phoneNumber.invalid && registerForm.controls.phoneNumber.touched) { <p class="field-error">Enter a valid 10–15 digit phone number.</p> }
+      <label for="register-otp">OTP Code</label>
+      <input id="register-otp" type="text" inputmode="numeric" formControlName="otp" autocomplete="one-time-code" placeholder="Enter 4-digit code" [class.invalid]="registerForm.controls.otp.invalid && registerForm.controls.otp.touched">
+      @if (registerForm.controls.otp.invalid && registerForm.controls.otp.touched) { <p class="field-error">Please enter the OTP.</p> }
     </div>
-
-    <div class="password-grid">
-      <div class="field">
-        <label for="register-password">Password</label>
-        <div class="input-wrap">
-          <input id="register-password" class="password-input" [type]="passwordVisible() ? 'text' : 'password'" formControlName="password" autocomplete="new-password" placeholder="Create a password" [class.invalid]="registerForm.controls.password.invalid && registerForm.controls.password.touched">
-          <button class="reveal" type="button" [attr.aria-label]="passwordVisible() ? 'Hide passwords' : 'Show passwords'" (click)="passwordVisible.set(!passwordVisible())">
-            <app-icon [name]="passwordVisible() ? 'close' : 'profile'" [size]="16"/>
-          </button>
-        </div>
-      </div>
-      <div class="field">
-        <label for="register-confirm-password">Confirm password</label>
-        <input id="register-confirm-password" [type]="passwordVisible() ? 'text' : 'password'" formControlName="confirmPassword" autocomplete="new-password" placeholder="Repeat password" [class.invalid]="registerForm.hasError('passwordMismatch') && registerForm.controls.confirmPassword.touched">
-      </div>
-    </div>
-
-    <div class="strength" [attr.data-score]="passwordScore()">
-      <span class="strength-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-      <span>{{ passwordStrength() }}</span>
-    </div>
-    @if (registerForm.controls.password.touched && registerForm.controls.password.invalid) {
-      <p class="password-help">Use 8+ characters with upper and lowercase letters and a number.</p>
-    } @else if (registerForm.hasError('passwordMismatch') && registerForm.controls.confirmPassword.touched) {
-      <p class="password-help error">Passwords do not match.</p>
-    }
 
     <label class="terms">
       <input type="checkbox" formControlName="termsAccepted">
@@ -70,12 +44,16 @@
     }
 
     @if (errorMessage()) {
-      <p class="form-alert" role="alert"><app-icon name="activity" [size]="16"/>{{ errorMessage() }}</p>
+      <p class="form-alert error" role="alert"><app-icon name="activity" [size]="16"/>{{ errorMessage() }}</p>
+    }
+    @if (successMessage()) {
+      <p class="form-alert form-success" role="status"><app-icon name="check" [size]="16"/>{{ successMessage() }}</p>
     }
 
     <button class="submit-button" type="submit" [disabled]="isSubmitting()">
       @if (isSubmitting()) { <span class="button-loader" aria-hidden="true"></span> Creating account… } @else { Create account }
     </button>
+    
     <p class="switch-link">Already have an account? <a routerLink="/auth/login">Log in</a></p>
   </form>
 </app-auth-shell>

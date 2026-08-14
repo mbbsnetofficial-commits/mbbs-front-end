@@ -1,9 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, Validators, NonNullableFormBuilder } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { finalize } from 'rxjs';
 
-import { AuthService } from '../../core/serivce/auth.service';
 import { TokenService } from '../../core/serivce/token.service';
 import { Icon } from '../../shared/ui/icon/icon';
 import { AuthShell } from '../shared/auth-shell/auth-shell';
@@ -18,19 +16,16 @@ import { AuthShell } from '../shared/auth-shell/auth-shell';
 })
 export class Login {
   private readonly formBuilder = inject(NonNullableFormBuilder);
-  private readonly authService = inject(AuthService);
   private readonly tokenService = inject(TokenService);
   private readonly router = inject(Router);
 
   protected readonly isSubmitting = signal(false);
-  protected readonly isGoogleSubmitting = signal(false);
   protected readonly errorMessage = signal('');
   protected readonly successMessage = signal('');
-  protected readonly passwordVisible = signal(false);
 
   protected readonly loginForm = this.formBuilder.group({
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]],
+    whatsappNumber: ['', [Validators.required, Validators.pattern(/^\+?[0-9]{10,15}$/)]],
+    otp: ['', [Validators.required, Validators.minLength(4)]],
     rememberMe: [true]
   });
 
@@ -43,59 +38,28 @@ export class Login {
     this.isSubmitting.set(true);
     this.errorMessage.set('');
     this.successMessage.set('');
-    const { email, password, rememberMe } = this.loginForm.getRawValue();
+    const { rememberMe } = this.loginForm.getRawValue();
 
-    this.authService.login({ email, password })
-      .pipe(finalize(() => this.isSubmitting.set(false)))
-      .subscribe({
-        next: (response) => {
-          const studentId = response.data.student_id || response.data.user?.student_id || '';
-          this.tokenService.saveTokens(
-            response.data.accessToken,
-            response.data.refreshToken,
-            studentId,
-            rememberMe
-          );
-          // Save user profile if available
-          if (response.data.user) {
-            this.tokenService.saveUser(response.data.user, rememberMe);
-          }
-          this.successMessage.set('Welcome back! Opening your dashboard…');
-          this.router.navigate(['/dynamic/neet']);
-        },
-        error: (error: unknown) => {
-          this.errorMessage.set(this.getErrorMessage(error, 'Unable to log in. Please check your email and password.'));
-        }
-      });
-  }
+    // Simulate API delay
+    setTimeout(() => {
+      // Mock successful login
+      const dummyStudentId = 'student_dummy_123';
+      this.tokenService.saveTokens(
+        'dummy_access_token',
+        'dummy_refresh_token',
+        dummyStudentId,
+        rememberMe
+      );
+      this.tokenService.saveUser({
+        student_id: dummyStudentId,
+        first_name: 'Dummy',
+        last_name: 'User',
+        email: 'dummy@example.com'
+      }, rememberMe);
 
-  protected loginWithGoogle(): void {
-    if (this.isSubmitting() || this.isGoogleSubmitting()) {
-      return;
-    }
-
-    this.isGoogleSubmitting.set(true);
-    this.errorMessage.set('');
-    this.successMessage.set('');
-
-    this.authService.loginWithGoogle(this.loginForm.controls.rememberMe.value)
-      .pipe(finalize(() => this.isGoogleSubmitting.set(false)))
-      .subscribe({
-        next: () => {
-          this.successMessage.set('Google sign-in successful! Opening your dashboard…');
-          this.router.navigate(['/dynamic/neet']);
-        },
-        error: (error: unknown) => {
-          this.errorMessage.set(this.getErrorMessage(error, 'Unable to log in with Google. Please try again.'));
-        }
-      });
-  }
-
-  private getErrorMessage(error: unknown, fallback: string): string {
-    if (typeof error !== 'object' || error === null) {
-      return fallback;
-    }
-    const apiError = error as { error?: { message?: string }; message?: string };
-    return apiError.error?.message ?? apiError.message ?? fallback;
+      this.isSubmitting.set(false);
+      this.successMessage.set('Login successful! Opening your chat…');
+      this.router.navigate(['/dynamic/ai-chat']);
+    }, 800);
   }
 }
