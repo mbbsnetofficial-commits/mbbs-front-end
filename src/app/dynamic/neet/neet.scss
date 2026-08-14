@@ -270,29 +270,39 @@
     background: transparent;
     padding: 0;
     margin: 0;
-    font-size: 13px;
+    font-size: 13.5px;
     font-weight: 600;
     color: #64748b;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    transition: color 0.15s ease;
+    gap: 7px;
+    line-height: 1;
+
+    span {
+      display: inline-block;
+      line-height: 1;
+    }
+
+    .sort-icon {
+      width: 15px;
+      height: 15px;
+      color: #94a3b8;
+      flex-shrink: 0;
+      display: inline-block;
+      vertical-align: middle;
+      transition: color 0.15s ease;
+
+      &.sort-active {
+        color: #f05a28;
+      }
+    }
 
     &:hover {
       color: #0f172a;
 
       .sort-icon {
         color: #334155;
-      }
-    }
-
-    .sort-icon {
-      color: #94a3b8;
-      transition: color 0.15s ease;
-
-      &.sort-active {
-        color: #f05a28;
       }
     }
   }
