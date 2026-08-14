@@ -198,6 +198,16 @@
               </button>
             </th>
 
+            <!-- 7. Date Modified -->
+            <th class="col-date">
+              <button type="button" class="th-sort-btn" (click)="toggleSort('dateModified')">
+                <span>Date Modified</span>
+                <svg class="sort-icon" [class.sort-active]="sortField() === 'dateModified'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M7 17V4M4 7l3-3 3 3M17 7v13m-3-3 3 3 3-3"/>
+                </svg>
+              </button>
+            </th>
+
             <!-- 7. Score -->
             <th class="col-score">
               <button type="button" class="th-sort-btn" (click)="toggleSort('score')">
@@ -280,7 +290,12 @@
                 </div>
               </td>
 
-              <!-- 7. Score -->
+              <!-- 7. Date Modified -->
+              <td class="col-date">
+                <span class="date-modified-text">{{ course.dateModified }}</span>
+              </td>
+
+              <!-- 8. Score -->
               <td class="col-score">
                 <span class="score-badge">{{ course.score }}</span>
               </td>

@@ -18,6 +18,8 @@ export interface NeetCourseItem {
   progressPercent: number;
   progressColor: string;
   dateRange: string;
+  dateModified: string;
+  dateModifiedTimestamp: number;
   learningTime: string;
   score: string;
   scoreNum: number;
@@ -75,8 +77,9 @@ export class NeetComponent {
         ? (payload.subjects[0] as NeetCourseItem['type'])
         : 'Custom';
 
+    const nowTs = Date.now();
     const newCourse: NeetCourseItem = {
-      id: Date.now().toString(),
+      id: nowTs.toString(),
       title: payload.title || 'NEET Custom Practice Test',
       type: typeVal,
       stagesCount: `${payload.chapters.length} Chapters`,
@@ -86,6 +89,8 @@ export class NeetComponent {
       progressPercent: 0,
       progressColor: '#ff5252',
       dateRange: 'Just now',
+      dateModified: 'Just now',
+      dateModifiedTimestamp: nowTs,
       learningTime: '0h 0m',
       score: '0 / 720',
       scoreNum: 0,
@@ -165,6 +170,8 @@ export class NeetComponent {
         res = a.progressPercent - b.progressPercent;
       } else if (field === 'time') {
         res = this.parseMinutes(a.learningTime) - this.parseMinutes(b.learningTime);
+      } else if (field === 'dateModified') {
+        res = a.dateModifiedTimestamp - b.dateModifiedTimestamp;
       } else if (field === 'score') {
         res = a.scoreNum - b.scoreNum;
       }
@@ -373,6 +380,14 @@ export class NeetComponent {
       else if (progressPercent >= 75) colorTrack = progressColors[2];
       else if (progressPercent >= 40) colorTrack = progressColors[1];
 
+      const nowTs = Date.now() - (i * 3600 * 1000 * 4);
+      const dateObj = new Date(nowTs);
+      const dayStr = dateObj.getDate().toString().padStart(2, '0');
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const monthStr = monthNames[dateObj.getMonth()];
+      const yearStr = dateObj.getFullYear();
+      const dateModifiedStr = `${dayStr} ${monthStr} ${yearStr}`;
+
       list.push({
         id: i.toString(),
         title: `${title} #${i}`,
@@ -384,6 +399,8 @@ export class NeetComponent {
         progressPercent,
         progressColor: colorTrack,
         dateRange: status === 'Completed' ? `0${(i % 8) + 1} - 1${(i % 8) + 5} Jan 2026` : `${(i % 25) + 1} Jan 2026`,
+        dateModified: dateModifiedStr,
+        dateModifiedTimestamp: nowTs,
         learningTime: `${hours}h ${mins}m`,
         score: `${scoreVal} / 720`,
         scoreNum: scoreVal,
