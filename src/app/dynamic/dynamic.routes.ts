@@ -29,6 +29,11 @@ export const dynamicRoutes: Routes = [
           import('./chat/student-chat').then(({ StudentChat }) => StudentChat),
       },
       {
+        path: 'ai-chat',
+        loadComponent: () =>
+          import('./ai-chat/ai-chat').then(({ AiChat }) => AiChat),
+      },
+      {
         path: 'ucat',
         loadChildren: () =>
           import('./ucat/ucat.routes').then(({ ucatRoutes }) => ucatRoutes),

@@ -34,7 +34,15 @@ export type IconName =
   | 'sparkles'
   | 'sun'
   | 'test'
-  | 'plus';
+  | 'plus'
+  | 'asterisk'
+  | 'mic'
+  | 'waveform'
+  | 'pencil'
+  | 'graduation-cap'
+  | 'code'
+  | 'coffee'
+  | 'lightbulb';
 
 @Component({
   selector: 'app-icon',

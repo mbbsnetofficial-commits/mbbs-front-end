@@ -253,6 +253,7 @@ export class DynamicLayouts implements OnDestroy {
       ['/dynamic/cse/questionnaire', { eyebrow: 'University finder', title: 'Preferences' }],
       ['/dynamic/cse', { eyebrow: 'University finder', title: 'Explore destinations' }],
       ['/dynamic/blogs', { eyebrow: 'Knowledge centre', title: 'Insights' }],
+      ['/dynamic/ai-chat', { eyebrow: 'AI Assistant', title: 'Knowledge Base' }],
 
     ];
     this.pageMeta.set(

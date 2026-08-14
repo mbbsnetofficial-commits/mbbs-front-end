@@ -1,0 +1,77 @@
+<main class="ai-chat-page">
+  <div class="chat-container">
+    <header class="chat-header">
+      <app-icon name="asterisk" [size]="48" [strokeWidth]="2.5" class="brand-asterisk" />
+      <h1>What can we tackle together?</h1>
+    </header>
+
+    <div class="prompt-box">
+      <textarea
+        placeholder="How can I help you today?"
+        [(ngModel)]="promptText"
+        rows="1"
+      ></textarea>
+      
+      <div class="prompt-controls">
+        <div class="controls-left">
+          <button type="button" class="icon-btn" aria-label="Add attachment">
+            <app-icon name="plus" [size]="20" />
+          </button>
+          <div class="mode-toggle">
+            <button 
+              type="button" 
+              [class.active]="currentMode() === 'chat'"
+              (click)="setMode('chat')"
+            >
+              Chat
+            </button>
+            <button 
+              type="button" 
+              [class.active]="currentMode() === 'cowork'"
+              (click)="setMode('cowork')"
+            >
+              Cowork
+            </button>
+          </div>
+        </div>
+
+        <div class="controls-right">
+          <button type="button" class="model-selector">
+            <span>Opus 5</span>
+            <span class="model-badge">High</span>
+            <app-icon name="chevron" [size]="14" class="chevron-down" />
+          </button>
+          <button type="button" class="icon-btn" aria-label="Voice input">
+            <app-icon name="mic" [size]="20" />
+          </button>
+          <button type="button" class="icon-btn" aria-label="Audio wave">
+            <app-icon name="waveform" [size]="20" />
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="suggestions-row">
+      <button type="button" class="suggestion-chip">
+        <app-icon name="pencil" [size]="16" />
+        <span>Write</span>
+      </button>
+      <button type="button" class="suggestion-chip">
+        <app-icon name="graduation-cap" [size]="16" />
+        <span>Learn</span>
+      </button>
+      <button type="button" class="suggestion-chip">
+        <app-icon name="code" [size]="16" />
+        <span>Code</span>
+      </button>
+      <button type="button" class="suggestion-chip">
+        <app-icon name="coffee" [size]="16" />
+        <span>Life stuff</span>
+      </button>
+      <button type="button" class="suggestion-chip">
+        <app-icon name="lightbulb" [size]="16" />
+        <span>Claude's choice</span>
+      </button>
+    </div>
+  </div>
+</main>
