@@ -133,6 +133,12 @@
         </div>
       </div>
 
+      @if (router.url.startsWith('/dynamic/neet')) {
+        <a routerLink="/dynamic/neet/quick-test" class="build-test-btn">
+          <app-icon name="sparkles" [size]="16" />
+          <span>Build your own test</span>
+        </a>
+      }
     </header>
 
     <main class="content" tabindex="-1"><router-outlet /></main>

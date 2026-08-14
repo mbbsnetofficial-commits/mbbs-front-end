@@ -38,7 +38,7 @@ export class DynamicLayouts implements OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly tokenService = inject(TokenService);
   private readonly dashboardService = inject(StudentDashboardService);
-  private readonly router = inject(Router);
+  protected readonly router = inject(Router);
 
   protected readonly sidebarOpen = signal(false);
   protected readonly loggingOut = signal(false);
