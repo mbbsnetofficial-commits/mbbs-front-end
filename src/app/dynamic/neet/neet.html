@@ -249,4 +249,51 @@
       </table>
     </div>
   </section>
+
+  <!-- Old NEET Page Elements at Bottom -->
+  <div class="bottom-legacy-section">
+    <app-qod />
+
+    <section class="neet-actions" aria-labelledby="practice-options-title">
+      <header class="section-heading">
+        <div><span>Practice tools</span><h2 id="practice-options-title">Choose your next session</h2></div>
+      </header>
+      <div class="action-grid">
+        <article class="test-card">
+          <span class="test-icon"><app-icon name="test" [size]="22"/></span>
+          <div class="test-copy">
+            <small>Personalised practice</small>
+            <h3>Create your own test</h3>
+            <p>Choose subjects and chapters, then set the question count and duration.</p>
+          </div>
+          <a routerLink="/dynamic/neet/quick-test">Create test <app-icon name="arrow-right" [size]="15"/></a>
+        </article>
+
+        <article class="test-card">
+          <span class="test-icon green"><app-icon name="history" [size]="22"/></span>
+          <div class="test-copy">
+            <small>Exam-pattern practice</small>
+            <h3>Previous year papers</h3>
+            <p>Attempt mapped NEET papers in a focused, timed test environment.</p>
+          </div>
+          <a routerLink="/dynamic/neet/previous-year-tests">View papers <app-icon name="arrow-right" [size]="15"/></a>
+        </article>
+
+        <article class="test-card">
+          <span class="test-icon orange"><app-icon name="chart" [size]="22"/></span>
+          <div class="test-copy">
+            <small>Student rankings</small>
+            <h3>Test leaderboard</h3>
+            <p>Review top test performances and see your current leaderboard rank.</p>
+          </div>
+          <a
+            routerLink="/dynamic/neet/leaderboard"
+            [queryParams]="{ test_type: 'Previous Year', previous_year_paper_id: 15, period: 'ALL' }"
+          >View rankings <app-icon name="arrow-right" [size]="15"/></a>
+        </article>
+      </div>
+    </section>
+
+    <app-previous-year-questions></app-previous-year-questions>
+  </div>
 </main>

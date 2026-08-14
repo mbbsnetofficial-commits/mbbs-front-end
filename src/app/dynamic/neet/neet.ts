@@ -2,6 +2,8 @@ import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/c
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Icon } from '../../shared/ui/icon/icon';
+import { QodComponent } from './qod/qod';
+import { PreviousYearQuestions } from './previous-year-questions/previous-year-questions';
 
 export interface NeetCourseItem {
   id: string;
@@ -22,7 +24,13 @@ export interface NeetCourseItem {
 @Component({
   selector: 'app-neet',
   standalone: true,
-  imports: [Icon, RouterLink, FormsModule],
+  imports: [
+    Icon,
+    RouterLink,
+    FormsModule,
+    QodComponent,
+    PreviousYearQuestions
+  ],
   templateUrl: './neet.html',
   styleUrl: './neet.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -166,7 +174,7 @@ export class NeetComponent {
         return false;
       }
 
-      // Category filter (if categories selected)
+      // Category filter
       if (categories.length > 0 && !categories.includes(item.category)) {
         // allow fallback match if category is not explicitly strictly filtered or match title
       }
