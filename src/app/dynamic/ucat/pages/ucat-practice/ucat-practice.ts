@@ -27,6 +27,7 @@ import { UcatChatService } from '../../services/ucat-chat.service';
 import { UcatAiChatModal } from '../../components/ucat-ai-chat-modal/ucat-ai-chat-modal';
 import { UcatAiInsightsModal } from '../../components/ucat-ai-insights-modal/ucat-ai-insights-modal';
 import { TokenService } from '../../../../core/serivce/token.service';
+import { UcatPreviousYear } from '../ucat-previous-year/ucat-previous-year';
 
 type UcatViewMode = 'wizard' | 'test' | 'result' | 'history';
 type WizardStep = 1 | 2 | 3 | 4;
@@ -35,7 +36,7 @@ type ResultFilter = 'all' | 'correct' | 'wrong' | 'skipped';
 @Component({
   selector: 'app-ucat-practice',
   standalone: true,
-  imports: [CommonModule, UcatAiChatModal, UcatAiInsightsModal],
+  imports: [CommonModule, UcatAiChatModal, UcatAiInsightsModal, UcatPreviousYear],
   templateUrl: './ucat-practice.html',
   styleUrl: './ucat-practice.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
