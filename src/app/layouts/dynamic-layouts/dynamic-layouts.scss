@@ -115,9 +115,7 @@
   background: var(--surface-soft);
 }
 .sidebar-nav > a.active {
-  color: #fff;
-  background: var(--dark);
-  box-shadow: 0 8px 20px rgba(21, 22, 25, 0.13);
+  color: var(--ink);
 }
 .nav-icon {
   width: 21px;
@@ -128,7 +126,7 @@
   color: #808691;
 }
 .active .nav-icon {
-  color: #fff;
+  color: var(--ink);
 }
 .sidebar-footer {
   margin-top: auto;
