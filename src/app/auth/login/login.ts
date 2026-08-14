@@ -52,10 +52,10 @@ export class Login {
       );
       this.tokenService.saveUser({
         student_id: dummyStudentId,
-        first_name: 'Dummy',
-        last_name: 'User',
+        firstName: 'Dummy',
+        lastName: 'User',
         email: 'dummy@example.com'
-      }, rememberMe);
+      } as any, rememberMe);
 
       this.isSubmitting.set(false);
       this.successMessage.set('Login successful! Opening your chat…');

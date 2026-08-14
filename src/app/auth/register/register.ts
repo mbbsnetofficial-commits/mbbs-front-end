@@ -55,10 +55,10 @@ export class Register {
       );
       this.tokenService.saveUser({
         student_id: dummyStudentId,
-        first_name: raw.firstName.trim(),
-        last_name: raw.lastName.trim(),
+        firstName: raw.firstName.trim(),
+        lastName: raw.lastName.trim(),
         email: 'dummy_registered@example.com'
-      }, true);
+      } as any, true);
 
       this.isSubmitting.set(false);
       this.successMessage.set('Account created successfully! Opening your chat…');
