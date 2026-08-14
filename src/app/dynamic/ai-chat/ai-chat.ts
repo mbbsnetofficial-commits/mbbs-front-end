@@ -172,6 +172,21 @@ export class AiChat implements AfterViewInit {
     }, 600);
   }
 
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      const userMsg: ChatMessage = {
+        id: String(Date.now()),
+        sender: 'user',
+        text: `📎 Attached file: ${file.name}`
+      };
+      this.messages.update((list) => [...list, userMsg]);
+      this.scrollToBottom();
+      input.value = '';
+    }
+  }
+
   scrollToBottom(): void {
     setTimeout(() => {
       const container = this.scrollContainer?.nativeElement;

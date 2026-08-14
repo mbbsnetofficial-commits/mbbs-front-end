@@ -41,7 +41,18 @@
 
       <div class="prompt-controls">
         <div class="controls-left">
-          <button type="button" class="icon-btn" aria-label="Add attachment">
+          <input
+            #fileInput
+            type="file"
+            style="display: none"
+            (change)="onFileSelected($event)"
+          />
+          <button
+            type="button"
+            class="icon-btn"
+            aria-label="Add attachment"
+            (click)="fileInput.click()"
+          >
             <app-icon name="plus" [size]="18" />
           </button>
         </div>
