@@ -14,8 +14,7 @@ export interface NeetCourseItem {
   stageInfo: string;
   progressPercent: number;
   progressColor: string;
-  startDate: string;
-  endDate: string;
+  dateRange: string;
   learningTime: string;
   score: string;
   category: string;
@@ -64,8 +63,7 @@ export class NeetComponent {
       stageInfo: 'Stages 2',
       progressPercent: 25,
       progressColor: '#ff5252',
-      startDate: '05 Jan 2026',
-      endDate: '-',
+      dateRange: '05 Jan 2026 - Ongoing',
       learningTime: '2h 13m',
       score: '72%',
       category: 'Human Resources',
@@ -81,8 +79,7 @@ export class NeetComponent {
       stageInfo: 'Stages 4',
       progressPercent: 31,
       progressColor: '#ff9800',
-      startDate: '12 Jan 2026',
-      endDate: '-',
+      dateRange: '12 Jan 2026 - Ongoing',
       learningTime: '2h 13m',
       score: '68%',
       category: 'Leadership',
@@ -98,8 +95,7 @@ export class NeetComponent {
       stageInfo: 'Stages 6',
       progressPercent: 50,
       progressColor: '#2979ff',
-      startDate: '18 Jan 2026',
-      endDate: '-',
+      dateRange: '18 Jan 2026 - Ongoing',
       learningTime: '9h 34m',
       score: '80%',
       category: 'Conflict Management',
@@ -115,8 +111,7 @@ export class NeetComponent {
       stageInfo: 'Stages 7',
       progressPercent: 87,
       progressColor: '#2979ff',
-      startDate: '22 Jan 2026',
-      endDate: '-',
+      dateRange: '22 Jan 2026 - Ongoing',
       learningTime: '12h 37m',
       score: '89%',
       category: 'Communication Skills',
@@ -132,8 +127,7 @@ export class NeetComponent {
       stageInfo: 'Stages 4',
       progressPercent: 100,
       progressColor: '#34d399',
-      startDate: '01 Jan 2026',
-      endDate: '15 Jan 2026',
+      dateRange: '01 Jan 2026 - 15 Jan 2026',
       learningTime: '6h 21m',
       score: '95%',
       category: 'Team Building',
@@ -149,8 +143,7 @@ export class NeetComponent {
       stageInfo: 'Stages 6',
       progressPercent: 33,
       progressColor: '#ff9800',
-      startDate: '28 Jan 2026',
-      endDate: '-',
+      dateRange: '28 Jan 2026 - Ongoing',
       learningTime: '4h 9m',
       score: '74%',
       category: 'Problem-Solving',
@@ -166,8 +159,7 @@ export class NeetComponent {
       stageInfo: 'Stages 5',
       progressPercent: 100,
       progressColor: '#34d399',
-      startDate: '08 Jan 2026',
-      endDate: '02 Feb 2026',
+      dateRange: '08 Jan 2026 - 02 Feb 2026',
       learningTime: '18h 21m',
       score: '91%',
       category: 'Leadership',

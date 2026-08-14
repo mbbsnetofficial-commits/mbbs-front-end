@@ -133,7 +133,7 @@
       </div>
     </div>
 
-    <!-- 8-Column Table -->
+    <!-- Table -->
     <div class="table-container">
       <table class="report-table">
         <thead>
@@ -142,8 +142,7 @@
             <th class="col-level">Level</th>
             <th class="col-status">Status</th>
             <th class="col-progress">Progress ⇅</th>
-            <th class="col-date">Start Date</th>
-            <th class="col-date">End Date</th>
+            <th class="col-date">Date</th>
             <th class="col-time">Time Spent</th>
             <th class="col-score">Score</th>
             <th class="col-more"></th>
@@ -208,17 +207,12 @@
                 </div>
               </td>
 
-              <!-- 5. Start Date -->
+              <!-- 5. Date -->
               <td class="col-date">
-                <span class="date-text">{{ course.startDate }}</span>
+                <span class="date-text">{{ course.dateRange }}</span>
               </td>
 
-              <!-- 6. End Date -->
-              <td class="col-date">
-                <span class="date-text">{{ course.endDate }}</span>
-              </td>
-
-              <!-- 7. Time Spent -->
+              <!-- 6. Time Spent -->
               <td class="col-time">
                 <div class="time-cell">
                   <app-icon name="clock" [size]="14" class="time-icon" />
@@ -226,7 +220,7 @@
                 </div>
               </td>
 
-              <!-- 8. Score -->
+              <!-- 7. Score -->
               <td class="col-score">
                 <span class="score-badge">{{ course.score }}</span>
               </td>
