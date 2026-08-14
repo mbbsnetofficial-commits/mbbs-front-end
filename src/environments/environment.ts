@@ -1,5 +1,5 @@
 export const environment = {
   production: false,
-  apiBaseUrl: '/api/v1',
-  cseApiBaseUrl: '/api2/v1'
+  apiBaseUrl: 'https://api.mbbs.net/api/v1',
+  cseApiBaseUrl: 'https://api2.mbbs.net/api/v1'
 };
