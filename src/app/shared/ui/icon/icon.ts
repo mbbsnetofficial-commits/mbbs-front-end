@@ -8,6 +8,7 @@ export type IconName =
   | 'bookmark'
   | 'categories'
   | 'chart'
+  | 'chat'
   | 'check'
   | 'chevron'
   | 'clock'
