@@ -32,6 +32,15 @@
       </a>
 
       <a
+        routerLink="/dynamic/course-search"
+        routerLinkActive="active"
+        aria-label="Course Search"
+        (click)="closeMobileNav()"
+      >
+        <span class="nav-icon"><app-icon name="search" [size]="24" /></span>
+      </a>
+
+      <a
         routerLink="/dynamic/invites"
         routerLinkActive="active"
         aria-label="Invites"
@@ -56,14 +65,6 @@
         (click)="closeMobileNav()"
       >
         <span class="nav-icon"><app-icon name="plus" [size]="24" /></span>
-      </a>
-      <a
-        routerLink="/dynamic/course-search"
-        routerLinkActive="active"
-        aria-label="Course Search"
-        (click)="closeMobileNav()"
-      >
-        <span class="nav-icon"><app-icon name="search" [size]="24" /></span>
       </a>
     </nav>
 
