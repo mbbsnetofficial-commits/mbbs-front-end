@@ -8,6 +8,7 @@ import { PreviousYearQuestions } from './previous-year-questions/previous-year-q
 export interface NeetCourseItem {
   id: string;
   title: string;
+  type: 'Previous Year Test' | 'Practise Test' | 'Custom' | 'Physics' | 'Chemistry' | 'Botany' | 'Zoology';
   stagesCount: string;
   level: 'Beginner' | 'Intermediate' | 'Advanced';
   status: 'In Progress' | 'Completed';
@@ -61,6 +62,7 @@ export class NeetComponent {
     {
       id: '1',
       title: 'Comprehensive Interview Test Role-Play...',
+      type: 'Custom',
       stagesCount: '8 Stages',
       level: 'Advanced',
       status: 'In Progress',
@@ -78,6 +80,7 @@ export class NeetComponent {
     {
       id: '2',
       title: 'Negotiation Skills Role-Play: Closing...',
+      type: 'Practise Test',
       stagesCount: '18 Stages',
       level: 'Beginner',
       status: 'In Progress',
@@ -95,6 +98,7 @@ export class NeetComponent {
     {
       id: '3',
       title: 'Conflict Resolution Role-Play Training',
+      type: 'Physics',
       stagesCount: '12 Stages',
       level: 'Intermediate',
       status: 'In Progress',
@@ -112,6 +116,7 @@ export class NeetComponent {
     {
       id: '4',
       title: 'Public Speaking Role-Play for Professionals',
+      type: 'Chemistry',
       stagesCount: '8 Stages',
       level: 'Intermediate',
       status: 'In Progress',
@@ -129,6 +134,7 @@ export class NeetComponent {
     {
       id: '5',
       title: 'Customer Service Role-Play for Frontline',
+      type: 'Previous Year Test',
       stagesCount: '4 Stages',
       level: 'Advanced',
       status: 'Completed',
@@ -146,6 +152,7 @@ export class NeetComponent {
     {
       id: '6',
       title: 'Sales Pitch Role-Play: Closing Deals...',
+      type: 'Botany',
       stagesCount: '5 Stages',
       level: 'Beginner',
       status: 'In Progress',
@@ -163,6 +170,7 @@ export class NeetComponent {
     {
       id: '7',
       title: 'Leadership Role-Play: Inspiring Teams',
+      type: 'Zoology',
       stagesCount: '13 Stages',
       level: 'Beginner',
       status: 'Completed',
@@ -204,6 +212,7 @@ export class NeetComponent {
       if (query) {
         return (
           item.title.toLowerCase().includes(query) ||
+          item.type.toLowerCase().includes(query) ||
           item.level.toLowerCase().includes(query) ||
           item.category.toLowerCase().includes(query)
         );
@@ -217,6 +226,8 @@ export class NeetComponent {
       let res = 0;
       if (field === 'title') {
         res = a.title.localeCompare(b.title);
+      } else if (field === 'type') {
+        res = a.type.localeCompare(b.type);
       } else if (field === 'level') {
         const orderMap = { Beginner: 1, Intermediate: 2, Advanced: 3 };
         res = orderMap[a.level] - orderMap[b.level];

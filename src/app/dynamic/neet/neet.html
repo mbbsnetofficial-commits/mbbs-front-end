@@ -148,7 +148,17 @@
               </button>
             </th>
 
-            <!-- 2. Level -->
+            <!-- 2. Type -->
+            <th class="col-type">
+              <button type="button" class="th-sort-btn" (click)="toggleSort('type')">
+                <span>Type</span>
+                <svg class="sort-icon" [class.sort-active]="sortField() === 'type'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M7 17V4M4 7l3-3 3 3M17 7v13m-3-3 3 3 3-3"/>
+                </svg>
+              </button>
+            </th>
+
+            <!-- 3. Level -->
             <th class="col-level">
               <button type="button" class="th-sort-btn" (click)="toggleSort('level')">
                 <span>Level</span>
@@ -158,7 +168,7 @@
               </button>
             </th>
 
-            <!-- 3. Status -->
+            <!-- 4. Status -->
             <th class="col-status">
               <button type="button" class="th-sort-btn" (click)="toggleSort('status')">
                 <span>Status</span>
@@ -168,7 +178,7 @@
               </button>
             </th>
 
-            <!-- 4. Progress -->
+            <!-- 5. Progress -->
             <th class="col-progress">
               <button type="button" class="th-sort-btn" (click)="toggleSort('progress')">
                 <span>Progress</span>
@@ -178,7 +188,7 @@
               </button>
             </th>
 
-            <!-- 5. Time Spent -->
+            <!-- 6. Time Spent -->
             <th class="col-time">
               <button type="button" class="th-sort-btn" (click)="toggleSort('time')">
                 <span>Time Spent</span>
@@ -188,7 +198,7 @@
               </button>
             </th>
 
-            <!-- 6. Score -->
+            <!-- 7. Score -->
             <th class="col-score">
               <button type="button" class="th-sort-btn" (click)="toggleSort('score')">
                 <span>Score</span>
@@ -220,7 +230,12 @@
                 </div>
               </td>
 
-              <!-- 2. Level -->
+              <!-- 2. Type -->
+              <td class="col-type">
+                <span class="type-badge">{{ course.type }}</span>
+              </td>
+
+              <!-- 3. Level -->
               <td class="col-level">
                 <span
                   class="level-badge"
@@ -232,7 +247,7 @@
                 </span>
               </td>
 
-              <!-- 3. Status -->
+              <!-- 4. Status -->
               <td class="col-status">
                 <span
                   class="status-pill"
@@ -243,7 +258,7 @@
                 </span>
               </td>
 
-              <!-- 4. Progress -->
+              <!-- 5. Progress -->
               <td class="col-progress">
                 <div class="progress-cell">
                   <div class="progress-meta">
@@ -259,7 +274,7 @@
                 </div>
               </td>
 
-              <!-- 5. Time Spent -->
+              <!-- 6. Time Spent -->
               <td class="col-time">
                 <div class="time-cell">
                   <app-icon name="clock" [size]="14" class="time-icon" />
@@ -267,7 +282,7 @@
                 </div>
               </td>
 
-              <!-- 6. Score -->
+              <!-- 7. Score -->
               <td class="col-score">
                 <span class="score-badge">{{ course.score }}</span>
               </td>
