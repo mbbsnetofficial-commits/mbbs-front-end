@@ -94,7 +94,7 @@
         (click)="toggleProfile()"
         [attr.aria-expanded]="profileOpen()"
       >
-        <span class="avatar">{{ initials }}</span>
+        <span class="avatar"><img src="/images/profile.jpg" alt="Profile" /></span>
       </button>
     </div>
   </aside>
@@ -139,7 +139,7 @@
           [attr.aria-expanded]="profileOpen()"
           (click)="toggleProfile()"
         >
-          <span class="avatar">{{ initials }}</span
+          <span class="avatar"><img src="/images/profile.jpg" alt="Profile" /></span
           ><span>{{ displayName }}</span
           ><app-icon name="chevron" [size]="14" />
         </button>
@@ -178,7 +178,7 @@
       @if (profileOpen()) {
         <section class="popover profile-popover" aria-label="Account menu">
           <div class="profile-summary">
-            <span class="avatar large">{{ initials }}</span>
+            <span class="avatar large"><img src="/images/profile.jpg" alt="Profile" /></span>
             <div>
               <strong>{{ displayName }}</strong
               ><small>{{ userEmail }}</small>
