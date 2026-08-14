@@ -56,136 +56,9 @@ export class NeetComponent {
     'Zoology'
   ]);
 
-  readonly activeCategories = signal<string[]>(['Previous Year Test', 'Physics']);
+  readonly activeCategories = signal<string[]>([]);
 
-  readonly courses = signal<NeetCourseItem[]>([
-    {
-      id: '1',
-      title: 'Comprehensive Interview Test Role-Play...',
-      type: 'Custom',
-      stagesCount: '8 Stages',
-      level: 'Advanced',
-      status: 'In Progress',
-      stageInfo: 'Stages 2',
-      progressPercent: 25,
-      progressColor: '#ff5252',
-      dateRange: '05 Jan 2026',
-      learningTime: '2h 13m',
-      score: '518 / 720',
-      scoreNum: 518,
-      category: 'Custom Practice',
-      iconBg: '#ff6b4a',
-      iconName: 'test'
-    },
-    {
-      id: '2',
-      title: 'Negotiation Skills Role-Play: Closing...',
-      type: 'Practise Test',
-      stagesCount: '18 Stages',
-      level: 'Beginner',
-      status: 'In Progress',
-      stageInfo: 'Stages 4',
-      progressPercent: 31,
-      progressColor: '#ff9800',
-      dateRange: '12 Jan 2026',
-      learningTime: '2h 13m',
-      score: '490 / 720',
-      scoreNum: 490,
-      category: 'Mock Exam',
-      iconBg: '#34d399',
-      iconName: 'chat'
-    },
-    {
-      id: '3',
-      title: 'Conflict Resolution Role-Play Training',
-      type: 'Physics',
-      stagesCount: '12 Stages',
-      level: 'Intermediate',
-      status: 'In Progress',
-      stageInfo: 'Stages 6',
-      progressPercent: 50,
-      progressColor: '#2979ff',
-      dateRange: '18 Jan 2026',
-      learningTime: '9h 34m',
-      score: '576 / 720',
-      scoreNum: 576,
-      category: 'Physics Mechanics',
-      iconBg: '#ff4081',
-      iconName: 'chat'
-    },
-    {
-      id: '4',
-      title: 'Public Speaking Role-Play for Professionals',
-      type: 'Chemistry',
-      stagesCount: '8 Stages',
-      level: 'Intermediate',
-      status: 'In Progress',
-      stageInfo: 'Stages 7',
-      progressPercent: 87,
-      progressColor: '#2979ff',
-      dateRange: '22 Jan 2026',
-      learningTime: '12h 37m',
-      score: '640 / 720',
-      scoreNum: 640,
-      category: 'Organic Chemistry',
-      iconBg: '#26c6da',
-      iconName: 'sparkles'
-    },
-    {
-      id: '5',
-      title: 'Customer Service Role-Play for Frontline',
-      type: 'Previous Year Test',
-      stagesCount: '4 Stages',
-      level: 'Advanced',
-      status: 'Completed',
-      stageInfo: 'Stages 4',
-      progressPercent: 100,
-      progressColor: '#34d399',
-      dateRange: '01 - 15 Jan 2026',
-      learningTime: '6h 21m',
-      score: '684 / 720',
-      scoreNum: 684,
-      category: 'NEET 2025 Mapped',
-      iconBg: '#42a5f5',
-      iconName: 'like'
-    },
-    {
-      id: '6',
-      title: 'Sales Pitch Role-Play: Closing Deals...',
-      type: 'Botany',
-      stagesCount: '5 Stages',
-      level: 'Beginner',
-      status: 'In Progress',
-      stageInfo: 'Stages 6',
-      progressPercent: 33,
-      progressColor: '#ff9800',
-      dateRange: '28 Jan 2026',
-      learningTime: '4h 9m',
-      score: '532 / 720',
-      scoreNum: 532,
-      category: 'Plant Anatomy',
-      iconBg: '#7e57c2',
-      iconName: 'flame'
-    },
-    {
-      id: '7',
-      title: 'Leadership Role-Play: Inspiring Teams',
-      type: 'Zoology',
-      stagesCount: '13 Stages',
-      level: 'Beginner',
-      status: 'Completed',
-      stageInfo: 'Stages 5',
-      progressPercent: 100,
-      progressColor: '#34d399',
-      dateRange: '08 Jan - 02 Feb 2026',
-      learningTime: '18h 21m',
-      score: '655 / 720',
-      scoreNum: 655,
-      category: 'Human Physiology',
-      iconBg: '#78909c',
-      iconName: 'profile'
-    }
-  ]);
+  readonly courses = signal<NeetCourseItem[]>(this.generate200Courses());
 
   readonly filteredCourses = computed(() => {
     const query = this.searchQuery().trim().toLowerCase();
@@ -286,5 +159,164 @@ export class NeetComponent {
     const hours = hoursMatch ? parseInt(hoursMatch[1], 10) : 0;
     const mins = minsMatch ? parseInt(minsMatch[1], 10) : 0;
     return hours * 60 + mins;
+  }
+
+  private generate200Courses(): NeetCourseItem[] {
+    const types: NeetCourseItem['type'][] = [
+      'Previous Year Test',
+      'Practise Test',
+      'Custom',
+      'Physics',
+      'Chemistry',
+      'Botany',
+      'Zoology'
+    ];
+
+    const levels: NeetCourseItem['level'][] = ['Beginner', 'Intermediate', 'Advanced'];
+
+    const physicsTopics = [
+      'Laws of Motion & Friction Drill',
+      'Thermodynamics & Heat Transfer',
+      'Electrostatics & Capacitance Test',
+      'Ray Optics & Optical Instruments',
+      'Rotational Dynamics Practice',
+      'Modern Physics & Photoelectric Effect',
+      'Work, Energy & Power Quiz',
+      'Gravitation & Satellite Motion',
+      'Current Electricity & Circuits',
+      'Wave Optics & Interference'
+    ];
+
+    const chemistryTopics = [
+      'Organic Reaction Mechanisms Practice',
+      'Chemical Equilibrium & Le Chatelier',
+      'Periodic Table Trends & Bonding',
+      'Aldehydes, Ketones & Carboxylic Acids',
+      'Coordination Chemistry & Isomerism',
+      'Electrochemistry & Nernst Equation',
+      'Solutions & Colligative Properties',
+      'Thermodynamics & Enthalpy',
+      'Biomolecules & Polymers Drill',
+      'Chemical Kinetics & Order of Reaction'
+    ];
+
+    const botanyTopics = [
+      'Plant Kingdom & Algae Taxonomy',
+      'Photosynthesis in Higher Plants',
+      'Respiration in Plants & ATP Yield',
+      'Genetics & Mendelian Inheritance',
+      'Cell Division: Mitosis & Meiosis',
+      'Plant Growth & Phytohormones',
+      'Ecology: Ecosystem Energy Flow',
+      'Morphology of Flowering Plants',
+      'Anatomy of Dicot & Monocot Stem',
+      'Biodiversity & Conservation Strategy'
+    ];
+
+    const zoologyTopics = [
+      'Human Physiology: Circulation & Blood',
+      'Neural Control & Synaptic Conduction',
+      'Excretory Products & Osmoregulation',
+      'Human Reproduction & Embryology',
+      'Animal Kingdom & Chordate Classification',
+      'Breathing & Gas Exchange Mechanisms',
+      'Biotechnology: Recombinant DNA Tech',
+      'Locomotion & Skeletal System',
+      'Endocrine System & Hormonal Control',
+      'Evolution & Hardy-Weinberg Equilibrium'
+    ];
+
+    const pyqTopics = [
+      'NEET 2025 Full Syllabus Past Paper',
+      'NEET 2024 Phase I Official Paper',
+      'NEET 2023 All-India Memory Paper',
+      'NEET 2022 Re-Exam Test Series',
+      'NEET 2021 National Mock Paper'
+    ];
+
+    const practiceTopics = [
+      'All-India NEET Full Speed Mock 01',
+      'Biophysics Integrated Chapter Test',
+      'High-Yield NCERT Line-by-Line Mock',
+      'Sprint Revision Grand Test 04',
+      'Rank Booster Speed Drill 08'
+    ];
+
+    const customTopics = [
+      'Custom Mechanics 50-Q Sprint',
+      'Personalized Organic Chemistry Drill',
+      'Custom Botany Genetics Timed Test',
+      'Custom Human Anatomy Quiz 30',
+      'Tailored Grand Mock Test 12'
+    ];
+
+    const colors = ['#ff6b4a', '#34d399', '#ff4081', '#26c6da', '#42a5f5', '#7e57c2', '#78909c', '#f59e0b', '#10b981', '#6366f1'];
+    const icons = ['test', 'chat', 'sparkles', 'like', 'flame', 'profile', 'bookmark', 'check'];
+    const progressColors = ['#ff5252', '#ff9800', '#2979ff', '#34d399', '#8b5cf6'];
+
+    const list: NeetCourseItem[] = [];
+
+    for (let i = 1; i <= 200; i++) {
+      const type = types[(i - 1) % types.length];
+      const level = levels[(i - 1) % levels.length];
+      const status: NeetCourseItem['status'] = i % 3 === 0 ? 'Completed' : 'In Progress';
+      const progressPercent = status === 'Completed' ? 100 : Math.min(95, Math.max(15, ((i * 17) % 85) + 10));
+
+      let title = '';
+      let category = '';
+
+      if (type === 'Physics') {
+        title = physicsTopics[(i - 1) % physicsTopics.length];
+        category = 'Physics Mechanics & Dynamics';
+      } else if (type === 'Chemistry') {
+        title = chemistryTopics[(i - 1) % chemistryTopics.length];
+        category = 'Organic & Inorganic Chemistry';
+      } else if (type === 'Botany') {
+        title = botanyTopics[(i - 1) % botanyTopics.length];
+        category = 'Botany & Plant Physiology';
+      } else if (type === 'Zoology') {
+        title = zoologyTopics[(i - 1) % zoologyTopics.length];
+        category = 'Zoology & Human Physiology';
+      } else if (type === 'Previous Year Test') {
+        title = pyqTopics[(i - 1) % pyqTopics.length];
+        category = 'NEET Official Past Papers';
+      } else if (type === 'Practise Test') {
+        title = practiceTopics[(i - 1) % practiceTopics.length];
+        category = 'Full Mock Practice';
+      } else {
+        title = customTopics[(i - 1) % customTopics.length];
+        category = 'Personalized Practice Session';
+      }
+
+      const scoreVal = Math.min(720, Math.max(380, 420 + ((i * 23) % 290)));
+      const hours = Math.floor((i * 3) % 18) + 1;
+      const mins = Math.floor((i * 11) % 59);
+
+      let colorTrack = progressColors[0];
+      if (progressPercent >= 100) colorTrack = progressColors[3];
+      else if (progressPercent >= 75) colorTrack = progressColors[2];
+      else if (progressPercent >= 40) colorTrack = progressColors[1];
+
+      list.push({
+        id: i.toString(),
+        title: `${title} #${i}`,
+        type,
+        stagesCount: `${(i % 12) + 3} Stages`,
+        level,
+        status,
+        stageInfo: `Stage ${(i % 5) + 1}`,
+        progressPercent,
+        progressColor: colorTrack,
+        dateRange: status === 'Completed' ? `0${(i % 8) + 1} - 1${(i % 8) + 5} Jan 2026` : `${(i % 25) + 1} Jan 2026`,
+        learningTime: `${hours}h ${mins}m`,
+        score: `${scoreVal} / 720`,
+        scoreNum: scoreVal,
+        category,
+        iconBg: colors[i % colors.length],
+        iconName: icons[i % icons.length]
+      });
+    }
+
+    return list;
   }
 }
