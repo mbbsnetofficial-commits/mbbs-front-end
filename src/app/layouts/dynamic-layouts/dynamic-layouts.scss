@@ -84,6 +84,33 @@
     background 0.16s ease,
     color 0.16s ease;
 }
+.sidebar-nav > a::after,
+.sidebar-profile::after {
+  content: attr(aria-label);
+  position: absolute;
+  left: calc(100% + 14px);
+  top: 50%;
+  transform: translateY(-50%) translateX(-4px);
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: var(--dark);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.sidebar-nav > a:hover::after,
+.sidebar-profile:hover::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(-50%) translateX(0);
+}
 .sidebar-nav > a:hover {
   color: var(--ink);
   background: var(--surface-soft);
@@ -108,6 +135,7 @@
   margin-top: auto;
 }
 .sidebar-profile {
+  position: relative;
   width: 100%;
   display: flex;
   align-items: center;

@@ -13,7 +13,7 @@
       <a
         class="brand"
         routerLink="/dynamic/dashboard"
-        title="MBBS.NET dashboard"
+        aria-label="MBBS.NET dashboard"
         (click)="closeMobileNav()"
       >
         <span class="brand-mark"><img src="/images/app-logo.png" alt="MBBS.NET Logo" /></span>
@@ -25,7 +25,7 @@
         routerLink="/dynamic/dashboard"
         routerLinkActive="active"
         [routerLinkActiveOptions]="{ exact: true }"
-        title="Dashboard"
+        aria-label="Dashboard"
         (click)="closeMobileNav()"
       >
         <span class="nav-icon"><app-icon name="dashboard" [size]="19" /></span>
@@ -34,7 +34,7 @@
       <a
         routerLink="/dynamic/neet"
         routerLinkActive="active"
-        title="NEET"
+        aria-label="NEET"
         (click)="closeMobileNav()"
       >
         <span class="nav-icon"><app-icon name="test" [size]="19" /></span>
@@ -43,7 +43,7 @@
       <a
         routerLink="/dynamic/ucat"
         routerLinkActive="active"
-        title="UCAT"
+        aria-label="UCAT"
         (click)="closeMobileNav()"
       >
         <span class="nav-icon"><app-icon name="activity" [size]="19" /></span>
@@ -52,7 +52,7 @@
       <a
         routerLink="/dynamic/ielts"
         routerLinkActive="active"
-        title="IELTS"
+        aria-label="IELTS"
         (click)="closeMobileNav()"
       >
         <span class="nav-icon"><app-icon name="quote" [size]="19" /></span>
@@ -61,7 +61,7 @@
       <a
         routerLink="/dynamic/pte"
         routerLinkActive="active"
-        title="PTE"
+        aria-label="PTE"
         (click)="closeMobileNav()"
       >
         <span class="nav-icon"><app-icon name="microscope" [size]="19" /></span>
@@ -70,7 +70,7 @@
       <a
         routerLink="/dynamic/invites"
         routerLinkActive="active"
-        title="Invites"
+        aria-label="Invites"
         (click)="closeMobileNav()"
       >
         <span class="nav-icon"><app-icon name="bell" [size]="19" /></span>
@@ -79,7 +79,7 @@
       <a
         routerLink="/dynamic/course-search"
         routerLinkActive="active"
-        title="Course Search"
+        aria-label="Course Search"
         (click)="closeMobileNav()"
       >
         <span class="nav-icon"><app-icon name="search" [size]="19" /></span>
@@ -90,7 +90,7 @@
       <button
         class="sidebar-profile"
         type="button"
-        title="Profile"
+        aria-label="Profile"
         (click)="toggleProfile()"
         [attr.aria-expanded]="profileOpen()"
       >
