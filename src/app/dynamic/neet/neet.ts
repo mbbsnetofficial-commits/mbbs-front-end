@@ -8,17 +8,19 @@ import { PreviousYearQuestions } from './previous-year-questions/previous-year-q
 export interface NeetCourseItem {
   id: string;
   title: string;
-  subtitle: string;
-  category: string;
-  iconBg: string;
-  iconName: string;
+  stagesCount: string;
+  level: 'Beginner' | 'Intermediate' | 'Advanced';
+  status: 'In Progress' | 'Completed';
   stageInfo: string;
   progressPercent: number;
   progressColor: string;
-  status: 'In Progress' | 'Completed';
+  startDate: string;
+  endDate: string;
   learningTime: string;
-  actionType: 'none' | 'certificate' | 'review';
-  actionText?: string;
+  score: string;
+  category: string;
+  iconBg: string;
+  iconName: string;
 }
 
 @Component({
@@ -56,107 +58,121 @@ export class NeetComponent {
     {
       id: '1',
       title: 'Comprehensive Interview Test Role-Play...',
-      subtitle: '8 Stages • Advanced',
-      category: 'Human Resources',
-      iconBg: '#ff6b4a',
-      iconName: 'test',
+      stagesCount: '8 Stages',
+      level: 'Advanced',
+      status: 'In Progress',
       stageInfo: 'Stages 2',
       progressPercent: 25,
       progressColor: '#ff5252',
-      status: 'In Progress',
+      startDate: '05 Jan 2026',
+      endDate: '-',
       learningTime: '2h 13m',
-      actionType: 'none',
-      actionText: 'Not yet available'
+      score: '72%',
+      category: 'Human Resources',
+      iconBg: '#ff6b4a',
+      iconName: 'test'
     },
     {
       id: '2',
       title: 'Negotiation Skills Role-Play: Closing...',
-      subtitle: '18 Stages • Beginner',
-      category: 'Leadership',
-      iconBg: '#34d399',
-      iconName: 'chat',
+      stagesCount: '18 Stages',
+      level: 'Beginner',
+      status: 'In Progress',
       stageInfo: 'Stages 4',
       progressPercent: 31,
       progressColor: '#ff9800',
-      status: 'In Progress',
+      startDate: '12 Jan 2026',
+      endDate: '-',
       learningTime: '2h 13m',
-      actionType: 'none',
-      actionText: 'Not yet available'
+      score: '68%',
+      category: 'Leadership',
+      iconBg: '#34d399',
+      iconName: 'chat'
     },
     {
       id: '3',
       title: 'Conflict Resolution Role-Play Training',
-      subtitle: '12 Stages • Intermediate',
-      category: 'Conflict Management',
-      iconBg: '#ff4081',
-      iconName: 'chat',
+      stagesCount: '12 Stages',
+      level: 'Intermediate',
+      status: 'In Progress',
       stageInfo: 'Stages 6',
       progressPercent: 50,
       progressColor: '#2979ff',
-      status: 'In Progress',
+      startDate: '18 Jan 2026',
+      endDate: '-',
       learningTime: '9h 34m',
-      actionType: 'none',
-      actionText: 'Not yet available'
+      score: '80%',
+      category: 'Conflict Management',
+      iconBg: '#ff4081',
+      iconName: 'chat'
     },
     {
       id: '4',
       title: 'Public Speaking Role-Play for Professionals',
-      subtitle: '8 Stages • Intermediate',
-      category: 'Communication Skills',
-      iconBg: '#26c6da',
-      iconName: 'sparkles',
+      stagesCount: '8 Stages',
+      level: 'Intermediate',
+      status: 'In Progress',
       stageInfo: 'Stages 7',
       progressPercent: 87,
       progressColor: '#2979ff',
-      status: 'In Progress',
+      startDate: '22 Jan 2026',
+      endDate: '-',
       learningTime: '12h 37m',
-      actionType: 'none',
-      actionText: 'Not yet available'
+      score: '89%',
+      category: 'Communication Skills',
+      iconBg: '#26c6da',
+      iconName: 'sparkles'
     },
     {
       id: '5',
       title: 'Customer Service Role-Play for Frontline',
-      subtitle: '4 Stages • Advanced',
-      category: 'Team Building',
-      iconBg: '#42a5f5',
-      iconName: 'like',
+      stagesCount: '4 Stages',
+      level: 'Advanced',
+      status: 'Completed',
       stageInfo: 'Stages 4',
       progressPercent: 100,
       progressColor: '#34d399',
-      status: 'Completed',
+      startDate: '01 Jan 2026',
+      endDate: '15 Jan 2026',
       learningTime: '6h 21m',
-      actionType: 'certificate',
-      actionText: 'Certificate received'
+      score: '95%',
+      category: 'Team Building',
+      iconBg: '#42a5f5',
+      iconName: 'like'
     },
     {
       id: '6',
       title: 'Sales Pitch Role-Play: Closing Deals...',
-      subtitle: '5 Stages • Beginner',
-      category: 'Problem-Solving',
-      iconBg: '#7e57c2',
-      iconName: 'flame',
+      stagesCount: '5 Stages',
+      level: 'Beginner',
+      status: 'In Progress',
       stageInfo: 'Stages 6',
       progressPercent: 33,
       progressColor: '#ff9800',
-      status: 'In Progress',
+      startDate: '28 Jan 2026',
+      endDate: '-',
       learningTime: '4h 9m',
-      actionType: 'none',
-      actionText: 'Not yet available'
+      score: '74%',
+      category: 'Problem-Solving',
+      iconBg: '#7e57c2',
+      iconName: 'flame'
     },
     {
       id: '7',
       title: 'Leadership Role-Play: Inspiring Teams',
-      subtitle: '13 Stages • Beginner',
-      category: 'Leadership',
-      iconBg: '#78909c',
-      iconName: 'profile',
+      stagesCount: '13 Stages',
+      level: 'Beginner',
+      status: 'Completed',
       stageInfo: 'Stages 5',
       progressPercent: 100,
       progressColor: '#34d399',
-      status: 'Completed',
+      startDate: '08 Jan 2026',
+      endDate: '02 Feb 2026',
       learningTime: '18h 21m',
-      actionType: 'review',
-      actionText: 'Pending review'
+      score: '91%',
+      category: 'Leadership',
+      iconBg: '#78909c',
+      iconName: 'profile'
     }
   ]);
 
@@ -183,7 +199,7 @@ export class NeetComponent {
       if (query) {
         return (
           item.title.toLowerCase().includes(query) ||
-          item.subtitle.toLowerCase().includes(query) ||
+          item.level.toLowerCase().includes(query) ||
           item.category.toLowerCase().includes(query)
         );
       }
