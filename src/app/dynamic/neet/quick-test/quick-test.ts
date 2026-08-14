@@ -26,7 +26,7 @@ import {
 import { QuickTestService } from '../../../core/serivce/quick-test.service';
 
 type QuickTestView = 'wizard' | 'test' | 'result';
-type WizardStep = 1 | 2 | 3;
+type WizardStep = 1 | 2 | 3 | 4;
 type ResultFilter = 'all' | 'correct' | 'wrong' | 'skipped';
 type AiPanel = 'none' | 'chat' | 'insights';
 
@@ -46,6 +46,7 @@ export class QuickTest implements OnInit, OnDestroy {
 
   readonly view = signal<QuickTestView>('wizard');
   readonly step = signal<WizardStep>(1);
+  readonly testName = signal<string>('NEET Custom Practice Test');
   readonly subjects = signal<string[]>([]);
   readonly chapters = signal<string[]>([]);
   readonly selectedSubjects = signal<string[]>([]);
@@ -196,6 +197,13 @@ export class QuickTest implements OnInit, OnDestroy {
     this.selectedChapters.set([...this.chapters()]);
   }
 
+  goToSubjects(): void {
+    if (!this.testName().trim()) {
+      return;
+    }
+    this.step.set(2);
+  }
+
   goToChapters(): void {
     if (this.selectedSubjects().length === 0) {
       return;
@@ -214,7 +222,7 @@ export class QuickTest implements OnInit, OnDestroy {
           .filter((chapter): chapter is string => Boolean(chapter));
 
         this.chapters.set([...new Set(chapterNames)].sort());
-        this.step.set(2);
+        this.step.set(3);
         this.isLoading.set(false);
       },
       error: (error) => {
@@ -238,7 +246,7 @@ export class QuickTest implements OnInit, OnDestroy {
     }).subscribe({
       next: (response) => {
         this.topicCount.set(response.total ?? response.data.length);
-        this.step.set(3);
+        this.step.set(4);
         this.isLoading.set(false);
       },
       error: (error) => {
@@ -250,7 +258,9 @@ export class QuickTest implements OnInit, OnDestroy {
 
   previousStep(): void {
     this.errorMessage.set(null);
-    if (this.step() === 3) {
+    if (this.step() === 4) {
+      this.step.set(3);
+    } else if (this.step() === 3) {
       this.step.set(2);
     } else if (this.step() === 2) {
       this.step.set(1);

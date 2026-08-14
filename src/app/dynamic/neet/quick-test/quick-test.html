@@ -8,20 +8,54 @@
           <p class="eyebrow">Create your own test</p>
           <h1>Quick Test</h1>
         </div>
-        <strong>{{ step() }} / 3</strong>
+        <strong>{{ step() }} / 4</strong>
       </div>
       <div class="step-progress" aria-label="Test setup progress">
         <span [class.active]="step() >= 1"></span>
         <span [class.active]="step() >= 2"></span>
         <span [class.active]="step() >= 3"></span>
+        <span [class.active]="step() >= 4"></span>
       </div>
     </header>
 
     <p *ngIf="errorMessage()" class="error-message">{{ errorMessage() }}</p>
 
+    <!-- Step 1: Test Name -->
     <article *ngIf="step() === 1" class="setup-card">
       <div class="card-heading">
         <p>Step 1</p>
+        <h2>Test Name</h2>
+        <span>Enter a title for your custom practice test session.</span>
+      </div>
+
+      <div class="test-name-field">
+        <label for="test-name-input">Test Title</label>
+        <input
+          id="test-name-input"
+          type="text"
+          class="test-name-input"
+          placeholder="e.g. Organic Chemistry & Physics Mechanics Drill"
+          [value]="testName()"
+          (input)="testName.set($any($event.target).value)"
+        />
+      </div>
+
+      <div class="wizard-actions">
+        <span></span>
+        <button
+          type="button"
+          class="primary-button"
+          [disabled]="!testName().trim()"
+          (click)="goToSubjects()">
+          Next &rarr;
+        </button>
+      </div>
+    </article>
+
+    <!-- Step 2: Pick Subjects -->
+    <article *ngIf="step() === 2" class="setup-card">
+      <div class="card-heading">
+        <p>Step 2</p>
         <h2>Pick Subjects</h2>
         <span>Choose one or more subjects for your test.</span>
       </div>
@@ -45,6 +79,7 @@
       </div>
 
       <div class="wizard-actions">
+        <button type="button" class="text-button" (click)="previousStep()">&larr; Back</button>
         <span>{{ selectedSubjects().length }} selected</span>
         <button
           type="button"
@@ -56,10 +91,11 @@
       </div>
     </article>
 
-    <article *ngIf="step() === 2" class="setup-card">
+    <!-- Step 3: Pick Chapters -->
+    <article *ngIf="step() === 3" class="setup-card">
       <div class="card-heading chapter-heading">
         <div>
-          <p>Step 2</p>
+          <p>Step 3</p>
           <h2>Pick Chapters</h2>
           <span>{{ selectedSubjects().join(', ') }}</span>
         </div>
@@ -102,9 +138,10 @@
       </div>
     </article>
 
-    <article *ngIf="step() === 3" class="setup-card">
+    <!-- Step 4: Configure Test -->
+    <article *ngIf="step() === 4" class="setup-card">
       <div class="card-heading">
-        <p>Step 3</p>
+        <p>Step 4</p>
         <h2>Configure Test</h2>
         <span>Choose the number of questions and time limit.</span>
       </div>
@@ -135,6 +172,7 @@
       <div class="range-labels"><span>1 min</span><span>60 min</span></div>
 
       <dl class="test-summary">
+        <div><dt>Test Title</dt><dd><strong>{{ testName() }}</strong></dd></div>
         <div><dt>Subjects</dt><dd>{{ selectedSubjects().join(', ') }}</dd></div>
         <div><dt>Chapters</dt><dd>{{ selectedChapters().length }} selected</dd></div>
         <div><dt>Topics pool</dt><dd>{{ topicCount() }} topics</dd></div>
