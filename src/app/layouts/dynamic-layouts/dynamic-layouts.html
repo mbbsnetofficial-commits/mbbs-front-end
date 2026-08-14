@@ -134,16 +134,29 @@
       </div>
 
       @if (router.url.startsWith('/dynamic/neet')) {
-        <a routerLink="/dynamic/neet/quick-test" class="build-test-btn">
+        <button type="button" class="build-test-btn" (click)="openQuickTestModal($event)">
           <app-icon name="sparkles" [size]="16" />
           <span>Build your own test</span>
-        </a>
+        </button>
       }
     </header>
 
     <main class="content" tabindex="-1"><router-outlet /></main>
   </section>
 </div>
+
+@if (quickTestModalOpen()) {
+  <div class="modal-overlay" (click)="closeQuickTestModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <button type="button" class="modal-close-btn" (click)="closeQuickTestModal()" aria-label="Close modal">
+        <app-icon name="close" [size]="18" />
+      </button>
+      <div class="modal-body">
+        <app-quick-test />
+      </div>
+    </div>
+  </div>
+}
 
 @if (commandOpen()) {
   <div class="command-layer" role="presentation" (click)="closeOverlays()">

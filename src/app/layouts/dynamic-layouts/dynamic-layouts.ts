@@ -14,6 +14,8 @@ import { AuthService } from '../../core/serivce/auth.service';
 import { TokenService } from '../../core/serivce/token.service';
 import { StudentDashboardService } from '../../dynamic/dashboard/services/student-dashboard.service';
 
+import { QuickTest } from '../../dynamic/neet/quick-test/quick-test';
+
 interface NavigationItem {
   label: string;
   description: string;
@@ -29,7 +31,7 @@ interface PageMeta {
 @Component({
   selector: 'app-dynamic-layouts',
   standalone: true,
-  imports: [Icon, RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [Icon, RouterLink, RouterLinkActive, RouterOutlet, QuickTest],
   templateUrl: './dynamic-layouts.html',
   styleUrl: './dynamic-layouts.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -45,6 +47,7 @@ export class DynamicLayouts implements OnDestroy {
   protected readonly commandOpen = signal(false);
   protected readonly notificationOpen = signal(false);
   protected readonly profileOpen = signal(false);
+  protected readonly quickTestModalOpen = signal(false);
   protected readonly searchQuery = signal('');
   protected readonly pageMeta = signal<PageMeta>({
     eyebrow: 'Student workspace',
@@ -199,11 +202,21 @@ export class DynamicLayouts implements OnDestroy {
     this.sidebarOpen.set(false);
   }
 
+  protected openQuickTestModal(event?: MouseEvent): void {
+    if (event) event.preventDefault();
+    this.quickTestModalOpen.set(true);
+  }
+
+  protected closeQuickTestModal(): void {
+    this.quickTestModalOpen.set(false);
+  }
+
   protected closeOverlays(): void {
     this.sidebarOpen.set(false);
     this.commandOpen.set(false);
     this.notificationOpen.set(false);
     this.profileOpen.set(false);
+    this.quickTestModalOpen.set(false);
     this.searchQuery.set('');
   }
 
