@@ -241,7 +241,7 @@ export class DynamicLayouts implements OnDestroy {
     const definitions: Array<[string, PageMeta]> = [
       ['/dynamic/neet/quick-test', { eyebrow: 'NEET preparation', title: 'Custom practice' }],
       ['/dynamic/neet/leaderboard', { eyebrow: 'Performance', title: 'Leaderboard' }],
-      ['/dynamic/neet', { eyebrow: 'NEET preparation', title: 'Previous papers' }],
+      ['/dynamic/neet', { eyebrow: 'NEET preparation', title: 'Learning Report' }],
       ['/dynamic/ucat/previous-year', { eyebrow: 'UCAT preparation', title: 'Previous papers' }],
       ['/dynamic/ucat', { eyebrow: 'UCAT preparation', title: 'Practice workspace' }],
       [
