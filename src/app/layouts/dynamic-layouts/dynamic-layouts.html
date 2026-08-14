@@ -91,12 +91,47 @@
         class="sidebar-action"
         type="button"
         aria-label="Notifications"
+        (click)="toggleNotifications()"
+        [attr.aria-expanded]="notificationOpen()"
       >
         <span class="nav-icon">
           <app-icon name="bell" [size]="24" />
-          <span class="badge">1</span>
+          @if (unreadCount() > 0) {
+            <span class="badge">{{ unreadCount() > 9 ? '9+' : unreadCount() }}</span>
+          }
         </span>
       </button>
+      
+      @if (notificationOpen()) {
+        <section class="popover notification-popover" aria-label="Notifications">
+          <header>
+            <div><span>Updates</span><strong>Notifications</strong></div>
+            <small>{{ unreadCount() }} unread</small>
+          </header>
+          <div class="notification-list">
+            @if (notifications().length) {
+              @for (
+                notification of notifications();
+                track notification._id ?? notification.id ?? $index
+              ) {
+                <article>
+                  <span class="notification-icon"><app-icon name="bell" [size]="16" /></span>
+                  <div>
+                    <strong>{{ notificationTitle(notification) }}</strong
+                    ><small>{{ notificationMeta(notification) }}</small>
+                  </div>
+                </article>
+              }
+            } @else {
+              <div class="popover-empty">
+                <app-icon name="check" [size]="20" /><strong>You’re all caught up</strong
+                ><span>No new student updates right now.</span>
+              </div>
+            }
+          </div>
+        </section>
+      }
+
       <button
         class="sidebar-profile"
         type="button"
@@ -154,35 +189,7 @@
         </button>
       </div>
 
-      @if (notificationOpen()) {
-        <section class="popover notification-popover" aria-label="Notifications">
-          <header>
-            <div><span>Updates</span><strong>Notifications</strong></div>
-            <small>{{ unreadCount() }} unread</small>
-          </header>
-          <div class="notification-list">
-            @if (notifications().length) {
-              @for (
-                notification of notifications();
-                track notification._id ?? notification.id ?? $index
-              ) {
-                <article>
-                  <span class="notification-icon"><app-icon name="bell" [size]="16" /></span>
-                  <div>
-                    <strong>{{ notificationTitle(notification) }}</strong
-                    ><small>{{ notificationMeta(notification) }}</small>
-                  </div>
-                </article>
-              }
-            } @else {
-              <div class="popover-empty">
-                <app-icon name="check" [size]="20" /><strong>You’re all caught up</strong
-                ><span>No new student updates right now.</span>
-              </div>
-            }
-          </div>
-        </section>
-      }
+
 
       @if (profileOpen()) {
         <section class="popover profile-popover" aria-label="Account menu">
