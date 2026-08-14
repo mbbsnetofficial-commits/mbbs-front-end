@@ -1,39 +1,51 @@
 <section class="quick-test-shell">
 
   <ng-container *ngIf="view() === 'wizard'">
-    <header class="page-header">
-      <a routerLink="/dynamic/neet" class="back-link">&larr; Back to NEET</a>
-      <div class="title-row">
-        <div>
-          <p class="eyebrow">Create your own test</p>
-          <h1>Quick Test</h1>
+    <!-- Modern Sleek Modal Header -->
+    <header class="modal-wizard-header">
+      <div class="header-left">
+        <div class="header-badge">
+          <span class="sparkle-icon">✨</span>
+          <span>NEET PREPARATION</span>
         </div>
-        <strong>{{ step() }} / 4</strong>
+        <h1 class="header-title">Create Custom Test</h1>
       </div>
-      <div class="step-progress" aria-label="Test setup progress">
-        <span [class.active]="step() >= 1"></span>
-        <span [class.active]="step() >= 2"></span>
-        <span [class.active]="step() >= 3"></span>
-        <span [class.active]="step() >= 4"></span>
+
+      <div class="header-right">
+        <div class="step-meta">
+          <span class="step-count">Step {{ step() }} of 4</span>
+          <span class="step-title">
+            <ng-container [ngSwitch]="step()">
+              <ng-container *ngSwitchCase="1">Test Name</ng-container>
+              <ng-container *ngSwitchCase="2">Pick Subjects</ng-container>
+              <ng-container *ngSwitchCase="3">Pick Chapters</ng-container>
+              <ng-container *ngSwitchCase="4">Configure Test</ng-container>
+            </ng-container>
+          </span>
+        </div>
       </div>
     </header>
+
+    <!-- Sleek Progress Track -->
+    <div class="step-progress-track">
+      <div class="progress-fill" [style.width.%]="(step() / 4) * 100"></div>
+    </div>
 
     <p *ngIf="errorMessage()" class="error-message">{{ errorMessage() }}</p>
 
     <!-- Step 1: Test Name -->
-    <article *ngIf="step() === 1" class="setup-card">
-      <div class="card-heading">
-        <p>Step 1</p>
-        <h2>Test Name</h2>
-        <span>Enter a title for your custom practice test session.</span>
+    <div *ngIf="step() === 1" class="step-body">
+      <div class="step-heading">
+        <h2>Name Your Test</h2>
+        <p>Give your custom practice session a memorable title to track your progress.</p>
       </div>
 
-      <div class="test-name-field">
+      <div class="input-group">
         <label for="test-name-input">Test Title</label>
         <input
           id="test-name-input"
           type="text"
-          class="test-name-input"
+          class="custom-input"
           placeholder="e.g. Organic Chemistry & Physics Mechanics Drill"
           [value]="testName()"
           (input)="testName.set($any($event.target).value)"
@@ -41,26 +53,26 @@
       </div>
 
       <div class="wizard-actions">
-        <span></span>
+        <div></div>
         <button
           type="button"
-          class="primary-button"
+          class="primary-action-btn"
           [disabled]="!testName().trim()"
           (click)="goToSubjects()">
-          Next &rarr;
+          <span>Next: Pick Subjects</span>
+          <span class="arrow">&rarr;</span>
         </button>
       </div>
-    </article>
+    </div>
 
     <!-- Step 2: Pick Subjects -->
-    <article *ngIf="step() === 2" class="setup-card">
-      <div class="card-heading">
-        <p>Step 2</p>
+    <div *ngIf="step() === 2" class="step-body">
+      <div class="step-heading">
         <h2>Pick Subjects</h2>
-        <span>Choose one or more subjects for your test.</span>
+        <p>Select one or more subjects for your test session.</p>
       </div>
 
-      <div *ngIf="isLoading()" class="selection-skeleton subject-skeleton" role="status" aria-label="Loading subjects">
+      <div *ngIf="isLoading()" class="selection-skeleton subject-skeleton" role="status">
         <span *ngFor="let item of [1, 2, 3, 4]; trackBy: trackByValue"></span>
       </div>
 
@@ -73,42 +85,42 @@
           [attr.aria-pressed]="selectedSubjects().includes(subject)"
           (click)="toggleSubject(subject)">
           <span class="subject-icon">{{ subject.charAt(0) }}</span>
-          <strong>{{ subject }}</strong>
+          <strong class="subject-name">{{ subject }}</strong>
           <span class="selection-check">&#10003;</span>
         </button>
       </div>
 
       <div class="wizard-actions">
-        <button type="button" class="text-button" (click)="previousStep()">&larr; Back</button>
-        <span>{{ selectedSubjects().length }} selected</span>
+        <button type="button" class="back-action-btn" (click)="previousStep()">&larr; Back</button>
+        <span class="selection-counter">{{ selectedSubjects().length }} selected</span>
         <button
           type="button"
-          class="primary-button"
+          class="primary-action-btn"
           [disabled]="selectedSubjects().length === 0 || isLoading()"
           (click)="goToChapters()">
-          Next &rarr;
+          <span>Next: Pick Chapters</span>
+          <span class="arrow">&rarr;</span>
         </button>
       </div>
-    </article>
+    </div>
 
     <!-- Step 3: Pick Chapters -->
-    <article *ngIf="step() === 3" class="setup-card">
-      <div class="card-heading chapter-heading">
+    <div *ngIf="step() === 3" class="step-body">
+      <div class="step-heading flex-between">
         <div>
-          <p>Step 3</p>
           <h2>Pick Chapters</h2>
-          <span>{{ selectedSubjects().join(', ') }}</span>
+          <p>{{ selectedSubjects().join(', ') }}</p>
         </div>
         <button
           type="button"
-          class="secondary-button"
+          class="secondary-action-btn"
           [disabled]="chapters().length === 0"
           (click)="toggleAllChapters()">
           {{ selectedChapters().length === chapters().length ? 'Clear All' : 'Select All' }}
         </button>
       </div>
 
-      <div *ngIf="isLoading()" class="selection-skeleton chapter-skeleton" role="status" aria-label="Loading chapters">
+      <div *ngIf="isLoading()" class="selection-skeleton chapter-skeleton" role="status">
         <span *ngFor="let item of [1, 2, 3, 4, 5]; trackBy: trackByValue"></span>
       </div>
 
@@ -126,50 +138,54 @@
       </div>
 
       <div class="wizard-actions">
-        <button type="button" class="text-button" (click)="previousStep()">&larr; Back</button>
-        <span>{{ selectedChapters().length }} of {{ chapters().length }} selected</span>
+        <button type="button" class="back-action-btn" (click)="previousStep()">&larr; Back</button>
+        <span class="selection-counter">{{ selectedChapters().length }} of {{ chapters().length }} selected</span>
         <button
           type="button"
-          class="primary-button"
+          class="primary-action-btn"
           [disabled]="selectedChapters().length === 0 || isLoading()"
           (click)="goToConfiguration()">
-          Next &rarr;
+          <span>Next: Configure</span>
+          <span class="arrow">&rarr;</span>
         </button>
       </div>
-    </article>
+    </div>
 
     <!-- Step 4: Configure Test -->
-    <article *ngIf="step() === 4" class="setup-card">
-      <div class="card-heading">
-        <p>Step 4</p>
+    <div *ngIf="step() === 4" class="step-body">
+      <div class="step-heading">
         <h2>Configure Test</h2>
-        <span>Choose the number of questions and time limit.</span>
+        <p>Set question count and time duration.</p>
       </div>
 
-      <h3>Number of Questions</h3>
-      <div class="count-grid">
-        <button
-          *ngFor="let count of questionCountOptions; trackBy: trackByValue"
-          type="button"
-          [class.selected]="questionCount() === count"
-          (click)="setQuestionCount(count)">
-          {{ count }} Questions
-        </button>
+      <div class="config-section">
+        <h3>Number of Questions</h3>
+        <div class="count-grid">
+          <button
+            *ngFor="let count of questionCountOptions; trackBy: trackByValue"
+            type="button"
+            [class.selected]="questionCount() === count"
+            (click)="setQuestionCount(count)">
+            {{ count }} Questions
+          </button>
+        </div>
       </div>
 
-      <div class="duration-heading">
-        <h3>Time Limit</h3>
-        <strong>{{ duration() }} minutes</strong>
+      <div class="config-section">
+        <div class="duration-heading">
+          <h3>Time Limit</h3>
+          <strong class="duration-badge">{{ duration() }} minutes</strong>
+        </div>
+        <input
+          class="duration-slider"
+          type="range"
+          min="1"
+          max="60"
+          step="1"
+          [value]="duration()"
+          (input)="setDuration($event)">
+        <div class="range-labels"><span>1 min</span><span>60 min</span></div>
       </div>
-      <input
-        class="duration-slider"
-        type="range"
-        min="1"
-        max="60"
-        step="1"
-        [value]="duration()"
-        (input)="setDuration($event)">
-      <div class="range-labels"><span>1 min</span><span>60 min</span></div>
 
       <dl class="test-summary">
         <div><dt>Test Title</dt><dd><strong>{{ testName() }}</strong></dd></div>
@@ -181,16 +197,16 @@
       </dl>
 
       <div class="wizard-actions">
-        <button type="button" class="text-button" (click)="previousStep()">&larr; Back</button>
+        <button type="button" class="back-action-btn" (click)="previousStep()">&larr; Back</button>
         <button
           type="button"
-          class="start-button"
+          class="start-test-btn"
           [disabled]="isLoading()"
           (click)="startTest()">
-          {{ isLoading() ? 'Creating Test...' : 'Start Test' }}
+          {{ isLoading() ? 'Creating Test...' : '🚀 Start Test' }}
         </button>
       </div>
-    </article>
+    </div>
   </ng-container>
 
   <ng-container *ngIf="view() === 'test' && activeSession() as session">
@@ -236,67 +252,79 @@
         </div>
 
         <dl class="test-stats">
+          <div><dt>Total</dt><dd>{{ session.questions.length }}</dd></div>
           <div><dt>Answered</dt><dd>{{ answeredCount() }}</dd></div>
           <div><dt>Marked</dt><dd>{{ markedCount() }}</dd></div>
-          <div><dt>Visited</dt><dd>{{ visitedCount() }}</dd></div>
         </dl>
 
         <button
           type="button"
           class="submit-test-button"
           [disabled]="isSubmitting()"
-          (click)="requestSubmit()">
+          (click)="submitTest()">
           {{ isSubmitting() ? 'Submitting...' : 'Submit Test' }}
         </button>
       </aside>
 
-      <article *ngIf="currentQuestion() as question" class="question-card">
+      <main class="question-card" *ngIf="currentQuestion() as question">
         <div class="question-toolbar">
+          <span>Question {{ currentQuestionIndex() + 1 }} of {{ session.questions.length }}</span>
           <div>
-            <strong>Question {{ currentQuestionIndex() + 1 }}</strong>
-            <span>of {{ session.questions.length }}</span>
+            <button
+              type="button"
+              class="review-button"
+              [class.active]="currentQuestionState()?.markedForReview"
+              (click)="toggleMarkForReview()">
+              {{ currentQuestionState()?.markedForReview ? '★ Marked' : '☆ Mark for Review' }}
+            </button>
           </div>
-          <button
-            type="button"
-            class="review-button"
-            [class.active]="currentQuestionState()?.markedForReview"
-            (click)="toggleMarkForReview()">
-            {{ currentQuestionState()?.markedForReview ? 'Marked for Review' : 'Mark for Review' }}
-          </button>
         </div>
 
-        <div class="question-meta">
+        <div class="question-meta" *ngIf="question.difficulty || question.question_type">
           <span *ngIf="question.difficulty">{{ question.difficulty }}</span>
           <span *ngIf="question.question_type">{{ question.question_type }}</span>
         </div>
 
-        <p class="question-text">{{ question.question }}</p>
+        <h3 class="question-text">{{ question.question }}</h3>
 
         <div class="answer-options">
           <button
-            *ngFor="let option of optionKeys; trackBy: trackByValue"
             type="button"
-            [class.selected]="currentQuestionState()?.selectedOption === option"
-            (click)="selectOption(option)">
-            <span class="option-letter">{{ option }}</span>
-            <span>{{ optionText(question, option) }}</span>
+            [class.selected]="currentQuestionState()?.selectedOption === 'A'"
+            (click)="selectOption('A')">
+            <span class="option-letter">A</span>
+            <span>{{ question.option_a }}</span>
+          </button>
+          <button
+            type="button"
+            [class.selected]="currentQuestionState()?.selectedOption === 'B'"
+            (click)="selectOption('B')">
+            <span class="option-letter">B</span>
+            <span>{{ question.option_b }}</span>
+          </button>
+          <button
+            type="button"
+            [class.selected]="currentQuestionState()?.selectedOption === 'C'"
+            (click)="selectOption('C')">
+            <span class="option-letter">C</span>
+            <span>{{ question.option_c }}</span>
+          </button>
+          <button
+            type="button"
+            [class.selected]="currentQuestionState()?.selectedOption === 'D'"
+            (click)="selectOption('D')">
+            <span class="option-letter">D</span>
+            <span>{{ question.option_d }}</span>
           </button>
         </div>
 
         <div class="question-actions">
           <button
             type="button"
-            class="secondary-button"
+            class="text-button"
             [disabled]="currentQuestionIndex() === 0"
             (click)="previousQuestion()">
             &larr; Previous
-          </button>
-          <button
-            type="button"
-            class="text-button"
-            [disabled]="!currentQuestionState()?.selectedOption"
-            (click)="clearResponse()">
-            Clear response
           </button>
           <button
             type="button"
@@ -306,310 +334,81 @@
             Next &rarr;
           </button>
         </div>
-      </article>
+      </main>
     </div>
   </ng-container>
 
   <ng-container *ngIf="view() === 'result'">
-    <div *ngIf="isLoadingResult()" class="result-loading">
-      <div class="result-skeleton" role="status" aria-label="Loading test result">
-        <span></span><span></span><span></span><span></span>
-      </div>
+    <div *ngIf="isLoadingResult()" class="result-loading" role="status">
+      <div class="result-spinner"></div>
+      <p>Loading test results...</p>
     </div>
 
-    <div *ngIf="!isLoadingResult() && errorMessage() && !testResult()" class="result-loading result-error">
-      <h2>Result unavailable</h2>
-      <p>{{ errorMessage() }}</p>
-      <button type="button" class="primary-button" (click)="loadResult()">
-        Retry Result
-      </button>
-    </div>
-
-    <section *ngIf="!isLoadingResult() && testResult() as result" class="result-view">
+    <div *ngIf="!isLoadingResult() && testResult() as result" class="result-container">
       <header class="result-header">
         <div>
-          <p class="eyebrow">Test completed</p>
-          <h1>Your Quick Test Result</h1>
-          <p>{{ result.test_type }} &middot; {{ result.total_questions }} questions</p>
-        </div>
-        <div class="result-header-actions">
-          <button
-            type="button"
-            class="gemini-button"
-            [disabled]="result.wrong === 0"
-            (click)="openChat()">
-            Ask Gemini
-          </button>
-          <button
-            type="button"
-            class="insights-button"
-            [disabled]="result.wrong === 0"
-            (click)="openInsights()">
-            Generate AI Insights
-          </button>
-          <a routerLink="/dynamic/neet" class="secondary-button">Return to NEET</a>
+          <p class="eyebrow">NEET Quick Test</p>
+          <h1>Test Results</h1>
+          <p>Session completed on {{ result.submitted_at | date:'medium' }}</p>
         </div>
       </header>
 
-      <div class="result-summary">
+      <section class="result-summary">
         <article class="score-card">
           <span>Score</span>
-          <strong>{{ result.score }}</strong>
-          <small>NEET marking</small>
-        </article>
-        <article>
-          <span>Accuracy</span>
-          <strong>{{ result.accuracy }}%</strong>
-          <small>{{ result.correct }} correct</small>
+          <strong>{{ result.score }} / {{ result.total_questions * 4 }}</strong>
+          <small>{{ result.accuracy }}% Accuracy</small>
         </article>
         <article class="correct-stat">
           <span>Correct</span>
           <strong>{{ result.correct }}</strong>
-          <small>+4 each</small>
+          <small>+{{ result.correct * 4 }} marks</small>
         </article>
         <article class="wrong-stat">
-          <span>Wrong</span>
+          <span>Incorrect</span>
           <strong>{{ result.wrong }}</strong>
-          <small>-1 each</small>
+          <small>-{{ result.wrong }} marks</small>
         </article>
         <article class="skipped-stat">
           <span>Skipped</span>
           <strong>{{ result.skipped }}</strong>
-          <small>No penalty</small>
+          <small>0 marks</small>
         </article>
-        <article>
-          <span>Time Taken</span>
-          <strong class="time-value">{{ formatDuration(result.total_time_spent) }}</strong>
-          <small>of {{ formatDuration(result.duration) }}</small>
-        </article>
-      </div>
-
-      <p *ngIf="result.wrong === 0" class="perfect-result">
-        Excellent work! There are no attempted wrong answers to review with Gemini.
-      </p>
-
-      <section *ngIf="aiPanel() === 'chat'" class="ai-panel chat-panel">
-        <header class="ai-panel-header">
-          <div>
-            <p class="eyebrow">Gemini-powered review</p>
-            <h2>Ask About Your Wrong Answers</h2>
-          </div>
-          <button type="button" class="close-panel" (click)="closeAiPanel()">
-            Close
-          </button>
-        </header>
-
-        <p *ngIf="chatError()" class="error-message">{{ chatError() }}</p>
-        <div *ngIf="isLoadingChat()" class="inline-skeleton" role="status" aria-label="Loading conversation"><span></span><span></span><span></span></div>
-
-        <div *ngIf="!isLoadingChat()" class="chat-messages" aria-live="polite">
-          <div *ngIf="chatMessages().length === 0" class="empty-chat">
-            Ask Gemini to explain your incorrect answers, formulas, or concepts.
-          </div>
-          <article
-            *ngFor="let message of chatMessages(); trackBy: trackByMessage"
-            class="chat-message"
-            [class.user-message]="message.role === 'user'"
-            [class.assistant-message]="message.role === 'assistant'">
-            <strong>{{ message.role === 'user' ? 'You' : 'Gemini' }}</strong>
-            <p>{{ message.content }}</p>
-            <small *ngIf="message.model">{{ message.model }}</small>
-          </article>
-        </div>
-
-        <div class="chat-composer">
-          <textarea
-            rows="3"
-            maxlength="2000"
-            placeholder="Ask Gemini about your wrong answers..."
-            [value]="chatInput()"
-            [disabled]="isLoadingChat() || isSendingMessage()"
-            (input)="updateChatInput($event)"></textarea>
-          <button
-            type="button"
-            class="gemini-button"
-            [disabled]="!chatInput().trim() || !chatSession() || isSendingMessage()"
-            (click)="sendMessage()">
-            {{ isSendingMessage() ? 'Gemini is thinking...' : 'Send Message' }}
-          </button>
-        </div>
       </section>
 
-      <section *ngIf="aiPanel() === 'insights'" class="ai-panel insights-panel">
-        <header class="ai-panel-header">
-          <div>
-            <p class="eyebrow">AI performance analysis</p>
-            <h2>Your Focus Zones</h2>
-          </div>
-          <button type="button" class="close-panel" (click)="closeAiPanel()">
-            Close
-          </button>
-        </header>
-
-        <div *ngIf="isLoadingInsights()" class="ai-loading">
-          <div class="inline-skeleton" role="status" aria-label="Loading personalised insights"><span></span><span></span><span></span></div>
-        </div>
-
-        <div *ngIf="insightsError()" class="error-message insight-error">
-          <span>{{ insightsError() }}</span>
-          <button type="button" (click)="retryInsights()">Retry</button>
-        </div>
-
-        <ng-container *ngIf="!isLoadingInsights() && zoneInsight() as insight">
-          <blockquote>{{ insight.g_phrase }}</blockquote>
-
-          <div class="insight-overview">
-            <article><span>Accuracy</span><strong>{{ insight.accuracy }}%</strong></article>
-            <article><span>Total Mark</span><strong>{{ insight.total_mark }}</strong></article>
-            <article>
-              <span>Total Time</span>
-              <strong>{{ formatDuration(insight.time_spend.total_time_spent) }}</strong>
-            </article>
-            <article>
-              <span>Incorrect Time</span>
-              <strong>{{ formatDuration(insight.time_spend.incorrect_time_spent) }}</strong>
-            </article>
-          </div>
-
-          <div class="insight-columns">
-            <section>
-              <h3>Focus Zones</h3>
-              <article
-                *ngFor="let subject of insightSubjects(insight.focus_zone); trackBy: trackByValue"
-                class="insight-subject">
-                <strong>{{ subject }}</strong>
-                <ul>
-                  <li *ngFor="let item of insight.focus_zone[subject]; trackBy: trackByValue">{{ item }}</li>
-                </ul>
-              </article>
-            </section>
-
-            <section>
-              <h3>Repeated Mistakes</h3>
-              <article
-                *ngFor="let subject of insightSubjects(insight.repeated_mistake); trackBy: trackByValue"
-                class="insight-subject mistake-subject">
-                <strong>{{ subject }}</strong>
-                <ul>
-                  <li *ngFor="let item of insight.repeated_mistake[subject]; trackBy: trackByValue">{{ item }}</li>
-                </ul>
-              </article>
-            </section>
-          </div>
-
-          <section class="checkpoints">
-            <h3>Your Next Steps</h3>
-            <ol>
-              <li *ngFor="let checkpoint of insight.checkpoints; trackBy: trackByValue">{{ checkpoint }}</li>
-            </ol>
-          </section>
-        </ng-container>
-      </section>
-
-      <div class="review-heading">
-        <div>
-          <p class="eyebrow">Answer analysis</p>
+      <section class="review-section">
+        <div class="review-heading">
           <h2>Question Review</h2>
         </div>
-        <div class="review-filters" aria-label="Filter reviewed questions">
-          <button
-            type="button"
-            [class.active]="resultFilter() === 'all'"
-            (click)="setResultFilter('all')">
-            All {{ result.total_questions }}
-          </button>
-          <button
-            type="button"
-            [class.active]="resultFilter() === 'correct'"
-            (click)="setResultFilter('correct')">
-            Correct {{ result.correct }}
-          </button>
-          <button
-            type="button"
-            [class.active]="resultFilter() === 'wrong'"
-            (click)="setResultFilter('wrong')">
-            Wrong {{ result.wrong }}
-          </button>
-          <button
-            type="button"
-            [class.active]="resultFilter() === 'skipped'"
-            (click)="setResultFilter('skipped')">
-            Skipped {{ result.skipped }}
-          </button>
+
+        <div class="review-list">
+          <article
+            *ngFor="let q of filteredReview(); trackBy: trackByReview"
+            class="review-card"
+            [class.correct-review]="q.is_correct"
+            [class.wrong-review]="!q.is_correct && !q.is_skipped"
+            [class.skipped-review]="q.is_skipped">
+            <div class="review-card-header">
+              <div>
+                <span class="review-number">Q{{ q.id }}</span>
+                <span
+                  class="review-status"
+                  [class.correct]="q.is_correct"
+                  [class.wrong]="!q.is_correct && !q.is_skipped"
+                  [class.skipped]="q.is_skipped">
+                  {{ q.is_correct ? 'Correct' : q.is_skipped ? 'Skipped' : 'Incorrect' }}
+                </span>
+              </div>
+            </div>
+            <p class="review-question">{{ q.question }}</p>
+            <div class="explanation" *ngIf="q.explanation">
+              <strong>Explanation:</strong>
+              <p>{{ q.explanation }}</p>
+            </div>
+          </article>
         </div>
-      </div>
-
-      <div class="review-list">
-        <article
-          *ngFor="let question of filteredReview(); let index = index; trackBy: trackByReview"
-          class="review-card"
-          [class.correct-review]="question.is_correct"
-          [class.wrong-review]="!question.is_correct && !question.is_skipped"
-          [class.skipped-review]="question.is_skipped">
-          <div class="review-card-header">
-            <div>
-              <span class="review-number">Question {{ index + 1 }}</span>
-              <span
-                class="review-status"
-                [class.correct]="question.is_correct"
-                [class.wrong]="!question.is_correct && !question.is_skipped"
-                [class.skipped]="question.is_skipped">
-                {{ resultStatus(question) }}
-              </span>
-            </div>
-            <div class="review-metrics">
-              <span>{{ question.marks_awarded > 0 ? '+' : '' }}{{ question.marks_awarded }} marks</span>
-              <span>{{ question.time_spent }}s</span>
-            </div>
-          </div>
-
-          <div class="question-meta">
-            <span *ngIf="question.difficulty">{{ question.difficulty }}</span>
-            <span *ngIf="question.question_type">{{ question.question_type }}</span>
-          </div>
-
-          <p class="review-question">{{ question.question }}</p>
-
-          <div class="review-options">
-            <div
-              *ngFor="let option of optionKeys; trackBy: trackByValue"
-              [ngClass]="reviewOptionClass(question, option)">
-              <span class="option-letter">{{ option }}</span>
-              <span class="review-option-text">{{ optionText(question, option) }}</span>
-              <small *ngIf="option === question.correct_answer">Correct answer</small>
-              <small *ngIf="option === question.selected_option && option !== question.correct_answer">
-                Your answer
-              </small>
-            </div>
-          </div>
-
-          <div class="answer-summary">
-            <span>
-              Your answer:
-              <strong>{{ question.is_skipped ? 'Not answered' : question.selected_option }}</strong>
-            </span>
-            <span>Correct answer: <strong>{{ question.correct_answer }}</strong></span>
-          </div>
-
-          <div class="explanation">
-            <strong>Explanation</strong>
-            <p>{{ question.explanation }}</p>
-          </div>
-
-          <button
-            *ngIf="!question.is_correct && !question.is_skipped"
-            type="button"
-            class="ask-question-button"
-            (click)="openChat(question.id)">
-            Ask Gemini About This Question
-          </button>
-        </article>
-
-        <div *ngIf="filteredReview().length === 0" class="empty-review">
-          No questions match this filter.
-        </div>
-      </div>
-    </section>
+      </section>
+    </div>
   </ng-container>
 
 </section>

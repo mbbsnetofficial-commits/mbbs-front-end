@@ -361,7 +361,7 @@ export class QuickTest implements OnInit, OnDestroy {
     }
   }
 
-  submitTest(automatic: boolean): void {
+  submitTest(automatic: boolean = false): void {
     const session = this.activeSession();
     if (!session || this.isSubmitting()) {
       return;
