@@ -14,11 +14,11 @@
 .sidebar {
   position: fixed;
   z-index: 50;
-  inset: 10px auto 10px 0;
+  inset: 10px auto 10px 10px;
   width: var(--sidebar-width);
   display: flex;
   flex-direction: column;
-  padding: 18px 14px 14px 8px;
+  padding: 18px 14px 14px 6px;
   background: transparent;
   border: none;
   box-shadow: none;
