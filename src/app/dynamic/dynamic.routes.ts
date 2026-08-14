@@ -17,13 +17,7 @@ export const dynamicRoutes: Routes = [
         path: 'performance',
         redirectTo: 'neet/leaderboard',
       },
-      {
-        path: 'dashboard',
-        loadComponent: () =>
-          import('./dashboard/student-dashboard').then(
-            ({ StudentDashboard }) => StudentDashboard
-          ),
-      },
+
       {
         path: 'blogs',
         loadChildren: () =>

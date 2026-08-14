@@ -68,12 +68,6 @@ export class DynamicLayouts implements OnDestroy {
 
   protected readonly destinations: NavigationItem[] = [
     {
-      label: 'Dashboard',
-      description: 'Preparation overview and saved work',
-      route: '/dynamic/dashboard',
-      icon: 'dashboard',
-    },
-    {
       label: 'NEET practice',
       description: 'Daily question and practice options',
       route: '/dynamic/neet',
@@ -259,12 +253,12 @@ export class DynamicLayouts implements OnDestroy {
       ['/dynamic/cse/questionnaire', { eyebrow: 'University finder', title: 'Preferences' }],
       ['/dynamic/cse', { eyebrow: 'University finder', title: 'Explore destinations' }],
       ['/dynamic/blogs', { eyebrow: 'Knowledge centre', title: 'Insights' }],
-      ['/dynamic/dashboard', { eyebrow: 'Student workspace', title: 'Dashboard' }],
+
     ];
     this.pageMeta.set(
       definitions.find(([route]) => normalized.startsWith(route))?.[1] ?? {
         eyebrow: 'Student workspace',
-        title: 'Dashboard',
+        title: 'Workspace',
       },
     );
   }
