@@ -17,7 +17,7 @@
 .messages-container {
   flex: 1;
   overflow-y: auto;
-  padding: 32px 24px 20px;
+  padding: 32px 24px 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -114,67 +114,50 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0 24px 16px;
+  padding: 0 24px 20px;
   background: transparent;
+}
+
+.disclaimer-text {
+  font-size: 12px;
+  color: #888884;
+  margin-bottom: 10px;
+  text-align: center;
 }
 
 .prompt-box {
   width: 100%;
   max-width: 820px;
   background: #ffffff;
-  border: 1px solid #e3e3e0;
-  border-radius: 22px;
-  padding: 16px 20px 14px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  border: 1px solid #e3e3df;
+  border-radius: 9999px;
+  padding: 6px 8px 6px 16px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.03);
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  align-items: center;
+  gap: 10px;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
   &:focus-within {
     border-color: #d0d0cc;
     box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);
   }
+}
 
-  textarea {
-    width: 100%;
-    min-height: 28px;
-    max-height: 160px;
-    border: 0 !important;
-    outline: 0 !important;
-    box-shadow: none !important;
-    resize: none;
-    font-size: 16px;
-    line-height: 1.5;
-    color: #1a1a1a;
-    background: transparent;
-    font-family: inherit;
+.chat-input {
+  flex: 1;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  background: transparent;
+  font-size: 16px;
+  color: #1a1a1a;
+  font-family: inherit;
+  min-width: 0;
 
-    &:focus,
-    &:focus-visible,
-    &:focus-within {
-      border: 0 !important;
-      outline: 0 !important;
-      box-shadow: none !important;
-    }
-
-    &::placeholder {
-      color: #9e9e9a;
-    }
+  &::placeholder {
+    color: #9e9e9a;
   }
-}
-
-.prompt-controls {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-top: 4px;
-}
-
-.controls-left, .controls-right {
-  display: flex;
-  align-items: center;
-  gap: 8px;
 }
 
 .icon-btn {
@@ -182,11 +165,14 @@
   place-items: center;
   width: 32px;
   height: 32px;
+  min-width: 32px;
+  min-height: 32px;
   border: none;
   background: transparent;
   color: #555;
   border-radius: 50%;
   cursor: pointer;
+  flex-shrink: 0;
   transition: background 0.15s ease;
 
   &:hover {
@@ -195,64 +181,32 @@
   }
 }
 
-.mode-dropdown-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: transparent;
+.send-btn {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  max-width: 36px;
+  min-height: 36px;
+  max-height: 36px;
+  aspect-ratio: 1 / 1;
+  flex: 0 0 36px;
+  padding: 0;
+  border-radius: 50%;
+  background: #000000;
+  color: #ffffff;
   border: none;
-  padding: 6px 10px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #333330;
+  display: grid;
+  place-items: center;
   cursor: pointer;
-  transition: background 0.15s ease;
+  flex-shrink: 0;
+  transition: transform 0.15s ease, background 0.15s ease;
 
   &:hover {
-    background: #f2f2ef;
+    background: #222222;
+    transform: scale(1.04);
   }
 
-  .chevron-icon {
-    color: #777;
-    transform: rotate(90deg);
+  &:active {
+    transform: scale(0.96);
   }
-}
-
-.model-selector-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  background: transparent;
-  border: none;
-  padding: 6px 10px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #1a1a1a;
-  cursor: pointer;
-  transition: background 0.15s ease;
-
-  &:hover {
-    background: #f2f2ef;
-  }
-
-  .model-badge {
-    font-size: 13px;
-    color: #888884;
-    font-weight: 400;
-  }
-
-  .chevron-icon {
-    color: #888884;
-    transform: rotate(90deg);
-  }
-}
-
-.disclaimer-text {
-  font-size: 12px;
-  color: #888884;
-  margin-top: 12px;
-  margin-bottom: 4px;
-  text-align: center;
 }

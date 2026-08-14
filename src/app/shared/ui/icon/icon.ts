@@ -44,7 +44,8 @@ export type IconName =
   | 'coffee'
   | 'lightbulb'
   | 'hand'
-  | 'arrow-down';
+  | 'arrow-down'
+  | 'arrow-up';
 
 @Component({
   selector: 'app-icon',

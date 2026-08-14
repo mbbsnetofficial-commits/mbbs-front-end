@@ -31,42 +31,47 @@
 
   <!-- Bottom Input Section -->
   <div class="chat-footer-dock">
-    <div class="prompt-box">
-      <textarea
-        placeholder="Write a message..."
-        [(ngModel)]="promptText"
-        (keydown.enter)="$event.preventDefault(); sendMessage()"
-        rows="1"
-      ></textarea>
-
-      <div class="prompt-controls">
-        <div class="controls-left">
-          <input
-            #fileInput
-            type="file"
-            style="display: none"
-            (change)="onFileSelected($event)"
-          />
-          <button
-            type="button"
-            class="icon-btn"
-            aria-label="Add attachment"
-            (click)="fileInput.click()"
-          >
-            <app-icon name="plus" [size]="18" />
-          </button>
-        </div>
-
-        <div class="controls-right">
-          <button type="button" class="icon-btn" aria-label="Voice input">
-            <app-icon name="mic" [size]="18" />
-          </button>
-        </div>
-      </div>
-    </div>
-
     <p class="disclaimer-text">
       Claude is AI and can make mistakes. Please double-check responses.
     </p>
+
+    <div class="prompt-box">
+      <input
+        #fileInput
+        type="file"
+        style="display: none"
+        (change)="onFileSelected($event)"
+      />
+
+      <button
+        type="button"
+        class="icon-btn plus-btn"
+        aria-label="Add attachment"
+        (click)="fileInput.click()"
+      >
+        <app-icon name="plus" [size]="18" />
+      </button>
+
+      <input
+        type="text"
+        class="chat-input"
+        placeholder="Write a message..."
+        [(ngModel)]="promptText"
+        (keydown.enter)="$event.preventDefault(); sendMessage()"
+      />
+
+      <button type="button" class="icon-btn mic-btn" aria-label="Voice input">
+        <app-icon name="mic" [size]="18" />
+      </button>
+
+      <button
+        type="button"
+        class="send-btn"
+        aria-label="Send message"
+        (click)="sendMessage()"
+      >
+        <app-icon name="arrow-up" [size]="18" />
+      </button>
+    </div>
   </div>
 </main>
