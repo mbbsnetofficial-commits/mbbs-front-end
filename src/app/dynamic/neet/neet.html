@@ -138,67 +138,7 @@
       <table class="report-table">
         <thead>
           <tr>
-            <!-- 1. Course Name -->
-            <th class="col-course">
-              <button type="button" class="th-sort-btn" (click)="toggleSort('title')">
-                <span>Course Name</span>
-                <svg class="sort-icon" [class.sort-active]="sortField() === 'title'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M7 17V4M4 7l3-3 3 3M17 7v13m-3-3 3 3 3-3"/>
-                </svg>
-              </button>
-            </th>
-
-            <!-- 2. Type -->
-            <th class="col-type">
-              <button type="button" class="th-sort-btn" (click)="toggleSort('type')">
-                <span>Type</span>
-                <svg class="sort-icon" [class.sort-active]="sortField() === 'type'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M7 17V4M4 7l3-3 3 3M17 7v13m-3-3 3 3 3-3"/>
-                </svg>
-              </button>
-            </th>
-
-            <!-- 3. Level -->
-            <th class="col-level">
-              <button type="button" class="th-sort-btn" (click)="toggleSort('level')">
-                <span>Level</span>
-                <svg class="sort-icon" [class.sort-active]="sortField() === 'level'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M7 17V4M4 7l3-3 3 3M17 7v13m-3-3 3 3 3-3"/>
-                </svg>
-              </button>
-            </th>
-
-            <!-- 4. Status -->
-            <th class="col-status">
-              <button type="button" class="th-sort-btn" (click)="toggleSort('status')">
-                <span>Status</span>
-                <svg class="sort-icon" [class.sort-active]="sortField() === 'status'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M7 17V4M4 7l3-3 3 3M17 7v13m-3-3 3 3 3-3"/>
-                </svg>
-              </button>
-            </th>
-
-            <!-- 5. Progress -->
-            <th class="col-progress">
-              <button type="button" class="th-sort-btn" (click)="toggleSort('progress')">
-                <span>Progress</span>
-                <svg class="sort-icon" [class.sort-active]="sortField() === 'progress'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M7 17V4M4 7l3-3 3 3M17 7v13m-3-3 3 3 3-3"/>
-                </svg>
-              </button>
-            </th>
-
-            <!-- 6. Time Spent -->
-            <th class="col-time">
-              <button type="button" class="th-sort-btn" (click)="toggleSort('time')">
-                <span>Time Spent</span>
-                <svg class="sort-icon" [class.sort-active]="sortField() === 'time'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M7 17V4M4 7l3-3 3 3M17 7v13m-3-3 3 3 3-3"/>
-                </svg>
-              </button>
-            </th>
-
-            <!-- 7. Date Modified -->
+            <!-- 1. Date Modified -->
             <th class="col-date">
               <button type="button" class="th-sort-btn" (click)="toggleSort('dateModified')">
                 <span>Date Modified</span>
@@ -208,7 +148,67 @@
               </button>
             </th>
 
-            <!-- 7. Score -->
+            <!-- 2. Course Name -->
+            <th class="col-course">
+              <button type="button" class="th-sort-btn" (click)="toggleSort('title')">
+                <span>Course Name</span>
+                <svg class="sort-icon" [class.sort-active]="sortField() === 'title'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M7 17V4M4 7l3-3 3 3M17 7v13m-3-3 3 3 3-3"/>
+                </svg>
+              </button>
+            </th>
+
+            <!-- 3. Type -->
+            <th class="col-type">
+              <button type="button" class="th-sort-btn" (click)="toggleSort('type')">
+                <span>Type</span>
+                <svg class="sort-icon" [class.sort-active]="sortField() === 'type'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M7 17V4M4 7l3-3 3 3M17 7v13m-3-3 3 3 3-3"/>
+                </svg>
+              </button>
+            </th>
+
+            <!-- 4. Level -->
+            <th class="col-level">
+              <button type="button" class="th-sort-btn" (click)="toggleSort('level')">
+                <span>Level</span>
+                <svg class="sort-icon" [class.sort-active]="sortField() === 'level'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M7 17V4M4 7l3-3 3 3M17 7v13m-3-3 3 3 3-3"/>
+                </svg>
+              </button>
+            </th>
+
+            <!-- 5. Status -->
+            <th class="col-status">
+              <button type="button" class="th-sort-btn" (click)="toggleSort('status')">
+                <span>Status</span>
+                <svg class="sort-icon" [class.sort-active]="sortField() === 'status'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M7 17V4M4 7l3-3 3 3M17 7v13m-3-3 3 3 3-3"/>
+                </svg>
+              </button>
+            </th>
+
+            <!-- 6. Progress -->
+            <th class="col-progress">
+              <button type="button" class="th-sort-btn" (click)="toggleSort('progress')">
+                <span>Progress</span>
+                <svg class="sort-icon" [class.sort-active]="sortField() === 'progress'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M7 17V4M4 7l3-3 3 3M17 7v13m-3-3 3 3 3-3"/>
+                </svg>
+              </button>
+            </th>
+
+            <!-- 7. Time Spent -->
+            <th class="col-time">
+              <button type="button" class="th-sort-btn" (click)="toggleSort('time')">
+                <span>Time Spent</span>
+                <svg class="sort-icon" [class.sort-active]="sortField() === 'time'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M7 17V4M4 7l3-3 3 3M17 7v13m-3-3 3 3 3-3"/>
+                </svg>
+              </button>
+            </th>
+
+            <!-- 8. Score -->
             <th class="col-score">
               <button type="button" class="th-sort-btn" (click)="toggleSort('score')">
                 <span>Score</span>
@@ -222,7 +222,12 @@
         <tbody>
           @for (course of filteredCourses(); track course.id) {
             <tr class="clickable-row" (click)="startCourseTest(course)">
-              <!-- 1. Course Name -->
+              <!-- 1. Date Modified -->
+              <td class="col-date">
+                <span class="date-modified-text">{{ course.dateModified }}</span>
+              </td>
+
+              <!-- 2. Course Name -->
               <td class="col-course">
                 <div class="course-cell">
                   <div
@@ -238,12 +243,12 @@
                 </div>
               </td>
 
-              <!-- 2. Type -->
+              <!-- 3. Type -->
               <td class="col-type">
                 <span class="type-badge">{{ course.type }}</span>
               </td>
 
-              <!-- 3. Level -->
+              <!-- 4. Level -->
               <td class="col-level">
                 <span
                   class="level-badge"
@@ -255,7 +260,7 @@
                 </span>
               </td>
 
-              <!-- 4. Status -->
+              <!-- 5. Status -->
               <td class="col-status">
                 <span
                   class="status-pill"
@@ -266,7 +271,7 @@
                 </span>
               </td>
 
-              <!-- 5. Progress -->
+              <!-- 6. Progress -->
               <td class="col-progress">
                 <div class="progress-cell">
                   <div class="progress-meta">
@@ -282,17 +287,12 @@
                 </div>
               </td>
 
-              <!-- 6. Time Spent -->
+              <!-- 7. Time Spent -->
               <td class="col-time">
                 <div class="time-cell">
                   <app-icon name="clock" [size]="14" class="time-icon" />
                   <span>{{ course.learningTime }}</span>
                 </div>
-              </td>
-
-              <!-- 7. Date Modified -->
-              <td class="col-date">
-                <span class="date-modified-text">{{ course.dateModified }}</span>
               </td>
 
               <!-- 8. Score -->
