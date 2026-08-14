@@ -1,0 +1,15 @@
+{
+  "/api/v1": {
+    "target": "https://api.mbbs.net",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/api2/v1": {
+    "target": "https://api2.mbbs.net",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/api2/v1": "/api/v1"
+    }
+  }
+}
