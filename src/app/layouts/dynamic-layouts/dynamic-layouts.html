@@ -1,4 +1,4 @@
-<div class="workspace" [class.is-collapsed]="sidebarCollapsed()">
+<div class="workspace">
   @if (sidebarOpen()) {
     <button
       class="nav-backdrop"
@@ -22,15 +22,6 @@
           ><small>Student workspace</small></span
         >
       </a>
-      <button
-        class="collapse-button"
-        type="button"
-        [attr.aria-label]="sidebarCollapsed() ? 'Expand navigation' : 'Collapse navigation'"
-        [attr.aria-expanded]="!sidebarCollapsed()"
-        (click)="sidebarCollapsed.set(!sidebarCollapsed())"
-      >
-        <app-icon name="chevron" [size]="15" />
-      </button>
     </div>
 
     <nav class="sidebar-nav" aria-label="Primary">
@@ -59,7 +50,7 @@
         <span class="nav-icon"><app-icon name="test" [size]="19" /></span><span>NEET</span
         ><app-icon class="nav-chevron" name="chevron" [size]="14" />
       </button>
-      @if (neetOpen() && !sidebarCollapsed()) {
+      @if (neetOpen()) {
         <div id="neet-subnav" class="subnav">
           <a
             routerLink="/dynamic/neet"
@@ -101,7 +92,7 @@
         <span class="nav-icon"><app-icon name="activity" [size]="19" /></span><span>UCAT</span
         ><app-icon class="nav-chevron" name="chevron" [size]="14" />
       </button>
-      @if (ucatOpen() && !sidebarCollapsed()) {
+      @if (ucatOpen()) {
         <div id="ucat-subnav" class="subnav">
           <a
             routerLink="/dynamic/ucat"

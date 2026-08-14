@@ -75,31 +75,6 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
-.collapse-button {
-  width: 30px;
-  height: 30px;
-  flex: 0 0 auto;
-  margin-left: auto;
-  display: grid;
-  place-items: center;
-  border: 1px solid var(--line-strong);
-  border-radius: 9px;
-  color: var(--ink-soft);
-  background: var(--surface-soft);
-  box-shadow: none;
-  transform: rotate(90deg);
-  transition:
-    color 0.18s ease,
-    background 0.18s ease,
-    box-shadow 0.18s ease,
-    transform 0.18s ease;
-}
-.collapse-button:hover {
-  color: #fff;
-  border-color: var(--dark);
-  background: var(--dark);
-  box-shadow: none;
-}
 .sidebar-nav {
   min-height: 0;
   display: flex;
@@ -694,37 +669,6 @@
 .nav-backdrop {
   display: none;
 }
-.is-collapsed {
-  --sidebar-width: 78px;
-}
-.is-collapsed .brand-name,
-.is-collapsed .nav-label,
-.is-collapsed .sidebar-nav > a > span:last-child,
-.is-collapsed .nav-parent > span:nth-child(2),
-.is-collapsed .nav-chevron,
-.is-collapsed .progress-callout,
-.is-collapsed .profile-copy,
-.is-collapsed .profile-chevron {
-  display: none;
-}
-.is-collapsed .brand-row {
-  flex-direction: column;
-  justify-content: center;
-  gap: 9px;
-  padding-bottom: 12px;
-}
-.is-collapsed .collapse-button {
-  margin: 0 auto;
-  transform: rotate(-90deg);
-}
-.is-collapsed .sidebar-nav > a,
-.is-collapsed .nav-parent {
-  justify-content: center;
-  padding: 0;
-}
-.is-collapsed .sidebar-profile {
-  justify-content: center;
-}
 @keyframes commandIn {
   from {
     opacity: 0;
@@ -751,38 +695,13 @@
   :host {
     --sidebar-width: min(286px, calc(100vw - 34px));
   }
-  .sidebar,
-  .is-collapsed .sidebar {
+  .sidebar {
     inset: 8px auto 8px 8px;
     width: var(--sidebar-width);
     transform: translateX(calc(-100% - 18px));
   }
   .sidebar.open {
     transform: translateX(0);
-  }
-  .is-collapsed .brand-name,
-  .is-collapsed .nav-label,
-  .is-collapsed .sidebar-nav > a > span:last-child,
-  .is-collapsed .nav-parent > span:nth-child(2),
-  .is-collapsed .nav-chevron,
-  .is-collapsed .progress-callout,
-  .is-collapsed .profile-copy,
-  .is-collapsed .profile-chevron {
-    display: initial;
-  }
-  .is-collapsed .brand-row {
-    justify-content: initial;
-  }
-  .is-collapsed .sidebar-nav > a,
-  .is-collapsed .nav-parent {
-    justify-content: flex-start;
-    padding: 0 11px;
-  }
-  .is-collapsed .sidebar-profile {
-    justify-content: flex-start;
-  }
-  .collapse-button {
-    display: none;
   }
   .nav-backdrop {
     position: fixed;
@@ -793,8 +712,7 @@
     background: rgba(16, 17, 20, 0.52);
     backdrop-filter: blur(3px);
   }
-  .main-shell,
-  .is-collapsed .main-shell {
+  .main-shell {
     margin-left: 0;
     padding: 6px;
   }
