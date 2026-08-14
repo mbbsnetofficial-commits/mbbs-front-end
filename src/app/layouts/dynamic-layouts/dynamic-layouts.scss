@@ -121,10 +121,11 @@
 }
 .nav-icon {
   position: relative;
-  width: 24px;
-  height: 24px;
-  display: grid;
-  place-items: center;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   flex: 0 0 auto;
   color: #575d68;
 }
