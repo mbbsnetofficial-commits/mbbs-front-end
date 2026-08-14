@@ -47,16 +47,16 @@ export class NeetComponent {
   readonly sortDirection = signal<'asc' | 'desc'>('asc');
 
   readonly availableCategories = signal([
-    'Human Resources',
-    'Leadership',
-    'Team Building',
-    'Time Management',
-    'Conflict Management',
-    'Communication Skills',
-    'Problem-Solving'
+    'Previous Year Test',
+    'Practise Test',
+    'Custom',
+    'Physics',
+    'Chemistry',
+    'Botany',
+    'Zoology'
   ]);
 
-  readonly activeCategories = signal<string[]>(['Human Resources', 'Leadership']);
+  readonly activeCategories = signal<string[]>(['Previous Year Test', 'Physics']);
 
   readonly courses = signal<NeetCourseItem[]>([
     {
@@ -73,7 +73,7 @@ export class NeetComponent {
       learningTime: '2h 13m',
       score: '518 / 720',
       scoreNum: 518,
-      category: 'Human Resources',
+      category: 'Custom Practice',
       iconBg: '#ff6b4a',
       iconName: 'test'
     },
@@ -91,7 +91,7 @@ export class NeetComponent {
       learningTime: '2h 13m',
       score: '490 / 720',
       scoreNum: 490,
-      category: 'Leadership',
+      category: 'Mock Exam',
       iconBg: '#34d399',
       iconName: 'chat'
     },
@@ -109,7 +109,7 @@ export class NeetComponent {
       learningTime: '9h 34m',
       score: '576 / 720',
       scoreNum: 576,
-      category: 'Conflict Management',
+      category: 'Physics Mechanics',
       iconBg: '#ff4081',
       iconName: 'chat'
     },
@@ -127,7 +127,7 @@ export class NeetComponent {
       learningTime: '12h 37m',
       score: '640 / 720',
       scoreNum: 640,
-      category: 'Communication Skills',
+      category: 'Organic Chemistry',
       iconBg: '#26c6da',
       iconName: 'sparkles'
     },
@@ -145,7 +145,7 @@ export class NeetComponent {
       learningTime: '6h 21m',
       score: '684 / 720',
       scoreNum: 684,
-      category: 'Team Building',
+      category: 'NEET 2025 Mapped',
       iconBg: '#42a5f5',
       iconName: 'like'
     },
@@ -163,7 +163,7 @@ export class NeetComponent {
       learningTime: '4h 9m',
       score: '532 / 720',
       scoreNum: 532,
-      category: 'Problem-Solving',
+      category: 'Plant Anatomy',
       iconBg: '#7e57c2',
       iconName: 'flame'
     },
@@ -181,7 +181,7 @@ export class NeetComponent {
       learningTime: '18h 21m',
       score: '655 / 720',
       scoreNum: 655,
-      category: 'Leadership',
+      category: 'Human Physiology',
       iconBg: '#78909c',
       iconName: 'profile'
     }
@@ -203,9 +203,9 @@ export class NeetComponent {
         return false;
       }
 
-      // Category filter
-      if (categories.length > 0 && !categories.includes(item.category)) {
-        // allow fallback match if category is not explicitly strictly filtered or match title
+      // Filter by selected Type/Category tags
+      if (categories.length > 0 && !categories.includes(item.type)) {
+        return false;
       }
 
       // Search query filter
