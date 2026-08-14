@@ -77,7 +77,7 @@ export class DynamicLayouts implements OnDestroy {
       label: 'NEET practice',
       description: 'Daily question and practice options',
       route: '/dynamic/neet',
-      icon: 'test',
+      icon: 'india',
     },
     {
       label: 'Create NEET test',
