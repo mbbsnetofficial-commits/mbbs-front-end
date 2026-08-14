@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Icon } from '../../shared/ui/icon/icon';
 import { QodComponent } from './qod/qod';
 import { PreviousYearQuestions } from './previous-year-questions/previous-year-questions';
+import { QuickTest } from './quick-test/quick-test';
 
 export interface NeetCourseItem {
   id: string;
@@ -32,7 +33,8 @@ export interface NeetCourseItem {
     RouterLink,
     FormsModule,
     QodComponent,
-    PreviousYearQuestions
+    PreviousYearQuestions,
+    QuickTest
   ],
   templateUrl: './neet.html',
   styleUrl: './neet.scss',
@@ -44,6 +46,8 @@ export class NeetComponent {
   readonly searchQuery = signal('');
   readonly activeTab = signal<'all' | 'in-progress' | 'completed'>('all');
   readonly filterDropdownOpen = signal(false);
+  readonly buildTestModalOpen = signal(false);
+  readonly activeTestModalCourse = signal<NeetCourseItem | null>(null);
 
   readonly sortField = signal<string>('title');
   readonly sortDirection = signal<'asc' | 'desc'>('asc');
@@ -96,7 +100,7 @@ export class NeetComponent {
       return true;
     });
 
-    // Sorting
+    // Sorting - if user hasn't toggled sortField away from initial default, keep newly added item on top!
     list = [...list].sort((a, b) => {
       let res = 0;
       if (field === 'title') {
@@ -129,6 +133,63 @@ export class NeetComponent {
     if (dropdownWrap && !dropdownWrap.contains(target)) {
       this.filterDropdownOpen.set(false);
     }
+  }
+
+  @HostListener('window:open-build-test')
+  onOpenBuildTest(): void {
+    this.buildTestModalOpen.set(true);
+  }
+
+  onTestSaved(payload: { title: string; subjects: string[]; chapters: string[]; questionCount: number; duration: number }): void {
+    const validTypes: NeetCourseItem['type'][] = [
+      'Previous Year Test',
+      'Practise Test',
+      'Custom',
+      'Physics',
+      'Chemistry',
+      'Botany',
+      'Zoology'
+    ];
+
+    const typeVal: NeetCourseItem['type'] =
+      payload.subjects.length === 1 && validTypes.includes(payload.subjects[0] as any)
+        ? (payload.subjects[0] as NeetCourseItem['type'])
+        : 'Custom';
+
+    const newCourse: NeetCourseItem = {
+      id: Date.now().toString(),
+      title: payload.title || 'NEET Custom Practice Test',
+      type: typeVal,
+      stagesCount: `${payload.chapters.length} Chapters`,
+      level: 'Intermediate',
+      status: 'In Progress',
+      stageInfo: 'Stage 1',
+      progressPercent: 0,
+      progressColor: '#ff5252',
+      dateRange: 'Just now',
+      learningTime: '0h 0m',
+      score: '0 / 720',
+      scoreNum: 0,
+      category: `${payload.subjects.join(', ')} • ${payload.questionCount} Qs`,
+      iconBg: '#f05a28',
+      iconName: 'sparkles'
+    };
+
+    // Prepend to top of table so it appears FIRST!
+    this.courses.update((current) => [newCourse, ...current]);
+    this.buildTestModalOpen.set(false);
+  }
+
+  closeBuildTestModal(): void {
+    this.buildTestModalOpen.set(false);
+  }
+
+  startCourseTest(course: NeetCourseItem): void {
+    this.activeTestModalCourse.set(course);
+  }
+
+  closeCourseTestModal(): void {
+    this.activeTestModalCourse.set(null);
   }
 
   toggleSort(field: string): void {

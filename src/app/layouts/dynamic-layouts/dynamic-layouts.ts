@@ -202,6 +202,11 @@ export class DynamicLayouts implements OnDestroy {
     this.sidebarOpen.set(false);
   }
 
+  protected triggerBuildTestModal(event?: MouseEvent): void {
+    if (event) event.preventDefault();
+    window.dispatchEvent(new CustomEvent('open-build-test'));
+  }
+
   protected openQuickTestModal(event?: MouseEvent): void {
     if (event) event.preventDefault();
     this.quickTestModalOpen.set(true);

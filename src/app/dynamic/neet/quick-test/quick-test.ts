@@ -1,8 +1,10 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  EventEmitter,
   OnDestroy,
   OnInit,
+  Output,
   computed,
   signal
 } from '@angular/core';
@@ -39,6 +41,14 @@ type AiPanel = 'none' | 'chat' | 'insights';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class QuickTest implements OnInit, OnDestroy {
+  @Output() readonly testSaved = new EventEmitter<{
+    title: string;
+    subjects: string[];
+    chapters: string[];
+    questionCount: number;
+    duration: number;
+  }>();
+
   private readonly storageKey = 'activeQuickTest';
   private readonly pendingResultKey = 'pendingQuickTestResult';
   private timerId: ReturnType<typeof setInterval> | null = null;
@@ -274,6 +284,25 @@ export class QuickTest implements OnInit, OnDestroy {
   setDuration(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.duration.set(Number(input.value));
+  }
+
+  saveTest(): void {
+    if (
+      !this.testName().trim() ||
+      this.selectedSubjects().length === 0 ||
+      this.selectedChapters().length === 0 ||
+      this.isLoading()
+    ) {
+      return;
+    }
+
+    this.testSaved.emit({
+      title: this.testName().trim(),
+      subjects: this.selectedSubjects(),
+      chapters: this.selectedChapters(),
+      questionCount: this.questionCount(),
+      duration: this.duration()
+    });
   }
 
   startTest(): void {

@@ -315,6 +315,15 @@
     }
   }
 
+  tr.clickable-row {
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background-color: #f8fafc;
+    }
+  }
+
   td {
     padding: 16px;
     border-bottom: 1px solid #f8fafc;
