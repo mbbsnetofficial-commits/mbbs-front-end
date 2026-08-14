@@ -254,12 +254,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border: 1px solid rgba(255, 255, 255, 0.75);
-  border-radius: 20px;
-  padding: 10px 14px 10px 20px;
-  background: rgba(255, 255, 255, 0.9);
-  box-shadow: var(--shadow-sm);
-  backdrop-filter: blur(18px);
+  padding: 10px 14px 10px 0px;
 }
 .topbar-title {
   min-width: 0;
