@@ -109,7 +109,7 @@
           <button
             type="button"
             class="filter-btn"
-            (click)="toggleFilterDropdown()"
+            (click)="toggleFilterDropdown($event)"
           >
             <span>Filter</span>
             <span class="filter-count-badge">{{ activeCategories().length }}</span>

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, ElementRef, HostListener, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Icon } from '../../shared/ui/icon/icon';
@@ -39,6 +39,8 @@ export interface NeetCourseItem {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NeetComponent {
+  private readonly elementRef = inject(ElementRef);
+
   readonly searchQuery = signal('');
   readonly activeTab = signal<'all' | 'in-progress' | 'completed'>('all');
   readonly filterDropdownOpen = signal(false);
@@ -119,6 +121,16 @@ export class NeetComponent {
     return list;
   });
 
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.filterDropdownOpen()) return;
+    const target = event.target as HTMLElement;
+    const dropdownWrap = this.elementRef.nativeElement.querySelector('.filter-dropdown-wrap');
+    if (dropdownWrap && !dropdownWrap.contains(target)) {
+      this.filterDropdownOpen.set(false);
+    }
+  }
+
   toggleSort(field: string): void {
     if (this.sortField() === field) {
       this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
@@ -145,8 +157,11 @@ export class NeetComponent {
     this.activeCategories.update((current) => current.filter((c) => c !== category));
   }
 
-  toggleFilterDropdown(): void {
-    this.filterDropdownOpen.set(!this.filterDropdownOpen());
+  toggleFilterDropdown(event?: MouseEvent): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    this.filterDropdownOpen.update((val) => !val);
   }
 
   isCategorySelected(cat: string): boolean {
