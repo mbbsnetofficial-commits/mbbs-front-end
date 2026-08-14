@@ -61,9 +61,7 @@ export const dynamicRoutes: Routes = [
       {
         path: 'neet',
         loadComponent: () =>
-          import('./neet/previous-year-questions/previous-year-questions').then(
-            ({ PreviousYearQuestions }) => PreviousYearQuestions
-          ),
+          import('./neet/neet').then(({ NeetComponent }) => NeetComponent),
       },
     ],
   },
