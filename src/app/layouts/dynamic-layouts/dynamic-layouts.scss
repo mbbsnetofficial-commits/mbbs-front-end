@@ -1,6 +1,6 @@
 :host {
   display: block;
-  --sidebar-width: 68px;
+  --sidebar-width: 70px;
   color: var(--ink);
   font-family: var(--font-sans);
 }
@@ -18,7 +18,7 @@
   width: var(--sidebar-width);
   display: flex;
   flex-direction: column;
-  padding: 6px 14px 6px 6px;
+  padding: 10px;
   background: transparent;
   border: none;
   box-shadow: none;
