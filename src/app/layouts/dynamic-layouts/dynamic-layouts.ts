@@ -41,9 +41,6 @@ export class DynamicLayouts implements OnDestroy {
   private readonly router = inject(Router);
 
   protected readonly sidebarOpen = signal(false);
-  protected readonly sidebarCollapsed = signal(false);
-  protected readonly neetOpen = signal(true);
-  protected readonly ucatOpen = signal(true);
   protected readonly loggingOut = signal(false);
   protected readonly commandOpen = signal(false);
   protected readonly notificationOpen = signal(false);

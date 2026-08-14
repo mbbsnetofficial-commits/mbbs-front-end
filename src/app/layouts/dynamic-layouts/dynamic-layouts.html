@@ -1,4 +1,4 @@
-<div class="workspace" [class.is-collapsed]="sidebarCollapsed()">
+<div class="workspace">
   @if (sidebarOpen()) {
     <button
       class="nav-backdrop"
@@ -13,164 +13,88 @@
       <a
         class="brand"
         routerLink="/dynamic/dashboard"
-        aria-label="MBBS.NET dashboard"
+        title="MBBS.NET dashboard"
         (click)="closeMobileNav()"
       >
         <span class="brand-mark"><img src="/images/app-logo.png" alt="MBBS.NET Logo" /></span>
-        <span class="brand-name"
-          ><strong>MBBS<span>.NET</span></strong
-          ><small>Student workspace</small></span
-        >
       </a>
-      <button
-        class="collapse-button"
-        type="button"
-        [attr.aria-label]="sidebarCollapsed() ? 'Expand navigation' : 'Collapse navigation'"
-        [attr.aria-expanded]="!sidebarCollapsed()"
-        (click)="sidebarCollapsed.set(!sidebarCollapsed())"
-      >
-        <app-icon name="chevron" [size]="15" />
-      </button>
     </div>
 
     <nav class="sidebar-nav" aria-label="Primary">
-      <p class="nav-label">Workspace</p>
       <a
         routerLink="/dynamic/dashboard"
         routerLinkActive="active"
         [routerLinkActiveOptions]="{ exact: true }"
-        data-label="Dashboard"
+        title="Dashboard"
         (click)="closeMobileNav()"
       >
-        <span class="nav-icon"><app-icon name="dashboard" [size]="19" /></span
-        ><span>Dashboard</span>
+        <span class="nav-icon"><app-icon name="dashboard" [size]="19" /></span>
       </a>
 
-      <p class="nav-label">Preparation</p>
-      <button
-        class="nav-parent"
-        type="button"
-        data-label="NEET"
-        [class.expanded]="neetOpen()"
-        [attr.aria-expanded]="neetOpen()"
-        aria-controls="neet-subnav"
-        (click)="neetOpen.set(!neetOpen())"
-      >
-        <span class="nav-icon"><app-icon name="test" [size]="19" /></span><span>NEET</span
-        ><app-icon class="nav-chevron" name="chevron" [size]="14" />
-      </button>
-      @if (neetOpen() && !sidebarCollapsed()) {
-        <div id="neet-subnav" class="subnav">
-          <a
-            routerLink="/dynamic/neet"
-            routerLinkActive="active"
-            [routerLinkActiveOptions]="{ exact: true }"
-            (click)="closeMobileNav()"
-            >Practice hub</a
-          >
-          <a
-            routerLink="/dynamic/neet/quick-test"
-            routerLinkActive="active"
-            (click)="closeMobileNav()"
-            >Custom test</a
-          >
-          <a
-            routerLink="/dynamic/neet/previous-year-tests"
-            routerLinkActive="active"
-            (click)="closeMobileNav()"
-            >Previous papers</a
-          >
-          <a
-            routerLink="/dynamic/neet/leaderboard"
-            routerLinkActive="active"
-            (click)="closeMobileNav()"
-            >Leaderboard</a
-          >
-        </div>
-      }
-
-      <button
-        class="nav-parent"
-        type="button"
-        data-label="UCAT"
-        [class.expanded]="ucatOpen()"
-        [attr.aria-expanded]="ucatOpen()"
-        aria-controls="ucat-subnav"
-        (click)="ucatOpen.set(!ucatOpen())"
-      >
-        <span class="nav-icon"><app-icon name="activity" [size]="19" /></span><span>UCAT</span
-        ><app-icon class="nav-chevron" name="chevron" [size]="14" />
-      </button>
-      @if (ucatOpen() && !sidebarCollapsed()) {
-        <div id="ucat-subnav" class="subnav">
-          <a
-            routerLink="/dynamic/ucat"
-            routerLinkActive="active"
-            [routerLinkActiveOptions]="{ exact: true }"
-            (click)="closeMobileNav()"
-            >Practice tests</a
-          >
-          <a
-            routerLink="/dynamic/ucat/previous-year"
-            routerLinkActive="active"
-            (click)="closeMobileNav()"
-            >Previous papers</a
-          >
-        </div>
-      }
-
-      <p class="nav-label">Discover</p>
       <a
-        routerLink="/dynamic/cse"
+        routerLink="/dynamic/neet"
         routerLinkActive="active"
-        data-label="University finder"
+        title="NEET"
         (click)="closeMobileNav()"
       >
-        <span class="nav-icon"><app-icon name="globe" [size]="19" /></span
-        ><span>University finder</span>
+        <span class="nav-icon"><app-icon name="test" [size]="19" /></span>
       </a>
-      <a
-        routerLink="/dynamic/blogs"
-        routerLinkActive="active"
-        data-label="Insights"
-        (click)="closeMobileNav()"
-      >
-        <span class="nav-icon"><app-icon name="bookmark" [size]="19" /></span><span>Insights</span>
-      </a>
-      <!-- <a
-        routerLink="/dynamic/chat"
-        routerLinkActive="active"
-        data-label="Community Chat"
-        (click)="closeMobileNav()"
-      >
-        <span class="nav-icon"><app-icon name="activity" [size]="19" /></span><span>Community Chat</span>
-      </a> -->
 
+      <a
+        routerLink="/dynamic/ucat"
+        routerLinkActive="active"
+        title="UCAT"
+        (click)="closeMobileNav()"
+      >
+        <span class="nav-icon"><app-icon name="activity" [size]="19" /></span>
+      </a>
+
+      <a
+        routerLink="/dynamic/ielts"
+        routerLinkActive="active"
+        title="IELTS"
+        (click)="closeMobileNav()"
+      >
+        <span class="nav-icon"><app-icon name="quote" [size]="19" /></span>
+      </a>
+
+      <a
+        routerLink="/dynamic/pte"
+        routerLinkActive="active"
+        title="PTE"
+        (click)="closeMobileNav()"
+      >
+        <span class="nav-icon"><app-icon name="microscope" [size]="19" /></span>
+      </a>
+
+      <a
+        routerLink="/dynamic/invites"
+        routerLinkActive="active"
+        title="Invites"
+        (click)="closeMobileNav()"
+      >
+        <span class="nav-icon"><app-icon name="bell" [size]="19" /></span>
+      </a>
+
+      <a
+        routerLink="/dynamic/course-search"
+        routerLinkActive="active"
+        title="Course Search"
+        (click)="closeMobileNav()"
+      >
+        <span class="nav-icon"><app-icon name="search" [size]="19" /></span>
+      </a>
     </nav>
 
     <div class="sidebar-footer">
-      <div class="progress-callout">
-        <span class="progress-icon"><app-icon name="sparkles" [size]="17" /></span>
-        <div><strong>Keep your momentum</strong><span>One focused session today.</span></div>
-        <a
-          routerLink="/dynamic/neet/quick-test"
-          aria-label="Start a test"
-          (click)="closeMobileNav()"
-          ><app-icon name="arrow-right" [size]="15"
-        /></a>
-      </div>
       <button
         class="sidebar-profile"
         type="button"
+        title="Profile"
         (click)="toggleProfile()"
         [attr.aria-expanded]="profileOpen()"
       >
         <span class="avatar">{{ initials }}</span>
-        <span class="profile-copy"
-          ><strong>{{ displayName }}</strong
-          ><small>{{ userEmail }}</small></span
-        >
-        <app-icon class="profile-chevron" name="chevron" [size]="14" />
       </button>
     </div>
   </aside>
