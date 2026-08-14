@@ -32,6 +32,15 @@
       </a>
 
       <a
+        routerLink="/dynamic/invites"
+        routerLinkActive="active"
+        aria-label="Invites"
+        (click)="closeMobileNav()"
+      >
+        <span class="nav-icon"><app-icon name="heart" [size]="24" /></span>
+      </a>
+
+      <a
         routerLink="/dynamic/neet"
         routerLinkActive="active"
         aria-label="NEET"
@@ -46,20 +55,8 @@
         aria-label="UCAT"
         (click)="closeMobileNav()"
       >
-        <span class="nav-icon"><app-icon name="uk" [size]="24" /></span>
+        <span class="nav-icon"><app-icon name="plus" [size]="24" /></span>
       </a>
-
-
-
-      <a
-        routerLink="/dynamic/invites"
-        routerLinkActive="active"
-        aria-label="Invites"
-        (click)="closeMobileNav()"
-      >
-        <span class="nav-icon"><app-icon name="invite" [size]="24" /></span>
-      </a>
-
       <a
         routerLink="/dynamic/course-search"
         routerLinkActive="active"

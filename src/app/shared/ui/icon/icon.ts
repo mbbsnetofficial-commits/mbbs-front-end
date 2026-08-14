@@ -19,7 +19,6 @@ export type IconName =
   | 'heart'
   | 'history'
   | 'india'
-  | 'invite'
   | 'like'
   | 'logout'
   | 'menu'
@@ -34,7 +33,7 @@ export type IconName =
   | 'sparkles'
   | 'sun'
   | 'test'
-  | 'uk';
+  | 'plus';
 
 @Component({
   selector: 'app-icon',
