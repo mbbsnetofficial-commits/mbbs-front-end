@@ -24,42 +24,33 @@ export class Login {
   protected readonly successMessage = signal('');
 
   protected readonly loginForm = this.formBuilder.group({
-    whatsappNumber: ['', [Validators.required, Validators.pattern(/^\+?[0-9]{10,15}$/)]],
-    otp: ['', [Validators.required, Validators.minLength(4)]],
+    whatsappNumber: ['', [Validators.required]],
+    otp: ['', [Validators.required]],
     rememberMe: [true]
   });
 
   protected login(): void {
-    if (this.loginForm.invalid || this.isSubmitting()) {
+    if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
       return;
     }
 
-    this.isSubmitting.set(true);
-    this.errorMessage.set('');
-    this.successMessage.set('');
     const { rememberMe } = this.loginForm.getRawValue();
 
-    // Simulate API delay
-    setTimeout(() => {
-      // Mock successful login
-      const dummyStudentId = 'student_dummy_123';
-      this.tokenService.saveTokens(
-        'dummy_access_token',
-        'dummy_refresh_token',
-        dummyStudentId,
-        rememberMe
-      );
-      this.tokenService.saveUser({
-        student_id: dummyStudentId,
-        firstName: 'Dummy',
-        lastName: 'User',
-        email: 'dummy@example.com'
-      } as any, rememberMe);
+    const dummyStudentId = 'student_dummy_123';
+    this.tokenService.saveTokens(
+      'dummy_access_token',
+      'dummy_refresh_token',
+      dummyStudentId,
+      rememberMe
+    );
+    this.tokenService.saveUser({
+      student_id: dummyStudentId,
+      firstName: 'Student',
+      lastName: 'User',
+      email: 'student@mbbs.net'
+    } as any, rememberMe);
 
-      this.isSubmitting.set(false);
-      this.successMessage.set('Login successful! Opening your chat…');
-      this.router.navigate(['/dynamic/ai-chat']);
-    }, 800);
+    this.router.navigate(['/dynamic/ai-chat']);
   }
 }

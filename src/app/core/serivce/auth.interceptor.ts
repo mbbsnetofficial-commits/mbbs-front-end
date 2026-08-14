@@ -33,6 +33,18 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
   }
 
   const accessToken = tokenService.getAccessToken();
+
+  if (accessToken && accessToken.startsWith('dummy')) {
+    const authRequest = request.clone({
+      setHeaders: { Authorization: `Bearer ${accessToken}` }
+    });
+    return next(authRequest).pipe(
+      catchError((error: HttpErrorResponse) => {
+        return throwError(() => error);
+      })
+    );
+  }
+
   const authRequest = accessToken
     ? request.clone({
         setHeaders: { Authorization: `Bearer ${accessToken}` }

@@ -24,45 +24,35 @@ export class Register {
   protected readonly successMessage = signal('');
 
   protected readonly registerForm = this.formBuilder.group({
-    firstName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
-    lastName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
-    whatsappNumber: ['', [Validators.required, Validators.pattern(/^\+?[0-9]{10,15}$/)]],
-    otp: ['', [Validators.required, Validators.minLength(4)]],
-    termsAccepted: [false, Validators.requiredTrue]
+    firstName: ['', [Validators.required]],
+    lastName: ['', [Validators.required]],
+    whatsappNumber: ['', [Validators.required]],
+    otp: ['', [Validators.required]],
+    termsAccepted: [true]
   });
 
   protected register(): void {
-    if (this.registerForm.invalid || this.isSubmitting()) {
+    if (this.registerForm.invalid) {
       this.registerForm.markAllAsTouched();
       return;
     }
 
-    this.isSubmitting.set(true);
-    this.errorMessage.set('');
-    this.successMessage.set('');
+    const dummyStudentId = 'student_dummy_new';
+    const raw = this.registerForm.getRawValue();
 
-    // Simulate API delay
-    setTimeout(() => {
-      // Mock successful registration and auto-login
-      const dummyStudentId = 'student_dummy_new';
-      const raw = this.registerForm.getRawValue();
+    this.tokenService.saveTokens(
+      'dummy_access_token',
+      'dummy_refresh_token',
+      dummyStudentId,
+      true
+    );
+    this.tokenService.saveUser({
+      student_id: dummyStudentId,
+      firstName: raw.firstName.trim() || 'New',
+      lastName: raw.lastName.trim() || 'Student',
+      email: 'student@mbbs.net'
+    } as any, true);
 
-      this.tokenService.saveTokens(
-        'dummy_access_token',
-        'dummy_refresh_token',
-        dummyStudentId,
-        true
-      );
-      this.tokenService.saveUser({
-        student_id: dummyStudentId,
-        firstName: raw.firstName.trim(),
-        lastName: raw.lastName.trim(),
-        email: 'dummy_registered@example.com'
-      } as any, true);
-
-      this.isSubmitting.set(false);
-      this.successMessage.set('Account created successfully! Opening your chat…');
-      this.router.navigate(['/dynamic/ai-chat']);
-    }, 800);
+    this.router.navigate(['/dynamic/ai-chat']);
   }
 }
