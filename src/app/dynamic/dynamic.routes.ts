@@ -52,13 +52,6 @@ export const dynamicRoutes: Routes = [
           ),
       },
       {
-        path: 'neet/previous-year-tests',
-        loadComponent: () =>
-          import('./neet/previous-year-questions/previous-year-questions').then(
-            ({ PreviousYearQuestions }) => PreviousYearQuestions
-          ),
-      },
-      {
         path: 'neet/leaderboard',
         loadComponent: () =>
           import('./neet/test-leaderboard/test-leaderboard').then(
@@ -68,7 +61,9 @@ export const dynamicRoutes: Routes = [
       {
         path: 'neet',
         loadComponent: () =>
-          import('./neet/neet').then(({ NeetComponent }) => NeetComponent),
+          import('./neet/previous-year-questions/previous-year-questions').then(
+            ({ PreviousYearQuestions }) => PreviousYearQuestions
+          ),
       },
     ],
   },

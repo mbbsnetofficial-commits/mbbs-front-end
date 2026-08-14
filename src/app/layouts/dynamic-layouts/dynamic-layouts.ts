@@ -88,7 +88,7 @@ export class DynamicLayouts implements OnDestroy {
     {
       label: 'Previous NEET papers',
       description: 'Attempt mapped past papers',
-      route: '/dynamic/neet/previous-year-tests',
+      route: '/dynamic/neet',
       icon: 'history',
     },
     {
@@ -246,12 +246,8 @@ export class DynamicLayouts implements OnDestroy {
     const normalized = url.split('?')[0];
     const definitions: Array<[string, PageMeta]> = [
       ['/dynamic/neet/quick-test', { eyebrow: 'NEET preparation', title: 'Custom practice' }],
-      [
-        '/dynamic/neet/previous-year-tests',
-        { eyebrow: 'NEET preparation', title: 'Previous papers' },
-      ],
       ['/dynamic/neet/leaderboard', { eyebrow: 'Performance', title: 'Leaderboard' }],
-      ['/dynamic/neet', { eyebrow: 'NEET preparation', title: 'Practice hub' }],
+      ['/dynamic/neet', { eyebrow: 'NEET preparation', title: 'Previous papers' }],
       ['/dynamic/ucat/previous-year', { eyebrow: 'UCAT preparation', title: 'Previous papers' }],
       ['/dynamic/ucat', { eyebrow: 'UCAT preparation', title: 'Practice workspace' }],
       [
