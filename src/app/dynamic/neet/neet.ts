@@ -65,7 +65,7 @@ export class NeetComponent {
       progressColor: '#ff5252',
       dateRange: '05 Jan 2026',
       learningTime: '2h 13m',
-      score: '72%',
+      score: '518 / 720',
       category: 'Human Resources',
       iconBg: '#ff6b4a',
       iconName: 'test'
@@ -81,7 +81,7 @@ export class NeetComponent {
       progressColor: '#ff9800',
       dateRange: '12 Jan 2026',
       learningTime: '2h 13m',
-      score: '68%',
+      score: '490 / 720',
       category: 'Leadership',
       iconBg: '#34d399',
       iconName: 'chat'
@@ -97,7 +97,7 @@ export class NeetComponent {
       progressColor: '#2979ff',
       dateRange: '18 Jan 2026',
       learningTime: '9h 34m',
-      score: '80%',
+      score: '576 / 720',
       category: 'Conflict Management',
       iconBg: '#ff4081',
       iconName: 'chat'
@@ -113,7 +113,7 @@ export class NeetComponent {
       progressColor: '#2979ff',
       dateRange: '22 Jan 2026',
       learningTime: '12h 37m',
-      score: '89%',
+      score: '640 / 720',
       category: 'Communication Skills',
       iconBg: '#26c6da',
       iconName: 'sparkles'
@@ -129,7 +129,7 @@ export class NeetComponent {
       progressColor: '#34d399',
       dateRange: '01 - 15 Jan 2026',
       learningTime: '6h 21m',
-      score: '95%',
+      score: '684 / 720',
       category: 'Team Building',
       iconBg: '#42a5f5',
       iconName: 'like'
@@ -145,7 +145,7 @@ export class NeetComponent {
       progressColor: '#ff9800',
       dateRange: '28 Jan 2026',
       learningTime: '4h 9m',
-      score: '74%',
+      score: '532 / 720',
       category: 'Problem-Solving',
       iconBg: '#7e57c2',
       iconName: 'flame'
@@ -161,7 +161,7 @@ export class NeetComponent {
       progressColor: '#34d399',
       dateRange: '08 Jan - 02 Feb 2026',
       learningTime: '18h 21m',
-      score: '91%',
+      score: '655 / 720',
       category: 'Leadership',
       iconBg: '#78909c',
       iconName: 'profile'
