@@ -19,6 +19,7 @@ export type IconName =
   | 'heart'
   | 'history'
   | 'india'
+  | 'invite'
   | 'like'
   | 'logout'
   | 'menu'
