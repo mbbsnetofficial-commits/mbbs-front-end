@@ -263,6 +263,15 @@
     padding: 14px 16px;
     border-bottom: 1px solid #f1f5f9;
     text-align: left;
+
+    &.col-course { min-width: 260px; }
+    &.col-type { min-width: 150px; }
+    &.col-level { min-width: 125px; }
+    &.col-status { min-width: 130px; }
+    &.col-progress { min-width: 150px; }
+    &.col-time { min-width: 110px; }
+    &.col-score { min-width: 100px; }
+    &.col-more { width: 40px; text-align: center; }
   }
 
   .th-sort-btn {
