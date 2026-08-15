@@ -6,7 +6,7 @@
   <form [formGroup]="verificationForm" (ngSubmit)="verifyOtp()" novalidate>
     <header class="form-heading">
       <h2>Enter verification code</h2>
-      <p>Code sent via WhatsApp to <strong>{{ phoneNumber() }}</strong></p>
+      <p>We sent a code to your WhatsApp at <strong>{{ phoneNumber() }}</strong></p>
     </header>
 
     <div class="pin-box-wrapper" (paste)="onPaste($event)">
