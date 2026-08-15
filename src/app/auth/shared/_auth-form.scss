@@ -284,18 +284,19 @@ input.invalid {
   opacity: 0.65;
 }
 .switch-link {
-  margin-top: 19px;
-  color: var(--ink-muted);
-  font-size: 9px;
+  margin-top: 20px;
+  color: #64748b;
+  font-size: 14px;
   text-align: center;
 }
 .switch-link a {
-  color: var(--brand);
+  color: #0f172a;
   font-weight: 700;
-  text-decoration: none;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 .switch-link a:hover {
-  text-decoration: underline;
+  color: #000000;
 }
 .legal-notice {
   margin-top: 13px !important;
