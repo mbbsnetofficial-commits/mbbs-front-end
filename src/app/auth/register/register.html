@@ -27,17 +27,34 @@
 
     <div class="field">
       <label for="register-whatsapp">WhatsApp Number</label>
-      <input
-        id="register-whatsapp"
-        type="tel"
-        inputmode="tel"
-        formControlName="whatsappNumber"
-        autocomplete="tel"
-        placeholder="+91 98765 43210"
-        [class.invalid]="registerForm.controls.whatsappNumber.invalid && registerForm.controls.whatsappNumber.touched"
-      >
+      <div class="phone-input-group">
+        <select
+          id="register-country-code"
+          formControlName="countryCode"
+          class="country-code-select"
+          aria-label="Country Code"
+        >
+          <option value="+91">🇮🇳 +91 (India)</option>
+          <option value="+44">🇬🇧 +44 (UK)</option>
+          <option value="+1">🇺🇸 +1 (USA)</option>
+          <option value="+971">🇦🇪 +971 (UAE)</option>
+          <option value="+65">🇸🇬 +65 (Singapore)</option>
+          <option value="+61">🇦🇺 +61 (Australia)</option>
+        </select>
+
+        <input
+          id="register-whatsapp"
+          type="tel"
+          inputmode="numeric"
+          formControlName="whatsappNumber"
+          autocomplete="tel-national"
+          placeholder="98765 43210"
+          maxlength="10"
+          [class.invalid]="registerForm.controls.whatsappNumber.invalid && registerForm.controls.whatsappNumber.touched"
+        >
+      </div>
       @if (registerForm.controls.whatsappNumber.invalid && registerForm.controls.whatsappNumber.touched) {
-        <p class="field-error">Enter a valid 10–15 digit WhatsApp number.</p>
+        <p class="field-error">Please enter a valid 10-digit mobile number.</p>
       }
     </div>
 

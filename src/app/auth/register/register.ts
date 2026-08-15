@@ -25,7 +25,8 @@ export class Register {
 
   protected readonly registerForm = this.formBuilder.group({
     fullName: ['', [Validators.required, Validators.minLength(2)]],
-    whatsappNumber: ['', [Validators.required]],
+    countryCode: ['+91', [Validators.required]],
+    whatsappNumber: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
     otp: ['', [Validators.required]],
     termsAccepted: [true]
   });
@@ -53,6 +54,7 @@ export class Register {
       firstName,
       lastName,
       fullName: raw.fullName.trim(),
+      phone: `${raw.countryCode}${raw.whatsappNumber.trim()}`,
       email: 'student@mbbs.net'
     } as any, true);
 
