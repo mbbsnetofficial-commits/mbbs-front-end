@@ -1,46 +1,21 @@
 <main class="auth-shell">
-  <section class="product-panel">
-    <a class="brand" routerLink="/" aria-label="MBBS.NET home"
-      ><span class="brand-mark"><app-icon name="activity" [size]="20" [strokeWidth]="2.2" /></span
-      ><strong>MBBS<span>.NET</span></strong></a
-    >
-    <div class="product-copy">
-      <span class="eyebrow">{{ eyebrow() }}</span>
-      <h1>{{ headline() }}</h1>
-      <p>{{ description() }}</p>
+  <div class="auth-card">
+    <div class="brand-header">
+      <a class="brand" routerLink="/" aria-label="MBBS.NET home">
+        <span class="brand-mark">
+          <app-icon name="activity" [size]="20" [strokeWidth]="2.2" />
+        </span>
+        <strong>MBBS<span>.NET</span></strong>
+      </a>
     </div>
-    <div class="workspace-preview" aria-hidden="true">
-      <header>
-        <span><app-icon name="activity" [size]="13" />Student workspace</span><i></i>
-      </header>
-      <div class="preview-body">
-        <aside><span class="active"></span><span></span><span></span><span></span></aside>
-        <div class="preview-main">
-          <small>YOUR PREPARATION</small><strong>Progress with clarity.</strong>
-          <div class="preview-metrics">
-            <span><small>Accuracy</small><b>82%</b></span
-            ><span><small>Streak</small><b>5 days</b></span>
-          </div>
-          <div class="preview-bars"><i></i><i></i><i></i><i></i></div>
-        </div>
-      </div>
+
+    <div class="form-container">
+      <ng-content />
     </div>
-    <div class="product-note">
-      <span><app-icon name="sparkles" [size]="17" /></span>
-      <div>
-        <strong>Built for focused progress</strong
-        ><small>Preparation, insights and university discovery in one place.</small>
-      </div>
-    </div>
-  </section>
-  <section class="form-panel">
-    <div class="mobile-brand">
-      <a routerLink="/"
-        ><span class="brand-mark"><app-icon name="activity" [size]="18" /></span
-        ><strong>MBBS<span>.NET</span></strong></a
-      >
-    </div>
-    <div class="form-container"><ng-content /></div>
-    <footer><span>© 2026 MBBS.NET</span><a routerLink="/">Back to home</a></footer>
-  </section>
+  </div>
+
+  <footer class="auth-footer">
+    <span>© 2026 MBBS.NET</span>
+    <a routerLink="/">Back to home</a>
+  </footer>
 </main>
