@@ -9,31 +9,46 @@
       <p>Code sent via WhatsApp to <strong>{{ phoneNumber() }}</strong></p>
     </header>
 
-    <div class="field">
-      <label for="verification-code">4-digit OTP Code</label>
-      <input
-        id="verification-code"
-        class="otp-input"
-        type="text"
-        inputmode="numeric"
-        formControlName="otp"
-        autocomplete="one-time-code"
-        maxlength="4"
-        placeholder="Enter 4-digit code"
-        [class.invalid]="verificationForm.controls.otp.invalid && verificationForm.controls.otp.touched"
-      >
-      @if (verificationForm.controls.otp.invalid && verificationForm.controls.otp.touched) {
-        <p class="field-error">Please enter the 4-digit OTP code.</p>
+    <div class="pin-box-wrapper" (paste)="onPaste($event)">
+      @for (digit of otpDigits(); track $index) {
+        <input
+          type="text"
+          inputmode="numeric"
+          pattern="[0-9]*"
+          maxlength="1"
+          [value]="digit"
+          (input)="onDigitInput($event, $index)"
+          (keydown)="onDigitKeyDown($event, $index)"
+          class="pin-digit-box"
+          [class.filled]="digit !== ''"
+          aria-label="Digit"
+        >
       }
     </div>
+
+    @if (verificationForm.controls.otp.invalid && verificationForm.controls.otp.touched) {
+      <p class="field-error pin-error">Please enter the complete 4-digit verification code.</p>
+    }
 
     @if (errorMessage()) {
       <p class="form-alert error" role="alert"><app-icon name="activity" [size]="16"/>{{ errorMessage() }}</p>
     }
 
-    <button class="submit-button" type="submit" [disabled]="isSubmitting()">
-      @if (isSubmitting()) { <span class="button-loader" aria-hidden="true"></span> Verifying… } @else { Verify & Create account }
+    <button class="submit-button" type="submit" [disabled]="isSubmitting() || verificationForm.invalid">
+      @if (isSubmitting()) {
+        <span class="button-loader" aria-hidden="true"></span> Verifying…
+      } @else {
+        Verify Code &rarr;
+      }
     </button>
+
+    <div class="resend-timer-wrapper">
+      @if (timerSeconds() > 0) {
+        <span class="timer-text">Send again in {{ formattedTimer() }}</span>
+      } @else {
+        <button type="button" class="resend-btn" (click)="resendCode()">Send code again</button>
+      }
+    </div>
 
     <p class="switch-link">Need to edit phone number? <a routerLink="/auth/register">Change number</a></p>
   </form>
