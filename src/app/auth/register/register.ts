@@ -1,9 +1,14 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, NonNullableFormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
 import { AuthShell } from '../shared/auth-shell/auth-shell';
 import { Icon } from '../../shared/ui/icon/icon';
+
+function tenDigitPhoneValidator(control: AbstractControl): ValidationErrors | null {
+  const digits = (control.value || '').replace(/\D/g, '');
+  return digits.length === 10 ? null : { invalidPhone: true };
+}
 
 @Component({
   selector: 'app-register',
@@ -24,7 +29,7 @@ export class Register {
   protected readonly registerForm = this.formBuilder.group({
     fullName: ['', [Validators.required, Validators.minLength(2)]],
     countryCode: ['+91', [Validators.required]],
-    whatsappNumber: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
+    whatsappNumber: ['', [Validators.required, tenDigitPhoneValidator]],
     termsAccepted: [true, [Validators.requiredTrue]]
   });
 
@@ -53,6 +58,20 @@ export class Register {
     }
   }
 
+  protected onPhoneInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input) return;
+
+    const rawDigits = input.value.replace(/\D/g, '').slice(0, 10);
+    let formatted = rawDigits;
+    if (rawDigits.length > 5) {
+      formatted = `${rawDigits.slice(0, 5)} ${rawDigits.slice(5)}`;
+    }
+
+    input.value = formatted;
+    this.registerForm.controls.whatsappNumber.setValue(formatted, { emitEvent: false });
+  }
+
   private toProperCase(str: string): string {
     return str.replace(/\b\w+/g, word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase());
   }
@@ -67,7 +86,8 @@ export class Register {
     const properFullName = this.toProperCase(raw.fullName.trim());
     this.registerForm.controls.fullName.setValue(properFullName);
 
-    const fullPhone = `${raw.countryCode} ${raw.whatsappNumber.trim()}`;
+    const cleanDigits = raw.whatsappNumber.replace(/\D/g, '');
+    const fullPhone = `${raw.countryCode} ${cleanDigits.slice(0, 5)} ${cleanDigits.slice(5)}`;
 
     sessionStorage.setItem('pendingVerificationPhone', fullPhone);
     sessionStorage.setItem('pendingFullName', properFullName);

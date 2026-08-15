@@ -55,7 +55,8 @@
           formControlName="whatsappNumber"
           autocomplete="tel-national"
           placeholder="98765 43210"
-          maxlength="10"
+          maxlength="11"
+          (input)="onPhoneInput($event)"
         >
       </div>
       @if (registerForm.controls.whatsappNumber.invalid && registerForm.controls.whatsappNumber.touched) {
