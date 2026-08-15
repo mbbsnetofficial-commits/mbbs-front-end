@@ -1,22 +1,25 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { ReactiveFormsModule, Validators, NonNullableFormBuilder } from '@angular/forms';
+import { AbstractControl, NonNullableFormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
-import { TokenService } from '../../core/serivce/token.service';
-import { Icon } from '../../shared/ui/icon/icon';
 import { AuthShell } from '../shared/auth-shell/auth-shell';
+import { Icon } from '../../shared/ui/icon/icon';
+
+function tenDigitPhoneValidator(control: AbstractControl): ValidationErrors | null {
+  const digits = (control.value || '').replace(/\D/g, '');
+  return digits.length === 10 ? null : { invalidPhone: true };
+}
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, AuthShell, Icon],
+  imports: [AuthShell, Icon, ReactiveFormsModule, RouterLink],
   templateUrl: './login.html',
   styleUrl: './login.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class Login {
   private readonly formBuilder = inject(NonNullableFormBuilder);
-  private readonly tokenService = inject(TokenService);
   private readonly router = inject(Router);
 
   protected readonly isSubmitting = signal(false);
@@ -24,10 +27,24 @@ export class Login {
   protected readonly successMessage = signal('');
 
   protected readonly loginForm = this.formBuilder.group({
-    whatsappNumber: ['', [Validators.required]],
-    otp: ['', [Validators.required]],
+    countryCode: ['+91', [Validators.required]],
+    whatsappNumber: ['', [Validators.required, tenDigitPhoneValidator]],
     rememberMe: [true]
   });
+
+  protected onPhoneInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input) return;
+
+    const rawDigits = input.value.replace(/\D/g, '').slice(0, 10);
+    let formatted = rawDigits;
+    if (rawDigits.length > 5) {
+      formatted = `${rawDigits.slice(0, 5)} ${rawDigits.slice(5)}`;
+    }
+
+    input.value = formatted;
+    this.loginForm.controls.whatsappNumber.setValue(formatted, { emitEvent: false });
+  }
 
   protected login(): void {
     if (this.loginForm.invalid) {
@@ -35,22 +52,13 @@ export class Login {
       return;
     }
 
-    const { rememberMe } = this.loginForm.getRawValue();
+    const raw = this.loginForm.getRawValue();
+    const cleanDigits = raw.whatsappNumber.replace(/\D/g, '');
+    const fullPhone = `${raw.countryCode} ${cleanDigits.slice(0, 5)} ${cleanDigits.slice(5)}`;
 
-    const dummyStudentId = 'student_dummy_123';
-    this.tokenService.saveTokens(
-      'dummy_access_token',
-      'dummy_refresh_token',
-      dummyStudentId,
-      rememberMe
-    );
-    this.tokenService.saveUser({
-      student_id: dummyStudentId,
-      firstName: 'Student',
-      lastName: 'User',
-      email: 'student@mbbs.net'
-    } as any, rememberMe);
+    sessionStorage.setItem('pendingVerificationPhone', fullPhone);
+    sessionStorage.setItem('pendingFullName', 'Student');
 
-    this.router.navigate(['/dynamic/ai-chat']);
+    this.router.navigate(['/auth/otp']);
   }
 }

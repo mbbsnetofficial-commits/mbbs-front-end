@@ -4,42 +4,45 @@
   description="Log in to access your personalized NEET preparation modules, high-yield clinical question banks, and live performance analytics."
 >
   <form [formGroup]="loginForm" (ngSubmit)="login()" novalidate>
-    <header class="form-heading">
-      <h2>Sign in to your account</h2>
-      <p>Enter your phone number to receive a WhatsApp OTP.</p>
-    </header>
+    <p class="form-instruction-text">
+      Log in to your account here. We'll send a one-time code to your WhatsApp to verify your number.
+    </p>
 
     <div class="field">
       <label for="login-whatsapp">WhatsApp Number</label>
-      <input
-        id="login-whatsapp"
-        type="tel"
-        inputmode="tel"
-        formControlName="whatsappNumber"
-        placeholder="+91 98765 43210"
-        autocomplete="tel"
+      <div
+        class="phone-input-group"
         [class.invalid]="loginForm.controls.whatsappNumber.invalid && loginForm.controls.whatsappNumber.touched"
-        [attr.aria-invalid]="loginForm.controls.whatsappNumber.invalid && loginForm.controls.whatsappNumber.touched"
       >
-      @if (loginForm.controls.whatsappNumber.touched && loginForm.controls.whatsappNumber.invalid) {
-        <p class="field-error">Please enter a valid WhatsApp number.</p>
-      }
-    </div>
+        <select
+          id="login-country-code"
+          formControlName="countryCode"
+          class="country-code-select"
+          aria-label="Country Code"
+        >
+          <option value="+91">🇮🇳 +91</option>
+          <option value="+44">🇬🇧 +44</option>
+          <option value="+1">🇺🇸 +1</option>
+          <option value="+971">🇦🇪 +971</option>
+          <option value="+65">🇸🇬 +65</option>
+          <option value="+61">🇦🇺 +61</option>
+        </select>
 
-    <div class="field">
-      <label for="login-otp">OTP Code</label>
-      <input
-        id="login-otp"
-        type="text"
-        inputmode="numeric"
-        formControlName="otp"
-        placeholder="Enter 4-digit code"
-        autocomplete="one-time-code"
-        [class.invalid]="loginForm.controls.otp.invalid && loginForm.controls.otp.touched"
-        [attr.aria-invalid]="loginForm.controls.otp.invalid && loginForm.controls.otp.touched"
-      >
-      @if (loginForm.controls.otp.touched && loginForm.controls.otp.invalid) {
-        <p class="field-error">Please enter the OTP.</p>
+        <span class="phone-divider"></span>
+
+        <input
+          id="login-whatsapp"
+          type="tel"
+          inputmode="numeric"
+          formControlName="whatsappNumber"
+          autocomplete="tel-national"
+          placeholder="98765 43210"
+          maxlength="11"
+          (input)="onPhoneInput($event)"
+        >
+      </div>
+      @if (loginForm.controls.whatsappNumber.invalid && loginForm.controls.whatsappNumber.touched) {
+        <p class="field-error">Please enter a valid 10-digit mobile number.</p>
       }
     </div>
 
@@ -66,9 +69,9 @@
     <button class="submit-button" type="submit" [disabled]="isSubmitting()">
       @if (isSubmitting()) {
         <span class="button-loader" aria-hidden="true"></span>
-        Signing in…
+        Sending OTP…
       } @else {
-        Sign in
+        Continue to verify OTP
       }
     </button>
 
