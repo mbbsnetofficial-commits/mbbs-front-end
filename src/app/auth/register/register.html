@@ -17,6 +17,7 @@
         formControlName="fullName"
         autocomplete="name"
         placeholder="Enter your full name"
+        (input)="onFullNameInput($event)"
         (blur)="onFullNameBlur()"
         [class.invalid]="registerForm.controls.fullName.invalid && registerForm.controls.fullName.touched"
       >

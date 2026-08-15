@@ -28,6 +28,23 @@ export class Register {
     termsAccepted: [true, [Validators.requiredTrue]]
   });
 
+  protected onFullNameInput(event: Event): void {
+    const inputElement = event.target as HTMLInputElement;
+    if (!inputElement) return;
+
+    const cursorStart = inputElement.selectionStart;
+    const rawVal = inputElement.value;
+
+    const properVal = this.toProperCase(rawVal);
+    if (properVal !== rawVal) {
+      this.registerForm.controls.fullName.setValue(properVal, { emitEvent: false });
+      inputElement.value = properVal;
+      if (cursorStart !== null) {
+        inputElement.setSelectionRange(cursorStart, cursorStart);
+      }
+    }
+  }
+
   protected onFullNameBlur(): void {
     const current = this.registerForm.controls.fullName.value;
     if (current) {
