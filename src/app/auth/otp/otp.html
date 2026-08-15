@@ -4,10 +4,9 @@
   description="Verify your phone number to secure your account and access your student workspace."
 >
   <form [formGroup]="verificationForm" (ngSubmit)="verifyOtp()" novalidate>
-    <header class="form-heading">
-      <h2>Enter verification code</h2>
-      <p>We sent a code to your WhatsApp at <strong>{{ phoneNumber() }}</strong></p>
-    </header>
+    <p class="form-instruction-text">
+      We sent a code to your WhatsApp at <strong>{{ phoneNumber() }}</strong>
+    </p>
 
     <div class="pin-box-wrapper" (paste)="onPaste($event)">
       @for (digit of otpDigits(); track $index) {
