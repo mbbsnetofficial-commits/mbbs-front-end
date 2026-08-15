@@ -24,8 +24,7 @@ export class Register {
   protected readonly successMessage = signal('');
 
   protected readonly registerForm = this.formBuilder.group({
-    firstName: ['', [Validators.required]],
-    lastName: ['', [Validators.required]],
+    fullName: ['', [Validators.required, Validators.minLength(2)]],
     whatsappNumber: ['', [Validators.required]],
     otp: ['', [Validators.required]],
     termsAccepted: [true]
@@ -39,6 +38,9 @@ export class Register {
 
     const dummyStudentId = 'student_dummy_new';
     const raw = this.registerForm.getRawValue();
+    const nameParts = raw.fullName.trim().split(' ');
+    const firstName = nameParts[0] || 'Student';
+    const lastName = nameParts.slice(1).join(' ') || '';
 
     this.tokenService.saveTokens(
       'dummy_access_token',
@@ -48,8 +50,9 @@ export class Register {
     );
     this.tokenService.saveUser({
       student_id: dummyStudentId,
-      firstName: raw.firstName.trim() || 'New',
-      lastName: raw.lastName.trim() || 'Student',
+      firstName,
+      lastName,
+      fullName: raw.fullName.trim(),
       email: 'student@mbbs.net'
     } as any, true);
 
