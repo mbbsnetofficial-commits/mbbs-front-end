@@ -46,14 +46,15 @@
 
 .official-brand-logo {
   height: auto;
-  max-height: 54px;
+  max-height: 58px;
   width: auto;
-  max-width: 250px;
+  max-width: 220px;
   object-fit: contain;
+  mix-blend-mode: multiply;
   transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 
   &:hover {
-    transform: scale(1.02);
+    transform: scale(1.03);
   }
 }
 
