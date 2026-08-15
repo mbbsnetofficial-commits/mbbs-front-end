@@ -16,6 +16,14 @@ form {
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
+.form-instruction-text {
+  margin-bottom: 24px;
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.55;
+  text-align: center;
+}
+
 .form-heading h2 {
   color: var(--ink, #0f172a);
   font-size: 22px;
