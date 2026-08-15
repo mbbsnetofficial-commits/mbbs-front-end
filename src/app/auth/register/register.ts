@@ -28,6 +28,18 @@ export class Register {
     termsAccepted: [true, [Validators.requiredTrue]]
   });
 
+  protected onFullNameBlur(): void {
+    const current = this.registerForm.controls.fullName.value;
+    if (current) {
+      const proper = this.toProperCase(current);
+      this.registerForm.controls.fullName.setValue(proper);
+    }
+  }
+
+  private toProperCase(str: string): string {
+    return str.replace(/\b\w+/g, word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase());
+  }
+
   protected register(): void {
     if (this.registerForm.invalid) {
       this.registerForm.markAllAsTouched();
@@ -35,10 +47,13 @@ export class Register {
     }
 
     const raw = this.registerForm.getRawValue();
+    const properFullName = this.toProperCase(raw.fullName.trim());
+    this.registerForm.controls.fullName.setValue(properFullName);
+
     const fullPhone = `${raw.countryCode} ${raw.whatsappNumber.trim()}`;
 
     sessionStorage.setItem('pendingVerificationPhone', fullPhone);
-    sessionStorage.setItem('pendingFullName', raw.fullName.trim());
+    sessionStorage.setItem('pendingFullName', properFullName);
 
     this.router.navigate(['/auth/otp']);
   }
