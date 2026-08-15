@@ -4,7 +4,6 @@ import { Router, RouterLink } from '@angular/router';
 
 import { AuthShell } from '../shared/auth-shell/auth-shell';
 import { Icon } from '../../shared/ui/icon/icon';
-import { TokenService } from '../../core/serivce/token.service';
 
 @Component({
   selector: 'app-register',
@@ -17,7 +16,6 @@ import { TokenService } from '../../core/serivce/token.service';
 export class Register {
   private readonly formBuilder = inject(NonNullableFormBuilder);
   private readonly router = inject(Router);
-  private readonly tokenService = inject(TokenService);
 
   protected readonly isSubmitting = signal(false);
   protected readonly errorMessage = signal('');
@@ -27,8 +25,7 @@ export class Register {
     fullName: ['', [Validators.required, Validators.minLength(2)]],
     countryCode: ['+91', [Validators.required]],
     whatsappNumber: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
-    otp: ['', [Validators.required]],
-    termsAccepted: [true]
+    termsAccepted: [true, [Validators.requiredTrue]]
   });
 
   protected register(): void {
@@ -37,27 +34,12 @@ export class Register {
       return;
     }
 
-    const dummyStudentId = 'student_dummy_new';
     const raw = this.registerForm.getRawValue();
-    const nameParts = raw.fullName.trim().split(' ');
-    const firstName = nameParts[0] || 'Student';
-    const lastName = nameParts.slice(1).join(' ') || '';
+    const fullPhone = `${raw.countryCode} ${raw.whatsappNumber.trim()}`;
 
-    this.tokenService.saveTokens(
-      'dummy_access_token',
-      'dummy_refresh_token',
-      dummyStudentId,
-      true
-    );
-    this.tokenService.saveUser({
-      student_id: dummyStudentId,
-      firstName,
-      lastName,
-      fullName: raw.fullName.trim(),
-      phone: `${raw.countryCode}${raw.whatsappNumber.trim()}`,
-      email: 'student@mbbs.net'
-    } as any, true);
+    sessionStorage.setItem('pendingVerificationPhone', fullPhone);
+    sessionStorage.setItem('pendingFullName', raw.fullName.trim());
 
-    this.router.navigate(['/dynamic/ai-chat']);
+    this.router.navigate(['/auth/otp']);
   }
 }

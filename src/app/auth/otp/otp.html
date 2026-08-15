@@ -5,30 +5,36 @@
 >
   <form [formGroup]="verificationForm" (ngSubmit)="verifyOtp()" novalidate>
     <header class="form-heading">
-      <span>Verify your account</span>
-      <h2>Enter the verification code</h2>
-      <p>Use the 6-digit code sent to your registered phone number.</p>
+      <h2>Enter verification code</h2>
+      <p>We've sent a 4-digit OTP code via WhatsApp to <strong>{{ phoneNumber() }}</strong></p>
     </header>
 
     <div class="field">
-      <label for="verification-phone">Phone number</label>
-      <input id="verification-phone" type="tel" formControlName="phoneNumber" autocomplete="tel" [class.invalid]="verificationForm.controls.phoneNumber.invalid && verificationForm.controls.phoneNumber.touched">
-      @if (verificationForm.controls.phoneNumber.invalid && verificationForm.controls.phoneNumber.touched) { <p class="field-error">Enter a valid phone number.</p> }
-    </div>
-
-    <div class="field">
-      <label for="verification-code">6-digit code</label>
-      <input id="verification-code" class="otp-input" type="text" inputmode="numeric" formControlName="otp" autocomplete="one-time-code" maxlength="6" placeholder="000000" [class.invalid]="verificationForm.controls.otp.invalid && verificationForm.controls.otp.touched">
-      @if (verificationForm.controls.otp.invalid && verificationForm.controls.otp.touched) { <p class="field-error">Enter the complete 6-digit code.</p> }
+      <label for="verification-code">4-digit OTP Code</label>
+      <input
+        id="verification-code"
+        class="otp-input"
+        type="text"
+        inputmode="numeric"
+        formControlName="otp"
+        autocomplete="one-time-code"
+        maxlength="4"
+        placeholder="Enter 4-digit code"
+        [class.invalid]="verificationForm.controls.otp.invalid && verificationForm.controls.otp.touched"
+      >
+      @if (verificationForm.controls.otp.invalid && verificationForm.controls.otp.touched) {
+        <p class="field-error">Please enter the 4-digit OTP code.</p>
+      }
     </div>
 
     @if (errorMessage()) {
-      <p class="form-alert" role="alert"><app-icon name="activity" [size]="16"/>{{ errorMessage() }}</p>
+      <p class="form-alert error" role="alert"><app-icon name="activity" [size]="16"/>{{ errorMessage() }}</p>
     }
 
     <button class="submit-button" type="submit" [disabled]="isSubmitting()">
-      @if (isSubmitting()) { <span class="button-loader" aria-hidden="true"></span> Verifying… } @else { Verify account }
+      @if (isSubmitting()) { <span class="button-loader" aria-hidden="true"></span> Verifying… } @else { Verify & Create account }
     </button>
-    <p class="switch-link">Already verified? <a routerLink="/auth/login">Return to login</a></p>
+
+    <p class="switch-link">Need to edit phone number? <a routerLink="/auth/register">Change number</a></p>
   </form>
 </app-auth-shell>
