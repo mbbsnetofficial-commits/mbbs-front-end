@@ -17,9 +17,10 @@ form {
   text-transform: uppercase;
 }
 .form-heading h2 {
-  color: var(--ink);
-  font-size: 30px;
-  letter-spacing: -0.045em;
+  color: var(--ink, #0f172a);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
 }
 .form-heading p {
   margin-top: 8px;
