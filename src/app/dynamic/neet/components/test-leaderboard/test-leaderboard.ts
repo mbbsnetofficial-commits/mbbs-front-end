@@ -2,8 +2,8 @@ import { ChangeDetectionStrategy, Component, OnInit, computed, signal } from '@a
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
-import { TestLeaderboardEntry } from '../../../core/models/test-leaderboard.model';
-import { TestLeaderboardService } from '../../../core/serivce/test-leaderboard.service';
+import { TestLeaderboardEntry } from '../../models/leaderboard.model';
+import { TestLeaderboardService } from '../../services/test-leaderboard.service';
 
 @Component({
   selector: 'app-test-leaderboard',

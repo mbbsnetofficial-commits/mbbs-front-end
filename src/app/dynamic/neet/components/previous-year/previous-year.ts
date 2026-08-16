@@ -15,7 +15,7 @@ import {
   ChatSession,
   TestOption,
   ZoneInsight
-} from '../../../core/models/quick-test.model';
+} from '../../models/quick-test.model';
 import {
   ActivePreviousYearTest,
   CompletedPreviousYearTest,
@@ -23,11 +23,13 @@ import {
   PreviousYearQuestion,
   PreviousYearQuestionState,
   PreviousYearReviewQuestion,
+  SaveAnswerRequest,
   StartPreviousYearTestResponse,
-  SubmitPreviousYearTestResponse
-} from '../../../core/models/previous-year-test.model';
-import { PreviousYearTestService } from '../../../core/serivce/previous-year-test.service';
-import { QuickTestService } from '../../../core/serivce/quick-test.service';
+  SubmitPreviousYearTestResponse,
+  TestStartRequest
+} from '../../models/previous-year.model';
+import { PreviousYearTestService } from '../../services/previous-year.service';
+import { QuickTestService } from '../../services/quick-test.service';
 
 type PreviousYearView = 'papers' | 'configure' | 'test' | 'result';
 type ResultFilter = 'all' | 'correct' | 'wrong';
@@ -37,11 +39,11 @@ type AiPanel = 'none' | 'chat' | 'insights';
   selector: 'app-previous-year-questions',
   standalone: true,
   imports: [CommonModule, RouterLink],
-  templateUrl: './previous-year-questions.html',
-  styleUrl: './previous-year-questions.scss',
+  templateUrl: './previous-year.html',
+  styleUrl: './previous-year.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class PreviousYearQuestions implements OnInit, OnDestroy {
+export class PreviousYear implements OnInit, OnDestroy {
   private readonly activeStorageKey = 'activePreviousYearTest';
   private readonly resultStorageKey = 'completedPreviousYearTest';
   private timerId: ReturnType<typeof setInterval> | null = null;
@@ -55,6 +57,8 @@ export class PreviousYearQuestions implements OnInit, OnDestroy {
   readonly isStarting = signal(false);
   readonly isSubmitting = signal(false);
   readonly errorMessage = signal<string | null>(null);
+  readonly autosaveStatus = signal<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  readonly autosaveError = signal<string | null>(null);
 
   readonly activeSession = signal<ActivePreviousYearTest | null>(null);
   readonly currentQuestionIndex = signal(0);
@@ -173,14 +177,14 @@ export class PreviousYearQuestions implements OnInit, OnDestroy {
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
-    this.previousYearTestService.getPapers('neet').subscribe({
+    this.previousYearTestService.getBuiltinTests().subscribe({
       next: (response) => {
-        this.papers.set(Array.isArray(response.data) ? response.data : []);
+        this.papers.set(Array.isArray(response?.data) ? response.data : []);
         this.isLoading.set(false);
       },
       error: (error) => {
         this.errorMessage.set(
-          this.getErrorMessage(error, 'Unable to load previous year papers.')
+          this.getErrorMessage(error, 'Unable to load tests.')
         );
         this.isLoading.set(false);
       }
@@ -188,11 +192,15 @@ export class PreviousYearQuestions implements OnInit, OnDestroy {
   }
 
   isPaperAvailable(paper: PreviousYearPaper): boolean {
-    return Boolean(
-      paper.is_active &&
-      paper.mapping_available &&
-      paper.mapped_question_count > 0
-    );
+    if (paper.is_active === false) {
+      return false;
+    }
+    const count =
+      paper.total_questions ??
+      paper.question_count ??
+      paper.mapped_question_count ??
+      0;
+    return count > 0;
   }
 
   selectPaper(paper: PreviousYearPaper): void {
@@ -200,24 +208,17 @@ export class PreviousYearQuestions implements OnInit, OnDestroy {
       return;
     }
 
-    this.isLoading.set(true);
-    this.errorMessage.set(null);
-
-    this.previousYearTestService.getPaper(paper.id).subscribe({
-      next: (response) => {
-        const selected = response.data ?? paper;
-        this.selectedPaper.set(selected);
-        this.duration.set(Math.max(1, selected.question_count || 200));
-        this.view.set('configure');
-        this.isLoading.set(false);
-      },
-      error: (error) => {
-        this.errorMessage.set(
-          this.getErrorMessage(error, 'Unable to load this paper.')
-        );
-        this.isLoading.set(false);
-      }
-    });
+    this.selectedPaper.set(paper);
+    this.duration.set(
+      Math.max(
+        1,
+        paper.duration_minutes ||
+          paper.total_questions ||
+          paper.question_count ||
+          180
+      )
+    );
+    this.view.set('configure');
   }
 
   backToPapers(): void {
@@ -240,9 +241,20 @@ export class PreviousYearQuestions implements OnInit, OnDestroy {
     this.isStarting.set(true);
     this.errorMessage.set(null);
 
-    this.previousYearTestService.startTest(paper.id, {
-      duration: this.duration()
-    }).subscribe({
+    let startPayload: TestStartRequest;
+    if (paper.source === 'previous_year' && paper.previous_year_paper_id) {
+      startPayload = { previous_year_paper_id: paper.previous_year_paper_id };
+    } else if (paper.builtin_test_id) {
+      startPayload = { builtin_test_id: paper.builtin_test_id };
+    } else if (paper.test_code) {
+      startPayload = { test_code: paper.test_code };
+    } else if (paper.source === 'previous_year') {
+      startPayload = { previous_year_paper_id: paper.id || paper.test_id };
+    } else {
+      startPayload = { builtin_test_id: paper.test_id || paper.id };
+    }
+
+    this.previousYearTestService.startTest(startPayload).subscribe({
       next: (response) => {
         if (!response.sessionId || !response.data?.length) {
           this.errorMessage.set('The paper started without any questions.');
@@ -262,13 +274,83 @@ export class PreviousYearQuestions implements OnInit, OnDestroy {
   }
 
   selectOption(option: TestOption): void {
-    if (!this.isSubmitting()) {
-      this.updateCurrentState({ selectedOption: option });
+    if (this.isSubmitting()) {
+      return;
+    }
+
+    const currentQuestion = this.currentQuestion();
+    const currentState = this.currentQuestionState();
+    if (!currentQuestion) {
+      return;
+    }
+
+    if (currentState?.selectedOption === option) {
+      return;
+    }
+
+    this.updateCurrentState({ selectedOption: option });
+
+    const session = this.activeSession();
+    if (session?.sessionId) {
+      this.autosaveAnswer(
+        session.sessionId,
+        currentQuestion.id,
+        option,
+        currentState?.timeSpent || 0
+      );
     }
   }
 
   clearResponse(): void {
+    if (this.isSubmitting()) {
+      return;
+    }
+
+    const currentQuestion = this.currentQuestion();
+    const currentState = this.currentQuestionState();
+    if (!currentQuestion || currentState?.selectedOption === null) {
+      return;
+    }
+
     this.updateCurrentState({ selectedOption: null });
+
+    const session = this.activeSession();
+    if (session?.sessionId) {
+      this.autosaveAnswer(
+        session.sessionId,
+        currentQuestion.id,
+        null,
+        currentState?.timeSpent || 0
+      );
+    }
+  }
+
+  private autosaveAnswer(
+    sessionId: string,
+    questionId: number,
+    selectedOption: TestOption | string | null,
+    timeSpent: number
+  ): void {
+    this.autosaveStatus.set('saving');
+    this.autosaveError.set(null);
+
+    const payload: SaveAnswerRequest = {
+      question_id: questionId,
+      selected_option: selectedOption,
+      time_spent: timeSpent
+    };
+
+    this.previousYearTestService.saveAnswer(sessionId, payload).subscribe({
+      next: () => {
+        this.autosaveStatus.set('saved');
+      },
+      error: (error) => {
+        this.autosaveStatus.set('error');
+        this.autosaveError.set(
+          this.getErrorMessage(error, 'Unable to save answer.')
+        );
+      }
+    });
   }
 
   toggleMarkForReview(): void {
@@ -311,7 +393,7 @@ export class PreviousYearQuestions implements OnInit, OnDestroy {
     }
   }
 
-  submitTest(automatic: boolean): void {
+  submitTest(automatic: boolean = false): void {
     const session = this.activeSession();
     if (!session || this.isSubmitting()) {
       return;
@@ -335,7 +417,36 @@ export class PreviousYearQuestions implements OnInit, OnDestroy {
       answers
     }).subscribe({
       next: (response) => {
-        this.result.set(response);
+        const raw = response as any;
+        const resData = raw?.data || raw;
+
+        const totalQ = session.totalQuestions || session.questions.length || 1;
+        const correctCount = resData.correct ?? resData.correct_answers ?? resData.correctCount ?? 0;
+        const wrongCount = resData.wrong ?? resData.incorrect ?? resData.wrong_answers ?? resData.wrongCount ?? 0;
+        const skippedCount = resData.skipped ?? resData.unanswered ?? resData.skippedCount ?? Math.max(0, totalQ - (correctCount + wrongCount));
+
+        let accuracyVal = resData.accuracy;
+        if (typeof accuracyVal !== 'number') {
+          if (typeof resData.percentage === 'number') {
+            accuracyVal = resData.percentage;
+          } else {
+            const attempted = correctCount + wrongCount;
+            accuracyVal = attempted > 0 ? Math.round((correctCount / attempted) * 100) : 0;
+          }
+        }
+
+        const normalizedResult: SubmitPreviousYearTestResponse = {
+          success: raw.success ?? true,
+          score: resData.score ?? resData.total_score ?? resData.totalMarks ?? 0,
+          correct: correctCount,
+          wrong: wrongCount,
+          skipped: skippedCount,
+          accuracy: accuracyVal,
+          review: Array.isArray(resData.review) ? resData.review : (Array.isArray(resData.answers) ? resData.answers : []),
+          message: raw.message
+        };
+
+        this.result.set(normalizedResult);
         this.resultFilter.set('all');
         this.view.set('result');
         this.isSubmitting.set(false);
@@ -548,7 +659,8 @@ export class PreviousYearQuestions implements OnInit, OnDestroy {
 
   private createSession(response: StartPreviousYearTestResponse): void {
     const startedAt = Date.now();
-    const durationSeconds = response.duration * 60;
+    const durationMinutes = response.duration || 180;
+    const durationSeconds = durationMinutes * 60;
     const states = response.data.map((question, index) => ({
       questionId: question.id,
       selectedOption: null,
@@ -557,11 +669,17 @@ export class PreviousYearQuestions implements OnInit, OnDestroy {
       visited: index === 0
     } satisfies PreviousYearQuestionState));
 
+    const paperMeta: Pick<PreviousYearPaper, 'id' | 'name' | 'exam_type'> = {
+      id: (response.paper && typeof response.paper.id === 'number') ? response.paper.id : (this.selectedPaper()?.id ?? 0),
+      name: response.title || (response.paper && response.paper.name) || this.selectedPaper()?.test_name || 'NEET Test',
+      exam_type: (response.paper && response.paper.exam_type) || 'neet'
+    };
+
     const session: ActivePreviousYearTest = {
       sessionId: response.sessionId,
-      paper: response.paper,
-      duration: response.duration,
-      totalQuestions: response.totalQuestions,
+      paper: paperMeta,
+      duration: durationMinutes,
+      totalQuestions: response.totalQuestions || response.data.length,
       startedAt,
       expiresAt: startedAt + durationSeconds * 1000,
       questions: response.data,
@@ -664,9 +782,7 @@ export class PreviousYearQuestions implements OnInit, OnDestroy {
         Math.ceil((session.expiresAt - Date.now()) / 1000)
       );
       this.remainingSeconds.set(remaining);
-      if (remaining === 0) {
-        this.submitTest(true);
-      } else {
+      if (remaining > 0) {
         this.startTimer();
       }
       return true;
@@ -711,7 +827,7 @@ export class PreviousYearQuestions implements OnInit, OnDestroy {
       );
       this.remainingSeconds.set(remaining);
       if (remaining === 0) {
-        this.submitTest(true);
+        this.stopTimer();
       }
     }, 1000);
   }
@@ -805,3 +921,5 @@ export class PreviousYearQuestions implements OnInit, OnDestroy {
     return error?.error?.message ?? error?.message ?? fallback;
   }
 }
+
+export { PreviousYear as PreviousYearQuestions };

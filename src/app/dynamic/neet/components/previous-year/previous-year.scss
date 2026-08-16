@@ -149,8 +149,15 @@ h1 {
 }
 
 .paper-card h2 {
-  margin: 5px 0 18px;
+  margin: 5px 0 10px;
   font-size: 23px;
+}
+
+.paper-desc {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: #64748b;
+  line-height: 1.45;
 }
 
 .paper-meta {
@@ -367,6 +374,31 @@ h1 {
   align-items: center;
   gap: 16px;
   color: #64748b;
+}
+
+.autosave-badge {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  &.saving {
+    color: #0284c7;
+    background: #f0f9ff;
+  }
+
+  &.saved {
+    color: #16a34a;
+    background: #f0fdf4;
+  }
+
+  &.error {
+    color: #dc2626;
+    background: #fef2f2;
+  }
 }
 
 .timer {

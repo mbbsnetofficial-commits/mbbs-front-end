@@ -25,6 +25,6 @@ export class NeetModalService {
 
   saveTest(payload: SavedTestPayload): void {
     this.newlySavedTest.set(payload);
-    this.buildTestModalOpen.set(false);
+    this.closeBuildTestModal();
   }
 }

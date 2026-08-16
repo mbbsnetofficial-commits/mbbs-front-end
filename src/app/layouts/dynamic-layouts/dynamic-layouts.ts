@@ -12,10 +12,9 @@ import { filter, Subscription } from 'rxjs';
 import { Icon, IconName } from '../../shared/ui/icon/icon';
 import { AuthService } from '../../core/serivce/auth.service';
 import { TokenService } from '../../core/serivce/token.service';
-import { StudentDashboardService } from '../../dynamic/dashboard/services/student-dashboard.service';
 
-import { QuickTest } from '../../dynamic/neet/quick-test/quick-test';
-import { NeetModalService } from '../../core/serivce/neet-modal.service';
+import { QuickTest } from '../../dynamic/neet/components/quick-test/quick-test';
+import { NeetModalService } from '../../dynamic/neet/services/neet-modal.service';
 
 interface NavigationItem {
   label: string;
@@ -40,7 +39,6 @@ interface PageMeta {
 export class DynamicLayouts implements OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly tokenService = inject(TokenService);
-  private readonly dashboardService = inject(StudentDashboardService);
   protected readonly router = inject(Router);
 
   protected readonly sidebarOpen = signal(false);
@@ -131,17 +129,6 @@ export class DynamicLayouts implements OnDestroy {
         this.updatePageMeta(event.urlAfterRedirects);
         this.closeOverlays();
       });
-
-    this.dashboardService.getSummary().subscribe({
-      next: (response) => {
-        this.unreadCount.set(response.data?.notifications?.unread_count ?? 0);
-        this.notifications.set(response.data?.notifications?.recent ?? []);
-      },
-      error: () => {
-        this.unreadCount.set(0);
-        this.notifications.set([]);
-      },
-    });
   }
 
   ngOnDestroy(): void {

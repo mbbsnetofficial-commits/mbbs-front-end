@@ -9,7 +9,6 @@ import {
   signal
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import { Observable, map, of, switchMap } from 'rxjs';
 
 import {
@@ -24,8 +23,8 @@ import {
   TestResult,
   TestResultQuestion,
   ZoneInsight
-} from '../../../core/models/quick-test.model';
-import { QuickTestService } from '../../../core/serivce/quick-test.service';
+} from '../../models/quick-test.model';
+import { QuickTestService } from '../../services/quick-test.service';
 
 type QuickTestView = 'wizard' | 'test' | 'result';
 type WizardStep = 1 | 2 | 3 | 4;
@@ -35,7 +34,7 @@ type AiPanel = 'none' | 'chat' | 'insights';
 @Component({
   selector: 'app-quick-test',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './quick-test.html',
   styleUrl: './quick-test.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

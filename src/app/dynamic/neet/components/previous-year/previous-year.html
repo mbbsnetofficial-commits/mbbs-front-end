@@ -36,7 +36,7 @@
       </div>
     } @else {
       <section class="paper-grid" aria-label="Previous year papers">
-        @for (paper of papers(); track paper.id) {
+        @for (paper of papers(); track (paper.test_id || paper.id)) {
           <article
             class="paper-card"
             [class.unavailable]="!isPaperAvailable(paper)"
@@ -50,18 +50,22 @@
                 {{ isPaperAvailable(paper) ? 'Available' : 'Unavailable' }}
               </span>
             </div>
-            <p class="exam-type">{{ paper.exam_type | uppercase }}</p>
-            <h2>{{ paper.name }}</h2>
+            <p class="exam-type">{{ (paper.subject && paper.subject !== 'All' ? paper.subject : (paper.test_type || paper.exam_type || 'NEET')) | uppercase }}</p>
+            <h2>{{ paper.test_name || paper.name }}</h2>
+            @if (paper.description) {
+              <p class="paper-desc">{{ paper.description }}</p>
+            }
             <div class="paper-meta">
-              <span><strong>{{ paper.question_count }}</strong> questions</span>
-              <span><strong>{{ paper.mapped_question_count }}</strong> mapped</span>
+              <span><strong>{{ paper.total_questions || paper.question_count || 180 }}</strong> questions</span>
+              <span><strong>{{ paper.total_marks || 720 }}</strong> marks</span>
+              <span><strong>{{ paper.duration_minutes || 180 }}</strong> mins</span>
             </div>
             <button
               type="button"
               [disabled]="!isPaperAvailable(paper) || isLoading()"
               (click)="selectPaper(paper)"
             >
-              {{ isPaperAvailable(paper) ? 'View Paper' : 'Mapping unavailable' }}
+              {{ isPaperAvailable(paper) ? 'View Test' : 'Unavailable' }}
               @if (isPaperAvailable(paper)) {
                 <span aria-hidden="true">&rarr;</span>
               }
@@ -78,8 +82,8 @@
         &larr;
       </button>
       <div>
-        <p class="eyebrow">Configure paper</p>
-        <h1>{{ paper.name }}</h1>
+        <p class="eyebrow">Configure test</p>
+        <h1>{{ paper.test_name || paper.name }}</h1>
       </div>
     </header>
 
@@ -87,16 +91,17 @@
       <div class="paper-summary">
         <div class="summary-icon" aria-hidden="true">&#128214;</div>
         <div>
-          <p class="exam-type">{{ paper.exam_type | uppercase }}</p>
-          <h2>{{ paper.name }}</h2>
-          <p>{{ paper.mapped_question_count }} mapped questions are ready.</p>
+          <p class="exam-type">{{ (paper.subject && paper.subject !== 'All' ? paper.subject : (paper.test_type || paper.exam_type || 'NEET')) | uppercase }}</p>
+          <h2>{{ paper.test_name || paper.name }}</h2>
+          <p>{{ paper.description || ((paper.total_questions || paper.question_count || 180) + ' questions are ready.') }}</p>
         </div>
       </div>
 
       <div class="instruction-box">
         <h3>Before you begin</h3>
         <ul>
-          <li>The timer starts immediately after the paper loads.</li>
+          <li>The timer starts immediately after the test loads.</li>
+          <li>Marking scheme: +{{ paper.marking_scheme?.correct ?? 4 }} for correct, {{ paper.marking_scheme?.wrong ?? -1 }} for wrong, {{ paper.marking_scheme?.skipped ?? 0 }} for skipped.</li>
           <li>You can navigate, clear answers and mark questions for review.</li>
           <li>The test submits automatically when the selected time ends.</li>
         </ul>
@@ -115,7 +120,7 @@
           />
           <span>minutes</span>
         </div>
-        <small>Recommended: {{ paper.question_count }} minutes</small>
+        <small>Recommended: {{ paper.duration_minutes || paper.total_questions || paper.question_count || 180 }} minutes</small>
       </label>
 
       @if (errorMessage()) {
@@ -128,7 +133,7 @@
         [disabled]="isStarting()"
         (click)="startTest()"
       >
-        {{ isStarting() ? 'Preparing Paper...' : 'Start Test' }}
+        {{ isStarting() ? 'Preparing Test...' : 'Start Test' }}
         <span aria-hidden="true">&rarr;</span>
       </button>
     </section>
@@ -141,6 +146,13 @@
         <h1>{{ session.paper.name }}</h1>
       </div>
       <div class="test-progress">
+        @if (autosaveStatus() === 'saving') {
+          <span class="autosave-badge saving">&#8635; Saving...</span>
+        } @else if (autosaveStatus() === 'saved') {
+          <span class="autosave-badge saved">&#10003; Saved</span>
+        } @else if (autosaveStatus() === 'error') {
+          <span class="autosave-badge error" [title]="autosaveError() || 'Unable to save answer'">&#9888; Not saved</span>
+        }
         <span>{{ answeredCount() }} / {{ session.totalQuestions }} answered</span>
         <strong class="timer" [class.urgent]="remainingSeconds() <= 300">
           <span aria-hidden="true">&#9201;</span>

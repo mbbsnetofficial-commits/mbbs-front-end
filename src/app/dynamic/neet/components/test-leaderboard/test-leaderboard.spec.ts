@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 
-import { TestLeaderboardService } from '../../../core/serivce/test-leaderboard.service';
+import { TestLeaderboardService } from '../../services/test-leaderboard.service';
 import { TestLeaderboard } from './test-leaderboard';
 
 describe('TestLeaderboard', () => {

@@ -1,13 +1,13 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
-import { environment } from '../../../environments/environment';
+import { environment } from '../../../../environments/environment';
 import { API } from '../constants/api.constants';
 import {
   MyTestRankResponse,
   TestLeaderboardQuery,
   TestLeaderboardResponse
-} from '../models/test-leaderboard.model';
+} from '../models/leaderboard.model';
 
 @Injectable({
   providedIn: 'root'

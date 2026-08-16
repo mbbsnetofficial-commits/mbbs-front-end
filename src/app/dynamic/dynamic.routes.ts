@@ -44,23 +44,9 @@ export const dynamicRoutes: Routes = [
           import('./cse/cse.routes').then(({ cseRoutes }) => cseRoutes),
       },
       {
-        path: 'neet/quick-test',
-        loadComponent: () =>
-          import('./neet/quick-test/quick-test').then(
-            ({ QuickTest }) => QuickTest
-          ),
-      },
-      {
-        path: 'neet/leaderboard',
-        loadComponent: () =>
-          import('./neet/test-leaderboard/test-leaderboard').then(
-            ({ TestLeaderboard }) => TestLeaderboard
-          ),
-      },
-      {
         path: 'neet',
-        loadComponent: () =>
-          import('./neet/neet').then(({ NeetComponent }) => NeetComponent),
+        loadChildren: () =>
+          import('./neet/neet.routes').then(({ neetRoutes }) => neetRoutes),
       },
     ],
   },
