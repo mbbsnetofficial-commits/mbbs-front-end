@@ -53,6 +53,8 @@ export interface TestStartRequest {
   builtin_test_id?: number;
   test_code?: string;
   previous_year_paper_id?: number;
+  custom_test_id?: number;
+  platform_test_id?: number;
   subjects?: string[];
   chapters?: string[];
   questionCount?: number;

@@ -201,9 +201,9 @@
         <button
           type="button"
           class="start-test-btn"
-          [disabled]="isLoading()"
+          [disabled]="isSaving() || isLoading()"
           (click)="saveTest()">
-          {{ isLoading() ? 'Saving Test...' : '💾 Save Test' }}
+          {{ isSaving() ? 'Saving Test...' : '💾 Save Test' }}
         </button>
       </div>
     </div>

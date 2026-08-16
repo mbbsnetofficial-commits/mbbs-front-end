@@ -1,9 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { Router, provideRouter } from '@angular/router';
 import { Subject, of, throwError } from 'rxjs';
 
 import { PreviousYearTestService } from '../../services/previous-year.service';
-import { QuickTestService } from '../../services/quick-test.service';
 import { PreviousYear } from './previous-year';
 
 describe('PreviousYear', () => {
@@ -16,14 +15,6 @@ describe('PreviousYear', () => {
     startTest: ReturnType<typeof vi.fn>;
     saveAnswer: ReturnType<typeof vi.fn>;
     submitTest: ReturnType<typeof vi.fn>;
-  };
-  let chatService: {
-    listChatSessions: ReturnType<typeof vi.fn>;
-    createChatSession: ReturnType<typeof vi.fn>;
-    getChatMessages: ReturnType<typeof vi.fn>;
-    sendChatMessage: ReturnType<typeof vi.fn>;
-    generateInsights: ReturnType<typeof vi.fn>;
-    getZoneInsights: ReturnType<typeof vi.fn>;
   };
 
   const paper = {
@@ -131,109 +122,11 @@ describe('PreviousYear', () => {
       }))
     };
 
-    chatService = {
-      listChatSessions: vi.fn().mockReturnValue(of({
-        status: 'success',
-        page: 1,
-        limit: 100,
-        total: 0,
-        totalPages: 1,
-        data: []
-      })),
-      createChatSession: vi.fn().mockReturnValue(of({
-        status: 'success',
-        data: {
-          _id: 'chat-session-id',
-          user_id: 'student-id',
-          test_session_id: 'previous-session',
-          title: 'NEET_2022 Review',
-          wrong_question_ids: [19018],
-          is_active: true,
-          last_message_at: '2026-03-11T18:17:59.279Z'
-        }
-      })),
-      getChatMessages: vi.fn().mockReturnValue(of({
-        status: 'success',
-        page: 1,
-        limit: 100,
-        total: 0,
-        totalPages: 1,
-        data: []
-      })),
-      sendChatMessage: vi.fn().mockReturnValue(of({
-        status: 'success',
-        data: {
-          userMessage: {
-            _id: 'message-1',
-            chat_session_id: 'chat-session-id',
-            user_id: 'student-id',
-            role: 'user',
-            content: 'Explain why my answer was wrong',
-            model: null,
-            createdAt: '2026-03-11T18:18:00.000Z'
-          },
-          assistantMessage: {
-            _id: 'message-2',
-            chat_session_id: 'chat-session-id',
-            user_id: 'student-id',
-            role: 'assistant',
-            content: 'The correct choice is A because option A holds the true statement.',
-            model: 'gemini-1.5-flash',
-            createdAt: '2026-03-11T18:18:02.000Z'
-          }
-        }
-      })),
-      generateInsights: vi.fn().mockReturnValue(of({
-        status: 'success',
-        message: 'Insight generated',
-        data: {
-          testSessionId: 'previous-session',
-          chatSessionId: 'chat-session-id',
-          insight: {
-            student_id: 'student-id',
-            test_session_id: 'previous-session',
-            accuracy: 0,
-            focus_zone: { NEET: ['Optics'] },
-            repeated_mistake: {},
-            checkpoints: ['Revise sign conventions'],
-            g_phrase: 'Focus on your optics basics.',
-            total_mark: -1,
-            time_spend: {
-              total_time_spent: 30,
-              correct_time_spent: 0,
-              incorrect_time_spent: 30,
-              skipped_time_spent: 0
-            }
-          }
-        }
-      })),
-      getZoneInsights: vi.fn().mockReturnValue(of({
-        status: 'success',
-        data: {
-          student_id: 'student-id',
-          test_session_id: 'previous-session',
-          accuracy: 0,
-          focus_zone: { NEET: ['Optics'] },
-          repeated_mistake: {},
-          checkpoints: ['Revise sign conventions'],
-          g_phrase: 'Focus on your optics basics.',
-          total_mark: -1,
-          time_spend: {
-            total_time_spent: 30,
-            correct_time_spent: 0,
-            incorrect_time_spent: 30,
-            skipped_time_spent: 0
-          }
-        }
-      }))
-    };
-
     await TestBed.configureTestingModule({
       imports: [PreviousYear],
       providers: [
         provideRouter([]),
-        { provide: PreviousYearTestService, useValue: service },
-        { provide: QuickTestService, useValue: chatService }
+        { provide: PreviousYearTestService, useValue: service }
       ]
     }).compileComponents();
 
@@ -501,5 +394,25 @@ describe('PreviousYear', () => {
     expect(component.view()).toBe('test');
     expect(component.errorMessage()).toBe('Submit failed');
     expect(component.isSubmitting()).toBe(false);
+  });
+
+  it('should clear session and navigate to /dynamic/neet on backToLearningReport()', () => {
+    const router = TestBed.inject(Router);
+    const navigateSpy = vi.spyOn(router, 'navigate');
+
+    component.selectPaper(paper);
+    component.startTest();
+    component.selectOption('A');
+    component.submitTest();
+
+    expect(component.view()).toBe('result');
+
+    component.backToLearningReport();
+
+    expect(sessionStorage.getItem('activePreviousYearTest')).toBeNull();
+    expect(sessionStorage.getItem('completedPreviousYearTest')).toBeNull();
+    expect(component.activeSession()).toBeNull();
+    expect(component.result()).toBeNull();
+    expect(navigateSpy).toHaveBeenCalledWith(['/dynamic/neet']);
   });
 });

@@ -12,10 +12,14 @@ export interface LearningReportScore {
 export interface LearningReportItem {
   id: number;
   test_id: number;
+  custom_test_id?: number;
+  platform_test_id?: number;
+  builtin_test_id?: number;
+  previous_year_paper_id?: number;
   test_code: string;
   test_name: string;
   course_name: LearningReportCourseName;
-  source: 'builtin' | 'previous_year';
+  source: 'builtin' | 'previous_year' | 'custom';
   type: string;
   level: string;
   duration_minutes: number;

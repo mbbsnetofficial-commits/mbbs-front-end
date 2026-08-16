@@ -4,18 +4,13 @@ import {
   OnDestroy,
   OnInit,
   computed,
+  inject,
   signal
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
-import { Observable, map, of, switchMap } from 'rxjs';
+import { Router, RouterLink } from '@angular/router';
 
-import {
-  ChatMessage,
-  ChatSession,
-  TestOption,
-  ZoneInsight
-} from '../../models/quick-test.model';
+import { TestOption } from '../../models/quick-test.model';
 import {
   ActivePreviousYearTest,
   CompletedPreviousYearTest,
@@ -29,11 +24,9 @@ import {
   TestStartRequest
 } from '../../models/previous-year.model';
 import { PreviousYearTestService } from '../../services/previous-year.service';
-import { QuickTestService } from '../../services/quick-test.service';
 
 type PreviousYearView = 'papers' | 'configure' | 'test' | 'result';
 type ResultFilter = 'all' | 'correct' | 'wrong';
-type AiPanel = 'none' | 'chat' | 'insights';
 
 @Component({
   selector: 'app-previous-year-questions',
@@ -44,6 +37,7 @@ type AiPanel = 'none' | 'chat' | 'insights';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PreviousYear implements OnInit, OnDestroy {
+  private readonly router = inject(Router);
   private readonly activeStorageKey = 'activePreviousYearTest';
   private readonly resultStorageKey = 'completedPreviousYearTest';
   private timerId: ReturnType<typeof setInterval> | null = null;
@@ -66,16 +60,6 @@ export class PreviousYear implements OnInit, OnDestroy {
   readonly remainingSeconds = signal(0);
   readonly result = signal<SubmitPreviousYearTestResponse | null>(null);
   readonly resultFilter = signal<ResultFilter>('all');
-  readonly aiPanel = signal<AiPanel>('none');
-  readonly chatSession = signal<ChatSession | null>(null);
-  readonly chatMessages = signal<ChatMessage[]>([]);
-  readonly chatInput = signal('');
-  readonly isLoadingChat = signal(false);
-  readonly isSendingMessage = signal(false);
-  readonly chatError = signal<string | null>(null);
-  readonly zoneInsight = signal<ZoneInsight | null>(null);
-  readonly isLoadingInsights = signal(false);
-  readonly insightsError = signal<string | null>(null);
 
   readonly optionKeys: TestOption[] = ['A', 'B', 'C', 'D'];
 
@@ -156,8 +140,7 @@ export class PreviousYear implements OnInit, OnDestroy {
   );
 
   constructor(
-    private readonly previousYearTestService: PreviousYearTestService,
-    private readonly quickTestService: QuickTestService
+    private readonly previousYearTestService: PreviousYearTestService
   ) {}
 
   ngOnInit(): void {
@@ -383,14 +366,7 @@ export class PreviousYear implements OnInit, OnDestroy {
   }
 
   requestSubmit(): void {
-    const unanswered = this.questionStates().length - this.answeredCount();
-    const prompt = unanswered > 0
-      ? `${unanswered} question(s) are unanswered. Submit this paper anyway?`
-      : 'Submit this previous year paper now?';
-
-    if (window.confirm(prompt)) {
-      this.submitTest(false);
-    }
+    this.submitTest(false);
   }
 
   submitTest(automatic: boolean = false): void {
@@ -479,134 +455,20 @@ export class PreviousYear implements OnInit, OnDestroy {
     this.resultFilter.set(filter);
   }
 
-  openChat(questionId?: number): void {
-    const session = this.activeSession();
-    if (!session || !this.result()?.wrong) {
-      return;
-    }
-
-    this.aiPanel.set('chat');
-    this.chatError.set(null);
-    this.chatInput.set(
-      questionId
-        ? `Explain why my answer to question ${questionId} was wrong.`
-        : 'Explain all my wrong answers.'
-    );
-
-    if (this.chatSession()) {
-      return;
-    }
-
-    this.isLoadingChat.set(true);
-    this.ensureChatSession(session.sessionId).subscribe({
-      next: (chatSession) => {
-        this.chatSession.set(chatSession);
-        this.loadChatMessages(chatSession._id);
-      },
-      error: (error) => {
-        this.chatError.set(
-          this.getErrorMessage(error, 'Unable to open the Gemini review chat.')
-        );
-        this.isLoadingChat.set(false);
-      }
-    });
-  }
-
-  updateChatInput(event: Event): void {
-    this.chatInput.set((event.target as HTMLTextAreaElement).value);
-  }
-
-  sendMessage(): void {
-    const chatSession = this.chatSession();
-    const message = this.chatInput().trim();
-    if (!chatSession || !message || this.isSendingMessage()) {
-      return;
-    }
-
-    this.isSendingMessage.set(true);
-    this.chatError.set(null);
-    this.quickTestService.sendChatMessage(chatSession._id, message).subscribe({
-      next: (response) => {
-        this.chatMessages.update((messages) => [
-          ...messages,
-          response.data.userMessage,
-          response.data.assistantMessage
-        ]);
-        this.chatInput.set('');
-        this.isSendingMessage.set(false);
-      },
-      error: (error) => {
-        this.chatError.set(
-          this.getErrorMessage(error, 'Gemini could not answer right now.')
-        );
-        this.isSendingMessage.set(false);
-      }
-    });
-  }
-
-  openInsights(): void {
-    const session = this.activeSession();
-    if (!session || !this.result()?.wrong || this.isLoadingInsights()) {
-      return;
-    }
-
-    this.aiPanel.set('insights');
-    this.insightsError.set(null);
-    if (this.zoneInsight()) {
-      return;
-    }
-
-    this.isLoadingInsights.set(true);
-    this.quickTestService.getZoneInsights(session.sessionId).subscribe({
-      next: (response) => {
-        this.zoneInsight.set(response.data);
-        this.isLoadingInsights.set(false);
-      },
-      error: (error) => {
-        if (error?.status === 404) {
-          this.generateAndLoadInsights(session.sessionId);
-          return;
-        }
-        this.insightsError.set(
-          this.getErrorMessage(error, 'Unable to load AI insights.')
-        );
-        this.isLoadingInsights.set(false);
-      }
-    });
-  }
-
-  retryInsights(): void {
-    this.zoneInsight.set(null);
-    this.openInsights();
-  }
-
-  closeAiPanel(): void {
-    this.aiPanel.set('none');
-    this.chatError.set(null);
-    this.insightsError.set(null);
-  }
-
-  insightSubjects(data: Record<string, string[]>): string[] {
-    return Object.keys(data);
-  }
-
-  startAnotherPaper(): void {
+  backToLearningReport(): void {
     this.stopTimer();
     sessionStorage.removeItem(this.activeStorageKey);
     sessionStorage.removeItem(this.resultStorageKey);
     this.activeSession.set(null);
     this.questionStates.set([]);
     this.result.set(null);
-    this.aiPanel.set('none');
-    this.chatSession.set(null);
-    this.chatMessages.set([]);
-    this.zoneInsight.set(null);
     this.selectedPaper.set(null);
     this.errorMessage.set(null);
-    this.view.set('papers');
-    if (this.papers().length === 0) {
-      this.loadPapers();
-    }
+    void this.router.navigate(['/dynamic/neet']);
+  }
+
+  startAnotherPaper(): void {
+    this.backToLearningReport();
   }
 
   questionStatusClass(index: number): string {
@@ -695,62 +557,6 @@ export class PreviousYear implements OnInit, OnDestroy {
     this.view.set('test');
     this.persistActiveTest();
     this.startTimer();
-  }
-
-  private ensureChatSession(testSessionId: string): Observable<ChatSession> {
-    return this.quickTestService.listChatSessions(1, 100).pipe(
-      switchMap((response) => {
-        const existing = response.data.find(
-          (chat) =>
-            chat.test_session_id === testSessionId &&
-            chat.is_active
-        );
-        if (existing) {
-          return of(existing);
-        }
-
-        return this.quickTestService.createChatSession({
-          testSessionId,
-          title: `${this.activeSession()?.paper.name ?? 'NEET Paper'} Review`
-        }).pipe(map((created) => created.data));
-      })
-    );
-  }
-
-  private loadChatMessages(chatSessionId: string): void {
-    this.quickTestService.getChatMessages(chatSessionId, 1, 100).subscribe({
-      next: (response) => {
-        this.chatMessages.set(response.data);
-        this.isLoadingChat.set(false);
-      },
-      error: (error) => {
-        this.chatError.set(
-          this.getErrorMessage(error, 'Unable to load previous messages.')
-        );
-        this.isLoadingChat.set(false);
-      }
-    });
-  }
-
-  private generateAndLoadInsights(testSessionId: string): void {
-    this.ensureChatSession(testSessionId).pipe(
-      switchMap((chatSession) => {
-        this.chatSession.set(chatSession);
-        return this.quickTestService.generateInsights(chatSession._id);
-      }),
-      switchMap(() => this.quickTestService.getZoneInsights(testSessionId))
-    ).subscribe({
-      next: (response) => {
-        this.zoneInsight.set(response.data);
-        this.isLoadingInsights.set(false);
-      },
-      error: (error) => {
-        this.insightsError.set(
-          this.getErrorMessage(error, 'Unable to generate AI insights.')
-        );
-        this.isLoadingInsights.set(false);
-      }
-    });
   }
 
   private restoreActiveTest(): boolean {

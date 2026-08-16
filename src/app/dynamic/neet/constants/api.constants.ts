@@ -4,6 +4,7 @@ export const API = {
     SUBJECTS: '/test/subjects',
     CHAPTERS: '/test/chapters',
     TOPICS: '/test/topics',
+    SAVE: '/test/save',
     START: '/test/start',
     SUBMIT: '/test/submit',
     SESSIONS: '/test/sessions',

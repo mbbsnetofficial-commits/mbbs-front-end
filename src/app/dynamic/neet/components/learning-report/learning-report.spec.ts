@@ -393,4 +393,25 @@ describe('LearningReport', () => {
     expect(component.errorMessage()).toBe('Session expired');
     expect(component.startingTestId()).toBeNull();
   });
+
+  it('should call startTest with custom_test_id for custom tests', () => {
+    const customCourse = {
+      ...component.courses()[0],
+      id: '2002',
+      test_id: 2002,
+      type: 'Custom',
+      rawStatus: 'not_started' as const,
+      rawItem: {
+        ...sampleReportItem,
+        id: 2002,
+        test_id: 2002,
+        custom_test_id: 2002,
+        source: 'custom' as const
+      }
+    };
+
+    component.onStartTest(customCourse);
+
+    expect(testService.startTest).toHaveBeenCalledWith({ custom_test_id: 2002 });
+  });
 });

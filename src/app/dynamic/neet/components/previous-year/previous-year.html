@@ -289,27 +289,11 @@
       <div>
         <p class="eyebrow">Test completed</p>
         <h1>{{ activeSession()?.paper?.name }} Result</h1>
-        <p>Your result is ready. Review each attempted answer below.</p>
+        <p>Your result is ready. Review your performance below.</p>
       </div>
       <div class="result-actions">
-        <button
-          type="button"
-          class="gemini-button"
-          [disabled]="testResult.wrong === 0"
-          (click)="openChat()"
-        >
-          Ask Gemini
-        </button>
-        <button
-          type="button"
-          class="insights-button"
-          [disabled]="testResult.wrong === 0"
-          (click)="openInsights()"
-        >
-          AI Insights
-        </button>
-        <button type="button" class="another-button" (click)="startAnotherPaper()">
-          Attempt another paper
+        <button type="button" class="another-button" (click)="backToLearningReport()">
+          Back to Learning Report
         </button>
       </div>
     </header>
@@ -336,148 +320,6 @@
         <strong>{{ testResult.skipped }}</strong>
       </article>
     </section>
-
-    @if (testResult.wrong === 0) {
-      <div class="perfect-result">
-        <strong>Excellent work!</strong>
-        There are no incorrect attempted answers to review with Gemini.
-      </div>
-    }
-
-    @if (aiPanel() === 'chat') {
-      <section class="ai-panel" aria-label="Gemini answer review">
-        <header class="ai-panel-header">
-          <div>
-            <p class="eyebrow">Gemini-powered review</p>
-            <h2>Ask about your wrong answers</h2>
-          </div>
-          <button type="button" class="close-panel" (click)="closeAiPanel()">
-            Close
-          </button>
-        </header>
-
-        @if (chatError()) {
-          <div class="alert" role="alert">{{ chatError() }}</div>
-        }
-
-        @if (isLoadingChat()) {
-          <div class="inline-skeleton" role="status" aria-label="Loading conversation"><span></span><span></span><span></span></div>
-        } @else {
-          <div class="chat-messages" aria-live="polite">
-            @if (chatMessages().length === 0) {
-              <div class="empty-chat">
-                Ask Gemini to explain mistakes, concepts, or the correct approach.
-              </div>
-            }
-            @for (message of chatMessages(); track message._id) {
-              <article
-                class="chat-message"
-                [class.user-message]="message.role === 'user'"
-                [class.assistant-message]="message.role === 'assistant'"
-              >
-                <strong>{{ message.role === 'user' ? 'You' : 'Gemini' }}</strong>
-                <p>{{ message.content }}</p>
-                <small>{{ message.createdAt | date:'shortTime' }}</small>
-              </article>
-            }
-          </div>
-
-          <div class="chat-composer">
-            <textarea
-              rows="3"
-              aria-label="Message for Gemini"
-              placeholder="Ask about your incorrect answers..."
-              [value]="chatInput()"
-              (input)="updateChatInput($event)"
-            ></textarea>
-            <button
-              type="button"
-              class="gemini-button"
-              [disabled]="!chatInput().trim() || isSendingMessage() || !chatSession()"
-              (click)="sendMessage()"
-            >
-              {{ isSendingMessage() ? 'Asking...' : 'Send' }}
-            </button>
-          </div>
-        }
-      </section>
-    }
-
-    @if (aiPanel() === 'insights') {
-      <section class="ai-panel insights-panel" aria-label="AI test insights">
-        <header class="ai-panel-header">
-          <div>
-            <p class="eyebrow">Personalised analysis</p>
-            <h2>Gemini Insights</h2>
-          </div>
-          <button type="button" class="close-panel" (click)="closeAiPanel()">
-            Close
-          </button>
-        </header>
-
-        @if (insightsError()) {
-          <div class="alert insight-error" role="alert">
-            <span>{{ insightsError() }}</span>
-            <button type="button" (click)="retryInsights()">Retry</button>
-          </div>
-        } @else if (isLoadingInsights()) {
-          <div class="inline-skeleton" role="status" aria-label="Loading personalised insights"><span></span><span></span><span></span></div>
-        } @else if (zoneInsight(); as insight) {
-          <blockquote>{{ insight.g_phrase }}</blockquote>
-
-          <div class="insight-overview">
-            <article><span>Accuracy</span><strong>{{ insight.accuracy }}%</strong></article>
-            <article><span>Total marks</span><strong>{{ insight.total_mark }}</strong></article>
-            <article>
-              <span>Total time</span>
-              <strong>{{ formatSeconds(insight.time_spend.total_time_spent) }}</strong>
-            </article>
-            <article>
-              <span>Incorrect time</span>
-              <strong>{{ formatSeconds(insight.time_spend.incorrect_time_spent) }}</strong>
-            </article>
-          </div>
-
-          <div class="insight-columns">
-            <section>
-              <h3>Focus zones</h3>
-              @for (subject of insightSubjects(insight.focus_zone); track subject) {
-                <div class="insight-subject">
-                  <strong>{{ subject }}</strong>
-                  <ul>
-                    @for (item of insight.focus_zone[subject]; track item) {
-                      <li>{{ item }}</li>
-                    }
-                  </ul>
-                </div>
-              }
-            </section>
-            <section>
-              <h3>Repeated mistakes</h3>
-              @for (subject of insightSubjects(insight.repeated_mistake); track subject) {
-                <div class="insight-subject">
-                  <strong>{{ subject }}</strong>
-                  <ul>
-                    @for (item of insight.repeated_mistake[subject]; track item) {
-                      <li>{{ item }}</li>
-                    }
-                  </ul>
-                </div>
-              }
-            </section>
-          </div>
-
-          <section class="checkpoints">
-            <h3>Your next checkpoints</h3>
-            <ol>
-              @for (checkpoint of insight.checkpoints; track checkpoint) {
-                <li>{{ checkpoint }}</li>
-              }
-            </ol>
-          </section>
-        }
-      </section>
-    }
 
     <section class="review-section">
       <div class="review-heading">
@@ -554,15 +396,6 @@
                     alt="Explanation for this question"
                   />
                 </details>
-              }
-              @if (!review.result.isCorrect) {
-                <button
-                  type="button"
-                  class="ask-question-button"
-                  (click)="openChat(review.question.id)"
-                >
-                  Ask Gemini about this answer
-                </button>
               }
             </article>
           }

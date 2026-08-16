@@ -12,6 +12,7 @@ describe('QuickTest', () => {
     getSubjects: ReturnType<typeof vi.fn>;
     getChapters: ReturnType<typeof vi.fn>;
     getTopics: ReturnType<typeof vi.fn>;
+    saveCustomTest: ReturnType<typeof vi.fn>;
     startTest: ReturnType<typeof vi.fn>;
     submitTest: ReturnType<typeof vi.fn>;
     getTestResult: ReturnType<typeof vi.fn>;
@@ -45,6 +46,24 @@ describe('QuickTest', () => {
         success: true,
         total: 10,
         data: []
+      })),
+      saveCustomTest: vi.fn().mockReturnValue(of({
+        success: true,
+        message: 'Custom test saved successfully.',
+        data: {
+          id: 2001,
+          custom_test_id: 2001,
+          test_name: 'NEET Custom Practice Test',
+          test_code: 'CUSTOM_TEST_01',
+          source: 'custom',
+          type: 'Custom Test',
+          subjects: ['Physics'],
+          chapters: ['Atoms'],
+          total_questions: 15,
+          total_marks: 60,
+          duration_minutes: 15,
+          status: 'not_started'
+        }
       })),
       startTest: vi.fn().mockReturnValue(of({
         success: true,
@@ -312,5 +331,66 @@ describe('QuickTest', () => {
     expect(component.view()).toBe('result');
     expect(service.getTestResult).toHaveBeenCalledWith('test-session');
     expect(component.testResult()?.score).toBe(3);
+  });
+
+  it('should call saveCustomTest on saveTest and emit testSaved without starting session', () => {
+    const testSavedSpy = vi.spyOn(component.testSaved, 'emit');
+
+    component.goToSubjects();
+    component.toggleSubject('Physics');
+    component.goToChapters();
+    component.toggleChapter('Atoms');
+    component.goToConfiguration();
+
+    component.saveTest();
+
+    expect(service.saveCustomTest).toHaveBeenCalledWith({
+      title: 'NEET Custom Practice Test',
+      subjects: ['Physics'],
+      chapters: ['Atoms'],
+      topic_ids: [],
+      questionCount: 15,
+      duration: 15,
+      level: 'Intermediate'
+    });
+
+    expect(testSavedSpy).toHaveBeenCalledWith({
+      title: 'NEET Custom Practice Test',
+      subjects: ['Physics'],
+      chapters: ['Atoms'],
+      questionCount: 15,
+      duration: 15
+    });
+
+    expect(service.startTest).not.toHaveBeenCalled();
+    expect(component.view()).toBe('wizard');
+  });
+
+  it('should prevent duplicate save calls while request is in flight', () => {
+    component.goToSubjects();
+    component.toggleSubject('Physics');
+    component.goToChapters();
+    component.toggleChapter('Atoms');
+    component.goToConfiguration();
+
+    component.isSaving.set(true);
+    component.saveTest();
+
+    expect(service.saveCustomTest).not.toHaveBeenCalled();
+  });
+
+  it('should handle saveCustomTest error gracefully and show error message', () => {
+    service.saveCustomTest.mockReturnValue(throwError(() => new Error('Server error')));
+
+    component.goToSubjects();
+    component.toggleSubject('Physics');
+    component.goToChapters();
+    component.toggleChapter('Atoms');
+    component.goToConfiguration();
+
+    component.saveTest();
+
+    expect(component.isSaving()).toBe(false);
+    expect(component.errorMessage()).toBe('Server error');
   });
 });

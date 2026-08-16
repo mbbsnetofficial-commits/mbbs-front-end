@@ -10,10 +10,9 @@
           </div>
           <span class="stat-title">Total Role-Play Time</span>
         </div>
-        <span class="badge green-badge">↗ 8%</span>
       </div>
       <div class="stat-value">{{ summary()?.total_time_spent || (isSummaryLoading() ? '...' : '—') }}</div>
-      <p class="stat-subtext">From last month's total time was 44 hours</p>
+      <p class="stat-subtext">Based on your current activity</p>
     </article>
 
     <!-- Stat 2 -->
@@ -25,10 +24,9 @@
           </div>
           <span class="stat-title">Average Score</span>
         </div>
-        <span class="badge green-badge">↗ 23%</span>
       </div>
       <div class="stat-value">{{ summary()?.average_score || (isSummaryLoading() ? '...' : '—') }}</div>
-      <p class="stat-subtext">From last month's average score was 504 / 720</p>
+      <p class="stat-subtext">Across all attempted tests</p>
     </article>
 
     <!-- Stat 3 -->
@@ -40,10 +38,9 @@
           </div>
           <span class="stat-title">Completed Course</span>
         </div>
-        <span class="badge red-badge">↘ 12%</span>
       </div>
       <div class="stat-value">{{ summary()?.completed_tests !== undefined ? summary()?.completed_tests : (isSummaryLoading() ? '...' : '—') }}</div>
-      <p class="stat-subtext">From last month's completed course was 14</p>
+      <p class="stat-subtext">Total completed assessments</p>
     </article>
 
     <!-- Stat 4 -->
@@ -55,10 +52,9 @@
           </div>
           <span class="stat-title">Current Streak</span>
         </div>
-        <span class="badge green-badge">↗ 15%</span>
       </div>
       <div class="stat-value">{{ summary()?.streak_formatted || (isSummaryLoading() ? '...' : '—') }}</div>
-      <p class="stat-subtext">From last month's streak was 9 days</p>
+      <p class="stat-subtext">Continuous practice streak</p>
     </article>
   </section>
 

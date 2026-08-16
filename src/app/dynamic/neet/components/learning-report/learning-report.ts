@@ -14,10 +14,7 @@ import { Router } from '@angular/router';
 
 import { Icon } from '../../../../shared/ui/icon/icon';
 import { QuickTest } from '../quick-test/quick-test';
-import {
-  NeetModalService,
-  SavedTestPayload
-} from '../../services/neet-modal.service';
+import { NeetModalService } from '../../services/neet-modal.service';
 import { LearningReportService } from '../../services/learning-report.service';
 import { PreviousYearTestService } from '../../services/previous-year.service';
 import {
@@ -129,7 +126,7 @@ export class LearningReport implements OnInit {
     effect(() => {
       const payload = this.neetModalService.newlySavedTest();
       if (payload) {
-        this.addSavedTestToTable(payload);
+        this.loadReport(false);
       }
     });
   }
@@ -299,7 +296,12 @@ export class LearningReport implements OnInit {
       level: item.level || 'Intermediate',
       status: statusDisplay,
       rawStatus: item.status || 'in_progress',
-      stageInfo: item.source === 'previous_year' ? 'Previous Year' : 'Built-in',
+      stageInfo:
+        item.source === 'previous_year'
+          ? 'Previous Year'
+          : item.source === 'custom'
+            ? 'Custom'
+            : 'Built-in',
       progressPercent,
       progressColor,
       dateRange: dateModifiedDisplay,
@@ -343,39 +345,6 @@ export class LearningReport implements OnInit {
     return map[type] || 'test';
   }
 
-  addSavedTestToTable(payload: SavedTestPayload): void {
-    const typeVal =
-      payload.subjects.length === 1 ? payload.subjects[0] : 'Custom';
-
-    const nowTs = Date.now();
-    const newCourse: NeetCourseItem = {
-      id: nowTs.toString(),
-      test_id: nowTs,
-      test_code: 'CUSTOM_TEST',
-      title: payload.title || 'NEET Custom Practice Test',
-      type: typeVal,
-      stagesCount: `${payload.chapters.length} Chapters`,
-      level: 'Intermediate',
-      status: 'In Progress',
-      rawStatus: 'in_progress',
-      stageInfo: 'Stage 1',
-      progressPercent: 0,
-      progressColor: '#ff5252',
-      dateRange: 'Just now',
-      dateModified: 'Just now',
-      dateModifiedTimestamp: nowTs,
-      learningTime: '0m',
-      score: '—',
-      scoreNum: 0,
-      category: `${payload.subjects.join(', ')} • ${payload.questionCount} Qs`,
-      iconBg: '#f05a28',
-      iconName: 'sparkles'
-    };
-
-    // Prepend to top of table
-    this.courses.update((current) => [newCourse, ...current]);
-  }
-
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     if (!this.filterDropdownOpen()) return;
@@ -409,11 +378,19 @@ export class LearningReport implements OnInit {
     const isPreviousYear =
       course.rawItem?.source === 'previous_year' ||
       course.type === 'Previous Year Test';
+    const isCustom =
+      course.rawItem?.source === 'custom' ||
+      course.type === 'Custom' ||
+      course.type === 'Custom Test';
 
     let request: TestStartRequest;
     if (isPreviousYear) {
       request = {
         previous_year_paper_id: course.rawItem?.test_id ?? testId
+      };
+    } else if (isCustom) {
+      request = {
+        custom_test_id: course.rawItem?.custom_test_id ?? course.rawItem?.test_id ?? testId
       };
     } else {
       request = {

@@ -34,6 +34,37 @@ export interface TestTopicsRequest extends TestSelectionRequest {
   chapters: string[];
 }
 
+export interface CustomTestSaveRequest {
+  title: string;
+  subjects: string[];
+  chapters: string[];
+  topic_ids: number[];
+  questionCount: number;
+  duration: number;
+  level?: string;
+}
+
+export interface CustomTestSaveData {
+  id: number | string;
+  custom_test_id: number | string;
+  test_name: string;
+  test_code: string;
+  source: string;
+  type: string;
+  subjects: string[];
+  chapters: string[];
+  total_questions: number;
+  total_marks: number;
+  duration_minutes: number;
+  status: string;
+}
+
+export interface CustomTestSaveResponse {
+  success: boolean;
+  message: string;
+  data: CustomTestSaveData;
+}
+
 export interface StartTestRequest extends TestTopicsRequest {
   questionCount: number;
   duration: number;

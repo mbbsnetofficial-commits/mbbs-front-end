@@ -8,6 +8,8 @@ import {
   ChatSessionResponse,
   ChatSessionsResponse,
   CreateChatSessionRequest,
+  CustomTestSaveRequest,
+  CustomTestSaveResponse,
   GenerateInsightsResponse,
   SendChatMessageResponse,
   StartTestRequest,
@@ -47,6 +49,13 @@ export class QuickTestService {
   getTopics(data: TestTopicsRequest) {
     return this.http.post<TestTopicsResponse>(
       this.baseUrl + API.TEST.TOPICS,
+      data
+    );
+  }
+
+  saveCustomTest(data: CustomTestSaveRequest) {
+    return this.http.post<CustomTestSaveResponse>(
+      this.baseUrl + API.TEST.SAVE,
       data
     );
   }

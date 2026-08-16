@@ -6,15 +6,18 @@ import {
   OnInit,
   Output,
   computed,
+  inject,
   signal
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { Observable, map, of, switchMap } from 'rxjs';
 
 import {
   ActiveTestSession,
   ChatMessage,
   ChatSession,
+  CustomTestSaveRequest,
   StartTestResponse,
   SubmitTestResponse,
   TestOption,
@@ -22,8 +25,10 @@ import {
   TestQuestionState,
   TestResult,
   TestResultQuestion,
+  TestTopic,
   ZoneInsight
 } from '../../models/quick-test.model';
+import { NeetModalService } from '../../services/neet-modal.service';
 import { QuickTestService } from '../../services/quick-test.service';
 
 type QuickTestView = 'wizard' | 'test' | 'result';
@@ -48,6 +53,8 @@ export class QuickTest implements OnInit, OnDestroy {
     duration: number;
   }>();
 
+  private readonly router = inject(Router);
+  private readonly neetModalService = inject(NeetModalService);
   private readonly storageKey = 'activeQuickTest';
   private readonly pendingResultKey = 'pendingQuickTestResult';
   private timerId: ReturnType<typeof setInterval> | null = null;
@@ -60,10 +67,12 @@ export class QuickTest implements OnInit, OnDestroy {
   readonly chapters = signal<string[]>([]);
   readonly selectedSubjects = signal<string[]>([]);
   readonly selectedChapters = signal<string[]>([]);
+  readonly topics = signal<TestTopic[]>([]);
   readonly topicCount = signal(0);
   readonly questionCount = signal(15);
   readonly duration = signal(15);
   readonly isLoading = signal(false);
+  readonly isSaving = signal(false);
   readonly isSubmitting = signal(false);
   readonly errorMessage = signal<string | null>(null);
 
@@ -254,6 +263,7 @@ export class QuickTest implements OnInit, OnDestroy {
       chapters: this.selectedChapters()
     }).subscribe({
       next: (response) => {
+        this.topics.set(response.data ?? []);
         this.topicCount.set(response.total ?? response.data.length);
         this.step.set(4);
         this.isLoading.set(false);
@@ -290,17 +300,52 @@ export class QuickTest implements OnInit, OnDestroy {
       !this.testName().trim() ||
       this.selectedSubjects().length === 0 ||
       this.selectedChapters().length === 0 ||
+      this.isSaving() ||
       this.isLoading()
     ) {
       return;
     }
 
-    this.testSaved.emit({
+    this.isSaving.set(true);
+    this.errorMessage.set(null);
+
+    const payload: CustomTestSaveRequest = {
       title: this.testName().trim(),
       subjects: this.selectedSubjects(),
       chapters: this.selectedChapters(),
+      topic_ids: this.topics().map((t) => t.id || Number(t._id)).filter((id) => !isNaN(id)),
       questionCount: this.questionCount(),
-      duration: this.duration()
+      duration: this.duration(),
+      level: 'Intermediate'
+    };
+
+    this.quickTestService.saveCustomTest(payload).subscribe({
+      next: (response) => {
+        this.isSaving.set(false);
+        this.testSaved.emit({
+          title: payload.title,
+          subjects: payload.subjects,
+          chapters: payload.chapters,
+          questionCount: payload.questionCount,
+          duration: payload.duration
+        });
+        this.neetModalService.saveTest({
+          title: payload.title,
+          subjects: payload.subjects,
+          chapters: payload.chapters,
+          questionCount: payload.questionCount,
+          duration: payload.duration
+        });
+        if (this.router.url.includes('/quick-test')) {
+          void this.router.navigate(['/dynamic/neet']);
+        }
+      },
+      error: (error) => {
+        this.isSaving.set(false);
+        this.errorMessage.set(
+          this.getErrorMessage(error, 'Unable to save custom test. Please try again.')
+        );
+      }
     });
   }
 
@@ -379,14 +424,7 @@ export class QuickTest implements OnInit, OnDestroy {
   }
 
   requestSubmit(): void {
-    const unanswered = this.questionStates().length - this.answeredCount();
-    const message = unanswered > 0
-      ? `${unanswered} question(s) are unanswered. Submit the test anyway?`
-      : 'Submit your test now?';
-
-    if (window.confirm(message)) {
-      this.submitTest(false);
-    }
+    this.submitTest(false);
   }
 
   submitTest(automatic: boolean = false): void {
