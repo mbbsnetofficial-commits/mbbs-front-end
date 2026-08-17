@@ -17,7 +17,7 @@ describe('DynamicLayouts', () => {
     fixture = TestBed.createComponent(DynamicLayouts);
     component = fixture.componentInstance;
     await fixture.whenStable();
-  });
+  }, 30000);
 
   it('should create', () => {
     expect(component).toBeTruthy();

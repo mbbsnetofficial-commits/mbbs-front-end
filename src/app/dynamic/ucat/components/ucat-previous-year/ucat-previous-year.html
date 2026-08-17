@@ -1,65 +1,65 @@
 <div class="ucat-container">
-  <!-- Top Nav Bar -->
-  <header class="top-nav-bar">
-    <div class="brand-title">
-      <span class="icon-mark" aria-hidden="true">PY</span>
-      <div>
-        <h1>UCAT previous papers</h1>
-        <small>Past-paper practice and performance review</small>
+  @if (view() !== 'test' && view() !== 'result') {
+    <!-- Top Nav Bar -->
+    <header class="top-nav-bar">
+      <div class="brand-title">
+        <span class="icon-mark" aria-hidden="true">PY</span>
+        <div>
+          <h1>UCAT previous papers</h1>
+          <small>Past-paper practice and performance review</small>
+        </div>
       </div>
-    </div>
 
-    @if (view() !== 'test') {
       <div class="nav-tabs">
         <a routerLink="/dynamic/ucat" class="tab-btn">Practice tests</a>
         <button type="button" class="tab-btn active">Previous papers</button>
       </div>
-    }
-  </header>
+    </header>
 
-  <!-- UCAT Daily Streak Banner Widget -->
-  @if (streakData(); as streak) {
-    <div class="streak-widget-banner">
-      <div class="streak-main">
-        <div class="flame-badge" [class.active]="streak.currentStreak > 0">
-          <span class="flame-icon">🔥</span>
-          <span class="streak-num">{{ streak.currentStreak }}</span>
+    <!-- UCAT Daily Streak Banner Widget -->
+    @if (streakData(); as streak) {
+      <div class="streak-widget-banner">
+        <div class="streak-main">
+          <div class="flame-badge" [class.active]="streak.currentStreak > 0">
+            <span class="flame-icon">🔥</span>
+            <span class="streak-num">{{ streak.currentStreak }}</span>
+          </div>
+          <div class="streak-info">
+            <h3>
+              @if (streak.currentStreak > 0) {
+                🔥 Keep your streak alive!
+              } @else {
+                Start a past paper exam today to kick off your streak!
+              }
+            </h3>
+            <p>
+              Current Streak:
+              <strong
+                >{{ streak.currentStreak }} {{ streak.currentStreak === 1 ? 'day' : 'days' }}</strong
+              >
+              • Longest Streak:
+              <strong
+                >{{ streak.longestStreak }} {{ streak.longestStreak === 1 ? 'day' : 'days' }}</strong
+              >
+              @if (streak.lastActivityDate) {
+                • Last Activity: <strong>{{ streak.lastActivityDate }}</strong>
+              }
+            </p>
+          </div>
         </div>
-        <div class="streak-info">
-          <h3>
-            @if (streak.currentStreak > 0) {
-              🔥 Keep your streak alive!
-            } @else {
-              Start a past paper exam today to kick off your streak!
+
+        @if (streak.history && streak.history.length > 0) {
+          <div class="streak-history-pills">
+            <span class="history-label">Recent Activity:</span>
+            @for (item of streak.history.slice(-3); track item._id || item.date) {
+              <span class="history-chip">
+                ✅ {{ item.activityType.replace('_', ' ') }} ({{ item.date }})
+              </span>
             }
-          </h3>
-          <p>
-            Current Streak:
-            <strong
-              >{{ streak.currentStreak }} {{ streak.currentStreak === 1 ? 'day' : 'days' }}</strong
-            >
-            • Longest Streak:
-            <strong
-              >{{ streak.longestStreak }} {{ streak.longestStreak === 1 ? 'day' : 'days' }}</strong
-            >
-            @if (streak.lastActivityDate) {
-              • Last Activity: <strong>{{ streak.lastActivityDate }}</strong>
-            }
-          </p>
-        </div>
+          </div>
+        }
       </div>
-
-      @if (streak.history && streak.history.length > 0) {
-        <div class="streak-history-pills">
-          <span class="history-label">Recent Activity:</span>
-          @for (item of streak.history.slice(-3); track item._id || item.date) {
-            <span class="history-chip">
-              ✅ {{ item.activityType.replace('_', ' ') }} ({{ item.date }})
-            </span>
-          }
-        </div>
-      }
-    </div>
+    }
   }
 
   <!-- Global Error Banner -->
@@ -113,7 +113,7 @@
       } @else {
         <div class="papers-grid">
           @for (paper of filteredPapers(); track paper.id) {
-            <div class="paper-card" (click)="selectPaper(paper)">
+            <div class="paper-card">
               <div class="card-top">
                 <span class="paper-badge">Official Paper</span>
                 <span class="paper-year">{{ paper.name.replace('UCAT_', '') }}</span>
@@ -121,34 +121,20 @@
 
               <h3 class="paper-title">{{ paper.name.replace('_', ' ') }}</h3>
 
-              <div class="paper-stats">
-                <div class="stat-item">
-                  <span class="stat-icon">📝</span>
-                  <div>
-                    <label>Questions</label>
-                    <strong>{{ paper.question_count }}</strong>
-                  </div>
-                </div>
-
-                <div class="stat-item">
-                  <span class="stat-icon">⏱️</span>
-                  <div>
-                    <label>Duration</label>
-                    <strong>{{ paper.duration }} mins</strong>
-                  </div>
-                </div>
-
-                <div class="stat-item">
-                  <span class="stat-icon">🎯</span>
-                  <div>
-                    <label>Max Marks</label>
-                    <strong>{{ paper.total_marks }}</strong>
-                  </div>
-                </div>
-              </div>
-
               <div class="card-footer">
-                <span class="btn-link">Configure Test & Start →</span>
+                <button
+                  type="button"
+                  class="btn btn-primary btn-start-paper"
+                  [disabled]="isStartingTest()"
+                  (click)="onStartTest(paper)"
+                >
+                  @if (isStartingTest() && selectedPaper()?.id === paper.id) {
+                    <span class="btn-spinner"></span>
+                    Starting...
+                  } @else {
+                    Start Paper →
+                  }
+                </button>
               </div>
             </div>
           }
@@ -157,482 +143,427 @@
     </div>
   }
 
-  <!-- STEP 2: TEST CONFIGURATION VIEW -->
-  @if (view() === 'config' && selectedPaper()) {
-    <div class="config-container">
-      <button type="button" class="btn-back" (click)="backToPaperList()">
-        ← Back to Papers List
-      </button>
-
-      <div class="config-card">
-        <div class="config-header">
-          <span class="config-icon">⚙️</span>
-          <div>
-            <h2>Configure {{ selectedPaper()?.name?.replace('_', ' ') }}</h2>
-            <p>
-              Customize question sample size and timer duration before starting your exam session.
-            </p>
-          </div>
-        </div>
-
-        <div class="paper-summary-bar">
-          <div class="summary-pill">
-            <span class="pill-label">Total Bank Questions:</span>
-            <strong>{{ selectedPaper()?.question_count }}</strong>
-          </div>
-          <div class="summary-pill">
-            <span class="pill-label">Standard Duration:</span>
-            <strong>{{ selectedPaper()?.duration }} Mins</strong>
-          </div>
-          <div class="summary-pill">
-            <span class="pill-label">Total Marks:</span>
-            <strong>{{ selectedPaper()?.total_marks }}</strong>
-          </div>
-        </div>
-
-        <div class="config-form">
-          <div class="form-group">
-            <label>Select Question Limit</label>
-            <div class="options-row">
-              @for (opt of limitOptions; track opt) {
-                <button
-                  type="button"
-                  class="option-pill"
-                  [class.active]="questionLimit() === opt"
-                  (click)="questionLimit.set(opt)"
-                >
-                  {{ opt === 233 ? 'All (233)' : opt + ' Questions' }}
-                </button>
-              }
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Select Test Duration (Minutes)</label>
-            <div class="options-row">
-              @for (dur of durationOptions; track dur) {
-                <button
-                  type="button"
-                  class="option-pill"
-                  [class.active]="testDuration() === dur"
-                  (click)="testDuration.set(dur)"
-                >
-                  {{ dur }} Mins
-                </button>
-              }
-            </div>
-          </div>
-        </div>
-
-        <div class="config-actions">
-          <button type="button" class="btn btn-secondary" (click)="backToPaperList()">
-            Cancel
-          </button>
-          <button
-            type="button"
-            class="btn btn-primary"
-            [disabled]="isStartingTest()"
-            (click)="onStartTest()"
-          >
-            @if (isStartingTest()) {
-              <span class="btn-spinner"></span>
-              Initializing Exam Session...
-            } @else {
-              🚀 Start Previous Year Test
-            }
-          </button>
-        </div>
-      </div>
-    </div>
-  }
-
   <!-- STEP 3: REUSED QUESTION ENGINE RUNNER -->
   @if (view() === 'test' && activeSession()) {
-    <div class="test-runner">
-      <!-- Test Header Bar -->
-      <div class="test-header">
-        <div class="header-info">
-          <h3>{{ selectedPaper()?.name?.replace('_', ' ') || 'Previous Year Paper' }}</h3>
-          <span class="badge">{{ activeSession()?.test_type || 'Exam Mode' }}</span>
+    <div class="test-runner-container">
+      <!-- Test Header -->
+      <header class="test-runner-header">
+        <div class="runner-header-left">
+          <p class="runner-eyebrow">UCAT Previous Paper</p>
+          <h1 class="runner-title">{{ resultTestTitle() }}</h1>
         </div>
 
-        <div class="timer-box" [class.warning]="remainingSeconds() < 300">
-          <span class="timer-icon">⏱️</span>
-          <span class="timer-value">{{ formattedRemainingTime() }}</span>
-        </div>
-
-        <div class="header-progress">
-          <div class="progress-item">
-            <span class="dot answered"></span>
-            <span
-              >Answered: <strong>{{ answeredCount() }}</strong></span
-            >
+        <div class="runner-header-center">
+          <div class="progress-info">
+            <span class="progress-text">
+              Question <strong>{{ currentQuestionIndex() + 1 }}</strong> of {{ questionStates().length }}
+            </span>
+            <span class="progress-pct">{{ progressPercentage() }}% answered</span>
           </div>
-          <div class="progress-item">
-            <span class="dot skipped"></span>
-            <span
-              >Unanswered: <strong>{{ skippedCount() }}</strong></span
-            >
+          <div class="progress-bar-track" role="progressbar" [attr.aria-valuenow]="progressPercentage()" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar-fill" [style.width.%]="progressPercentage()"></div>
           </div>
-          <button type="button" class="btn btn-review" (click)="openReviewModal()">
-            Review & Submit
-          </button>
         </div>
-      </div>
 
-      <!-- Test Body Grid -->
-      <div class="test-body-grid">
-        <!-- Question Workspace -->
-        <div class="question-workspace">
+        <div class="runner-header-right">
+          <div class="timer-card" [class.urgent]="remainingSeconds() <= 120">
+            <span class="timer-label">Time Remaining</span>
+            <strong class="timer-value">⏱ {{ formattedRemainingTime() }}</strong>
+          </div>
+        </div>
+      </header>
+
+      @if (errorMessage()) {
+        <div class="alert alert-error test-runner-alert" role="alert">
+          <span>{{ errorMessage() }}</span>
+          <button class="btn-dismiss" type="button" (click)="errorMessage.set(null)">×</button>
+        </div>
+      }
+
+      <!-- Main Two-Column Exam Workspace -->
+      <div class="test-workspace">
+        <!-- Question Column -->
+        <main class="question-workspace">
           @if (currentQuestion(); as q) {
-            <div class="question-card">
-              <div class="q-meta">
-                <span class="q-number"
-                  >Question {{ currentQuestionIndex() + 1 }} of
-                  {{ activeSession()?.totalQuestions }}</span
-                >
-                <span class="q-subject">{{ q.subject?.replace('_', ' ') || 'General' }}</span>
-                @if (q.topic_name) {
-                  <span class="q-topic">• {{ q.topic_name }}</span>
-                }
-              </div>
-
-              <div class="q-text">
-                <p>{{ q.question }}</p>
-              </div>
-
-              <div class="options-list">
-                @for (key of optionKeys; track key) {
-                  <div
-                    class="option-card"
-                    [class.selected]="currentQuestionState()?.selectedOption === key"
-                    (click)="selectOption(key)"
-                  >
-                    <div class="key-badge">{{ key }}</div>
-                    <div class="option-text">
-                      {{
-                        key === 'A'
-                          ? q.option_a
-                          : key === 'B'
-                            ? q.option_b
-                            : key === 'C'
-                              ? q.option_c
-                              : q.option_d
-                      }}
-                    </div>
-                  </div>
-                }
-              </div>
-
-              <!-- Question Navigation Buttons -->
-              <div class="q-nav-actions">
+            <article class="runner-question-card">
+              <div class="card-top-bar">
+                <div class="badge-group">
+                  <span class="q-index-pill">Question {{ currentQuestionIndex() + 1 }}</span>
+                  @if (q.subject) {
+                    <span class="badge badge-subject">{{ q.subject.replace('_', ' ') }}</span>
+                  }
+                  @if (q.topic_name) {
+                    <span class="badge badge-topic">{{ q.topic_name }}</span>
+                  }
+                </div>
                 <button
                   type="button"
-                  class="btn btn-secondary"
+                  class="mobile-palette-toggle"
+                  (click)="showReviewModal.set(true)"
+                  aria-label="Open Question Navigator"
+                >
+                  📋 Palette ({{ answeredCount() }}/{{ questionStates().length }})
+                </button>
+              </div>
+
+              <h2 class="runner-question-text">{{ q.question }}</h2>
+
+              <div class="runner-options-list" role="radiogroup" aria-label="Question options">
+                @for (key of optionKeys; track key) {
+                  <button
+                    type="button"
+                    role="radio"
+                    class="runner-option-row"
+                    [class.selected]="currentQuestionState()?.selectedOption === key"
+                    [attr.aria-checked]="currentQuestionState()?.selectedOption === key"
+                    (click)="selectOption(key)"
+                  >
+                    <span class="option-indicator">{{ key }}</span>
+                    <span class="option-content-text">{{
+                      key === 'A'
+                        ? q.option_a
+                        : key === 'B'
+                          ? q.option_b
+                          : key === 'C'
+                            ? q.option_c
+                            : q.option_d
+                    }}</span>
+                  </button>
+                }
+              </div>
+
+              <!-- Question Bottom Actions -->
+              <div class="question-bottom-actions">
+                <button
+                  type="button"
+                  class="btn-nav btn-previous"
                   [disabled]="currentQuestionIndex() === 0"
                   (click)="prevQuestion()"
                 >
                   ← Previous
                 </button>
 
-                <button type="button" class="btn btn-tertiary" (click)="nextQuestion()">
+                <button
+                  type="button"
+                  class="btn-nav btn-skip"
+                  (click)="skipQuestion()"
+                >
                   Skip Question
                 </button>
 
-                <button
-                  type="button"
-                  class="btn btn-primary"
-                  [disabled]="currentQuestionIndex() === (activeSession()?.totalQuestions || 1) - 1"
-                  (click)="nextQuestion()"
-                >
-                  Next Question →
-                </button>
+                @if (currentQuestionIndex() < questionStates().length - 1) {
+                  <button
+                    type="button"
+                    class="btn-nav btn-next"
+                    (click)="nextQuestion()"
+                  >
+                    Next Question →
+                  </button>
+                } @else {
+                  <button
+                    type="button"
+                    class="btn-nav btn-submit-final"
+                    [disabled]="isSubmittingTest()"
+                    (click)="openReviewModal()"
+                  >
+                    {{ isSubmittingTest() ? 'Submitting...' : 'Submit Test' }}
+                  </button>
+                }
+              </div>
+            </article>
+          }
+        </main>
+
+        <!-- Right-Side Question Navigator -->
+        <aside class="navigator-sidebar">
+          <div class="navigator-card">
+            <div class="navigator-header">
+              <h3>QUESTION NAVIGATOR</h3>
+              <div class="navigator-stats">
+                <span class="stat-item answered"><strong>{{ answeredCount() }}</strong> Answered</span>
+                <span class="stat-item unanswered"><strong>{{ skippedCount() }}</strong> Unanswered</span>
               </div>
             </div>
-          }
-        </div>
 
-        <!-- Question Grid Sidebar Navigator -->
-        <div class="question-sidebar">
-          <h4>Question Palette</h4>
-          <div class="palette-grid">
-            @for (st of questionStates(); track $index) {
+            <div class="navigator-grid-container">
+              <div class="navigator-grid">
+                @for (st of questionStates(); track $index) {
+                  <button
+                    type="button"
+                    class="nav-cell"
+                    [class.current]="currentQuestionIndex() === $index"
+                    [class.answered]="st.selectedOption !== null"
+                    [class.visited]="st.visited && st.selectedOption === null"
+                    [attr.aria-label]="'Question ' + ($index + 1) + (st.selectedOption ? ' Answered' : ' Unanswered')"
+                    (click)="jumpToQuestion($index)"
+                  >
+                    {{ $index + 1 }}
+                  </button>
+                }
+              </div>
+            </div>
+
+            <div class="navigator-legend">
+              <div class="legend-item"><span class="legend-dot answered"></span> Answered</div>
+              <div class="legend-item"><span class="legend-dot visited"></span> Unanswered</div>
+              <div class="legend-item"><span class="legend-dot current"></span> Current</div>
+            </div>
+
+            <div class="navigator-footer">
               <button
                 type="button"
-                class="palette-btn"
-                [class.current]="$index === currentQuestionIndex()"
-                [class.answered]="st.selectedOption !== null"
-                [class.visited]="st.visited && st.selectedOption === null"
-                (click)="jumpToQuestion($index)"
+                class="btn-sidebar-submit"
+                [disabled]="isSubmittingTest()"
+                (click)="openReviewModal()"
               >
-                {{ $index + 1 }}
+                {{ isSubmittingTest() ? 'Submitting...' : 'Submit Test' }}
               </button>
-            }
+            </div>
           </div>
-
-          <div class="palette-legend">
-            <div class="legend-item"><span class="legend-box current"></span> Current</div>
-            <div class="legend-item"><span class="legend-box answered"></span> Answered</div>
-            <div class="legend-item"><span class="legend-box visited"></span> Skipped</div>
-            <div class="legend-item"><span class="legend-box"></span> Unvisited</div>
-          </div>
-        </div>
+        </aside>
       </div>
-    </div>
-  }
 
-  <!-- REVIEW BEFORE SUBMIT MODAL -->
-  @if (showReviewModal()) {
-    <div class="modal-backdrop">
-      <div class="modal-card">
-        <div class="modal-header">
-          <h2>Exam Review Before Submission</h2>
-          <button type="button" class="close-btn" (click)="closeReviewModal()">✕</button>
-        </div>
+      <!-- Review Before Submit Modal Overlay -->
+      @if (showReviewModal()) {
+        <div class="modal-overlay" (click)="closeReviewModal()">
+          <div class="modal-card" (click)="$event.stopPropagation()">
+            <header class="modal-header">
+              <h2>Review Before Submission</h2>
+              <button type="button" class="btn-close" (click)="closeReviewModal()">×</button>
+            </header>
 
-        <div class="modal-body">
-          <p>
-            Check your answer status across all questions before finalizing your exam submission.
-          </p>
+            <main class="modal-body">
+              <div class="review-stats">
+                <div class="stat-box answered">
+                  <span class="num">{{ answeredCount() }}</span>
+                  <span class="lbl">Answered</span>
+                </div>
+                <div class="stat-box unanswered">
+                  <span class="num">{{ skippedCount() }}</span>
+                  <span class="lbl">Unanswered</span>
+                </div>
+                <div class="stat-box total">
+                  <span class="num">{{ questionStates().length }}</span>
+                  <span class="lbl">Total</span>
+                </div>
+              </div>
 
-          <div class="review-stats">
-            <div class="stat-chip answered">
-              <span>Answered:</span>
-              <strong>{{ answeredCount() }}</strong>
-            </div>
-            <div class="stat-chip skipped">
-              <span>Skipped:</span>
-              <strong>{{ skippedCount() }}</strong>
-            </div>
-            <div class="stat-chip total">
-              <span>Total Questions:</span>
-              <strong>{{ activeSession()?.totalQuestions }}</strong>
-            </div>
-          </div>
+              <h3>Questions Status</h3>
+              <div class="modal-grid">
+                @for (st of questionStates(); track $index) {
+                  <button
+                    type="button"
+                    class="modal-q-btn"
+                    [class.answered]="st.selectedOption !== null"
+                    [class.current]="currentQuestionIndex() === $index"
+                    (click)="jumpToQuestion($index)"
+                  >
+                    <span class="q-label">Q{{ $index + 1 }}</span>
+                    <small class="q-val">{{
+                      st.selectedOption ? 'Option ' + st.selectedOption : 'Skipped'
+                    }}</small>
+                  </button>
+                }
+              </div>
+            </main>
 
-          <div class="review-grid">
-            @for (st of questionStates(); track $index) {
+            <footer class="modal-footer">
+              <button type="button" class="btn-modal-back" (click)="closeReviewModal()">
+                Back to Test
+              </button>
               <button
                 type="button"
-                class="review-tile"
-                [class.answered]="st.selectedOption !== null"
-                (click)="jumpToQuestion($index)"
+                class="btn-modal-submit"
+                [disabled]="isSubmittingTest()"
+                (click)="onSubmitTest()"
               >
-                <span class="q-num">Q{{ $index + 1 }}</span>
-                <span class="ans-badge">{{ st.selectedOption || 'Skipped' }}</span>
+                {{ isSubmittingTest() ? 'Submitting...' : 'Confirm & Submit' }}
               </button>
-            }
+            </footer>
           </div>
         </div>
-
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" (click)="closeReviewModal()">
-            Return to Test
-          </button>
-          <button
-            type="button"
-            class="btn btn-danger"
-            [disabled]="isSubmittingTest()"
-            (click)="onSubmitTest()"
-          >
-            @if (isSubmittingTest()) {
-              <span class="btn-spinner"></span>
-              Submitting Test...
-            } @else {
-              ✓ Submit Final Exam Now
-            }
-          </button>
-        </div>
-      </div>
+      }
     </div>
   }
 
   <!-- STEP 4: REUSED SINGLE SOURCE OF TRUTH RESULT DASHBOARD -->
   @if (view() === 'result') {
-    <div class="result-dashboard">
+    <div class="result-page-container">
       @if (isLoadingResult()) {
         <div class="loading-state">
           <div class="spinner"></div>
           <p>Retrieving full official result report from server...</p>
         </div>
       } @else if (testResult(); as res) {
-        <div class="result-header">
+        <!-- Header -->
+        <header class="result-header">
           <div>
-            <h2>Exam Performance Report</h2>
-            <p>
-              {{
-                selectedPaper()?.name?.replace('_', ' ') || res.test_type || 'Previous Year Paper'
-              }}
-            </p>
+            <p class="eyebrow">TEST COMPLETED</p>
+            <h1>{{ resultTestTitle() }} Result</h1>
+            <p class="result-subtitle">Your result is ready. Review your performance below.</p>
           </div>
-          <div class="header-actions">
-            <button type="button" class="btn btn-secondary" (click)="restartWizard()">
-              ← Back to Papers List
+          <div class="result-actions">
+            <button type="button" class="btn-back-learning" (click)="backToLearningReport()">
+              Back to Learning Report
             </button>
           </div>
-        </div>
+        </header>
 
-        <!-- Performance Metric Cards -->
-        <div class="metrics-grid">
-          <div class="metric-card score">
-            <span class="metric-icon">🏆</span>
-            <div>
-              <label>Overall Score</label>
-              <div class="metric-value">{{ res.score }}</div>
-            </div>
-          </div>
+        <!-- Result Summary -->
+        <section class="result-summary">
+          <article class="score-card">
+            <span class="stat-label">Score</span>
+            <strong class="stat-val">{{ res.score }}</strong>
+          </article>
+          <article class="accuracy-card">
+            <span class="stat-label">Accuracy</span>
+            <strong class="stat-val">{{ res.accuracy }}%</strong>
+          </article>
+          <article class="correct-stat">
+            <span class="stat-label">Correct</span>
+            <strong class="stat-val">{{ res.correct }}</strong>
+          </article>
+          <article class="wrong-stat">
+            <span class="stat-label">Wrong</span>
+            <strong class="stat-val">{{ res.wrong }}</strong>
+          </article>
+          <article class="skipped-stat">
+            <span class="stat-label">Skipped</span>
+            <strong class="stat-val">{{ res.skipped }}</strong>
+          </article>
+        </section>
 
-          <div class="metric-card accuracy">
-            <span class="metric-icon">🎯</span>
-            <div>
-              <label>Accuracy</label>
-              <div class="metric-value">{{ res.accuracy }}%</div>
-            </div>
-          </div>
-
-          <div class="metric-card correct">
-            <span class="metric-icon">✅</span>
-            <div>
-              <label>Correct</label>
-              <div class="metric-value">{{ res.correct }}</div>
-            </div>
-          </div>
-
-          <div class="metric-card wrong">
-            <span class="metric-icon">❌</span>
-            <div>
-              <label>Wrong</label>
-              <div class="metric-value">{{ res.wrong }}</div>
-            </div>
-          </div>
-
-          <div class="metric-card skipped">
-            <span class="metric-icon">⏭️</span>
-            <div>
-              <label>Skipped</label>
-              <div class="metric-value">{{ res.skipped }}</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Question Review Section with Filter Tabs -->
-        <div class="review-section">
-          <div class="filter-bar">
-            <h3>Detailed Question Breakdown</h3>
-            <div class="filter-tabs">
-              <button
-                type="button"
-                class="filter-btn"
-                [class.active]="resultFilter() === 'all'"
-                (click)="setResultFilter('all')"
-              >
-                All Questions
-              </button>
-              <button
-                type="button"
-                class="filter-btn"
-                [class.active]="resultFilter() === 'correct'"
-                (click)="setResultFilter('correct')"
-              >
-                Correct
-              </button>
-              <button
-                type="button"
-                class="filter-btn"
-                [class.active]="resultFilter() === 'wrong'"
-                (click)="setResultFilter('wrong')"
-              >
-                Wrong
-              </button>
-              <button
-                type="button"
-                class="filter-btn"
-                [class.active]="resultFilter() === 'skipped'"
-                (click)="setResultFilter('skipped')"
-              >
-                Skipped
-              </button>
-            </div>
-          </div>
-
-          <div class="questions-breakdown-list">
-            @for (item of filteredReview(); track item.question_id || $index) {
-              <div
-                class="review-card"
-                [class.correct-card]="item.isCorrect || item.is_correct"
-                [class.wrong-card]="
-                  !(item.isCorrect || item.is_correct) &&
-                  !item.is_skipped &&
-                  (item.selected || item.selected_option)
-                "
-                [class.skipped-card]="item.is_skipped || (!item.selected && !item.selected_option)"
-              >
-                <div class="card-header">
-                  <div class="meta">
-                    <span class="q-index">Q{{ $index + 1 }}</span>
-                    <span class="q-subject">{{
-                      item.subject?.replace('_', ' ') || 'General'
-                    }}</span>
-                    @if (item.topic_name) {
-                      <span class="q-topic">• {{ item.topic_name }}</span>
-                    }
-                  </div>
-                  <div class="status-tag">
-                    @if (item.isCorrect || item.is_correct) {
-                      <span class="tag correct">✓ Correct (+{{ item.marks_awarded || 1 }})</span>
-                    } @else if (item.is_skipped || (!item.selected && !item.selected_option)) {
-                      <span class="tag skipped">⏭️ Skipped</span>
-                    } @else {
-                      <span class="tag wrong">✕ Wrong ({{ item.marks_awarded || 0 }})</span>
-                    }
-                  </div>
-                </div>
-
-                <div class="card-question-text">
-                  <p>{{ item.question }}</p>
-                </div>
-
-                <div class="card-options">
-                  <div
-                    class="opt"
-                    [class.correct-ans]="item.correct_answer === 'A'"
-                    [class.user-selected]="(item.selected || item.selected_option) === 'A'"
-                  >
-                    <strong>A.</strong> {{ item.option_a }}
-                  </div>
-                  <div
-                    class="opt"
-                    [class.correct-ans]="item.correct_answer === 'B'"
-                    [class.user-selected]="(item.selected || item.selected_option) === 'B'"
-                  >
-                    <strong>B.</strong> {{ item.option_b }}
-                  </div>
-                  <div
-                    class="opt"
-                    [class.correct-ans]="item.correct_answer === 'C'"
-                    [class.user-selected]="(item.selected || item.selected_option) === 'C'"
-                  >
-                    <strong>C.</strong> {{ item.option_c }}
-                  </div>
-                  <div
-                    class="opt"
-                    [class.correct-ans]="item.correct_answer === 'D'"
-                    [class.user-selected]="(item.selected || item.selected_option) === 'D'"
-                  >
-                    <strong>D.</strong> {{ item.option_d }}
-                  </div>
-                </div>
-
-                @if (item.explanation) {
-                  <div class="explanation-box">
-                    <strong>💡 Solution & Explanation:</strong>
-                    <p>{{ item.explanation }}</p>
-                  </div>
-                }
+        <!-- Test Metadata Bar -->
+        @if (res.subjects?.length || res.duration || res.started_at || res.submitted_at) {
+          <div class="test-meta-bar">
+            @if (res.subjects && res.subjects.length) {
+              <div class="meta-item">
+                <span class="meta-label">Subjects:</span>
+                <strong class="meta-value">{{ res.subjects.join(', ') }}</strong>
+              </div>
+            }
+            @if (res.duration) {
+              <div class="meta-item">
+                <span class="meta-label">Duration:</span>
+                <strong class="meta-value">{{ res.duration }} mins</strong>
+              </div>
+            }
+            @if (res.started_at) {
+              <div class="meta-item">
+                <span class="meta-label">Started:</span>
+                <strong class="meta-value">{{ res.started_at | date: 'medium' }}</strong>
+              </div>
+            }
+            @if (res.submitted_at) {
+              <div class="meta-item">
+                <span class="meta-label">Submitted:</span>
+                <strong class="meta-value">{{ res.submitted_at | date: 'medium' }}</strong>
               </div>
             }
           </div>
-        </div>
+        }
+
+        <!-- Answer Analysis Section -->
+        <section class="review-section">
+          <div class="review-heading">
+            <div>
+              <p class="eyebrow">ANSWER ANALYSIS</p>
+              <h2>Review attempted questions</h2>
+              <p class="section-subtext">Review your answers and understand where you lost or gained marks.</p>
+            </div>
+            <div class="result-filters" aria-label="Filter reviewed answers">
+              <button
+                type="button"
+                class="filter-pill"
+                [class.active]="resultFilter() === 'all'"
+                (click)="setResultFilter('all')"
+              >
+                All ({{ allReviewQuestions().length }})
+              </button>
+              <button
+                type="button"
+                class="filter-pill"
+                [class.active]="resultFilter() === 'correct'"
+                (click)="setResultFilter('correct')"
+              >
+                Correct ({{ res.correct }})
+              </button>
+              <button
+                type="button"
+                class="filter-pill"
+                [class.active]="resultFilter() === 'wrong'"
+                (click)="setResultFilter('wrong')"
+              >
+                Wrong ({{ res.wrong }})
+              </button>
+              <button
+                type="button"
+                class="filter-pill"
+                [class.active]="resultFilter() === 'skipped'"
+                (click)="setResultFilter('skipped')"
+              >
+                Skipped ({{ res.skipped }})
+              </button>
+            </div>
+          </div>
+
+          @if (filteredReview().length === 0) {
+            <div class="empty-review">No answers match this filter.</div>
+          } @else {
+            <div class="review-list">
+              @for (item of filteredReview(); track item.question_id || item.id || $index; let index = $index) {
+                <article class="review-card">
+                  <div class="review-card-header">
+                    <div class="header-left">
+                      <strong>Question {{ index + 1 }}</strong>
+                      @if (item.subject) {
+                        <span class="badge badge-subject">{{ item.subject.replace('_', ' ') }}</span>
+                      }
+                      @if (item.topic_name) {
+                        <span class="badge badge-topic">{{ item.topic_name }}</span>
+                      }
+                    </div>
+                    <div class="header-right">
+                      @if (item.isCorrect || item.is_correct) {
+                        <span class="review-status correct">Correct</span>
+                      } @else if (item.is_skipped || (!item.selected && !item.selected_option)) {
+                        <span class="review-status skipped">Skipped</span>
+                      } @else {
+                        <span class="review-status wrong">Wrong</span>
+                      }
+                      @if (item.time_spent !== undefined && item.time_spent !== null) {
+                        <small class="time-spent">{{ formatSeconds(item.time_spent) }}</small>
+                      }
+                    </div>
+                  </div>
+
+                  <p class="review-question">{{ item.question }}</p>
+
+                  <div class="review-options">
+                    @for (key of optionKeys; track key) {
+                      <div class="review-option-row" [ngClass]="reviewOptionClass(item, key)">
+                        <span class="option-letter">{{ key }}</span>
+                        <span class="option-text">{{ getReviewOptionText(item, key) }}</span>
+                        @if (key === item.correct_answer) {
+                          <small class="option-tag tag-correct">Correct answer</small>
+                        } @else if (key === (item.selected || item.selected_option)) {
+                          <small class="option-tag tag-your-answer">Your answer</small>
+                        }
+                      </div>
+                    }
+                  </div>
+
+                  @if (item.explanation) {
+                    <div class="review-explanation">
+                      <strong>Explanation</strong>
+                      <p>{{ item.explanation }}</p>
+                    </div>
+                  }
+                </article>
+              }
+            </div>
+          }
+        </section>
       }
     </div>
   }

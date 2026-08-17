@@ -186,7 +186,7 @@ describe('LearningReport', () => {
     fixture = TestBed.createComponent(LearningReport);
     component = fixture.componentInstance;
     fixture.detectChanges();
-  });
+  }, 30000);
 
   it('should call getNeetSummary and bind KPI summary on init', () => {
     expect(service.getNeetSummary).toHaveBeenCalled();

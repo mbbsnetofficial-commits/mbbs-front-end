@@ -15,6 +15,8 @@ import { TokenService } from '../../auth/services/token.service';
 
 import { QuickTest } from '../../dynamic/neet/components/quick-test/quick-test';
 import { NeetModalService } from '../../dynamic/neet/services/neet-modal.service';
+import { UcatQuickTest } from '../../dynamic/ucat/components/quick-test/quick-test';
+import { UcatModalService } from '../../dynamic/ucat/services/ucat-modal.service';
 
 interface NavigationItem {
   label: string;
@@ -31,7 +33,7 @@ interface PageMeta {
 @Component({
   selector: 'app-dynamic-layouts',
   standalone: true,
-  imports: [Icon, RouterLink, RouterLinkActive, RouterOutlet, QuickTest],
+  imports: [Icon, RouterLink, RouterLinkActive, RouterOutlet, QuickTest, UcatQuickTest],
   templateUrl: './dynamic-layouts.html',
   styleUrl: './dynamic-layouts.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -191,6 +193,7 @@ export class DynamicLayouts implements OnDestroy {
   }
 
   protected readonly neetModalService = inject(NeetModalService);
+  protected readonly ucatModalService = inject(UcatModalService);
 
   protected triggerBuildTestModal(event?: MouseEvent): void {
     if (event) event.preventDefault();
@@ -203,6 +206,19 @@ export class DynamicLayouts implements OnDestroy {
 
   protected onTestSaved(payload: any): void {
     this.neetModalService.saveTest(payload);
+  }
+
+  protected triggerUcatBuildTestModal(event?: MouseEvent): void {
+    if (event) event.preventDefault();
+    this.ucatModalService.openBuildTestModal();
+  }
+
+  protected closeUcatQuickTestModal(): void {
+    this.ucatModalService.closeBuildTestModal();
+  }
+
+  protected onUcatTestSaved(payload: any): void {
+    this.ucatModalService.saveTest(payload);
   }
 
   protected closeOverlays(): void {

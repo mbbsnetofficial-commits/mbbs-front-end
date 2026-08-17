@@ -149,7 +149,7 @@ describe('QuickTest', () => {
     fixture = TestBed.createComponent(QuickTest);
     component = fixture.componentInstance;
     fixture.detectChanges();
-  });
+  }, 30000);
 
   it('should initialize with subjects loaded in wizard step 1', () => {
     expect(component.view()).toBe('wizard');

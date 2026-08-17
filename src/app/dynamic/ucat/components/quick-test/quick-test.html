@@ -1,0 +1,237 @@
+<section class="quick-test-shell">
+
+  <!-- Modern Sleek Modal Header -->
+  <header class="modal-wizard-header">
+    <div class="header-left">
+      <div class="header-badge">
+        <span class="sparkle-icon">✨</span>
+        <span>UCAT PREPARATION</span>
+      </div>
+      <h1 class="header-title">Create Custom Test</h1>
+    </div>
+
+    <div class="header-right">
+      <div class="step-meta">
+        <span class="step-count">Step {{ step() }} of 4</span>
+        <span class="step-title">
+          <ng-container [ngSwitch]="step()">
+            <ng-container *ngSwitchCase="1">Test Name</ng-container>
+            <ng-container *ngSwitchCase="2">Pick Subjects</ng-container>
+            <ng-container *ngSwitchCase="3">Pick Chapters</ng-container>
+            <ng-container *ngSwitchCase="4">Configure Test</ng-container>
+          </ng-container>
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Sleek Progress Track -->
+  <div class="step-progress-track">
+    <div class="progress-fill" [style.width.%]="(step() / 4) * 100"></div>
+  </div>
+
+  @if (errorMessage()) {
+    <p class="error-message">{{ errorMessage() }}</p>
+  }
+
+  <!-- Step 1: Test Name -->
+  @if (step() === 1) {
+    <div class="step-body">
+      <div class="step-heading">
+        <h2>Name Your Test</h2>
+        <p>Give your custom UCAT practice session a memorable title to track your progress.</p>
+      </div>
+
+      <div class="input-group">
+        <label for="ucat-test-name-input">Test Title</label>
+        <input
+          id="ucat-test-name-input"
+          type="text"
+          class="custom-input"
+          placeholder="e.g. Decision Making & Quantitative Reasoning Drill"
+          [value]="testName()"
+          (input)="testName.set($any($event.target).value)"
+        />
+      </div>
+
+      <div class="wizard-actions">
+        <div></div>
+        <button
+          type="button"
+          class="primary-action-btn"
+          [disabled]="!testName().trim()"
+          (click)="goToSubjects()">
+          <span>Next: Pick Subjects</span>
+          <span class="arrow">&rarr;</span>
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Step 2: Pick Subjects -->
+  @if (step() === 2) {
+    <div class="step-body">
+      <div class="step-heading">
+        <h2>Pick Subjects</h2>
+        <p>Select one or more UCAT subtests for your custom test.</p>
+      </div>
+
+      @if (isLoading()) {
+        <div class="selection-skeleton subject-skeleton" role="status">
+          @for (item of [1, 2, 3, 4]; track item) {
+            <span></span>
+          }
+        </div>
+      } @else {
+        <div class="subject-grid">
+          @for (subject of subjects(); track trackByValue($index, subject)) {
+            <button
+              type="button"
+              class="subject-card"
+              [class.selected]="selectedSubjects().includes(subject)"
+              [attr.aria-pressed]="selectedSubjects().includes(subject)"
+              (click)="toggleSubject(subject)">
+              <span class="subject-icon">{{ subject.charAt(0) }}</span>
+              <strong class="subject-name">{{ subject.replace('_', ' ') }}</strong>
+              <span class="selection-check">&#10003;</span>
+            </button>
+          }
+        </div>
+      }
+
+      <div class="wizard-actions">
+        <button type="button" class="back-action-btn" (click)="previousStep()">&larr; Back</button>
+        <span class="selection-counter">{{ selectedSubjects().length }} selected</span>
+        <button
+          type="button"
+          class="primary-action-btn"
+          [disabled]="selectedSubjects().length === 0 || isLoading()"
+          (click)="goToChapters()">
+          <span>Next: Pick Chapters</span>
+          <span class="arrow">&rarr;</span>
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Step 3: Pick Chapters -->
+  @if (step() === 3) {
+    <div class="step-body">
+      <div class="step-heading flex-between">
+        <div>
+          <h2>Pick Chapters</h2>
+          <p>{{ selectedSubjects().join(', ') }}</p>
+        </div>
+        <button
+          type="button"
+          class="secondary-action-btn"
+          [disabled]="chapters().length === 0"
+          (click)="toggleAllChapters()">
+          {{ selectedChapters().length === chapters().length ? 'Clear All' : 'Select All' }}
+        </button>
+      </div>
+
+      @if (isLoading()) {
+        <div class="selection-skeleton chapter-skeleton" role="status">
+          @for (item of [1, 2, 3, 4, 5]; track item) {
+            <span></span>
+          }
+        </div>
+      } @else {
+        <div class="chapter-list">
+          @for (chapter of chapters(); track trackByValue($index, chapter)) {
+            <button
+              type="button"
+              class="chapter-row"
+              [class.selected]="selectedChapters().includes(chapter)"
+              [attr.aria-pressed]="selectedChapters().includes(chapter)"
+              (click)="toggleChapter(chapter)">
+              <span class="checkbox">&#10003;</span>
+              <span>{{ chapter }}</span>
+            </button>
+          }
+        </div>
+      }
+
+      <div class="wizard-actions">
+        <button type="button" class="back-action-btn" (click)="previousStep()">&larr; Back</button>
+        <span class="selection-counter">{{ selectedChapters().length }} of {{ chapters().length }} selected</span>
+        <button
+          type="button"
+          class="primary-action-btn"
+          [disabled]="selectedChapters().length === 0 || isLoading()"
+          (click)="goToConfiguration()">
+          <span>Next: Configure</span>
+          <span class="arrow">&rarr;</span>
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Step 4: Configure Test -->
+  @if (step() === 4) {
+    <div class="step-body">
+      <div class="step-heading">
+        <h2>Configure Test</h2>
+        <p>Set question count and time duration for your UCAT test.</p>
+      </div>
+
+      <div class="config-section">
+        <h3>Number of Questions</h3>
+        <div class="count-grid">
+          @for (count of questionCountOptions; track trackByValue($index, count)) {
+            <button
+              type="button"
+              [class.selected]="questionCount() === count"
+              (click)="setQuestionCount(count)">
+              {{ count }} Questions
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="config-section">
+        <div class="duration-heading">
+          <h3>Time Limit</h3>
+          <strong class="duration-badge">{{ duration() }} minutes</strong>
+        </div>
+        <input
+          class="duration-slider"
+          type="range"
+          min="1"
+          max="60"
+          step="1"
+          [value]="duration()"
+          (input)="setDuration($event)">
+        <div class="range-labels"><span>1 min</span><span>60 min</span></div>
+      </div>
+
+      <dl class="test-summary">
+        <div><dt>Test Title</dt><dd><strong>{{ testName() }}</strong></dd></div>
+        <div><dt>Subjects</dt><dd>{{ selectedSubjects().join(', ') }}</dd></div>
+        <div><dt>Chapters</dt><dd>{{ selectedChapters().length }} selected</dd></div>
+        <div><dt>Topics Pool</dt><dd>{{ topicCount() }} topics</dd></div>
+        <div><dt>Questions</dt><dd>{{ questionCount() }}</dd></div>
+        <div><dt>Duration</dt><dd>{{ duration() }} minutes</dd></div>
+      </dl>
+
+      <div class="wizard-actions">
+        <button type="button" class="back-action-btn" (click)="previousStep()">&larr; Back</button>
+        <div></div>
+        <button
+          type="button"
+          class="save-btn"
+          [disabled]="isSaving() || isLoading()"
+          (click)="saveTest()">
+          @if (isSaving()) {
+            <span class="btn-spinner"></span>
+            <span>Saving Test...</span>
+          } @else {
+            <span>💾 Save Custom Test</span>
+          }
+        </button>
+      </div>
+    </div>
+  }
+
+</section>

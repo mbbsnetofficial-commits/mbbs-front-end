@@ -4,6 +4,13 @@ export const ucatRoutes: Routes = [
   {
     path: '',
     loadComponent: () =>
+      import('./components/learning-report/learning-report').then(
+        ({ UcatLearningReport }) => UcatLearningReport
+      )
+  },
+  {
+    path: 'practice',
+    loadComponent: () =>
       import('./components/ucat-practice/ucat-practice').then(
         ({ UcatPractice }) => UcatPractice
       )

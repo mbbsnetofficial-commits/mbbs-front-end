@@ -4,6 +4,8 @@ import { Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
 import {
+  UcatSaveAnswerRequest,
+  UcatSaveAnswerResponse,
   UcatStartTestResponse,
   UcatSubmitTestRequest,
   UcatSubmitTestResponse,
@@ -35,6 +37,16 @@ export class UcatPreviousYearService {
     return this.http.post<UcatStartTestResponse>(
       `${this.baseUrl}/ucat/previous-year-tests/${encodeURIComponent(paperId)}/start`,
       payload
+    );
+  }
+
+  saveAnswer(
+    sessionId: string,
+    data: UcatSaveAnswerRequest
+  ): Observable<UcatSaveAnswerResponse> {
+    return this.http.patch<UcatSaveAnswerResponse>(
+      `${this.baseUrl}/ucat/test/sessions/${encodeURIComponent(sessionId)}`,
+      data
     );
   }
 

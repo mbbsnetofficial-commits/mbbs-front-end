@@ -36,13 +36,65 @@ export interface UcatTopicsRequest {
   chapters: string[];
 }
 
-export interface UcatStartTestRequest {
-  student_id: string;
+export interface UcatCustomTestSaveRequest {
+  title: string;
   subjects: string[];
   chapters: string[];
   topic_ids: (number | string)[];
-  limit: number;
+  questionCount: number;
   duration: number;
+  level?: string;
+}
+
+export interface UcatCustomTestSaveData {
+  id: number | string;
+  custom_test_id: number | string;
+  test_name: string;
+  test_code: string;
+  source: 'custom' | string;
+  type: string;
+  subjects: string[];
+  chapters: string[];
+  total_questions: number;
+  total_marks: number;
+  duration_minutes: number;
+  status: string;
+}
+
+export type UcatCustomTestSaveResponse = UcatApiResponse<UcatCustomTestSaveData>;
+
+export interface UcatCustomTestListItem {
+  id: number | string;
+  custom_test_id: number | string;
+  test_name: string;
+  test_code: string;
+  source: 'custom' | string;
+  type: string;
+  level: string;
+  subjects: string[];
+  chapters: string[];
+  total_questions: number;
+  total_marks: number;
+  duration_minutes: number;
+  status: 'not_started' | 'in_progress' | 'completed' | string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export type UcatCustomTestListResponse = UcatApiResponse<UcatCustomTestListItem[]>;
+
+export type UcatCustomTestDetailResponse = UcatApiResponse<UcatCustomTestListItem>;
+
+export interface UcatStartTestRequest {
+  custom_test_id?: number | string;
+  builtin_test_id?: number | string;
+  platform_test_id?: number | string;
+  test_id?: number | string;
+  subjects?: string[];
+  chapters?: string[];
+  topic_ids?: (number | string)[];
+  limit?: number;
+  duration?: number;
 }
 
 export interface UcatQuestion {
@@ -81,8 +133,21 @@ export interface UcatStartTestResponse {
 
 export interface UcatSubmitAnswer {
   question_id: number | string;
-  selected_option: UcatOption | string;
+  selected_option: UcatOption | string | null;
   time_spent: number;
+}
+
+export interface UcatSaveAnswerRequest {
+  question_id?: number | string;
+  selected_option?: UcatOption | string | null;
+  time_spent?: number;
+  answers?: UcatSubmitAnswer[];
+}
+
+export interface UcatSaveAnswerResponse {
+  success?: boolean;
+  message?: string;
+  data?: any;
 }
 
 export interface UcatSubmitTestRequest {

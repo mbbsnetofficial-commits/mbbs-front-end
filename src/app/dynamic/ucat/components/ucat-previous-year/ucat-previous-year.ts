@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 import {
   UcatActiveSession,
@@ -16,13 +16,13 @@ import {
   UcatQuestion,
   UcatQuestionState,
   UcatResultQuestion,
+  UcatSaveAnswerRequest,
   UcatTestResult
 } from '../../models/ucat.model';
 import { UcatPreviousYearPaper } from '../../models/ucat-previous-year.model';
 import { UcatPreviousYearService } from '../../services/ucat-previous-year.service';
 import { UcatStreakService } from '../../services/ucat-streak.service';
 import { UcatStreakData } from '../../models/ucat-streak.model';
-import { TokenService } from '../../../../auth/services/token.service';
 
 type PreviousYearViewMode = 'papers' | 'config' | 'test' | 'result';
 type ResultFilter = 'all' | 'correct' | 'wrong' | 'skipped';
@@ -47,12 +47,6 @@ export class UcatPreviousYear implements OnInit, OnDestroy {
   // Paper List State
   readonly papers = signal<UcatPreviousYearPaper[]>([]);
   readonly selectedPaper = signal<UcatPreviousYearPaper | null>(null);
-
-  // Test Configuration State
-  readonly questionLimit = signal<number>(30);
-  readonly testDuration = signal<number>(120);
-  readonly limitOptions = [10, 20, 30, 50, 100, 233];
-  readonly durationOptions = [30, 45, 60, 90, 120];
 
   // Loading & Error States
   readonly isLoadingPapers = signal(false);
@@ -105,6 +99,14 @@ export class UcatPreviousYear implements OnInit, OnDestroy {
     this.questionStates().filter((st) => st.selectedOption === null).length
   );
 
+  readonly progressPercentage = computed(() => {
+    const total = this.questionStates().length;
+    if (!total || total <= 0) return 0;
+    const answered = this.answeredCount();
+    const pct = Math.round((answered / total) * 100);
+    return Math.max(0, Math.min(100, isNaN(pct) ? 0 : pct));
+  });
+
   readonly formattedRemainingTime = computed(() => {
     const totalSec = this.remainingSeconds();
     const minutes = Math.floor(totalSec / 60);
@@ -112,12 +114,23 @@ export class UcatPreviousYear implements OnInit, OnDestroy {
     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   });
 
-  readonly filteredReview = computed<UcatResultQuestion[]>(() => {
+  readonly allReviewQuestions = computed<UcatResultQuestion[]>(() => {
     const result = this.testResult();
     if (!result) return [];
+    return (result as any).questions || result.review || [];
+  });
+
+  readonly resultTestTitle = computed<string>(() => {
+    const paper = this.selectedPaper();
+    if (paper?.name) return paper.name.replace(/_/g, ' ');
+    const res = this.testResult();
+    if (res?.test_type) return res.test_type;
+    return 'UCAT Past Paper';
+  });
+
+  readonly filteredReview = computed<UcatResultQuestion[]>(() => {
+    const reviews = this.allReviewQuestions();
     const filter = this.resultFilter();
-    const reviews: UcatResultQuestion[] =
-      (result as any).questions || result.review || [];
 
     if (filter === 'all') return reviews;
     if (filter === 'correct')
@@ -142,12 +155,48 @@ export class UcatPreviousYear implements OnInit, OnDestroy {
   constructor(
     private readonly previousYearService: UcatPreviousYearService,
     private readonly ucatStreakService: UcatStreakService,
-    private readonly tokenService: TokenService
+    private readonly router: Router
   ) {}
 
   ngOnInit(): void {
+    if (this.restoreActiveSession()) {
+      return;
+    }
     this.loadPapers();
     this.loadStreak();
+  }
+
+  private restoreActiveSession(): boolean {
+    try {
+      const raw = sessionStorage.getItem('activeUcatPreviousYearTest');
+      if (!raw) return false;
+      const session: UcatActiveSession = JSON.parse(raw);
+      if (session && session.sessionId && session.questions?.length) {
+        this.activeSession.set(session);
+        this.currentQuestionIndex.set(session.currentQuestionIndex || 0);
+        this.questionStates.set(session.questionStates || []);
+        const durationMins = session.durationMinutes || 120;
+        this.remainingSeconds.set(durationMins * 60);
+        this.view.set('test');
+        this.startMainTimer();
+        this.startQuestionTimer();
+        return true;
+      }
+    } catch {}
+    return false;
+  }
+
+  private persistSessionState(): void {
+    const session = this.activeSession();
+    if (!session) return;
+    try {
+      const updatedSession: UcatActiveSession = {
+        ...session,
+        questionStates: this.questionStates(),
+        currentQuestionIndex: this.currentQuestionIndex()
+      };
+      sessionStorage.setItem('activeUcatPreviousYearTest', JSON.stringify(updatedSession));
+    } catch {}
   }
 
   loadStreak(): void {
@@ -187,31 +236,25 @@ export class UcatPreviousYear implements OnInit, OnDestroy {
   }
 
   selectPaper(paper: UcatPreviousYearPaper): void {
-    this.selectedPaper.set(paper);
-    this.questionLimit.set(Math.min(30, paper.question_count));
-    this.testDuration.set(paper.duration || 120);
-    this.view.set('config');
-  }
-
-  backToPaperList(): void {
-    this.selectedPaper.set(null);
-    this.view.set('papers');
+    this.onStartTest(paper);
   }
 
   // --- Step 2: Start Previous Year Test ---
-  onStartTest(): void {
-    const paper = this.selectedPaper();
+  onStartTest(paperToStart?: UcatPreviousYearPaper): void {
+    if (this.isStartingTest()) return;
+    const paper = paperToStart || this.selectedPaper();
     if (!paper) {
       this.errorMessage.set('Please select a Previous Year Paper to start.');
       return;
     }
 
+    this.selectedPaper.set(paper);
     this.isStartingTest.set(true);
     this.errorMessage.set(null);
 
     const payload = {
-      limit: Number(this.questionLimit()),
-      duration: Number(this.testDuration())
+      limit: paper.question_count,
+      duration: paper.duration
     };
 
     this.previousYearService
@@ -333,14 +376,47 @@ export class UcatPreviousYear implements OnInit, OnDestroy {
     const idx = this.currentQuestionIndex();
     const states = [...this.questionStates()];
     if (states[idx]) {
+      const newOption = states[idx].selectedOption === option ? null : option;
       states[idx] = {
         ...states[idx],
-        selectedOption: states[idx].selectedOption === option ? null : option,
+        selectedOption: newOption,
         visited: true
       };
       this.questionStates.set(states);
+      this.persistSessionState();
+
+      const session = this.activeSession();
+      if (session?.sessionId) {
+        this.autosaveAnswer(
+          session.sessionId,
+          states[idx].questionId,
+          newOption,
+          states[idx].timeSpent
+        );
+      }
     }
     this.startQuestionTimer();
+  }
+
+  private autosaveAnswer(
+    sessionId: string,
+    questionId: number | string,
+    selectedOption: UcatOption | string | null,
+    timeSpent: number
+  ): void {
+    const payload: UcatSaveAnswerRequest = {
+      question_id:
+        typeof questionId === 'string' && !isNaN(Number(questionId))
+          ? Number(questionId)
+          : questionId,
+      selected_option: selectedOption,
+      time_spent: timeSpent
+    };
+
+    this.previousYearService.saveAnswer(sessionId, payload).subscribe({
+      next: () => {},
+      error: () => {}
+    });
   }
 
   jumpToQuestion(index: number): void {
@@ -351,6 +427,7 @@ export class UcatPreviousYear implements OnInit, OnDestroy {
     if (states[index]) {
       states[index] = { ...states[index], visited: true };
       this.questionStates.set(states);
+      this.persistSessionState();
     }
 
     this.currentQuestionIndex.set(index);
@@ -372,6 +449,13 @@ export class UcatPreviousYear implements OnInit, OnDestroy {
     }
   }
 
+  skipQuestion(): void {
+    const current = this.currentQuestionIndex();
+    if (current < this.questionStates().length - 1) {
+      this.jumpToQuestion(current + 1);
+    }
+  }
+
   openReviewModal(): void {
     this.saveCurrentQuestionTime();
     this.showReviewModal.set(true);
@@ -383,6 +467,7 @@ export class UcatPreviousYear implements OnInit, OnDestroy {
 
   // --- Step 4: Submit & Result Fetching ---
   onSubmitTest(): void {
+    if (this.isSubmittingTest()) return;
     this.saveCurrentQuestionTime();
     this.clearTimers();
     this.showReviewModal.set(false);
@@ -449,6 +534,9 @@ export class UcatPreviousYear implements OnInit, OnDestroy {
         if (resultObj) {
           this.testResult.set(resultObj);
           this.view.set('result');
+          try {
+            sessionStorage.removeItem('activeUcatPreviousYearTest');
+          } catch {}
         } else {
           this.errorMessage.set('Failed to render test result.');
         }
@@ -472,7 +560,44 @@ export class UcatPreviousYear implements OnInit, OnDestroy {
     this.view.set('papers');
   }
 
+  backToLearningReport(): void {
+    this.clearTimers();
+    this.view.set('papers');
+    void this.router.navigate(['/dynamic/ucat']);
+  }
+
   setResultFilter(filter: ResultFilter): void {
     this.resultFilter.set(filter);
+  }
+
+  formatSeconds(seconds?: number): string {
+    if (!seconds && seconds !== 0) return '0s';
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    if (mins === 0) return `${secs}s`;
+    return `${mins}m ${secs}s`;
+  }
+
+  reviewOptionClass(item: UcatResultQuestion, key: UcatOption): { [key: string]: boolean } {
+    const isCorrect = item.correct_answer === key;
+    const isUserChoice = (item.selected || item.selected_option) === key;
+    const isWrong = isUserChoice && !(item.isCorrect || item.is_correct);
+    return {
+      'correct-option': isCorrect,
+      'wrong-option': isWrong
+    };
+  }
+
+  getReviewOptionText(review: UcatResultQuestion, optionKey: UcatOption): string | number {
+    switch (optionKey) {
+      case 'A':
+        return review.option_a;
+      case 'B':
+        return review.option_b;
+      case 'C':
+        return review.option_c;
+      case 'D':
+        return review.option_d;
+    }
   }
 }

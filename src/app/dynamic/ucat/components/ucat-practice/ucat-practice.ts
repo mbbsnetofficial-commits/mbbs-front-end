@@ -7,6 +7,7 @@ import {
   signal
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 
 import {
   UcatActiveSession,
@@ -16,6 +17,7 @@ import {
   UcatQuestion,
   UcatQuestionState,
   UcatResultQuestion,
+  UcatSaveAnswerRequest,
   UcatTestMode,
   UcatTestResult,
   UcatTopic
@@ -23,8 +25,6 @@ import {
 import { UcatService } from '../../services/ucat.service';
 import { UcatStreakService } from '../../services/ucat-streak.service';
 import { UcatStreakData } from '../../models/ucat-streak.model';
-import { TokenService } from '../../../../auth/services/token.service';
-import { UcatPreviousYear } from '../ucat-previous-year/ucat-previous-year';
 
 type UcatViewMode = 'wizard' | 'test' | 'result' | 'history';
 type WizardStep = 1 | 2 | 3 | 4;
@@ -33,7 +33,7 @@ type ResultFilter = 'all' | 'correct' | 'wrong' | 'skipped';
 @Component({
   selector: 'app-ucat-practice',
   standalone: true,
-  imports: [CommonModule, UcatPreviousYear],
+  imports: [CommonModule],
   templateUrl: './ucat-practice.html',
   styleUrl: './ucat-practice.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -113,6 +113,14 @@ export class UcatPractice implements OnInit, OnDestroy {
     this.questionStates().filter((st) => st.selectedOption === null).length
   );
 
+  readonly progressPercentage = computed(() => {
+    const total = this.questionStates().length;
+    if (!total || total <= 0) return 0;
+    const answered = this.answeredCount();
+    const pct = Math.round((answered / total) * 100);
+    return Math.max(0, Math.min(100, isNaN(pct) ? 0 : pct));
+  });
+
   readonly formattedRemainingTime = computed(() => {
     const totalSec = this.remainingSeconds();
     const minutes = Math.floor(totalSec / 60);
@@ -120,11 +128,25 @@ export class UcatPractice implements OnInit, OnDestroy {
     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   });
 
-  readonly filteredReview = computed<UcatResultQuestion[]>(() => {
+  readonly allReviewQuestions = computed<UcatResultQuestion[]>(() => {
     const result = this.testResult();
     if (!result) return [];
+    return (result as any).questions || result.review || [];
+  });
+
+  readonly resultTestTitle = computed<string>(() => {
+    const session = this.activeSession();
+    if (session?.test_type) return session.test_type;
+    const res = this.testResult();
+    if (res?.test_type) return res.test_type;
+    const subjects = this.selectedSubjects();
+    if (subjects.length > 0) return subjects.join(', ') + ' Test';
+    return this.testMode() === 'QUICK_TEST' ? 'Quick Test' : 'Custom Practice Test';
+  });
+
+  readonly filteredReview = computed<UcatResultQuestion[]>(() => {
+    const reviews = this.allReviewQuestions();
     const filter = this.resultFilter();
-    const reviews: UcatResultQuestion[] = (result as any).questions || result.review || [];
 
     if (filter === 'all') return reviews;
     if (filter === 'correct') return reviews.filter((r) => r.isCorrect || r.is_correct);
@@ -150,12 +172,48 @@ export class UcatPractice implements OnInit, OnDestroy {
   constructor(
     private readonly ucatService: UcatService,
     private readonly ucatStreakService: UcatStreakService,
-    private readonly tokenService: TokenService
+    private readonly router: Router
   ) {}
 
   ngOnInit(): void {
+    if (this.restoreActiveSession()) {
+      return;
+    }
     this.loadSubjects();
     this.loadStreak();
+  }
+
+  private restoreActiveSession(): boolean {
+    try {
+      const raw = sessionStorage.getItem('activeUcatPracticeTest');
+      if (!raw) return false;
+      const session: UcatActiveSession = JSON.parse(raw);
+      if (session && session.sessionId && session.questions?.length) {
+        this.activeSession.set(session);
+        this.currentQuestionIndex.set(session.currentQuestionIndex || 0);
+        this.questionStates.set(session.questionStates || []);
+        const durationMins = session.durationMinutes || 15;
+        this.remainingSeconds.set(durationMins * 60);
+        this.view.set('test');
+        this.startMainTimer();
+        this.startQuestionTimer();
+        return true;
+      }
+    } catch {}
+    return false;
+  }
+
+  private persistSessionState(): void {
+    const session = this.activeSession();
+    if (!session) return;
+    try {
+      const updatedSession: UcatActiveSession = {
+        ...session,
+        questionStates: this.questionStates(),
+        currentQuestionIndex: this.currentQuestionIndex()
+      };
+      sessionStorage.setItem('activeUcatPracticeTest', JSON.stringify(updatedSession));
+    } catch {}
   }
 
   loadStreak(): void {
@@ -359,28 +417,16 @@ export class UcatPractice implements OnInit, OnDestroy {
     this.wizardStep.set(step);
   }
 
-  // --- Step 4: Start Test ---
-  private resolveStudentId(): string | null {
-    // Use UcatService which decodes JWT and reads from storage
-    return this.ucatService.getStudentIdFromToken()
-      ?? this.tokenService.getStudentId();
-  }
-
   onStartTest(): void {
-    const studentId = this.resolveStudentId();
-
-    if (!studentId) {
-      this.errorMessage.set('Student session not found. Please log out and log in again.');
+    if (this.selectedSubjects().length === 0) {
+      this.errorMessage.set('Please select at least one subject to start the test.');
       return;
     }
 
-    const subjects = this.selectedSubjects().length > 0
-      ? this.selectedSubjects()
-      : ['DECISION_MAKING', 'VERBAL_REASONING'];
-
-    const chapters = this.selectedChapters().length > 0
-      ? this.selectedChapters()
-      : (this.chapters().length > 0 ? this.chapters().map(c => c.chapter) : ['Reading Comprehension & Inference']);
+    if (this.selectedChapters().length === 0) {
+      this.errorMessage.set('Please select at least one chapter to start the test.');
+      return;
+    }
 
     const rawTopicIds = this.testMode() === 'QUICK_TEST' ? [] : this.selectedTopicIds();
     const topicIds = rawTopicIds.map((id) =>
@@ -391,15 +437,12 @@ export class UcatPractice implements OnInit, OnDestroy {
     this.errorMessage.set(null);
 
     const payload = {
-      student_id: studentId,
-      subjects,
-      chapters,
+      subjects: this.selectedSubjects(),
+      chapters: this.selectedChapters(),
       topic_ids: topicIds,
       limit: Number(this.questionLimit() || 20),
       duration: Number(this.testDuration() || 15)
     };
-
-    console.log('[UCAT] Start test payload:', payload);
 
     this.ucatService.startTest(payload).subscribe({
       next: (res) => {
@@ -495,14 +538,44 @@ export class UcatPractice implements OnInit, OnDestroy {
     const idx = this.currentQuestionIndex();
     const states = [...this.questionStates()];
     if (states[idx]) {
+      const newOption = states[idx].selectedOption === option ? null : option;
       states[idx] = {
         ...states[idx],
-        selectedOption: states[idx].selectedOption === option ? null : option,
+        selectedOption: newOption,
         visited: true
       };
       this.questionStates.set(states);
+      this.persistSessionState();
+
+      const session = this.activeSession();
+      if (session?.sessionId) {
+        this.autosaveAnswer(
+          session.sessionId,
+          states[idx].questionId,
+          newOption,
+          states[idx].timeSpent
+        );
+      }
     }
     this.startQuestionTimer();
+  }
+
+  private autosaveAnswer(
+    sessionId: string,
+    questionId: number | string,
+    selectedOption: UcatOption | string | null,
+    timeSpent: number
+  ): void {
+    const payload: UcatSaveAnswerRequest = {
+      question_id: typeof questionId === 'string' && !isNaN(Number(questionId)) ? Number(questionId) : questionId,
+      selected_option: selectedOption,
+      time_spent: timeSpent
+    };
+
+    this.ucatService.saveAnswer(sessionId, payload).subscribe({
+      next: () => {},
+      error: () => {}
+    });
   }
 
   jumpToQuestion(index: number): void {
@@ -513,6 +586,7 @@ export class UcatPractice implements OnInit, OnDestroy {
     if (states[index]) {
       states[index] = { ...states[index], visited: true };
       this.questionStates.set(states);
+      this.persistSessionState();
     }
 
     this.currentQuestionIndex.set(index);
@@ -534,6 +608,13 @@ export class UcatPractice implements OnInit, OnDestroy {
     }
   }
 
+  skipQuestion(): void {
+    const current = this.currentQuestionIndex();
+    if (current < this.questionStates().length - 1) {
+      this.jumpToQuestion(current + 1);
+    }
+  }
+
   openReviewModal(): void {
     this.saveCurrentQuestionTime();
     this.showReviewModal.set(true);
@@ -544,6 +625,7 @@ export class UcatPractice implements OnInit, OnDestroy {
   }
 
   onSubmitTest(): void {
+    if (this.isSubmittingTest()) return;
     this.saveCurrentQuestionTime();
     this.clearTimers();
     this.showReviewModal.set(false);
@@ -604,6 +686,9 @@ export class UcatPractice implements OnInit, OnDestroy {
 
         this.testResult.set(resultObj);
         this.view.set('result');
+        try {
+          sessionStorage.removeItem('activeUcatPracticeTest');
+        } catch {}
       },
       error: () => {
         this.isLoadingResult.set(false);
@@ -712,6 +797,34 @@ export class UcatPractice implements OnInit, OnDestroy {
     this.testResult.set(null);
     this.errorMessage.set(null);
     this.loadSubjects();
+  }
+
+  setResultFilter(filter: ResultFilter): void {
+    this.resultFilter.set(filter);
+  }
+
+  backToLearningReport(): void {
+    this.clearTimers();
+    this.view.set('wizard');
+    void this.router.navigate(['/dynamic/ucat']);
+  }
+
+  formatSeconds(seconds?: number): string {
+    if (!seconds && seconds !== 0) return '0s';
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    if (mins === 0) return `${secs}s`;
+    return `${mins}m ${secs}s`;
+  }
+
+  reviewOptionClass(item: UcatResultQuestion, key: UcatOption): { [key: string]: boolean } {
+    const isCorrect = item.correct_answer === key;
+    const isUserChoice = (item.selected || item.selected_option) === key;
+    const isWrong = isUserChoice && !(item.isCorrect || item.is_correct);
+    return {
+      'correct-option': isCorrect,
+      'wrong-option': isWrong
+    };
   }
 
   getOptionText(question: UcatQuestion, optionKey: UcatOption): string | number {

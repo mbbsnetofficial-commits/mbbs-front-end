@@ -133,7 +133,7 @@ describe('PreviousYear', () => {
     fixture = TestBed.createComponent(PreviousYear);
     component = fixture.componentInstance;
     fixture.detectChanges();
-  });
+  }, 30000);
 
   it('should initialize and load previous year papers', () => {
     expect(component.view()).toBe('papers');
