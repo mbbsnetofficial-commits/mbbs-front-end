@@ -10,8 +10,8 @@ import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } fro
 import { filter, Subscription } from 'rxjs';
 
 import { Icon, IconName } from '../../shared/ui/icon/icon';
-import { AuthService } from '../../core/serivce/auth.service';
-import { TokenService } from '../../core/serivce/token.service';
+import { AuthService } from '../../auth/services/auth.service';
+import { TokenService } from '../../auth/services/token.service';
 
 import { QuickTest } from '../../dynamic/neet/components/quick-test/quick-test';
 import { NeetModalService } from '../../dynamic/neet/services/neet-modal.service';

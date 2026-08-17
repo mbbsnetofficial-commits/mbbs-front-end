@@ -20,10 +20,5 @@ export const API = {
     BUILTIN: '/neet/tests/builtin',
     PAPERS: '/previous-year-tests',
     SUBMIT: '/previous-year-tests/submit'
-  },
-
-  CHAT: {
-    SESSIONS: '/chat-sessions',
-    ZONE_INSIGHTS: '/test-subject-zone-insights'
   }
 };

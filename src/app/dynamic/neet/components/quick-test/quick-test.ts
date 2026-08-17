@@ -11,12 +11,9 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { Observable, map, of, switchMap } from 'rxjs';
 
 import {
   ActiveTestSession,
-  ChatMessage,
-  ChatSession,
   CustomTestSaveRequest,
   StartTestResponse,
   SubmitTestResponse,
@@ -25,8 +22,7 @@ import {
   TestQuestionState,
   TestResult,
   TestResultQuestion,
-  TestTopic,
-  ZoneInsight
+  TestTopic
 } from '../../models/quick-test.model';
 import { NeetModalService } from '../../services/neet-modal.service';
 import { QuickTestService } from '../../services/quick-test.service';
@@ -34,7 +30,6 @@ import { QuickTestService } from '../../services/quick-test.service';
 type QuickTestView = 'wizard' | 'test' | 'result';
 type WizardStep = 1 | 2 | 3 | 4;
 type ResultFilter = 'all' | 'correct' | 'wrong' | 'skipped';
-type AiPanel = 'none' | 'chat' | 'insights';
 
 @Component({
   selector: 'app-quick-test',
@@ -84,16 +79,6 @@ export class QuickTest implements OnInit, OnDestroy {
   readonly testResult = signal<TestResult | null>(null);
   readonly resultFilter = signal<ResultFilter>('all');
   readonly isLoadingResult = signal(false);
-  readonly aiPanel = signal<AiPanel>('none');
-  readonly chatSession = signal<ChatSession | null>(null);
-  readonly chatMessages = signal<ChatMessage[]>([]);
-  readonly chatInput = signal('');
-  readonly isLoadingChat = signal(false);
-  readonly isSendingMessage = signal(false);
-  readonly chatError = signal<string | null>(null);
-  readonly zoneInsight = signal<ZoneInsight | null>(null);
-  readonly isLoadingInsights = signal(false);
-  readonly insightsError = signal<string | null>(null);
 
   readonly questionCountOptions = [15, 20, 25, 30, 35, 40];
   readonly optionKeys: TestOption[] = ['A', 'B', 'C', 'D'];
@@ -152,7 +137,6 @@ export class QuickTest implements OnInit, OnDestroy {
 
   readonly trackByValue = (_index: number, value: string | number): string | number => value;
   readonly trackByQuestion = (_index: number, question: TestQuestion): number => question.id;
-  readonly trackByMessage = (_index: number, message: ChatMessage): string => message._id;
   readonly trackByReview = (_index: number, question: TestResultQuestion): number => question.id;
 
   ngOnInit(): void {
@@ -539,116 +523,6 @@ export class QuickTest implements OnInit, OnDestroy {
     return `${minutes}m ${seconds}s`;
   }
 
-  openChat(questionId?: number): void {
-    const result = this.testResult();
-    if (!result || result.wrong === 0) {
-      return;
-    }
-
-    this.aiPanel.set('chat');
-    this.chatError.set(null);
-    this.chatInput.set(
-      questionId
-        ? `Explain why my answer to question ${questionId} was wrong.`
-        : 'Explain all my wrong answers.'
-    );
-
-    if (this.chatSession()) {
-      return;
-    }
-
-    this.isLoadingChat.set(true);
-    this.ensureChatSession(result.sessionId).subscribe({
-      next: (chatSession) => {
-        this.chatSession.set(chatSession);
-        this.loadChatMessages(chatSession._id);
-      },
-      error: (error) => {
-        this.chatError.set(
-          this.getErrorMessage(error, 'Unable to open the Gemini review chat.')
-        );
-        this.isLoadingChat.set(false);
-      }
-    });
-  }
-
-  updateChatInput(event: Event): void {
-    this.chatInput.set((event.target as HTMLTextAreaElement).value);
-  }
-
-  sendMessage(): void {
-    const chatSession = this.chatSession();
-    const message = this.chatInput().trim();
-    if (!chatSession || !message || this.isSendingMessage()) {
-      return;
-    }
-
-    this.isSendingMessage.set(true);
-    this.chatError.set(null);
-
-    this.quickTestService.sendChatMessage(chatSession._id, message).subscribe({
-      next: (response) => {
-        this.chatMessages.update((messages) => [
-          ...messages,
-          response.data.userMessage,
-          response.data.assistantMessage
-        ]);
-        this.chatInput.set('');
-        this.isSendingMessage.set(false);
-      },
-      error: (error) => {
-        this.chatError.set(
-          this.getErrorMessage(error, 'Gemini could not answer right now.')
-        );
-        this.isSendingMessage.set(false);
-      }
-    });
-  }
-
-  openInsights(): void {
-    const result = this.testResult();
-    if (!result || result.wrong === 0 || this.isLoadingInsights()) {
-      return;
-    }
-
-    this.aiPanel.set('insights');
-    this.insightsError.set(null);
-
-    if (this.zoneInsight()) {
-      return;
-    }
-
-    this.isLoadingInsights.set(true);
-    this.quickTestService.getZoneInsights(result.sessionId).subscribe({
-      next: (response) => {
-        this.zoneInsight.set(response.data);
-        this.isLoadingInsights.set(false);
-      },
-      error: (error) => {
-        if (error?.status === 404) {
-          this.generateAndLoadInsights(result.sessionId);
-          return;
-        }
-
-        this.insightsError.set(
-          this.getErrorMessage(error, 'Unable to load AI insights.')
-        );
-        this.isLoadingInsights.set(false);
-      }
-    });
-  }
-
-  retryInsights(): void {
-    this.zoneInsight.set(null);
-    this.openInsights();
-  }
-
-  closeAiPanel(): void {
-    this.aiPanel.set('none');
-    this.chatError.set(null);
-    this.insightsError.set(null);
-  }
-
   questionStatusClass(index: number): string {
     const state = this.questionStates()[index];
     if (!state) {
@@ -670,10 +544,6 @@ export class QuickTest implements OnInit, OnDestroy {
     const key = `option_${option.toLowerCase()}` as
       'option_a' | 'option_b' | 'option_c' | 'option_d';
     return String(question[key]);
-  }
-
-  insightSubjects(data: Record<string, string[]>): string[] {
-    return Object.keys(data);
   }
 
   private createSession(response: StartTestResponse): void {
@@ -706,63 +576,6 @@ export class QuickTest implements OnInit, OnDestroy {
     this.view.set('test');
     this.persistSession();
     this.startTimer();
-  }
-
-  private ensureChatSession(testSessionId: string): Observable<ChatSession> {
-    return this.quickTestService.listChatSessions(1, 100).pipe(
-      switchMap((response) => {
-        const existing = response.data.find(
-          (chat) =>
-            chat.test_session_id === testSessionId &&
-            chat.is_active
-        );
-
-        if (existing) {
-          return of(existing);
-        }
-
-        return this.quickTestService.createChatSession({
-          testSessionId,
-          title: 'My NEET Test Review'
-        }).pipe(map((created) => created.data));
-      })
-    );
-  }
-
-  private loadChatMessages(chatSessionId: string): void {
-    this.quickTestService.getChatMessages(chatSessionId, 1, 100).subscribe({
-      next: (response) => {
-        this.chatMessages.set(response.data);
-        this.isLoadingChat.set(false);
-      },
-      error: (error) => {
-        this.chatError.set(
-          this.getErrorMessage(error, 'Unable to load previous messages.')
-        );
-        this.isLoadingChat.set(false);
-      }
-    });
-  }
-
-  private generateAndLoadInsights(testSessionId: string): void {
-    this.ensureChatSession(testSessionId).pipe(
-      switchMap((chatSession) => {
-        this.chatSession.set(chatSession);
-        return this.quickTestService.generateInsights(chatSession._id);
-      }),
-      switchMap(() => this.quickTestService.getZoneInsights(testSessionId))
-    ).subscribe({
-      next: (response) => {
-        this.zoneInsight.set(response.data);
-        this.isLoadingInsights.set(false);
-      },
-      error: (error) => {
-        this.insightsError.set(
-          this.getErrorMessage(error, 'Unable to generate AI insights.')
-        );
-        this.isLoadingInsights.set(false);
-      }
-    });
   }
 
   private restoreSession(): boolean {

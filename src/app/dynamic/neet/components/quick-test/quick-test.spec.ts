@@ -16,12 +16,6 @@ describe('QuickTest', () => {
     startTest: ReturnType<typeof vi.fn>;
     submitTest: ReturnType<typeof vi.fn>;
     getTestResult: ReturnType<typeof vi.fn>;
-    listChatSessions: ReturnType<typeof vi.fn>;
-    createChatSession: ReturnType<typeof vi.fn>;
-    getChatMessages: ReturnType<typeof vi.fn>;
-    sendChatMessage: ReturnType<typeof vi.fn>;
-    generateInsights: ReturnType<typeof vi.fn>;
-    getZoneInsights: ReturnType<typeof vi.fn>;
   };
 
   beforeEach(async () => {
@@ -140,110 +134,6 @@ describe('QuickTest', () => {
               is_skipped: false
             }
           ]
-        }
-      })),
-      listChatSessions: vi.fn().mockReturnValue(of({
-        status: 'success',
-        page: 1,
-        limit: 100,
-        total: 1,
-        totalPages: 1,
-        data: [{
-          _id: 'chat-1',
-          user_id: 'user-1',
-          test_session_id: 'test-session',
-          title: 'My NEET Test Review',
-          wrong_question_ids: [1002],
-          is_active: true,
-          last_message_at: '2026-07-25T09:13:00.000Z'
-        }]
-      })),
-      createChatSession: vi.fn().mockReturnValue(of({
-        status: 'success',
-        data: {
-          _id: 'chat-created',
-          user_id: 'user-1',
-          test_session_id: 'test-session',
-          title: 'My NEET Test Review',
-          wrong_question_ids: [1002],
-          is_active: true,
-          last_message_at: '2026-07-25T09:13:00.000Z'
-        }
-      })),
-      getChatMessages: vi.fn().mockReturnValue(of({
-        status: 'success',
-        page: 1,
-        limit: 100,
-        total: 0,
-        totalPages: 1,
-        data: []
-      })),
-      sendChatMessage: vi.fn().mockReturnValue(of({
-        status: 'success',
-        data: {
-          userMessage: {
-            _id: 'msg-1',
-            chat_session_id: 'chat-1',
-            user_id: 'user-1',
-            role: 'user',
-            content: 'Explain why my answer was wrong',
-            model: null,
-            createdAt: '2026-07-25T09:14:00.000Z'
-          },
-          assistantMessage: {
-            _id: 'msg-2',
-            chat_session_id: 'chat-1',
-            user_id: 'user-1',
-            role: 'assistant',
-            content: 'Option A is correct because...',
-            model: 'gemini-1.5-flash',
-            createdAt: '2026-07-25T09:14:02.000Z'
-          }
-        }
-      })),
-      generateInsights: vi.fn().mockReturnValue(of({
-        status: 'success',
-        message: 'Insights generated',
-        data: {
-          testSessionId: 'test-session',
-          chatSessionId: 'chat-1',
-          insight: {
-            _id: 'insight-1',
-            student_id: 'student-1',
-            test_session_id: 'test-session',
-            accuracy: 50,
-            focus_zone: { Botany: ['Atoms'] },
-            repeated_mistake: {},
-            checkpoints: ['Revise formula sheet'],
-            g_phrase: 'Solid effort, keep revising weak topics.',
-            total_mark: 3,
-            time_spend: {
-              total_time_spent: 60,
-              correct_time_spent: 30,
-              incorrect_time_spent: 30,
-              skipped_time_spent: 0
-            }
-          }
-        }
-      })),
-      getZoneInsights: vi.fn().mockReturnValue(of({
-        status: 'success',
-        data: {
-          _id: 'insight-1',
-          student_id: 'student-1',
-          test_session_id: 'test-session',
-          accuracy: 50,
-          focus_zone: { Botany: ['Atoms'] },
-          repeated_mistake: {},
-          checkpoints: ['Revise formula sheet'],
-          g_phrase: 'Solid effort, keep revising weak topics.',
-          total_mark: 3,
-          time_spend: {
-            total_time_spent: 60,
-            correct_time_spent: 30,
-            incorrect_time_spent: 30,
-            skipped_time_spent: 0
-          }
         }
       }))
     };

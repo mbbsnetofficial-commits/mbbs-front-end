@@ -172,55 +172,9 @@ body .insights-modal-backdrop {
   background: rgba(16, 17, 20, 0.55) !important;
   backdrop-filter: blur(5px);
 }
-body .chat-modal-card,
-body .insights-modal-card {
-  border-color: var(--line) !important;
-  border-radius: 22px !important;
-  background: var(--surface) !important;
-  box-shadow: var(--shadow-md) !important;
-}
-body .chat-modal-card .chat-header,
-body .insights-modal-card .modal-header {
-  border-color: var(--line) !important;
-  background: var(--dark) !important;
-  color: #fff !important;
-}
-body .chat-modal-card .btn-send,
-body .insights-modal-card .btn-primary,
-body .quick-test-shell .gemini-button,
-body .quick-test-shell .insights-button,
-body .previous-year-page .gemini-button,
-body .previous-year-page .insights-button {
-  border: 0 !important;
-  border-radius: 999px !important;
-  color: #fff !important;
-  background: var(--brand) !important;
-}
-body .quick-test-shell .ask-question-button,
-body .previous-year-page .ask-question-button,
-body .chat-modal-card .prompt-chip {
-  border-color: #dce7ff !important;
-  border-radius: 999px !important;
-  color: var(--brand-deep) !important;
-  background: var(--brand-soft) !important;
-}
-body .quick-test-shell .ai-panel,
-body .previous-year-page .ai-panel,
-body .insights-modal-card .section-card,
-body .insights-modal-card .focus-topics-card,
-body .insights-modal-card .summary-banner-card {
-  border-color: var(--line) !important;
-  border-radius: 17px !important;
-  background: var(--surface) !important;
-  box-shadow: none !important;
-}
-
 body .quick-test-shell .modal-card,
-body .quick-test-shell .chat-panel,
 body .previous-year-page .modal-card,
-body .previous-year-page .chat-panel,
-body .ucat-container .modal-content,
-body .ucat-container .ai-modal {
+body .ucat-container .modal-content {
   border-color: var(--line) !important;
   border-radius: 22px !important;
   background: var(--surface) !important;

@@ -13,7 +13,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 
-import { TokenService } from '../../core/serivce/token.service';
+import { TokenService } from '../../auth/services/token.service';
 import {
   ChatMessageItem,
   CommunityConversationType,

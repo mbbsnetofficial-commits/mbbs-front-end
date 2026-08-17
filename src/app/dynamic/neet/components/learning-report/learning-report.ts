@@ -10,7 +10,8 @@ import {
   computed,
   effect,
   inject,
-  signal
+  signal,
+  untracked
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -92,7 +93,7 @@ export class LearningReport implements OnInit, AfterViewInit, OnDestroy {
   readonly pageSize = signal(10);
   readonly totalPages = signal(1);
   readonly totalCount = signal(0);
-  readonly hasMore = signal(true);
+  readonly hasMore = signal(false);
 
   readonly sortField = signal<'date' | 'score' | 'progress' | 'title'>('date');
   readonly sortDirection = signal<'asc' | 'desc'>('desc');
@@ -132,7 +133,10 @@ export class LearningReport implements OnInit, AfterViewInit, OnDestroy {
     effect(() => {
       const payload = this.neetModalService.newlySavedTest();
       if (payload) {
-        this.loadReport(false);
+        untracked(() => {
+          this.neetModalService.newlySavedTest.set(null);
+          this.loadReport(false);
+        });
       }
     });
   }
@@ -165,14 +169,15 @@ export class LearningReport implements OnInit, AfterViewInit, OnDestroy {
           entry?.isIntersecting &&
           this.hasMore() &&
           !this.isLoading() &&
-          !this.isLoadingMore()
+          !this.isLoadingMore() &&
+          this.courses().length > 0
         ) {
           this.loadMore();
         }
       },
       {
         root: null,
-        rootMargin: '0px 0px 400px 0px',
+        rootMargin: '0px 0px 200px 0px',
         threshold: 0
       }
     );
@@ -221,7 +226,7 @@ export class LearningReport implements OnInit, AfterViewInit, OnDestroy {
       this.isLoading.set(true);
       this.errorMessage.set(null);
       this.currentPage.set(1);
-      this.hasMore.set(true);
+      this.hasMore.set(false);
     }
 
     const targetPage = isAppend ? this.currentPage() + 1 : 1;
@@ -263,13 +268,11 @@ export class LearningReport implements OnInit, AfterViewInit, OnDestroy {
         this.totalCount.set(total);
         const hasNext = pagination
           ? targetPage < totalP
-          : rawItems.length >= this.pageSize();
+          : rawItems.length >= this.pageSize() && rawItems.length > 0;
         this.hasMore.set(hasNext);
 
         this.isLoading.set(false);
         this.isLoadingMore.set(false);
-
-        setTimeout(() => this.setupIntersectionObserver(), 0);
       },
       error: (error) => {
         if (!isAppend) {

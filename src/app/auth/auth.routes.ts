@@ -9,16 +9,16 @@ export const authRoutes: Routes = [
   {
     path: 'login',
     loadComponent: () =>
-      import('./login/login').then(({ Login }) => Login),
+      import('./components/login/login').then(({ Login }) => Login),
   },
   {
     path: 'register',
     loadComponent: () =>
-      import('./register/register').then(({ Register }) => Register),
+      import('./components/register/register').then(({ Register }) => Register),
   },
   {
     path: 'otp',
     loadComponent: () =>
-      import('./otp/otp').then(({ Otp }) => Otp),
+      import('./components/otp/otp').then(({ Otp }) => Otp),
   },
 ];

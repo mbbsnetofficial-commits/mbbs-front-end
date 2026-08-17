@@ -4,15 +4,19 @@ export const ucatRoutes: Routes = [
   {
     path: '',
     loadComponent: () =>
-      import('./pages/ucat-practice/ucat-practice').then(
+      import('./components/ucat-practice/ucat-practice').then(
         ({ UcatPractice }) => UcatPractice
       )
   },
   {
     path: 'previous-year',
     loadComponent: () =>
-      import('./pages/ucat-previous-year/ucat-previous-year').then(
+      import('./components/ucat-previous-year/ucat-previous-year').then(
         ({ UcatPreviousYear }) => UcatPreviousYear
       )
+  },
+  {
+    path: 'previous-year-tests',
+    redirectTo: 'previous-year'
   }
 ];

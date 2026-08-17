@@ -4,14 +4,8 @@ import { Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment';
 import { API } from '../constants/api.constants';
 import {
-  ChatMessagesResponse,
-  ChatSessionResponse,
-  ChatSessionsResponse,
-  CreateChatSessionRequest,
   CustomTestSaveRequest,
   CustomTestSaveResponse,
-  GenerateInsightsResponse,
-  SendChatMessageResponse,
   StartTestRequest,
   StartTestResponse,
   SubmitTestRequest,
@@ -21,8 +15,7 @@ import {
   TestResultResponse,
   TestSubjectsResponse,
   TestTopicsRequest,
-  TestTopicsResponse,
-  ZoneInsightResponse
+  TestTopicsResponse
 } from '../models/quick-test.model';
 
 @Injectable({
@@ -77,47 +70,6 @@ export class QuickTestService {
   getTestResult(sessionId: string) {
     return this.http.get<TestResultResponse>(
       `${this.baseUrl}${API.TEST.SESSIONS}/${encodeURIComponent(sessionId)}/result`
-    );
-  }
-
-  listChatSessions(page = 1, limit = 100) {
-    return this.http.get<ChatSessionsResponse>(
-      this.baseUrl + API.CHAT.SESSIONS,
-      { params: { page, limit } }
-    );
-  }
-
-  createChatSession(data: CreateChatSessionRequest) {
-    return this.http.post<ChatSessionResponse>(
-      this.baseUrl + API.CHAT.SESSIONS,
-      data
-    );
-  }
-
-  getChatMessages(chatSessionId: string, page = 1, limit = 100) {
-    return this.http.get<ChatMessagesResponse>(
-      `${this.baseUrl}${API.CHAT.SESSIONS}/${encodeURIComponent(chatSessionId)}/messages`,
-      { params: { page, limit } }
-    );
-  }
-
-  sendChatMessage(chatSessionId: string, message: string) {
-    return this.http.post<SendChatMessageResponse>(
-      `${this.baseUrl}${API.CHAT.SESSIONS}/${encodeURIComponent(chatSessionId)}/messages`,
-      { message }
-    );
-  }
-
-  generateInsights(chatSessionId: string) {
-    return this.http.post<GenerateInsightsResponse>(
-      `${this.baseUrl}${API.CHAT.SESSIONS}/${encodeURIComponent(chatSessionId)}/insights`,
-      {}
-    );
-  }
-
-  getZoneInsights(testSessionId: string) {
-    return this.http.get<ZoneInsightResponse>(
-      `${this.baseUrl}${API.CHAT.ZONE_INSIGHTS}/${encodeURIComponent(testSessionId)}`
     );
   }
 }
