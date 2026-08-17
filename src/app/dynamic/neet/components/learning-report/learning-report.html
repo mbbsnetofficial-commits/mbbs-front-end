@@ -138,7 +138,7 @@
     }
 
     <!-- Table -->
-    <div class="table-container" (scroll)="onTableContainerScroll($event)">
+    <div class="table-container">
       <table class="report-table">
         <thead>
           <tr>
@@ -334,15 +334,19 @@
                       }
                     </button>
                   } @else {
-                    <span class="completed-label">Completed</span>
+                    <button
+                      type="button"
+                      class="retake-test-btn"
+                      [disabled]="startingTestId() !== null"
+                      (click)="onStartTest(course, $event)"
+                    >
+                      @if (startingTestId() === course.id) {
+                        <span>Starting...</span>
+                      } @else {
+                        <span>Retake Test</span>
+                      }
+                    </button>
                   }
-                </td>
-              </tr>
-            }
-            @if (isLoadingMore()) {
-              <tr>
-                <td colspan="9" style="padding: 12px 16px; text-align: center; color: #64748b; font-size: 13px; background: #f8fafc;">
-                  Loading more records...
                 </td>
               </tr>
             }
@@ -350,6 +354,15 @@
         </tbody>
       </table>
     </div>
+
+    <!-- Infinite Scroll Sentinel & Loading Indicator -->
+    @if (isLoadingMore()) {
+      <div class="scroll-loading-indicator" role="status" aria-live="polite">
+        <div class="loading-spinner"></div>
+        <span>Loading more tests...</span>
+      </div>
+    }
+    <div #paginationSentinel id="pagination-sentinel" class="pagination-sentinel" aria-hidden="true"></div>
   </section>
 </main>
 

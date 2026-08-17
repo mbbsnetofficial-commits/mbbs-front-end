@@ -1,9 +1,12 @@
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
   ElementRef,
   HostListener,
+  OnDestroy,
   OnInit,
+  ViewChild,
   computed,
   effect,
   inject,
@@ -61,12 +64,15 @@ export interface NeetCourseItem {
   styleUrl: './learning-report.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class LearningReport implements OnInit {
+export class LearningReport implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild('paginationSentinel') sentinelRef?: ElementRef<HTMLElement>;
+
   private readonly elementRef = inject(ElementRef);
   private readonly router = inject(Router);
   private readonly neetModalService = inject(NeetModalService);
   private readonly learningReportService = inject(LearningReportService);
   private readonly previousYearTestService = inject(PreviousYearTestService);
+  private observer: IntersectionObserver | null = null;
 
   readonly searchQuery = signal('');
   readonly activeTab = signal<'all' | 'in_progress' | 'completed'>('all');
@@ -136,6 +142,49 @@ export class LearningReport implements OnInit {
     this.loadReport(false);
   }
 
+  ngAfterViewInit(): void {
+    this.setupIntersectionObserver();
+  }
+
+  ngOnDestroy(): void {
+    this.observer?.disconnect();
+    this.observer = null;
+  }
+
+  private setupIntersectionObserver(): void {
+    if (typeof IntersectionObserver === 'undefined') {
+      return;
+    }
+
+    this.observer?.disconnect();
+
+    this.observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (
+          entry?.isIntersecting &&
+          this.hasMore() &&
+          !this.isLoading() &&
+          !this.isLoadingMore()
+        ) {
+          this.loadMore();
+        }
+      },
+      {
+        root: null,
+        rootMargin: '0px 0px 400px 0px',
+        threshold: 0
+      }
+    );
+
+    const sentinel =
+      this.sentinelRef?.nativeElement ||
+      this.elementRef.nativeElement.querySelector('#pagination-sentinel');
+    if (sentinel) {
+      this.observer.observe(sentinel);
+    }
+  }
+
   loadSummary(): void {
     this.isSummaryLoading.set(true);
     this.summaryError.set(null);
@@ -166,6 +215,9 @@ export class LearningReport implements OnInit {
       }
       this.isLoadingMore.set(true);
     } else {
+      if (this.isLoading()) {
+        return;
+      }
       this.isLoading.set(true);
       this.errorMessage.set(null);
       this.currentPage.set(1);
@@ -200,15 +252,24 @@ export class LearningReport implements OnInit {
         }
 
         const pagination = response.pagination;
-        const totalP = pagination?.totalPages ?? (rawItems.length < this.pageSize() ? targetPage : targetPage + 1);
-        const total = pagination?.total ?? (isAppend ? this.courses().length : mapped.length);
+        const totalP =
+          pagination?.totalPages ??
+          (rawItems.length < this.pageSize() ? targetPage : targetPage + 1);
+        const total =
+          pagination?.total ??
+          (isAppend ? this.courses().length : mapped.length);
 
         this.totalPages.set(totalP);
         this.totalCount.set(total);
-        this.hasMore.set(targetPage < totalP && rawItems.length >= this.pageSize());
+        const hasNext = pagination
+          ? targetPage < totalP
+          : rawItems.length >= this.pageSize();
+        this.hasMore.set(hasNext);
 
         this.isLoading.set(false);
         this.isLoadingMore.set(false);
+
+        setTimeout(() => this.setupIntersectionObserver(), 0);
       },
       error: (error) => {
         if (!isAppend) {
@@ -236,24 +297,22 @@ export class LearningReport implements OnInit {
       return;
     }
 
-    const threshold = 350;
+    const threshold = 400;
     const windowHeight = window.innerHeight;
-    const scrollY = window.scrollY || document.documentElement.scrollTop;
-    const fullHeight = document.documentElement.scrollHeight;
+    const scrollY =
+      window.scrollY ||
+      window.pageYOffset ||
+      document.documentElement.scrollTop ||
+      document.body.scrollTop ||
+      0;
+    const fullHeight = Math.max(
+      document.body.scrollHeight,
+      document.documentElement.scrollHeight,
+      document.body.offsetHeight,
+      document.documentElement.offsetHeight
+    );
 
     if (windowHeight + scrollY >= fullHeight - threshold) {
-      this.loadMore();
-    }
-  }
-
-  onTableContainerScroll(event: Event): void {
-    const element = event.target as HTMLElement;
-    if (!element || this.isLoading() || this.isLoadingMore() || !this.hasMore()) {
-      return;
-    }
-
-    const threshold = 150;
-    if (element.scrollHeight - element.scrollTop <= element.clientHeight + threshold) {
       this.loadMore();
     }
   }
@@ -358,7 +417,7 @@ export class LearningReport implements OnInit {
   }
 
   startCourseTest(course: NeetCourseItem): void {
-    if (course.rawStatus === 'not_started') {
+    if (course.rawStatus === 'not_started' || course.rawStatus === 'completed') {
       this.onStartTest(course);
     } else if (course.rawStatus === 'in_progress') {
       this.onContinueTest(course);

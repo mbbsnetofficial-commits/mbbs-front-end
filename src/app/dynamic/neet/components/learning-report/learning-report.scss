@@ -496,6 +496,35 @@
   }
 }
 
+.retake-test-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  color: #f05a28;
+  border: 1px solid #f05a28;
+  padding: 5px 13px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background: #fff7ed;
+    color: #d94818;
+    border-color: #d94818;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(240, 90, 40, 0.18);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
 .completed-label {
   display: inline-block;
   font-size: 12px;
@@ -622,5 +651,41 @@
   &:hover {
     background: #f1f5f9;
     color: #0f172a;
+  }
+}
+
+.pagination-sentinel {
+  width: 100%;
+  height: 20px;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.scroll-loading-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px;
+  color: #64748b;
+  font-size: 13.5px;
+  font-weight: 500;
+  background: #f8fafc;
+  border-top: 1px solid #f1f5f9;
+  border-radius: 0 0 16px 16px;
+}
+
+.loading-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #e2e8f0;
+  border-top-color: #f05a28;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
 }

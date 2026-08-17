@@ -414,4 +414,89 @@ describe('LearningReport', () => {
 
     expect(testService.startTest).toHaveBeenCalledWith({ custom_test_id: 2002 });
   });
+
+  it('should render Retake Test button for completed tests and trigger startTest on click', () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+    const retakeButton = compiled.querySelector('.retake-test-btn') as HTMLButtonElement;
+
+    expect(retakeButton).toBeTruthy();
+    expect(retakeButton.textContent?.trim()).toContain('Retake Test');
+
+    const completedCourse = component.courses()[0];
+    expect(completedCourse.rawStatus).toBe('completed');
+
+    retakeButton.click();
+
+    expect(testService.startTest).toHaveBeenCalledWith({ builtin_test_id: 1001 });
+  });
+
+  it('should call onStartTest when clicking a completed test row', () => {
+    const startTestSpy = vi.spyOn(component, 'onStartTest');
+    const completedCourse = component.courses()[0];
+
+    component.startCourseTest(completedCourse);
+
+    expect(startTestSpy).toHaveBeenCalledWith(completedCourse);
+  });
+
+  it('should call startTest with previous_year_paper_id when retaking previous year paper', () => {
+    const pyCourse = {
+      ...component.courses()[0],
+      id: '3001',
+      test_id: 3001,
+      type: 'Previous Year Test',
+      rawStatus: 'completed' as const,
+      rawItem: {
+        ...sampleReportItem,
+        id: 3001,
+        test_id: 3001,
+        source: 'previous_year' as const
+      }
+    };
+
+    component.onStartTest(pyCourse);
+
+    expect(testService.startTest).toHaveBeenCalledWith({ previous_year_paper_id: 3001 });
+  });
+
+  it('should prevent multiple startTest calls when a request is in flight', () => {
+    const completedCourse = component.courses()[0];
+    component.startingTestId.set('1001');
+
+    component.onStartTest(completedCourse);
+
+    expect(testService.startTest).not.toHaveBeenCalled();
+  });
+
+  it('should trigger loadMore when onWindowScroll reaches threshold', () => {
+    const loadMoreSpy = vi.spyOn(component, 'loadMore');
+    component.hasMore.set(true);
+
+    Object.defineProperty(window, 'innerHeight', { value: 800, writable: true });
+    Object.defineProperty(window, 'scrollY', { value: 1200, writable: true });
+    Object.defineProperty(document.documentElement, 'scrollHeight', { value: 2100, writable: true });
+
+    component.onWindowScroll();
+
+    expect(loadMoreSpy).toHaveBeenCalled();
+  });
+
+  it('should NOT trigger loadMore on scroll if isLoadingMore is true', () => {
+    const loadMoreSpy = vi.spyOn(component, 'loadMore');
+    component.isLoadingMore.set(true);
+    component.hasMore.set(true);
+
+    component.onWindowScroll();
+
+    expect(loadMoreSpy).not.toHaveBeenCalled();
+  });
+
+  it('should NOT trigger loadMore on scroll if hasMore is false', () => {
+    const loadMoreSpy = vi.spyOn(component, 'loadMore');
+    component.hasMore.set(false);
+
+    component.onWindowScroll();
+
+    expect(loadMoreSpy).not.toHaveBeenCalled();
+  });
 });
