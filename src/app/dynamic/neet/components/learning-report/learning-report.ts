@@ -115,19 +115,70 @@ export class LearningReport implements OnInit, AfterViewInit, OnDestroy {
     const query = this.searchQuery().trim().toLowerCase();
     const list = this.courses();
 
-    if (!query) {
-      return list;
-    }
+    const filtered = query
+      ? list.filter((item) => {
+          return (
+            item.title.toLowerCase().includes(query) ||
+            item.type.toLowerCase().includes(query) ||
+            item.level.toLowerCase().includes(query) ||
+            item.category.toLowerCase().includes(query)
+          );
+        })
+      : [...list];
 
-    return list.filter((item) => {
-      return (
-        item.title.toLowerCase().includes(query) ||
-        item.type.toLowerCase().includes(query) ||
-        item.level.toLowerCase().includes(query) ||
-        item.category.toLowerCase().includes(query)
-      );
+    const sortF = this.sortField();
+    const sortDir = this.sortDirection();
+
+    return filtered.sort((a, b) => {
+      // 1. Primary ordering: Status priority (IN_PROGRESS -> NOT_STARTED -> COMPLETED)
+      const priorityA = this.getStatusPriority(a.rawStatus);
+      const priorityB = this.getStatusPriority(b.rawStatus);
+
+      if (priorityA !== priorityB) {
+        return priorityA - priorityB;
+      }
+
+      // 2. Secondary ordering: Column sort / dateModified timestamp
+      if (sortF === 'date') {
+        const timeA = a.dateModifiedTimestamp || 0;
+        const timeB = b.dateModifiedTimestamp || 0;
+        return sortDir === 'asc' ? timeA - timeB : timeB - timeA;
+      }
+
+      if (sortF === 'score') {
+        const scoreA = a.scoreNum || 0;
+        const scoreB = b.scoreNum || 0;
+        return sortDir === 'asc' ? scoreA - scoreB : scoreB - scoreA;
+      }
+
+      if (sortF === 'progress') {
+        const progA = a.progressPercent || 0;
+        const progB = b.progressPercent || 0;
+        return sortDir === 'asc' ? progA - progB : progB - progA;
+      }
+
+      if (sortF === 'title') {
+        const cmp = a.title.localeCompare(b.title);
+        return sortDir === 'asc' ? cmp : -cmp;
+      }
+
+      // Default fallback: newest date first
+      return (b.dateModifiedTimestamp || 0) - (a.dateModifiedTimestamp || 0);
     });
   });
+
+  private getStatusPriority(status: string | undefined): number {
+    switch (status) {
+      case 'in_progress':
+        return 1;
+      case 'not_started':
+        return 2;
+      case 'completed':
+        return 3;
+      default:
+        return 4;
+    }
+  }
 
   constructor() {
     effect(() => {
@@ -249,7 +300,11 @@ export class LearningReport implements OnInit, AfterViewInit, OnDestroy {
         const mapped = rawItems.map((item) => this.mapReportItem(item));
 
         if (isAppend) {
-          this.courses.update((current) => [...current, ...mapped]);
+          this.courses.update((current) => {
+            const existingIds = new Set(current.map((c) => c.id));
+            const newItems = mapped.filter((item) => !existingIds.has(item.id));
+            return [...current, ...newItems];
+          });
           this.currentPage.set(targetPage);
         } else {
           this.courses.set(mapped);

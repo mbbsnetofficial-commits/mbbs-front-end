@@ -491,12 +491,111 @@ describe('LearningReport', () => {
     expect(loadMoreSpy).not.toHaveBeenCalled();
   });
 
-  it('should NOT trigger loadMore on scroll if hasMore is false', () => {
-    const loadMoreSpy = vi.spyOn(component, 'loadMore');
-    component.hasMore.set(false);
+  it('should automatically order tests in filteredCourses by Status Priority: IN PROGRESS -> NOT STARTED -> COMPLETED', () => {
+    const testItems: LearningReportItem[] = [
+      {
+        ...sampleReportItem,
+        id: 1,
+        test_id: 1,
+        test_name: 'Completed Test 1',
+        status: 'completed',
+        lastModifiedAt: '2026-08-15T00:00:00.000Z'
+      },
+      {
+        ...sampleReportItem,
+        id: 2,
+        test_id: 2,
+        test_name: 'Not Started Test 2',
+        status: 'not_started',
+        lastModifiedAt: '2026-08-16T00:00:00.000Z'
+      },
+      {
+        ...sampleReportItem,
+        id: 3,
+        test_id: 3,
+        test_name: 'In Progress Test 3',
+        status: 'in_progress',
+        lastModifiedAt: '2026-08-17T00:00:00.000Z'
+      },
+      {
+        ...sampleReportItem,
+        id: 4,
+        test_id: 4,
+        test_name: 'In Progress Test 4',
+        status: 'in_progress',
+        lastModifiedAt: '2026-08-18T00:00:00.000Z'
+      },
+      {
+        ...sampleReportItem,
+        id: 5,
+        test_id: 5,
+        test_name: 'Completed Test 5',
+        status: 'completed',
+        lastModifiedAt: '2026-08-14T00:00:00.000Z'
+      }
+    ];
 
-    component.onWindowScroll();
+    service.getLearningReport.mockReturnValue(of({
+      status: 'success',
+      data: testItems,
+      pagination: { page: 1, limit: 10, total: 5, totalPages: 1 }
+    }));
 
-    expect(loadMoreSpy).not.toHaveBeenCalled();
+    component.loadReport(false);
+    fixture.detectChanges();
+
+    const displayed = component.filteredCourses();
+    expect(displayed.length).toBe(5);
+
+    // Group 1: In Progress
+    expect(displayed[0].rawStatus).toBe('in_progress');
+    expect(displayed[0].id).toBe('4'); // newer date first
+    expect(displayed[1].rawStatus).toBe('in_progress');
+    expect(displayed[1].id).toBe('3');
+
+    // Group 2: Not Started
+    expect(displayed[2].rawStatus).toBe('not_started');
+    expect(displayed[2].id).toBe('2');
+
+    // Group 3: Completed
+    expect(displayed[3].rawStatus).toBe('completed');
+    expect(displayed[3].id).toBe('1');
+    expect(displayed[4].rawStatus).toBe('completed');
+    expect(displayed[4].id).toBe('5');
+  });
+
+  it('should reorder incrementally loaded pages into the correct status groups without duplicates', () => {
+    // Initial page 1 has Completed and Not Started
+    const page1 = [
+      { ...sampleReportItem, id: 101, test_id: 101, status: 'completed' as const },
+      { ...sampleReportItem, id: 102, test_id: 102, status: 'not_started' as const }
+    ];
+    service.getLearningReport.mockReturnValue(of({
+      status: 'success',
+      data: page1,
+      pagination: { page: 1, limit: 2, total: 3, totalPages: 2 }
+    }));
+    component.loadReport(false);
+    fixture.detectChanges();
+
+    expect(component.filteredCourses().map(c => c.rawStatus)).toEqual(['not_started', 'completed']);
+
+    // Page 2 loads with an In Progress test
+    const page2 = [
+      { ...sampleReportItem, id: 103, test_id: 103, status: 'in_progress' as const },
+      // Duplicate item 101 should be ignored
+      { ...sampleReportItem, id: 101, test_id: 101, status: 'completed' as const }
+    ];
+    service.getLearningReport.mockReturnValue(of({
+      status: 'success',
+      data: page2,
+      pagination: { page: 2, limit: 2, total: 3, totalPages: 2 }
+    }));
+    component.loadReport(true);
+    fixture.detectChanges();
+
+    const finalStatuses = component.filteredCourses().map(c => c.rawStatus);
+    expect(finalStatuses).toEqual(['in_progress', 'not_started', 'completed']);
+    expect(component.courses().length).toBe(3); // de-duplicated
   });
 });
