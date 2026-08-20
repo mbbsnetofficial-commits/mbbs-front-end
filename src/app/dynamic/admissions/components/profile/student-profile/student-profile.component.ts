@@ -129,8 +129,8 @@ export class StudentProfileComponent {
       this.entranceDraft.push({
         id: 'exam-neet',
         examType: 'NEET',
-        year: 2026,
-        score: 0,
+        year: undefined,
+        score: undefined,
         maxScore: 720,
         rollNumber: '',
         qualified: false,

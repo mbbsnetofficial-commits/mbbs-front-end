@@ -14,6 +14,8 @@ import { Icon } from '../../../../../shared/ui/icon/icon';
 })
 export class InviteActionsComponent {
   readonly invite = input.required<Invite>();
+  readonly accepting = input<boolean>(false);
+  readonly declining = input<boolean>(false);
 
   readonly acceptClicked = output<void>();
   readonly declineSubmitted = output<{ reason: DeclineReason; note: string }>();
@@ -34,6 +36,7 @@ export class InviteActionsComponent {
   ];
 
   openAcceptModal(): void {
+    if (this.accepting() || this.declining()) return;
     this.showAcceptModal.set(true);
   }
 
@@ -42,11 +45,13 @@ export class InviteActionsComponent {
   }
 
   confirmAccept(): void {
+    if (this.accepting() || this.declining()) return;
     this.showAcceptModal.set(false);
     this.acceptClicked.emit();
   }
 
   openDeclineModal(): void {
+    if (this.accepting() || this.declining()) return;
     this.showDeclineModal.set(true);
   }
 
@@ -55,6 +60,7 @@ export class InviteActionsComponent {
   }
 
   confirmDecline(): void {
+    if (this.accepting() || this.declining()) return;
     this.showDeclineModal.set(false);
     this.declineSubmitted.emit({
       reason: this.selectedReason,

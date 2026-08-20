@@ -17,4 +17,11 @@ export class ProfileHeaderComponent {
 
   readonly toggleDiscoverability = output<void>();
   readonly editModeToggled = output<void>();
+
+  formatLocation(city?: string, country?: string): string {
+    if (city && country) return `${city}, ${country}`;
+    if (city) return city;
+    if (country) return country;
+    return '';
+  }
 }

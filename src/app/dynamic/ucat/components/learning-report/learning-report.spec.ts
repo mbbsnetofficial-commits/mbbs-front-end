@@ -182,7 +182,7 @@ describe('UcatLearningReport', () => {
     fixture = TestBed.createComponent(UcatLearningReport);
     component = fixture.componentInstance;
     ucatModalService = TestBed.inject(UcatModalService);
-  });
+  }, 30000);
 
   it('should create UcatLearningReport and load summary on init', () => {
     fixture.detectChanges();

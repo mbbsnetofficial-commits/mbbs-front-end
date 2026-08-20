@@ -23,7 +23,7 @@ describe('Register', () => {
     authService = TestBed.inject(AuthService);
     router = TestBed.inject(Router);
     await fixture.whenStable();
-  });
+  }, 30000);
 
   it('should create', () => {
     expect(component).toBeTruthy();

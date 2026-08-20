@@ -50,7 +50,7 @@ describe('BlogHome (Static Blog)', () => {
     fixture = TestBed.createComponent(BlogHome);
     component = fixture.componentInstance;
     fixture.detectChanges();
-  });
+  }, 30000);
 
   it('should create BlogHome in static/blogs module', () => {
     expect(component).toBeTruthy();

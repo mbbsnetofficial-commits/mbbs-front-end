@@ -22,7 +22,7 @@
               />
             </svg>
             <div class="ring-value">
-              <strong>{{ profile().completionPercentage }}%</strong>
+              <strong>{{ profile().completionPercentage || 0 }}%</strong>
               <span>Profile</span>
             </div>
           </div>
@@ -30,7 +30,7 @@
           <div class="meter-text">
             <h3>Profile Strength</h3>
             <p>
-              {{ profile().completionPercentage >= 70 ? 'Ready for matching with partner medical universities.' : 'Complete key sections to unlock premier university discovery.' }}
+              {{ profile().isDiscoverable ? 'Active and eligible for matching with partner medical universities.' : 'Complete key sections to unlock university discovery.' }}
             </p>
           </div>
         </div>
@@ -52,7 +52,6 @@
                 }
               </span>
               <span class="title">{{ sec.title }}</span>
-              <span class="weight">+{{ sec.weight }}%</span>
             </button>
           }
         </nav>
@@ -226,11 +225,11 @@
             <div class="field-item"><span class="field-label">School Name</span><strong class="field-value">{{ profile().academic.schoolName || '—' }}</strong></div>
             <div class="field-item"><span class="field-label">Board of Education</span><strong class="field-value">{{ profile().academic.boardName || '—' }}</strong></div>
             <div class="field-item"><span class="field-label">12th Passing Year</span><strong class="field-value">{{ profile().academic.twelfthYear || '—' }}</strong></div>
-            <div class="field-item"><span class="field-label">PCB Aggregate</span><strong class="field-value highlight">{{ profile().academic.pcbPercentage ? profile().academic.pcbPercentage + '%' : '—' }}</strong></div>
-            <div class="field-item"><span class="field-label">Physics Marks</span><strong class="field-value">{{ profile().academic.physicsScore || '—' }}</strong></div>
-            <div class="field-item"><span class="field-label">Chemistry Marks</span><strong class="field-value">{{ profile().academic.chemistryScore || '—' }}</strong></div>
-            <div class="field-item"><span class="field-label">Biology Marks</span><strong class="field-value">{{ profile().academic.biologyScore || '—' }}</strong></div>
-            <div class="field-item"><span class="field-label">English Marks</span><strong class="field-value">{{ profile().academic.englishScore || '—' }}</strong></div>
+            <div class="field-item"><span class="field-label">PCB Aggregate</span><strong class="field-value highlight">{{ profile().academic.pcbPercentage !== undefined ? profile().academic.pcbPercentage + '%' : '—' }}</strong></div>
+            <div class="field-item"><span class="field-label">Physics Marks</span><strong class="field-value">{{ profile().academic.physicsScore !== undefined ? profile().academic.physicsScore : '—' }}</strong></div>
+            <div class="field-item"><span class="field-label">Chemistry Marks</span><strong class="field-value">{{ profile().academic.chemistryScore !== undefined ? profile().academic.chemistryScore : '—' }}</strong></div>
+            <div class="field-item"><span class="field-label">Biology Marks</span><strong class="field-value">{{ profile().academic.biologyScore !== undefined ? profile().academic.biologyScore : '—' }}</strong></div>
+            <div class="field-item"><span class="field-label">English Marks</span><strong class="field-value">{{ profile().academic.englishScore !== undefined ? profile().academic.englishScore : '—' }}</strong></div>
           </div>
         }
       </section>
@@ -296,7 +295,7 @@
             @for (exam of profile().entranceExams; track exam.id) {
               <div class="exam-card">
                 <div class="exam-top">
-                  <span class="exam-badge">{{ exam.examType }} {{ exam.year }}</span>
+                  <span class="exam-badge">{{ exam.examType }} {{ exam.year || '' }}</span>
                   @if (exam.qualified) {
                     <span class="qual-badge">
                       <app-icon name="check" [size]="12" />
@@ -307,7 +306,7 @@
                 <div class="exam-metrics">
                   <div class="metric">
                     <span class="lbl">Score</span>
-                    <strong>{{ exam.score }} <small>/ {{ exam.maxScore || 720 }}</small></strong>
+                    <strong>{{ exam.score !== undefined ? exam.score : '—' }} <small>/ {{ exam.maxScore || 720 }}</small></strong>
                   </div>
                   @if (exam.rollNumber) {
                     <div class="metric">
@@ -416,10 +415,10 @@
                 }
               </div>
             </div>
-            <div class="field-item"><span class="field-label">Target Intake</span><strong class="field-value">{{ profile().preferences.preferredIntake[0] || 'Upcoming Intake' }}</strong></div>
-            <div class="field-item"><span class="field-label">Annual Budget</span><strong class="field-value">{{ profile().preferences.preferredBudgetUsd ? (profile().preferences.preferredBudgetUsd | currency: 'USD': 'symbol': '1.0-0') : 'Flexible' }}</strong></div>
-            <div class="field-item"><span class="field-label">Instruction Medium</span><strong class="field-value">{{ profile().preferences.preferredLanguage || 'English' }}</strong></div>
-            <div class="field-item"><span class="field-label">Hostel Required</span><strong class="field-value">{{ profile().preferences.hostelRequired ? 'Yes' : 'No' }}</strong></div>
+            <div class="field-item"><span class="field-label">Target Intake</span><strong class="field-value">{{ (profile().preferences.preferredIntake && profile().preferences.preferredIntake.length > 0 && profile().preferences.preferredIntake[0]) || '—' }}</strong></div>
+            <div class="field-item"><span class="field-label">Annual Budget</span><strong class="field-value">{{ profile().preferences.preferredBudgetUsd !== undefined ? (profile().preferences.preferredBudgetUsd | currency: 'USD': 'symbol': '1.0-0') : 'Flexible' }}</strong></div>
+            <div class="field-item"><span class="field-label">Instruction Medium</span><strong class="field-value">{{ profile().preferences.preferredLanguage || '—' }}</strong></div>
+            <div class="field-item"><span class="field-label">Hostel Required</span><strong class="field-value">{{ profile().preferences.hostelRequired === true ? 'Yes' : profile().preferences.hostelRequired === false ? 'No' : '—' }}</strong></div>
           </div>
         }
       </section>

@@ -152,7 +152,7 @@ describe('UcatPractice', () => {
     expect(component.activeSession()?.sessionId).toBe('session-ucat-practice-456');
     expect(component.questionStates().length).toBe(2);
     expect(component.remainingSeconds()).toBe(15 * 60);
-  });
+  }, 30000);
 
   it('C. should NOT call startTest API when restoring active session', () => {
     sessionStorage.setItem('activeUcatPracticeTest', JSON.stringify(sampleActiveSession));

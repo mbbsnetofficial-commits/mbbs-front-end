@@ -95,3 +95,18 @@ export interface PaginationInfo {
   total: number;
   totalPages: number;
 }
+
+export interface InviteHistoryItem {
+  id?: string;
+  _id?: string;
+  inviteId?: string;
+  action: string;
+  status?: string;
+  title?: string;
+  description?: string;
+  actor?: string;
+  actorType?: 'STUDENT' | 'UNIVERSITY' | 'SYSTEM' | string;
+  createdAt: string;
+  timestamp?: string;
+  metadata?: Record<string, any>;
+}

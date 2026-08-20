@@ -309,4 +309,522 @@ describe('InvitesService', () => {
     expect(res.length).toBe(1);
     expect(res[0].status).toBe('PENDING');
   });
+
+  describe('acceptInvite API (POST /student/invites/:inviteId/accept)', () => {
+    it('should call POST /student/invites/:inviteId/accept with empty body and update status to ACCEPTED on success', async () => {
+      const acceptResponse = {
+        success: true,
+        message: 'Invitation accepted successfully',
+        data: {
+          ...mockListResponse.data.items[0],
+          status: 'ACCEPTED' as const,
+          respondedAt: '2026-08-20T12:00:00.000Z',
+        },
+      };
+
+      const promise = firstValueFrom(service.acceptInvite('inv-kazan-real-101'));
+      const req = httpTesting.expectOne(
+        `${environment.admissionsApiBaseUrl}/student/invites/inv-kazan-real-101/accept`
+      );
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual({});
+      req.flush(acceptResponse);
+
+      // Triggers summary refresh
+      const summaryRefresh = httpTesting.expectOne(
+        `${environment.admissionsApiBaseUrl}/student/invites/summary`
+      );
+      summaryRefresh.flush({
+        success: true,
+        data: { ...mockSummaryResponse.data, pending: 3, accepted: 3 },
+      });
+
+      const res = await promise;
+      expect(res).toBeDefined();
+      expect(res?.status).toBe('ACCEPTED');
+      expect(res?.respondedAt).toBe('2026-08-20T12:00:00.000Z');
+
+      const itemInState = service.invites().find((i) => i.id === 'inv-kazan-real-101');
+      expect(itemInState?.status).toBe('ACCEPTED');
+    });
+
+    it('should handle 409 INVALID_STATE_TRANSITION conflict without mutating status', async () => {
+      const promise = firstValueFrom(service.acceptInvite('inv-kazan-real-101'));
+      const req = httpTesting.expectOne(
+        `${environment.admissionsApiBaseUrl}/student/invites/inv-kazan-real-101/accept`
+      );
+      req.flush(
+        {
+          success: false,
+          code: 'INVALID_STATE_TRANSITION',
+          message: 'Cannot accept invitation in current state',
+        },
+        { status: 409, statusText: 'Conflict' }
+      );
+
+      try {
+        await promise;
+      } catch (err: any) {
+        expect(err.status).toBe(409);
+      }
+
+      const itemInState = service.invites().find((i) => i.id === 'inv-kazan-real-101');
+      expect(itemInState?.status).toBe('PENDING'); // Unchanged
+    });
+
+    it('should handle 400 Bad Request error without mutating status', async () => {
+      const promise = firstValueFrom(service.acceptInvite('inv-kazan-real-101'));
+      const req = httpTesting.expectOne(
+        `${environment.admissionsApiBaseUrl}/student/invites/inv-kazan-real-101/accept`
+      );
+      req.flush(
+        { success: false, message: 'Invalid request' },
+        { status: 400, statusText: 'Bad Request' }
+      );
+
+      try {
+        await promise;
+      } catch (err: any) {
+        expect(err.status).toBe(400);
+      }
+
+      expect(service.invites().find((i) => i.id === 'inv-kazan-real-101')?.status).toBe('PENDING');
+    });
+
+    it('should handle 401 Unauthorized error without mutating status', async () => {
+      const promise = firstValueFrom(service.acceptInvite('inv-kazan-real-101'));
+      const req = httpTesting.expectOne(
+        `${environment.admissionsApiBaseUrl}/student/invites/inv-kazan-real-101/accept`
+      );
+      req.flush(
+        { success: false, message: 'Unauthorized' },
+        { status: 401, statusText: 'Unauthorized' }
+      );
+
+      try {
+        await promise;
+      } catch (err: any) {
+        expect(err.status).toBe(401);
+      }
+
+      expect(service.invites().find((i) => i.id === 'inv-kazan-real-101')?.status).toBe('PENDING');
+    });
+
+    it('should handle 403 Forbidden error without mutating status', async () => {
+      const promise = firstValueFrom(service.acceptInvite('inv-kazan-real-101'));
+      const req = httpTesting.expectOne(
+        `${environment.admissionsApiBaseUrl}/student/invites/inv-kazan-real-101/accept`
+      );
+      req.flush(
+        { success: false, message: 'Forbidden' },
+        { status: 403, statusText: 'Forbidden' }
+      );
+
+      try {
+        await promise;
+      } catch (err: any) {
+        expect(err.status).toBe(403);
+      }
+
+      expect(service.invites().find((i) => i.id === 'inv-kazan-real-101')?.status).toBe('PENDING');
+    });
+
+    it('should handle 404 Not Found error without mutating status', async () => {
+      const promise = firstValueFrom(service.acceptInvite('non-existent-invite'));
+      const req = httpTesting.expectOne(
+        `${environment.admissionsApiBaseUrl}/student/invites/non-existent-invite/accept`
+      );
+      req.flush(
+        { success: false, message: 'Invitation not found' },
+        { status: 404, statusText: 'Not Found' }
+      );
+
+      try {
+        await promise;
+      } catch (err: any) {
+        expect(err.status).toBe(404);
+      }
+    });
+
+    it('should handle 500 Server Error without mutating status', async () => {
+      const promise = firstValueFrom(service.acceptInvite('inv-kazan-real-101'));
+      const req = httpTesting.expectOne(
+        `${environment.admissionsApiBaseUrl}/student/invites/inv-kazan-real-101/accept`
+      );
+      req.flush(
+        { success: false, message: 'Internal Server Error' },
+        { status: 500, statusText: 'Server Error' }
+      );
+
+      try {
+        await promise;
+      } catch (err: any) {
+        expect(err.status).toBe(500);
+      }
+
+      expect(service.invites().find((i) => i.id === 'inv-kazan-real-101')?.status).toBe('PENDING');
+    });
+  });
+
+  describe('declineInvite API (POST /student/invites/:inviteId/decline)', () => {
+    it('should call POST /student/invites/:inviteId/decline with reason payload and update status to DECLINED on success', async () => {
+      const declineResponse = {
+        success: true,
+        message: 'Invitation declined successfully',
+        data: {
+          ...mockListResponse.data.items[0],
+          status: 'DECLINED' as const,
+          respondedAt: '2026-08-20T12:30:00.000Z',
+        },
+      };
+
+      const promise = firstValueFrom(
+        service.declineInvite('inv-kazan-real-101', {
+          reason: 'TUITION',
+          note: 'Budget constraints for current cycle',
+        })
+      );
+      const req = httpTesting.expectOne(
+        `${environment.admissionsApiBaseUrl}/student/invites/inv-kazan-real-101/decline`
+      );
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual({
+        reason: 'TUITION',
+        note: 'Budget constraints for current cycle',
+      });
+      req.flush(declineResponse);
+
+      // Triggers summary refresh
+      const summaryRefresh = httpTesting.expectOne(
+        `${environment.admissionsApiBaseUrl}/student/invites/summary`
+      );
+      summaryRefresh.flush({
+        success: true,
+        data: { ...mockSummaryResponse.data, pending: 3, declined: 2 },
+      });
+
+      const res = await promise;
+      expect(res).toBeDefined();
+      expect(res?.status).toBe('DECLINED');
+      expect(res?.respondedAt).toBe('2026-08-20T12:30:00.000Z');
+
+      const itemInState = service.invites().find((i) => i.id === 'inv-kazan-real-101');
+      expect(itemInState?.status).toBe('DECLINED');
+      expect(itemInState?.declineReason).toBe('TUITION');
+    });
+
+    it('should call POST /student/invites/:inviteId/decline with empty body {} when no payload provided', async () => {
+      const declineResponse = {
+        success: true,
+        message: 'Invitation declined successfully',
+        data: {
+          ...mockListResponse.data.items[0],
+          status: 'DECLINED' as const,
+          respondedAt: '2026-08-20T12:30:00.000Z',
+        },
+      };
+
+      const promise = firstValueFrom(service.declineInvite('inv-kazan-real-101'));
+      const req = httpTesting.expectOne(
+        `${environment.admissionsApiBaseUrl}/student/invites/inv-kazan-real-101/decline`
+      );
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual({});
+      req.flush(declineResponse);
+
+      const summaryRefresh = httpTesting.expectOne(
+        `${environment.admissionsApiBaseUrl}/student/invites/summary`
+      );
+      summaryRefresh.flush({
+        success: true,
+        data: { ...mockSummaryResponse.data, pending: 3, declined: 2 },
+      });
+
+      const res = await promise;
+      expect(res?.status).toBe('DECLINED');
+    });
+
+    it('should handle 409 INVALID_STATE_TRANSITION conflict without mutating status', async () => {
+      const promise = firstValueFrom(service.declineInvite('inv-kazan-real-101'));
+      const req = httpTesting.expectOne(
+        `${environment.admissionsApiBaseUrl}/student/invites/inv-kazan-real-101/decline`
+      );
+      req.flush(
+        {
+          success: false,
+          code: 'INVALID_STATE_TRANSITION',
+          message: 'Cannot decline invitation in current state',
+        },
+        { status: 409, statusText: 'Conflict' }
+      );
+
+      try {
+        await promise;
+      } catch (err: any) {
+        expect(err.status).toBe(409);
+      }
+
+      const itemInState = service.invites().find((i) => i.id === 'inv-kazan-real-101');
+      expect(itemInState?.status).toBe('PENDING'); // Unchanged
+    });
+
+    it('should handle 400 Bad Request error without mutating status', async () => {
+      const promise = firstValueFrom(service.declineInvite('inv-kazan-real-101'));
+      const req = httpTesting.expectOne(
+        `${environment.admissionsApiBaseUrl}/student/invites/inv-kazan-real-101/decline`
+      );
+      req.flush(
+        { success: false, message: 'Invalid payload' },
+        { status: 400, statusText: 'Bad Request' }
+      );
+
+      try {
+        await promise;
+      } catch (err: any) {
+        expect(err.status).toBe(400);
+      }
+
+      expect(service.invites().find((i) => i.id === 'inv-kazan-real-101')?.status).toBe('PENDING');
+    });
+
+    it('should handle 401 Unauthorized error without mutating status', async () => {
+      const promise = firstValueFrom(service.declineInvite('inv-kazan-real-101'));
+      const req = httpTesting.expectOne(
+        `${environment.admissionsApiBaseUrl}/student/invites/inv-kazan-real-101/decline`
+      );
+      req.flush(
+        { success: false, message: 'Unauthorized' },
+        { status: 401, statusText: 'Unauthorized' }
+      );
+
+      try {
+        await promise;
+      } catch (err: any) {
+        expect(err.status).toBe(401);
+      }
+
+      expect(service.invites().find((i) => i.id === 'inv-kazan-real-101')?.status).toBe('PENDING');
+    });
+
+    it('should handle 403 Forbidden error without mutating status', async () => {
+      const promise = firstValueFrom(service.declineInvite('inv-kazan-real-101'));
+      const req = httpTesting.expectOne(
+        `${environment.admissionsApiBaseUrl}/student/invites/inv-kazan-real-101/decline`
+      );
+      req.flush(
+        { success: false, message: 'Forbidden' },
+        { status: 403, statusText: 'Forbidden' }
+      );
+
+      try {
+        await promise;
+      } catch (err: any) {
+        expect(err.status).toBe(403);
+      }
+
+      expect(service.invites().find((i) => i.id === 'inv-kazan-real-101')?.status).toBe('PENDING');
+    });
+
+    it('should handle 404 Not Found error without mutating status', async () => {
+      const promise = firstValueFrom(service.declineInvite('non-existent-invite'));
+      const req = httpTesting.expectOne(
+        `${environment.admissionsApiBaseUrl}/student/invites/non-existent-invite/decline`
+      );
+      req.flush(
+        { success: false, message: 'Invitation not found' },
+        { status: 404, statusText: 'Not Found' }
+      );
+
+      try {
+        await promise;
+      } catch (err: any) {
+        expect(err.status).toBe(404);
+      }
+    });
+
+    it('should handle 500 Server Error without mutating status', async () => {
+      const promise = firstValueFrom(service.declineInvite('inv-kazan-real-101'));
+      const req = httpTesting.expectOne(
+        `${environment.admissionsApiBaseUrl}/student/invites/inv-kazan-real-101/decline`
+      );
+      req.flush(
+        { success: false, message: 'Internal Server Error' },
+        { status: 500, statusText: 'Server Error' }
+      );
+
+      try {
+        await promise;
+      } catch (err: any) {
+        expect(err.status).toBe(500);
+      }
+
+      expect(service.invites().find((i) => i.id === 'inv-kazan-real-101')?.status).toBe('PENDING');
+    });
+  });
+
+  describe('getInviteHistory API (GET /student/invites/:inviteId/history)', () => {
+    it('should call GET /student/invites/:inviteId/history and map history items on success', async () => {
+      const historyResponse = {
+        success: true,
+        data: [
+          {
+            _id: 'hist-1',
+            action: 'CREATED',
+            title: 'Invitation Issued',
+            description: 'Direct university admission offer generated.',
+            actor: 'Kazan State Medical University',
+            actorType: 'UNIVERSITY',
+            createdAt: '2026-08-15T09:00:00.000Z',
+          },
+          {
+            _id: 'hist-2',
+            action: 'VIEWED',
+            title: 'Invitation Reviewed',
+            actor: 'Student',
+            actorType: 'STUDENT',
+            createdAt: '2026-08-19T09:30:00.000Z',
+          },
+        ],
+      };
+
+      const promise = firstValueFrom(service.getInviteHistory('inv-kazan-real-101'));
+      const req = httpTesting.expectOne(
+        `${environment.admissionsApiBaseUrl}/student/invites/inv-kazan-real-101/history`
+      );
+      expect(req.request.method).toBe('GET');
+      req.flush(historyResponse);
+
+      const items = await promise;
+      expect(items.length).toBe(2);
+      expect(items[0].id).toBe('hist-1');
+      expect(items[0].action).toBe('CREATED');
+      expect(items[0].title).toBe('Invitation Issued');
+      expect(items[0].actor).toBe('Kazan State Medical University');
+      expect(items[1].action).toBe('VIEWED');
+    });
+
+    it('should handle wrapped data.items structure in history response', async () => {
+      const historyResponse = {
+        success: true,
+        data: {
+          items: [
+            {
+              id: 'hist-wrap-1',
+              action: 'ACCEPTED',
+              description: 'Student confirmed acceptance.',
+              createdAt: '2026-08-20T10:00:00.000Z',
+            },
+          ],
+        },
+      };
+
+      const promise = firstValueFrom(service.getInviteHistory('inv-kazan-real-101'));
+      const req = httpTesting.expectOne(
+        `${environment.admissionsApiBaseUrl}/student/invites/inv-kazan-real-101/history`
+      );
+      req.flush(historyResponse);
+
+      const items = await promise;
+      expect(items.length).toBe(1);
+      expect(items[0].id).toBe('hist-wrap-1');
+      expect(items[0].action).toBe('ACCEPTED');
+      expect(items[0].title).toBe('Invitation Accepted');
+    });
+
+    it('should return empty array when backend returns empty data []', async () => {
+      const promise = firstValueFrom(service.getInviteHistory('inv-kazan-real-101'));
+      const req = httpTesting.expectOne(
+        `${environment.admissionsApiBaseUrl}/student/invites/inv-kazan-real-101/history`
+      );
+      req.flush({ success: true, data: [] });
+
+      const items = await promise;
+      expect(items).toEqual([]);
+    });
+
+    it('should handle 400 Bad Request error on history fetch', async () => {
+      const promise = firstValueFrom(service.getInviteHistory('inv-kazan-real-101'));
+      const req = httpTesting.expectOne(
+        `${environment.admissionsApiBaseUrl}/student/invites/inv-kazan-real-101/history`
+      );
+      req.flush(
+        { success: false, message: 'Invalid invite ID' },
+        { status: 400, statusText: 'Bad Request' }
+      );
+
+      try {
+        await promise;
+      } catch (err: any) {
+        expect(err.status).toBe(400);
+      }
+    });
+
+    it('should handle 401 Unauthorized error on history fetch', async () => {
+      const promise = firstValueFrom(service.getInviteHistory('inv-kazan-real-101'));
+      const req = httpTesting.expectOne(
+        `${environment.admissionsApiBaseUrl}/student/invites/inv-kazan-real-101/history`
+      );
+      req.flush(
+        { success: false, message: 'Unauthorized' },
+        { status: 401, statusText: 'Unauthorized' }
+      );
+
+      try {
+        await promise;
+      } catch (err: any) {
+        expect(err.status).toBe(401);
+      }
+    });
+
+    it('should handle 403 Forbidden error on history fetch', async () => {
+      const promise = firstValueFrom(service.getInviteHistory('inv-kazan-real-101'));
+      const req = httpTesting.expectOne(
+        `${environment.admissionsApiBaseUrl}/student/invites/inv-kazan-real-101/history`
+      );
+      req.flush(
+        { success: false, message: 'Forbidden' },
+        { status: 403, statusText: 'Forbidden' }
+      );
+
+      try {
+        await promise;
+      } catch (err: any) {
+        expect(err.status).toBe(403);
+      }
+    });
+
+    it('should handle 404 Not Found error on history fetch', async () => {
+      const promise = firstValueFrom(service.getInviteHistory('non-existent-invite'));
+      const req = httpTesting.expectOne(
+        `${environment.admissionsApiBaseUrl}/student/invites/non-existent-invite/history`
+      );
+      req.flush(
+        { success: false, message: 'Invitation history not found' },
+        { status: 404, statusText: 'Not Found' }
+      );
+
+      try {
+        await promise;
+      } catch (err: any) {
+        expect(err.status).toBe(404);
+      }
+    });
+
+    it('should handle 500 Server Error on history fetch', async () => {
+      const promise = firstValueFrom(service.getInviteHistory('inv-kazan-real-101'));
+      const req = httpTesting.expectOne(
+        `${environment.admissionsApiBaseUrl}/student/invites/inv-kazan-real-101/history`
+      );
+      req.flush(
+        { success: false, message: 'Internal Server Error' },
+        { status: 500, statusText: 'Server Error' }
+      );
+
+      try {
+        await promise;
+      } catch (err: any) {
+        expect(err.status).toBe(500);
+      }
+    });
+  });
 });

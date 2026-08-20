@@ -4,7 +4,7 @@
       <img
         appImageFallback
         [src]="profile().avatarUrl"
-        [alt]="profile().personal.fullName"
+        [alt]="profile().personal.fullName || 'Student Avatar'"
       />
       @if (profile().isDiscoverable) {
         <span class="online-indicator" title="Profile discoverable by universities"></span>
@@ -14,17 +14,19 @@
     <div class="identity-wrap">
       <div class="badges-row">
         <span class="aspirant-tag">
-          <app-icon name="india" [size]="14" />
-          <span>{{ profile().aspirantTitle }}</span>
+          <app-icon name="graduation-cap" [size]="14" />
+          <span>{{ profile().aspirantTitle || 'MBBS Candidate' }}</span>
         </span>
-        <span class="location-tag">
-          <app-icon name="globe" [size]="14" />
-          <span>{{ profile().personal.city }}, {{ profile().personal.country }}</span>
-        </span>
+        @if (formatLocation(profile().personal.city, profile().personal.country); as loc) {
+          <span class="location-tag">
+            <app-icon name="globe" [size]="14" />
+            <span>{{ loc }}</span>
+          </span>
+        }
       </div>
 
-      <h1 class="student-name">{{ profile().personal.fullName }}</h1>
-      <p class="meta-sub">Candidate ID: {{ profile().userId }} · Last updated {{ profile().updatedAt | date: 'mediumDate' }}</p>
+      <h1 class="student-name">{{ profile().personal.fullName || 'Student Profile' }}</h1>
+      <p class="meta-sub">Candidate ID: {{ profile().userId || '—' }} · Last updated {{ profile().updatedAt ? (profile().updatedAt | date: 'mediumDate') : '—' }}</p>
     </div>
 
     <div class="completion-gauge-box">
@@ -36,16 +38,16 @@
           />
           <path
             class="circle"
-            [attr.stroke-dasharray]="profile().completionPercentage + ', 100'"
+            [attr.stroke-dasharray]="(profile().completionPercentage || 0) + ', 100'"
             d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
           />
-          <text x="18" y="20.35" class="percentage">{{ profile().completionPercentage }}%</text>
+          <text x="18" y="20.35" class="percentage">{{ profile().completionPercentage || 0 }}%</text>
         </svg>
       </div>
 
       <div class="gauge-label">
         <strong>Profile Completion</strong>
-        <span>{{ profile().completionPercentage >= 70 ? 'Eligible for Discovery' : 'Action Required' }}</span>
+        <span>{{ profile().isDiscoverable ? 'Active' : 'Incomplete' }}</span>
       </div>
     </div>
   </div>

@@ -94,6 +94,48 @@
     background: #15803d;
     box-shadow: 0 6px 20px rgba(22, 163, 74, 0.35);
   }
+
+  &:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    box-shadow: none;
+    pointer-events: none;
+  }
+}
+
+.btn-decline:disabled,
+.btn-cancel:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.btn-confirm-accept:disabled,
+.btn-confirm-decline:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.btn-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: btnSpin 0.7s linear infinite;
+  display: inline-block;
+
+  &.btn-spinner-dark {
+    border-color: rgba(220, 38, 38, 0.2);
+    border-top-color: #dc2626;
+  }
+}
+
+@keyframes btnSpin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .accepted-status-text {

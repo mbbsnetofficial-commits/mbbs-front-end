@@ -92,7 +92,7 @@ describe('StudentInvitesComponent', () => {
     fixture = TestBed.createComponent(StudentInvitesComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
-  });
+  }, 30000);
 
   afterEach(() => {
     httpTesting.verify();

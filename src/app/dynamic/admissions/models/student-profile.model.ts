@@ -13,29 +13,29 @@ export interface PersonalInformation {
 export interface AcademicInformation {
   schoolName: string;
   boardName: string;
-  tenthYear: number;
+  tenthYear?: number;
   tenthMarks?: number;
   tenthPercentage?: number;
-  twelfthYear: number;
+  twelfthYear?: number;
   twelfthMarks?: number;
-  physicsScore: number;
-  chemistryScore: number;
-  biologyScore: number;
+  physicsScore?: number;
+  chemistryScore?: number;
+  biologyScore?: number;
   englishScore?: number;
-  pcbPercentage: number;
+  pcbPercentage?: number;
   overallPercentage?: number;
 }
 
 export interface EntranceExam {
   id: string;
-  examType: 'NEET' | 'UCAT' | 'IMAT' | 'MCAT' | 'OTHER';
-  year: number;
-  rollNumber: string;
-  score: number;
+  examType: 'NEET' | 'UCAT' | 'IMAT' | 'MCAT' | 'OTHER' | string;
+  year?: number;
+  rollNumber?: string;
+  score?: number;
   maxScore?: number;
   rank?: number;
   percentile?: number;
-  qualified: boolean;
+  qualified?: boolean;
 }
 
 export interface MbbsPreferences {
@@ -48,9 +48,9 @@ export interface MbbsPreferences {
   preferredLanguage?: string;
   budgetMinInLakhs?: number;
   budgetMaxInLakhs?: number;
-  currency: string;
-  hostelRequired: boolean;
-  scholarshipRequired: boolean;
+  currency?: string;
+  hostelRequired?: boolean;
+  scholarshipRequired?: boolean;
   preferredDurationYears?: number;
 }
 
@@ -87,9 +87,6 @@ export interface SectionCompletionStatus {
   key: 'personal' | 'academic' | 'entrance' | 'preferences' | 'documents';
   title: string;
   isComplete: boolean;
-  completedFields: number;
-  totalFields: number;
-  weight: number;
   routeAnchor: string;
 }
 
@@ -108,4 +105,71 @@ export interface StudentProfile {
   isDiscoverable: boolean;
   discoveryStatusText: string;
   updatedAt: string;
+}
+
+export interface CreateStudentProfileRequest {
+  personal?: {
+    fullName?: string;
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    phoneNumber?: string;
+    phone?: string;
+    dateOfBirth?: string;
+    dob?: string;
+    gender?: 'MALE' | 'FEMALE' | 'OTHER' | string;
+    nationality?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    address?: string;
+    pincode?: string;
+    avatar?: string;
+  };
+  academic?: {
+    schoolName?: string;
+    boardName?: string;
+    tenthBoard?: string;
+    tenthPassingYear?: number;
+    tenthYear?: number;
+    tenthMarks?: number;
+    tenthPercentage?: number;
+    twelfthBoard?: string;
+    twelfthPassingYear?: number;
+    twelfthYear?: number;
+    twelfthMarks?: number;
+    physicsMarks?: number;
+    physicsScore?: number;
+    chemistryMarks?: number;
+    chemistryScore?: number;
+    biologyMarks?: number;
+    biologyScore?: number;
+    englishMarks?: number;
+    englishScore?: number;
+    pcbPercentage?: number;
+    overallPercentage?: number;
+  };
+  entrance?: {
+    neetScore?: number;
+    neetRollNumber?: string;
+    neetYear?: number;
+    neetQualified?: boolean;
+    ucatScore?: number | null;
+    otherExams?: any[];
+  };
+  preferences?: {
+    preferredCourse?: string;
+    course?: string;
+    specialization?: string;
+    preferredCountries?: string[];
+    preferredIntake?: string | string[];
+    preferredBudgetUsd?: number;
+    preferredLanguage?: string;
+    budgetMinInLakhs?: number;
+    budgetMaxInLakhs?: number;
+    currency?: string;
+    hostelRequired?: boolean;
+    scholarshipRequired?: boolean;
+    preferredDurationYears?: number;
+  };
 }

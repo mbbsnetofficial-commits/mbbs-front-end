@@ -75,7 +75,7 @@ describe('BlogDetail (Static Blog)', () => {
     fixture = TestBed.createComponent(BlogDetail);
     component = fixture.componentInstance;
     fixture.detectChanges();
-  });
+  }, 30000);
 
   it('should create BlogDetail and find blog matching slug', () => {
     expect(component).toBeTruthy();

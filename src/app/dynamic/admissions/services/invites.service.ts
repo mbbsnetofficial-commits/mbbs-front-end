@@ -3,7 +3,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { Observable, catchError, map, of, throwError } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { ADMISSIONS_API } from '../constants/admissions-api.constants';
-import { Invite, InviteStatus, InviteSummaryCounts, PaginationInfo } from '../models/invite.model';
+import { DeclineReason, Invite, InviteHistoryItem, InviteStatus, InviteSummaryCounts, PaginationInfo } from '../models/invite.model';
 
 export interface BackendInviteSummaryResponse {
   success: boolean;
@@ -67,6 +67,40 @@ export interface BackendInviteViewResponse {
   success: boolean;
   message?: string;
   data?: BackendInviteItem;
+}
+
+export interface BackendInviteAcceptResponse {
+  success: boolean;
+  message?: string;
+  data?: BackendInviteItem;
+}
+
+export interface BackendInviteDeclineResponse {
+  success: boolean;
+  message?: string;
+  data?: BackendInviteItem;
+}
+
+export interface BackendInviteHistoryItem {
+  _id?: string;
+  id?: string;
+  inviteId?: string;
+  action?: string;
+  event?: string;
+  status?: string;
+  title?: string;
+  description?: string;
+  actor?: string;
+  actorType?: string;
+  createdAt?: string;
+  timestamp?: string;
+  metadata?: Record<string, any>;
+}
+
+export interface BackendInviteHistoryResponse {
+  success: boolean;
+  message?: string;
+  data?: BackendInviteHistoryItem[] | { items: BackendInviteHistoryItem[] };
 }
 
 @Injectable({ providedIn: 'root' })
@@ -243,6 +277,140 @@ export class InvitesService {
 
   markAsViewed(inviteId: string): Observable<Invite | undefined> {
     return this.markInviteAsViewed(inviteId);
+  }
+
+  acceptInvite(inviteId: string): Observable<Invite | undefined> {
+    if (!inviteId) {
+      return of(undefined);
+    }
+    return this.http
+      .post<BackendInviteAcceptResponse>(`${this.invitesUrl}/${inviteId}/accept`, {})
+      .pipe(
+        map((res) => {
+          this.invitesState.update((prev) =>
+            prev.map((item) => {
+              if (item.id === inviteId) {
+                return {
+                  ...item,
+                  status: 'ACCEPTED',
+                  respondedAt: res?.data?.respondedAt || new Date().toISOString(),
+                };
+              }
+              return item;
+            })
+          );
+          this.loadSummary().subscribe({ error: () => {} });
+
+          if (res?.data) {
+            return this.mapBackendInviteToInvite(res.data);
+          }
+          return this.invitesState().find((i) => i.id === inviteId);
+        }),
+        catchError((err: HttpErrorResponse) => {
+          return throwError(() => err);
+        })
+      );
+  }
+
+  declineInvite(
+    inviteId: string,
+    payload?: { reason?: DeclineReason; note?: string }
+  ): Observable<Invite | undefined> {
+    if (!inviteId) {
+      return of(undefined);
+    }
+    const body = payload?.reason
+      ? { reason: payload.reason, ...(payload.note ? { note: payload.note } : {}) }
+      : {};
+
+    return this.http
+      .post<BackendInviteDeclineResponse>(`${this.invitesUrl}/${inviteId}/decline`, body)
+      .pipe(
+        map((res) => {
+          this.invitesState.update((prev) =>
+            prev.map((item) => {
+              if (item.id === inviteId) {
+                return {
+                  ...item,
+                  status: 'DECLINED',
+                  declineReason: payload?.reason,
+                  declineNote: payload?.note,
+                  respondedAt: res?.data?.respondedAt || new Date().toISOString(),
+                };
+              }
+              return item;
+            })
+          );
+          this.loadSummary().subscribe({ error: () => {} });
+
+          if (res?.data) {
+            return this.mapBackendInviteToInvite(res.data);
+          }
+          return this.invitesState().find((i) => i.id === inviteId);
+        }),
+        catchError((err: HttpErrorResponse) => {
+          return throwError(() => err);
+        })
+      );
+  }
+
+  getInviteHistory(inviteId: string): Observable<InviteHistoryItem[]> {
+    if (!inviteId) {
+      return of([]);
+    }
+    return this.http
+      .get<BackendInviteHistoryResponse>(`${this.invitesUrl}/${inviteId}/history`)
+      .pipe(
+        map((res) => {
+          if (!res || !res.data) {
+            return [];
+          }
+          const rawItems: BackendInviteHistoryItem[] = Array.isArray(res.data)
+            ? res.data
+            : Array.isArray((res.data as any).items)
+            ? (res.data as any).items
+            : [];
+
+          return rawItems.map((item) => ({
+            id: item.id || item._id || '',
+            action: item.action || item.event || item.status || 'UPDATE',
+            title: item.title || this.formatActionTitle(item.action || item.event || item.status || ''),
+            description: item.description || '',
+            actor: item.actor || item.actorType || 'SYSTEM',
+            createdAt: item.createdAt || item.timestamp || new Date().toISOString(),
+            metadata: item.metadata,
+          }));
+        }),
+        catchError((err: HttpErrorResponse) => {
+          return throwError(() => err);
+        })
+      );
+  }
+
+  private formatActionTitle(action: string): string {
+    switch (action.toUpperCase()) {
+      case 'CREATED':
+      case 'INVITE_CREATED':
+      case 'ISSUED':
+        return 'Invitation Issued';
+      case 'VIEWED':
+      case 'INVITE_VIEWED':
+        return 'Invitation Reviewed';
+      case 'ACCEPTED':
+      case 'INVITE_ACCEPTED':
+        return 'Invitation Accepted';
+      case 'DECLINED':
+      case 'INVITE_DECLINED':
+        return 'Invitation Declined';
+      case 'EXPIRED':
+      case 'INVITE_EXPIRED':
+        return 'Invitation Expired';
+      case 'CANCELLED':
+      case 'WITHDRAWN':
+        return 'Invitation Withdrawn';
+      default:
+        return action.replace(/_/g, ' ') || 'Activity Logged';
+    }
   }
 
   private mapBackendInviteToInvite(item: BackendInviteItem): Invite {

@@ -61,6 +61,7 @@ describe('StudentProfileService', () => {
         specialization: 'General Medicine',
       },
       profileCompletion: 100,
+      isDiscoverable: true,
     },
   };
 
@@ -143,5 +144,169 @@ describe('StudentProfileService', () => {
     );
     expect(doc.type).toBe('MEDICAL_CERTIFICATE');
     expect(doc.status).toBe('UPLOADED');
+  });
+
+  describe('createProfile API (POST /student/profile)', () => {
+    const newProfilePayload = {
+      personal: {
+        fullName: 'Rahul Sharma',
+        firstName: 'Rahul',
+        lastName: 'Sharma',
+        email: 'rahul@example.com',
+        phoneNumber: '+91 91234 56789',
+        dateOfBirth: '2006-02-20',
+        gender: 'MALE',
+        nationality: 'Indian',
+        city: 'Mumbai',
+        state: 'Maharashtra',
+        country: 'India',
+      },
+      academic: {
+        tenthMarks: 480,
+        tenthBoard: 'CBSE',
+        tenthPassingYear: 2022,
+        twelfthMarks: 470,
+        twelfthBoard: 'CBSE',
+        twelfthPassingYear: 2024,
+        pcbPercentage: 94,
+        physicsMarks: 92,
+        chemistryMarks: 94,
+        biologyMarks: 96,
+        englishMarks: 90,
+        schoolName: 'Delhi Public School',
+      },
+      entrance: {
+        neetScore: 620,
+        neetRollNumber: '8899001122',
+        neetYear: 2026,
+        neetQualified: true,
+        ucatScore: null,
+      },
+      preferences: {
+        preferredCountries: ['Russia', 'Kazakhstan'],
+        preferredBudgetUsd: 25000,
+        preferredIntake: 'September 2026',
+        preferredLanguage: 'English',
+        course: 'MBBS',
+        specialization: 'General Medicine',
+      },
+    };
+
+    it('should call POST /student/profile with payload and update state upon success', async () => {
+      const createdBackendResponse: BackendStudentProfileResponse = {
+        success: true,
+        message: 'Student profile created successfully',
+        data: {
+          _id: 'student-profile-new-99',
+          userId: 'user-99',
+          ...newProfilePayload,
+          profileCompletion: 85,
+          isDiscoverable: true,
+          updatedAt: '2026-08-20T17:00:00.000Z',
+        },
+      };
+
+      const promise = firstValueFrom(service.createProfile(newProfilePayload));
+      const req = httpTesting.expectOne(`${environment.admissionsApiBaseUrl}/student/profile`);
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual(newProfilePayload);
+      req.flush(createdBackendResponse);
+
+      const created = await promise;
+      expect(created.id).toBe('student-profile-new-99');
+      expect(created.personal.fullName).toBe('Rahul Sharma');
+      expect(created.academic.pcbPercentage).toBe(94);
+      expect(created.entranceExams[0].score).toBe(620);
+      expect(service.profile().id).toBe('student-profile-new-99');
+      expect(service.loading()).toBe(false);
+      expect(service.error()).toBeNull();
+    });
+
+    it('should handle 400 Bad Request error without mutating profile state', async () => {
+      const promise = firstValueFrom(service.createProfile(newProfilePayload));
+      const req = httpTesting.expectOne(`${environment.admissionsApiBaseUrl}/student/profile`);
+      req.flush(
+        { success: false, message: 'Invalid profile data provided' },
+        { status: 400, statusText: 'Bad Request' }
+      );
+
+      try {
+        await promise;
+      } catch (err: any) {
+        expect(err.status).toBe(400);
+      }
+
+      expect(service.error()).toBe('Invalid profile data provided');
+      expect(service.loading()).toBe(false);
+      expect(service.profile().id).toBe('student-profile-01'); // Previous state preserved
+    });
+
+    it('should handle 401 Unauthorized error during profile creation', async () => {
+      const promise = firstValueFrom(service.createProfile(newProfilePayload));
+      const req = httpTesting.expectOne(`${environment.admissionsApiBaseUrl}/student/profile`);
+      req.flush(
+        { success: false, message: 'Unauthorized' },
+        { status: 401, statusText: 'Unauthorized' }
+      );
+
+      try {
+        await promise;
+      } catch (err: any) {
+        expect(err.status).toBe(401);
+      }
+
+      expect(service.error()).toBe('Unauthorized');
+    });
+
+    it('should handle 409 Conflict error when profile already exists', async () => {
+      const promise = firstValueFrom(service.createProfile(newProfilePayload));
+      const req = httpTesting.expectOne(`${environment.admissionsApiBaseUrl}/student/profile`);
+      req.flush(
+        { success: false, message: 'Student profile already exists' },
+        { status: 409, statusText: 'Conflict' }
+      );
+
+      try {
+        await promise;
+      } catch (err: any) {
+        expect(err.status).toBe(409);
+      }
+
+      expect(service.error()).toBe('Student profile already exists');
+    });
+
+    it('should handle 422 Validation Error during profile creation', async () => {
+      const promise = firstValueFrom(service.createProfile(newProfilePayload));
+      const req = httpTesting.expectOne(`${environment.admissionsApiBaseUrl}/student/profile`);
+      req.flush(
+        { success: false, message: 'Validation failed: Invalid email format' },
+        { status: 422, statusText: 'Unprocessable Entity' }
+      );
+
+      try {
+        await promise;
+      } catch (err: any) {
+        expect(err.status).toBe(422);
+      }
+
+      expect(service.error()).toBe('Validation failed: Invalid email format');
+    });
+
+    it('should handle 500 Server Error during profile creation', async () => {
+      const promise = firstValueFrom(service.createProfile(newProfilePayload));
+      const req = httpTesting.expectOne(`${environment.admissionsApiBaseUrl}/student/profile`);
+      req.flush(
+        { success: false, message: 'Internal Server Error' },
+        { status: 500, statusText: 'Server Error' }
+      );
+
+      try {
+        await promise;
+      } catch (err: any) {
+        expect(err.status).toBe(500);
+      }
+
+      expect(service.error()).toBe('Internal Server Error');
+    });
   });
 });

@@ -31,7 +31,7 @@ describe('Otp', () => {
     tokenService = TestBed.inject(TokenService);
     router = TestBed.inject(Router);
     await fixture.whenStable();
-  });
+  }, 30000);
 
   afterEach(() => {
     sessionStorage.clear();

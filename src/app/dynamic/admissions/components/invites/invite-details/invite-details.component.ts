@@ -5,7 +5,7 @@ import { InvitesService } from '../../../services/invites.service';
 import { InviteActionsComponent } from '../invite-actions/invite-actions';
 import { Icon, IconName } from '../../../../../shared/ui/icon/icon';
 import { ImageFallbackDirective } from '../../../../../shared/ui/media/image-fallback.directive';
-import { DeclineReason, Invite, InviteStatus } from '../../../models/invite.model';
+import { DeclineReason, Invite, InviteHistoryItem, InviteStatus } from '../../../models/invite.model';
 
 const STATUS_CONFIG: Record<InviteStatus, { label: string; badgeClass: string; icon: IconName }> = {
   NEW: { label: 'New Offer', badgeClass: 'status-new', icon: 'sparkles' },
@@ -40,6 +40,15 @@ export class InviteDetailsComponent {
   readonly invite = signal<Invite | undefined>(undefined);
   readonly loading = signal<boolean>(true);
   readonly error = signal<string | null>(null);
+
+  readonly history = signal<InviteHistoryItem[]>([]);
+  readonly historyLoading = signal<boolean>(false);
+  readonly historyError = signal<string | null>(null);
+
+  readonly accepting = signal<boolean>(false);
+  readonly declining = signal<boolean>(false);
+  readonly actionError = signal<string | null>(null);
+  readonly actionSuccess = signal<string | null>(null);
 
   readonly statusConfig = computed(() => {
     const inv = this.invite();
@@ -84,6 +93,8 @@ export class InviteDetailsComponent {
             error: () => {},
           });
         }
+
+        this.loadInviteHistory(inviteId);
       },
       error: (err) => {
         this.loading.set(false);
@@ -92,13 +103,106 @@ export class InviteDetailsComponent {
     });
   }
 
-  onAcceptInvite(): void {
-    const current = this.invite();
-    if (!current) return;
+  loadInviteHistory(inviteId: string): void {
+    this.historyLoading.set(true);
+    this.historyError.set(null);
+
+    this.invitesService.getInviteHistory(inviteId).subscribe({
+      next: (items) => {
+        this.history.set(items);
+        this.historyLoading.set(false);
+      },
+      error: (err) => {
+        this.historyLoading.set(false);
+        this.historyError.set(
+          err?.error?.message ||
+          (err?.status === 404
+            ? 'Invitation activity history not found.'
+            : 'Failed to load invitation activity.')
+        );
+      },
+    });
   }
 
-  onDeclineInvite(_payload: { reason: DeclineReason; note: string }): void {
+  onAcceptInvite(): void {
     const current = this.invite();
-    if (!current) return;
+    if (!current || this.accepting() || this.declining()) return;
+
+    this.accepting.set(true);
+    this.actionError.set(null);
+    this.actionSuccess.set(null);
+
+    this.invitesService.acceptInvite(current.id).subscribe({
+      next: (updated) => {
+        this.accepting.set(false);
+        this.actionSuccess.set('You have successfully accepted the university invitation!');
+        if (updated) {
+          this.invite.set(updated);
+        } else {
+          this.invite.update((inv) =>
+            inv ? { ...inv, status: 'ACCEPTED', respondedAt: new Date().toISOString() } : inv
+          );
+        }
+        this.loadInviteHistory(current.id);
+      },
+      error: (err) => {
+        this.accepting.set(false);
+        const errorMsg =
+          err?.error?.message ||
+          (err?.status === 409
+            ? 'Unable to accept this invitation: the offer is no longer in an acceptable state.'
+            : err?.status === 404
+            ? 'Invitation not found.'
+            : err?.status === 403
+            ? 'You are not authorized to accept this invitation.'
+            : 'Failed to accept invitation. Please try again.');
+        this.actionError.set(errorMsg);
+      },
+    });
+  }
+
+  onDeclineInvite(payload: { reason: DeclineReason; note: string }): void {
+    const current = this.invite();
+    if (!current || this.declining() || this.accepting()) return;
+
+    this.declining.set(true);
+    this.actionError.set(null);
+    this.actionSuccess.set(null);
+
+    this.invitesService.declineInvite(current.id, payload).subscribe({
+      next: (updated) => {
+        this.declining.set(false);
+        this.actionSuccess.set('You have declined this university invitation.');
+        if (updated) {
+          this.invite.set(updated);
+        } else {
+          this.invite.update((inv) =>
+            inv
+              ? {
+                  ...inv,
+                  status: 'DECLINED',
+                  declineReason: payload.reason,
+                  declineNote: payload.note,
+                  respondedAt: new Date().toISOString(),
+                }
+              : inv
+          );
+        }
+        this.loadInviteHistory(current.id);
+      },
+      error: (err) => {
+        this.declining.set(false);
+        const errorMsg =
+          err?.error?.message ||
+          (err?.status === 409
+            ? 'Unable to decline this invitation: the offer is no longer in a valid state.'
+            : err?.status === 404
+            ? 'Invitation not found.'
+            : err?.status === 403
+            ? 'You are not authorized to decline this invitation.'
+            : 'Failed to decline invitation. Please try again.');
+        this.actionError.set(errorMsg);
+      },
+    });
   }
 }

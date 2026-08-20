@@ -249,9 +249,90 @@
       </div>
     </section>
 
+    <!-- Invitation Activity History -->
+    <section class="details-section activity-section" aria-labelledby="history-heading">
+      <div class="section-card">
+        <div class="card-head">
+          <div class="head-icon icon-history">
+            <app-icon name="clock" [size]="20" />
+          </div>
+          <div>
+            <h3 id="history-heading">Invitation Activity History</h3>
+            <p>Real-time audit log of actions and status changes for this invitation</p>
+          </div>
+        </div>
+
+        <div class="card-body">
+          @if (historyLoading()) {
+            <div class="history-loading" role="status">
+              <span class="history-spinner" aria-hidden="true"></span>
+              <span>Loading invitation activity...</span>
+            </div>
+          } @else if (historyError(); as histErr) {
+            <div class="history-error" role="alert">
+              <app-icon name="close" [size]="16" />
+              <span>{{ histErr }}</span>
+              <button type="button" class="btn-retry-hist" (click)="loadInviteHistory(item.id)">Retry</button>
+            </div>
+          } @else if (history().length === 0) {
+            <div class="history-empty">
+              <app-icon name="clock" [size]="20" />
+              <p>No activity recorded yet for this invitation.</p>
+            </div>
+          } @else {
+            <div class="history-timeline">
+              @for (entry of history(); track entry.id || $index) {
+                <div class="timeline-entry">
+                  <div class="timeline-marker" [ngClass]="'marker-' + (entry.action.toLowerCase())">
+                    <span class="marker-dot"></span>
+                  </div>
+                  <div class="timeline-content">
+                    <div class="entry-header">
+                      <strong class="entry-title">{{ entry.title || entry.action }}</strong>
+                      <time class="entry-time">{{ entry.createdAt | date:'medium' }}</time>
+                    </div>
+                    @if (entry.description) {
+                      <p class="entry-desc">{{ entry.description }}</p>
+                    }
+                    @if (entry.actor) {
+                      <span class="entry-actor">By: {{ entry.actor }}</span>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- Action Feedback Messages -->
+    @if (actionError(); as errMsg) {
+      <div class="action-alert action-alert-error" role="alert">
+        <app-icon name="close" [size]="18" />
+        <div class="alert-content">
+          <strong>Action Failed</strong>
+          <p>{{ errMsg }}</p>
+        </div>
+        <button type="button" class="btn-dismiss-alert" (click)="actionError.set(null)">Dismiss</button>
+      </div>
+    }
+
+    @if (actionSuccess(); as successMsg) {
+      <div class="action-alert action-alert-success" role="status">
+        <app-icon name="check" [size]="18" />
+        <div class="alert-content">
+          <strong>Action Completed</strong>
+          <p>{{ successMsg }}</p>
+        </div>
+      </div>
+    }
+
     <!-- Bottom Action Bar -->
     <app-invite-actions
       [invite]="item"
+      [accepting]="accepting()"
+      [declining]="declining()"
       (acceptClicked)="onAcceptInvite()"
       (declineSubmitted)="onDeclineInvite($event)"
     />

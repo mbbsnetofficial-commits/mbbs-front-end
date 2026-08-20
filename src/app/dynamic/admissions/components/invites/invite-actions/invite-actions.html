@@ -13,14 +13,24 @@
         <span>You have accepted this invitation.</span>
       </span>
     } @else if (invite().status === 'NEW' || invite().status === 'VIEWED' || invite().status === 'PENDING') {
-      <button type="button" class="btn-decline" (click)="openDeclineModal()">
-        <app-icon name="close" [size]="16" />
-        <span>Decline Opportunity</span>
+      <button type="button" class="btn-decline" [disabled]="accepting() || declining()" (click)="openDeclineModal()">
+        @if (declining()) {
+          <span class="btn-spinner btn-spinner-dark" aria-hidden="true"></span>
+          <span>Declining...</span>
+        } @else {
+          <app-icon name="close" [size]="16" />
+          <span>Decline Opportunity</span>
+        }
       </button>
 
-      <button type="button" class="btn-accept" (click)="openAcceptModal()">
-        <app-icon name="check" [size]="18" />
-        <span>Accept Invitation</span>
+      <button type="button" class="btn-accept" [disabled]="accepting() || declining()" (click)="openAcceptModal()">
+        @if (accepting()) {
+          <span class="btn-spinner" aria-hidden="true"></span>
+          <span>Accepting...</span>
+        } @else {
+          <app-icon name="check" [size]="18" />
+          <span>Accept Invitation</span>
+        }
       </button>
     } @else if (invite().status === 'DECLINED') {
       <span class="declined-status-text">
@@ -61,12 +71,17 @@
       </div>
 
       <footer class="modal-footer">
-        <button type="button" class="btn-cancel" (click)="closeAcceptModal()">
+        <button type="button" class="btn-cancel" [disabled]="accepting()" (click)="closeAcceptModal()">
           Cancel
         </button>
-        <button type="button" class="btn-confirm-accept" (click)="confirmAccept()">
-          <span>Confirm & Accept</span>
-          <app-icon name="arrow-right" [size]="16" />
+        <button type="button" class="btn-confirm-accept" [disabled]="accepting()" (click)="confirmAccept()">
+          @if (accepting()) {
+            <span class="btn-spinner" aria-hidden="true"></span>
+            <span>Processing...</span>
+          } @else {
+            <span>Confirm & Accept</span>
+            <app-icon name="arrow-right" [size]="16" />
+          }
         </button>
       </footer>
     </div>
@@ -108,11 +123,16 @@
       </div>
 
       <footer class="modal-footer">
-        <button type="button" class="btn-cancel" (click)="closeDeclineModal()">
+        <button type="button" class="btn-cancel" [disabled]="declining() || accepting()" (click)="closeDeclineModal()">
           Cancel
         </button>
-        <button type="button" class="btn-confirm-decline" (click)="confirmDecline()">
-          <span>Decline Invitation</span>
+        <button type="button" class="btn-confirm-decline" [disabled]="declining() || accepting()" (click)="confirmDecline()">
+          @if (declining()) {
+            <span class="btn-spinner" aria-hidden="true"></span>
+            <span>Declining...</span>
+          } @else {
+            <span>Decline Invitation</span>
+          }
         </button>
       </footer>
     </div>

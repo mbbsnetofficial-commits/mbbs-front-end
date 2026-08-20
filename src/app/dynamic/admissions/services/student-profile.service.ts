@@ -5,6 +5,7 @@ import { environment } from '../../../../environments/environment';
 import { ADMISSIONS_API } from '../constants/admissions-api.constants';
 import {
   AcademicInformation,
+  CreateStudentProfileRequest,
   EntranceExam,
   MbbsPreferences,
   PersonalInformation,
@@ -105,16 +106,16 @@ function createEmptyProfile(): StudentProfile {
     academic: {
       schoolName: '',
       boardName: '',
-      tenthYear: 0,
+      tenthYear: undefined,
       tenthMarks: undefined,
       tenthPercentage: undefined,
-      twelfthYear: 0,
+      twelfthYear: undefined,
       twelfthMarks: undefined,
-      physicsScore: 0,
-      chemistryScore: 0,
-      biologyScore: 0,
+      physicsScore: undefined,
+      chemistryScore: undefined,
+      biologyScore: undefined,
       englishScore: undefined,
-      pcbPercentage: 0,
+      pcbPercentage: undefined,
       overallPercentage: undefined,
     },
     entranceExams: [],
@@ -125,20 +126,20 @@ function createEmptyProfile(): StudentProfile {
       preferredCountries: [],
       preferredIntake: [],
       preferredBudgetUsd: undefined,
-      preferredLanguage: 'English',
+      preferredLanguage: '',
       budgetMinInLakhs: undefined,
       budgetMaxInLakhs: undefined,
       currency: 'USD',
-      hostelRequired: true,
-      scholarshipRequired: true,
-      preferredDurationYears: 6,
+      hostelRequired: undefined,
+      scholarshipRequired: undefined,
+      preferredDurationYears: undefined,
     },
     documents: [],
     completionPercentage: 0,
     sections: [],
     isDiscoverable: false,
-    discoveryStatusText: '',
-    updatedAt: new Date().toISOString(),
+    discoveryStatusText: 'Inactive — Profile is currently not discoverable by universities.',
+    updatedAt: '',
   };
 }
 
@@ -155,26 +156,19 @@ function mapBackendProfileToFrontend(data: BackendStudentProfileResponse['data']
   const dob = p.dateOfBirth || '';
   const gender = (p.gender?.toUpperCase() as any) || 'MALE';
 
-  const physics = Number(a.physicsMarks ?? 0);
-  const chemistry = Number(a.chemistryMarks ?? 0);
-  const biology = Number(a.biologyMarks ?? 0);
-  const pcb = Number(
-    a.pcbPercentage ??
-      (a.physicsMarks !== undefined &&
-      a.chemistryMarks !== undefined &&
-      a.biologyMarks !== undefined
-        ? +((physics + chemistry + biology) / 3).toFixed(2)
-        : 0)
-  );
+  const physics = a.physicsMarks !== undefined ? Number(a.physicsMarks) : undefined;
+  const chemistry = a.chemistryMarks !== undefined ? Number(a.chemistryMarks) : undefined;
+  const biology = a.biologyMarks !== undefined ? Number(a.biologyMarks) : undefined;
+  const pcb = a.pcbPercentage !== undefined ? Number(a.pcbPercentage) : undefined;
 
   const entranceExams: EntranceExam[] = [];
   if (e.neetScore !== undefined || e.neetRollNumber) {
     entranceExams.push({
       id: 'exam-neet',
       examType: 'NEET',
-      year: Number(e.neetYear) || new Date().getFullYear(),
+      year: e.neetYear !== undefined ? Number(e.neetYear) : undefined,
       rollNumber: e.neetRollNumber || '',
-      score: Number(e.neetScore) || 0,
+      score: e.neetScore !== undefined ? Number(e.neetScore) : undefined,
       maxScore: 720,
       rank: undefined,
       percentile: undefined,
@@ -186,7 +180,7 @@ function mapBackendProfileToFrontend(data: BackendStudentProfileResponse['data']
     entranceExams.push({
       id: 'exam-ucat',
       examType: 'UCAT',
-      year: new Date().getFullYear(),
+      year: undefined,
       rollNumber: '',
       score: Number(e.ucatScore),
       qualified: true,
@@ -205,12 +199,14 @@ function mapBackendProfileToFrontend(data: BackendStudentProfileResponse['data']
     ? `${course} (${specialization})`
     : course;
 
+  const isDiscoverable = data?.isDiscoverable ?? false;
+
   return {
     id: data?._id || '',
     userId: data?.userId || '',
     avatarUrl: p.avatar || '/images/profile.jpg',
     aspirantTitle:
-      entranceExams.length > 0
+      entranceExams.length > 0 && entranceExams[0].year
         ? `NEET ${entranceExams[0].year} Aspirant · ${preferredCourse} Candidate`
         : `${preferredCourse} Candidate`,
     personal: {
@@ -227,10 +223,10 @@ function mapBackendProfileToFrontend(data: BackendStudentProfileResponse['data']
     academic: {
       schoolName: a.schoolName || '',
       boardName: a.twelfthBoard || a.tenthBoard || '',
-      tenthYear: Number(a.tenthPassingYear ?? 0),
+      tenthYear: a.tenthPassingYear !== undefined ? Number(a.tenthPassingYear) : undefined,
       tenthMarks: a.tenthMarks !== undefined ? Number(a.tenthMarks) : undefined,
       tenthPercentage: undefined,
-      twelfthYear: Number(a.twelfthPassingYear ?? 0),
+      twelfthYear: a.twelfthPassingYear !== undefined ? Number(a.twelfthPassingYear) : undefined,
       twelfthMarks: a.twelfthMarks !== undefined ? Number(a.twelfthMarks) : undefined,
       physicsScore: physics,
       chemistryScore: chemistry,
@@ -250,13 +246,13 @@ function mapBackendProfileToFrontend(data: BackendStudentProfileResponse['data']
         pref.preferredBudgetUsd !== undefined
           ? Number(pref.preferredBudgetUsd)
           : undefined,
-      preferredLanguage: pref.preferredLanguage || 'English',
+      preferredLanguage: pref.preferredLanguage || '',
       budgetMinInLakhs: undefined,
       budgetMaxInLakhs: undefined,
       currency: pref.preferredBudgetUsd !== undefined ? 'USD' : 'INR',
-      hostelRequired: pref.hostelRequired ?? true,
-      scholarshipRequired: pref.scholarshipRequired ?? true,
-      preferredDurationYears: 6,
+      hostelRequired: pref.hostelRequired !== undefined ? pref.hostelRequired : undefined,
+      scholarshipRequired: pref.scholarshipRequired !== undefined ? pref.scholarshipRequired : undefined,
+      preferredDurationYears: undefined,
     },
     documents: (data?.documents || []).map((doc: any) => ({
       id: doc.id || doc._id || `doc-${Date.now()}`,
@@ -271,9 +267,11 @@ function mapBackendProfileToFrontend(data: BackendStudentProfileResponse['data']
     })),
     completionPercentage: data?.profileCompletion ?? 0,
     sections: [],
-    isDiscoverable: data?.isDiscoverable ?? true,
-    discoveryStatusText: '',
-    updatedAt: data?.updatedAt || new Date().toISOString(),
+    isDiscoverable,
+    discoveryStatusText: isDiscoverable
+      ? 'Active — Profile is discoverable by universities.'
+      : 'Inactive — Profile is currently not discoverable by universities.',
+    updatedAt: data?.updatedAt || '',
   };
 }
 
@@ -290,27 +288,15 @@ export class StudentProfileService {
   readonly profile = computed(() => {
     const p = this.profileState();
     const sections = this.calculateSections(p);
-    const totalWeightedScore = sections.reduce(
-      (acc, sec) =>
-        acc +
-        (sec.isComplete
-          ? sec.weight
-          : (sec.completedFields / sec.totalFields) * sec.weight),
-      0
-    );
-    const calculatedPercentage = Math.min(100, Math.round(totalWeightedScore));
-    const completionPercentage =
-      p.completionPercentage > 0 ? p.completionPercentage : calculatedPercentage;
-    const isDiscoverable = completionPercentage >= 70 && p.isDiscoverable;
+    const isDiscoverable = p.isDiscoverable;
 
     return {
       ...p,
       sections,
-      completionPercentage,
       isDiscoverable,
       discoveryStatusText: isDiscoverable
-        ? 'Active — Premier medical universities can discover your academic profile and send direct admission invites.'
-        : 'Inactive — Complete remaining profile sections (minimum 70%) to become discoverable to international universities.',
+        ? 'Active — Profile is discoverable by universities.'
+        : 'Inactive — Profile is currently not discoverable by universities.',
     };
   });
 
@@ -337,6 +323,29 @@ export class StudentProfileService {
         return throwError(() => err);
       })
     );
+  }
+
+  createProfile(payload: CreateStudentProfileRequest): Observable<StudentProfile> {
+    this.loading.set(true);
+    this.error.set(null);
+
+    return this.http
+      .post<BackendStudentProfileResponse>(this.profileUrl, payload)
+      .pipe(
+        map((res) => {
+          const mapped = mapBackendProfileToFrontend(res?.data);
+          this.profileState.set(mapped);
+          this.loading.set(false);
+          return mapped;
+        }),
+        catchError((err: HttpErrorResponse) => {
+          const message =
+            err.error?.message || err.message || 'Failed to create student profile';
+          this.error.set(message);
+          this.loading.set(false);
+          return throwError(() => err);
+        })
+      );
   }
 
   getProfile(): Observable<StudentProfile> {
@@ -439,89 +448,57 @@ export class StudentProfileService {
   }
 
   private calculateSections(p: StudentProfile): SectionCompletionStatus[] {
-    const personalFields = [
-      p.personal.fullName,
-      p.personal.dob,
-      p.personal.gender,
-      p.personal.nationality,
-      p.personal.email,
-      p.personal.phone,
-      p.personal.city,
-      p.personal.country,
-    ];
-    const personalComplete = personalFields.filter(Boolean).length;
+    const personalComplete = Boolean(
+      p.personal.fullName && (p.personal.email || p.personal.phone)
+    );
 
-    const academicFields = [
-      p.academic.schoolName,
-      p.academic.boardName,
-      p.academic.tenthYear,
-      p.academic.tenthMarks !== undefined || p.academic.tenthPercentage !== undefined,
-      p.academic.twelfthYear,
-      p.academic.physicsScore,
-      p.academic.chemistryScore,
-      p.academic.biologyScore,
-    ];
-    const academicComplete = academicFields.filter(Boolean).length;
+    const academicComplete = Boolean(
+      p.academic.schoolName || p.academic.boardName || p.academic.twelfthMarks !== undefined || p.academic.pcbPercentage !== undefined
+    );
 
     const hasNeet = p.entranceExams.some(
-      (e) => e.examType === 'NEET' && (e.score > 0 || !!e.rollNumber)
+      (e) => e.examType === 'NEET' && (e.score !== undefined || !!e.rollNumber)
     );
 
-    const hasPreferences =
-      p.preferences.preferredCountries.length > 0 &&
-      p.preferences.preferredIntake.length > 0 &&
-      (p.preferences.preferredBudgetUsd !== undefined ||
-        (p.preferences.budgetMaxInLakhs !== undefined && p.preferences.budgetMaxInLakhs > 0));
+    const hasPreferences = Boolean(
+      (p.preferences.preferredCountries && p.preferences.preferredCountries.length > 0) ||
+      p.preferences.preferredBudgetUsd !== undefined ||
+      (p.preferences.preferredIntake && p.preferences.preferredIntake.length > 0)
+    );
 
-    const uploadedDocs = p.documents.filter(
+    const uploadedDocs = (p.documents || []).filter(
       (d) => d.status === 'UPLOADED' || d.status === 'VERIFIED'
     );
-    const essentialDocsCount = 4;
 
     return [
       {
         key: 'personal',
         title: 'Personal Information',
-        isComplete: personalComplete === personalFields.length,
-        completedFields: personalComplete,
-        totalFields: personalFields.length,
-        weight: 20,
+        isComplete: personalComplete,
         routeAnchor: 'personal-section',
       },
       {
         key: 'academic',
         title: 'Academic Records',
-        isComplete: academicComplete === academicFields.length,
-        completedFields: academicComplete,
-        totalFields: academicFields.length,
-        weight: 25,
+        isComplete: academicComplete,
         routeAnchor: 'academic-section',
       },
       {
         key: 'entrance',
         title: 'NEET Scorecard & Rank',
         isComplete: hasNeet,
-        completedFields: hasNeet ? 4 : 0,
-        totalFields: 4,
-        weight: 25,
         routeAnchor: 'entrance-section',
       },
       {
         key: 'preferences',
         title: 'MBBS Preferences',
         isComplete: hasPreferences,
-        completedFields: hasPreferences ? 3 : 1,
-        totalFields: 3,
-        weight: 15,
         routeAnchor: 'preferences-section',
       },
       {
         key: 'documents',
         title: 'Essential Documents',
-        isComplete: uploadedDocs.length >= essentialDocsCount,
-        completedFields: Math.min(essentialDocsCount, uploadedDocs.length),
-        totalFields: essentialDocsCount,
-        weight: 15,
+        isComplete: uploadedDocs.length > 0,
         routeAnchor: 'documents-section',
       },
     ];
