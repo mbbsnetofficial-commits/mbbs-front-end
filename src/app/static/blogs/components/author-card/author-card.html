@@ -1,0 +1,15 @@
+<a class="card" [routerLink]="['/blogs/authors', author().slug]">
+  @if (author().profileImage && !author().profileImage.includes('example.com')) {
+    <img
+      appImageFallback
+      [src]="author().profileImage"
+      [alt]="author().fullName"
+      loading="lazy"
+    >
+  }
+  <span class="content">
+    <strong>{{ author().fullName }}</strong>
+    <span>{{ author().designation }}</span>
+    <small>{{ author().totalBlogs ?? 0 }} published blogs</small>
+  </span>
+</a>

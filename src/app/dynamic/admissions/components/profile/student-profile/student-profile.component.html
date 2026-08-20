@@ -1,0 +1,557 @@
+<div class="profile-page">
+  <!-- Profile Hero Header -->
+  <app-profile-header
+    [profile]="profile()"
+    (toggleDiscoverability)="onToggleDiscoverability()"
+  />
+
+  <div class="profile-layout">
+    <!-- Sticky Completion & Navigation Sidebar -->
+    <aside class="sidebar-col">
+      <div class="completion-card">
+        <div class="meter-row">
+          <div class="ring-wrap">
+            <svg class="ring-svg" viewBox="0 0 96 96">
+              <circle class="ring-bg" cx="48" cy="48" r="38" />
+              <circle
+                class="ring-progress"
+                cx="48"
+                cy="48"
+                r="38"
+                [style.strokeDashoffset]="strokeDashoffset()"
+              />
+            </svg>
+            <div class="ring-value">
+              <strong>{{ profile().completionPercentage }}%</strong>
+              <span>Profile</span>
+            </div>
+          </div>
+
+          <div class="meter-text">
+            <h3>Profile Strength</h3>
+            <p>
+              {{ profile().completionPercentage >= 70 ? 'Ready for matching with partner medical universities.' : 'Complete key sections to unlock premier university discovery.' }}
+            </p>
+          </div>
+        </div>
+
+        <nav class="sections-nav">
+          @for (sec of profile().sections; track sec.key) {
+            <button
+              type="button"
+              class="nav-item"
+              [class.active]="activeSection() === sec.key"
+              [class.complete]="sec.isComplete"
+              (click)="onSectionSelected(sec.key)"
+            >
+              <span class="status-indicator">
+                @if (sec.isComplete) {
+                  <app-icon name="check" [size]="14" />
+                } @else {
+                  <span class="dot"></span>
+                }
+              </span>
+              <span class="title">{{ sec.title }}</span>
+              <span class="weight">+{{ sec.weight }}%</span>
+            </button>
+          }
+        </nav>
+      </div>
+
+      <!-- Quick Nudge Card -->
+      <div class="tip-card">
+        <app-icon name="sparkles" [size]="20" />
+        <div class="tip-body">
+          <h4>Discovery Matching Tip</h4>
+          <p>Universities automatically evaluate candidate scorecards and PCB marks to extend merit scholarship grants.</p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Form Cards -->
+    <main class="main-col">
+      <!-- Section 1: Personal Information -->
+      <section class="section-card" id="personal-section">
+        <div class="section-header">
+          <div class="title-wrap">
+            <div class="icon-wrap">
+              <app-icon name="profile" [size]="20" />
+            </div>
+            <div>
+              <h2>Personal Information</h2>
+              <p>Candidate identity, contact details, and residential information</p>
+            </div>
+          </div>
+
+          <div class="header-actions">
+            @if (editingPersonal()) {
+              <button type="button" class="btn-cancel" (click)="cancelEditPersonal()">Cancel</button>
+              <button type="button" class="btn-save" (click)="savePersonal()">
+                <app-icon name="check" [size]="16" />
+                <span>Save</span>
+              </button>
+            } @else {
+              <button type="button" class="btn-edit" (click)="startEditPersonal()">
+                <app-icon name="pencil" [size]="16" />
+                <span>Edit</span>
+              </button>
+            }
+          </div>
+        </div>
+
+        @if (editingPersonal()) {
+          <div class="form-grid">
+            <div class="form-group col-2">
+              <label>Full Legal Name (as per Passport / 10th Certificate)</label>
+              <input type="text" [(ngModel)]="personalDraft.fullName" required />
+            </div>
+            <div class="form-group">
+              <label>Date of Birth</label>
+              <input type="date" [(ngModel)]="personalDraft.dob" required />
+            </div>
+            <div class="form-group">
+              <label>Gender</label>
+              <select [(ngModel)]="personalDraft.gender">
+                <option value="MALE">Male</option>
+                <option value="FEMALE">Female</option>
+                <option value="OTHER">Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Nationality</label>
+              <input type="text" [(ngModel)]="personalDraft.nationality" required />
+            </div>
+            <div class="form-group">
+              <label>Email Address</label>
+              <input type="email" [(ngModel)]="personalDraft.email" required />
+            </div>
+            <div class="form-group">
+              <label>Phone / WhatsApp Number</label>
+              <input type="tel" [(ngModel)]="personalDraft.phone" required />
+            </div>
+            <div class="form-group">
+              <label>City / District</label>
+              <input type="text" [(ngModel)]="personalDraft.city" required />
+            </div>
+            <div class="form-group">
+              <label>State / Province</label>
+              <input type="text" [(ngModel)]="personalDraft.state" required />
+            </div>
+            <div class="form-group">
+              <label>Country</label>
+              <input type="text" [(ngModel)]="personalDraft.country" required />
+            </div>
+          </div>
+        } @else {
+          <div class="view-grid">
+            <div class="field-item"><span class="field-label">Full Name</span><strong class="field-value">{{ profile().personal.fullName || '—' }}</strong></div>
+            <div class="field-item"><span class="field-label">Date of Birth</span><strong class="field-value">{{ profile().personal.dob || '—' }}</strong></div>
+            <div class="field-item"><span class="field-label">Gender</span><strong class="field-value">{{ profile().personal.gender || '—' }}</strong></div>
+            <div class="field-item"><span class="field-label">Nationality</span><strong class="field-value">{{ profile().personal.nationality || '—' }}</strong></div>
+            <div class="field-item"><span class="field-label">Email</span><strong class="field-value">{{ profile().personal.email || '—' }}</strong></div>
+            <div class="field-item"><span class="field-label">Phone</span><strong class="field-value">{{ profile().personal.phone || '—' }}</strong></div>
+            <div class="field-item"><span class="field-label">City</span><strong class="field-value">{{ profile().personal.city || '—' }}</strong></div>
+            <div class="field-item"><span class="field-label">State</span><strong class="field-value">{{ profile().personal.state || '—' }}</strong></div>
+            <div class="field-item"><span class="field-label">Country</span><strong class="field-value">{{ profile().personal.country || '—' }}</strong></div>
+          </div>
+        }
+      </section>
+
+      <!-- Section 2: Academic Records -->
+      <section class="section-card" id="academic-section">
+        <div class="section-header">
+          <div class="title-wrap">
+            <div class="icon-wrap">
+              <app-icon name="graduation-cap" [size]="20" />
+            </div>
+            <div>
+              <h2>Academic Records</h2>
+              <p>Senior secondary marks, board of education, and PCB aggregate</p>
+            </div>
+          </div>
+
+          <div class="header-actions">
+            @if (editingAcademic()) {
+              <button type="button" class="btn-cancel" (click)="cancelEditAcademic()">Cancel</button>
+              <button type="button" class="btn-save" (click)="saveAcademic()">
+                <app-icon name="check" [size]="16" />
+                <span>Save</span>
+              </button>
+            } @else {
+              <button type="button" class="btn-edit" (click)="startEditAcademic()">
+                <app-icon name="pencil" [size]="16" />
+                <span>Edit</span>
+              </button>
+            }
+          </div>
+        </div>
+
+        @if (editingAcademic()) {
+          <div class="form-grid">
+            <div class="form-group col-2">
+              <label>High School / Junior College Name</label>
+              <input type="text" [(ngModel)]="academicDraft.schoolName" placeholder="School name" />
+            </div>
+            <div class="form-group">
+              <label>Education Board</label>
+              <select [(ngModel)]="academicDraft.boardName">
+                @for (b of educationBoards; track b) {
+                  <option [value]="b">{{ b }}</option>
+                }
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Class 12th Passing Year</label>
+              <input type="number" [(ngModel)]="academicDraft.twelfthYear" placeholder="2026" />
+            </div>
+            <div class="form-group">
+              <label>Physics Score (out of 100)</label>
+              <input type="number" [(ngModel)]="academicDraft.physicsScore" max="100" min="0" />
+            </div>
+            <div class="form-group">
+              <label>Chemistry Score (out of 100)</label>
+              <input type="number" [(ngModel)]="academicDraft.chemistryScore" max="100" min="0" />
+            </div>
+            <div class="form-group">
+              <label>Biology / Biotechnology (out of 100)</label>
+              <input type="number" [(ngModel)]="academicDraft.biologyScore" max="100" min="0" />
+            </div>
+            <div class="form-group">
+              <label>English Score (out of 100)</label>
+              <input type="number" [(ngModel)]="academicDraft.englishScore" max="100" min="0" />
+            </div>
+          </div>
+        } @else {
+          <div class="view-grid">
+            <div class="field-item"><span class="field-label">School Name</span><strong class="field-value">{{ profile().academic.schoolName || '—' }}</strong></div>
+            <div class="field-item"><span class="field-label">Board of Education</span><strong class="field-value">{{ profile().academic.boardName || '—' }}</strong></div>
+            <div class="field-item"><span class="field-label">12th Passing Year</span><strong class="field-value">{{ profile().academic.twelfthYear || '—' }}</strong></div>
+            <div class="field-item"><span class="field-label">PCB Aggregate</span><strong class="field-value highlight">{{ profile().academic.pcbPercentage ? profile().academic.pcbPercentage + '%' : '—' }}</strong></div>
+            <div class="field-item"><span class="field-label">Physics Marks</span><strong class="field-value">{{ profile().academic.physicsScore || '—' }}</strong></div>
+            <div class="field-item"><span class="field-label">Chemistry Marks</span><strong class="field-value">{{ profile().academic.chemistryScore || '—' }}</strong></div>
+            <div class="field-item"><span class="field-label">Biology Marks</span><strong class="field-value">{{ profile().academic.biologyScore || '—' }}</strong></div>
+            <div class="field-item"><span class="field-label">English Marks</span><strong class="field-value">{{ profile().academic.englishScore || '—' }}</strong></div>
+          </div>
+        }
+      </section>
+
+      <!-- Section 3: Entrance Examinations -->
+      <section class="section-card" id="entrance-section">
+        <div class="section-header">
+          <div class="title-wrap">
+            <div class="icon-wrap">
+              <app-icon name="sparkles" [size]="20" />
+            </div>
+            <div>
+              <h2>NEET & Entrance Examinations</h2>
+              <p>National Eligibility cum Entrance Test scorecard details</p>
+            </div>
+          </div>
+
+          <div class="header-actions">
+            @if (editingEntrance()) {
+              <button type="button" class="btn-cancel" (click)="cancelEditEntrance()">Cancel</button>
+              <button type="button" class="btn-save" (click)="saveEntrance()">
+                <app-icon name="check" [size]="16" />
+                <span>Save</span>
+              </button>
+            } @else {
+              <button type="button" class="btn-edit" (click)="startEditEntrance()">
+                <app-icon name="pencil" [size]="16" />
+                <span>Edit</span>
+              </button>
+            }
+          </div>
+        </div>
+
+        @if (editingEntrance()) {
+          @for (exam of entranceDraft; track exam.id) {
+            <div class="form-grid exam-block">
+              <div class="form-group">
+                <label>Examination Type</label>
+                <input type="text" [value]="exam.examType" disabled />
+              </div>
+              <div class="form-group">
+                <label>Exam Year</label>
+                <input type="number" [(ngModel)]="exam.year" />
+              </div>
+              <div class="form-group">
+                <label>Roll / Registration Number</label>
+                <input type="text" [(ngModel)]="exam.rollNumber" placeholder="e.g. 2601004821" />
+              </div>
+              <div class="form-group">
+                <label>Score (Marks out of {{ exam.maxScore || 720 }})</label>
+                <input type="number" [(ngModel)]="exam.score" min="0" [max]="exam.maxScore || 720" />
+              </div>
+              <div class="form-group col-2">
+                <label class="check-label">
+                  <input type="checkbox" [(ngModel)]="exam.qualified" />
+                  <span>Officially NEET Qualified Candidate</span>
+                </label>
+              </div>
+            </div>
+          }
+        } @else {
+          <div class="exams-list">
+            @for (exam of profile().entranceExams; track exam.id) {
+              <div class="exam-card">
+                <div class="exam-top">
+                  <span class="exam-badge">{{ exam.examType }} {{ exam.year }}</span>
+                  @if (exam.qualified) {
+                    <span class="qual-badge">
+                      <app-icon name="check" [size]="12" />
+                      <span>Qualified</span>
+                    </span>
+                  }
+                </div>
+                <div class="exam-metrics">
+                  <div class="metric">
+                    <span class="lbl">Score</span>
+                    <strong>{{ exam.score }} <small>/ {{ exam.maxScore || 720 }}</small></strong>
+                  </div>
+                  @if (exam.rollNumber) {
+                    <div class="metric">
+                      <span class="lbl">Roll Number</span>
+                      <strong>{{ exam.rollNumber }}</strong>
+                    </div>
+                  }
+                </div>
+              </div>
+            } @empty {
+              <div class="empty-inline">
+                <p>No entrance examination scores registered yet. Click edit to add your NEET scorecard.</p>
+              </div>
+            }
+          </div>
+        }
+      </section>
+
+      <!-- Section 4: MBBS Preferences -->
+      <section class="section-card" id="preferences-section">
+        <div class="section-header">
+          <div class="title-wrap">
+            <div class="icon-wrap">
+              <app-icon name="globe" [size]="20" />
+            </div>
+            <div>
+              <h2>MBBS Matching Preferences</h2>
+              <p>Target countries, budget parameters, and campus preferences</p>
+            </div>
+          </div>
+
+          <div class="header-actions">
+            @if (editingPreferences()) {
+              <button type="button" class="btn-cancel" (click)="cancelEditPreferences()">Cancel</button>
+              <button type="button" class="btn-save" (click)="savePreferences()">
+                <app-icon name="check" [size]="16" />
+                <span>Save</span>
+              </button>
+            } @else {
+              <button type="button" class="btn-edit" (click)="startEditPreferences()">
+                <app-icon name="pencil" [size]="16" />
+                <span>Edit</span>
+              </button>
+            }
+          </div>
+        </div>
+
+        @if (editingPreferences()) {
+          <div class="pref-form">
+            <div class="form-group">
+              <label>Target Destination Countries (Click to toggle)</label>
+              <div class="country-chips">
+                @for (country of popularCountries; track country) {
+                  <button
+                    type="button"
+                    class="chip"
+                    [class.selected]="preferencesDraft.preferredCountries.includes(country)"
+                    (click)="toggleCountryPreference(country)"
+                  >
+                    <span>{{ country }}</span>
+                    @if (preferencesDraft.preferredCountries.includes(country)) {
+                      <app-icon name="check" [size]="12" />
+                    }
+                  </button>
+                }
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Target Intake Cohort</label>
+                <select [(ngModel)]="preferencesDraft.preferredIntake[0]">
+                  @for (opt of intakeOptions; track opt) {
+                    <option [value]="opt">{{ opt }}</option>
+                  }
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Annual Budget (USD)</label>
+                <input type="number" [(ngModel)]="preferencesDraft.preferredBudgetUsd" placeholder="e.g. 5000" />
+              </div>
+              <div class="form-group">
+                <label>Medium of Instruction</label>
+                <select [(ngModel)]="preferencesDraft.preferredLanguage">
+                  <option value="English">100% English Medium</option>
+                  <option value="Bilingual">Bilingual</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="check-label">
+                  <input type="checkbox" [(ngModel)]="preferencesDraft.hostelRequired" />
+                  <span>On-campus University Hostel Required</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        } @else {
+          <div class="view-grid">
+            <div class="field-item col-2">
+              <span class="field-label">Preferred Countries</span>
+              <div class="chips-display">
+                @for (c of profile().preferences.preferredCountries; track c) {
+                  <span class="badge-chip">{{ c }}</span>
+                } @empty {
+                  <span>Open to all international destinations</span>
+                }
+              </div>
+            </div>
+            <div class="field-item"><span class="field-label">Target Intake</span><strong class="field-value">{{ profile().preferences.preferredIntake[0] || 'Upcoming Intake' }}</strong></div>
+            <div class="field-item"><span class="field-label">Annual Budget</span><strong class="field-value">{{ profile().preferences.preferredBudgetUsd ? (profile().preferences.preferredBudgetUsd | currency: 'USD': 'symbol': '1.0-0') : 'Flexible' }}</strong></div>
+            <div class="field-item"><span class="field-label">Instruction Medium</span><strong class="field-value">{{ profile().preferences.preferredLanguage || 'English' }}</strong></div>
+            <div class="field-item"><span class="field-label">Hostel Required</span><strong class="field-value">{{ profile().preferences.hostelRequired ? 'Yes' : 'No' }}</strong></div>
+          </div>
+        }
+      </section>
+
+      <!-- Section 5: Essential Documents -->
+      <section class="section-card" id="documents-section">
+        <div class="section-header">
+          <div class="title-wrap">
+            <div class="icon-wrap">
+              <app-icon name="bookmark" [size]="20" />
+            </div>
+            <div>
+              <h2>Essential Documents</h2>
+              <p>Upload official verification documents required for direct university eligibility check</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="docs-grid">
+          <!-- Passport -->
+          <div class="doc-card" [class.uploaded]="getDocumentByType('PASSPORT')">
+            <div class="doc-info">
+              <div class="doc-icon"><app-icon name="bookmark" [size]="20" /></div>
+              <div>
+                <h4>International Passport</h4>
+                <p>Valid front & back photo ID page</p>
+                @if (getDocumentByType('PASSPORT'); as doc) {
+                  <span class="status-tag uploaded"><app-icon name="check" [size]="12" /> Uploaded ({{ doc.fileName }})</span>
+                } @else {
+                  <span class="status-tag pending">Not Uploaded</span>
+                }
+              </div>
+            </div>
+            <div class="doc-action">
+              @if (getDocumentByType('PASSPORT'); as doc) {
+                <button type="button" class="btn-remove" (click)="removeDocument(doc.id)">Remove</button>
+              } @else {
+                <label class="btn-upload">
+                  <span>Upload</span>
+                  <input type="file" (change)="onFileUpload($event, 'PASSPORT')" accept=".pdf,.jpg,.jpeg,.png" hidden />
+                </label>
+              }
+            </div>
+          </div>
+
+          <!-- Class 10th Certificate -->
+          <div class="doc-card" [class.uploaded]="getDocumentByType('TENTH_CERTIFICATE')">
+            <div class="doc-info">
+              <div class="doc-icon"><app-icon name="bookmark" [size]="20" /></div>
+              <div>
+                <h4>Class 10th Certificate</h4>
+                <p>Date of birth proof</p>
+                @if (getDocumentByType('TENTH_CERTIFICATE'); as doc) {
+                  <span class="status-tag uploaded"><app-icon name="check" [size]="12" /> Uploaded ({{ doc.fileName }})</span>
+                } @else {
+                  <span class="status-tag pending">Not Uploaded</span>
+                }
+              </div>
+            </div>
+            <div class="doc-action">
+              @if (getDocumentByType('TENTH_CERTIFICATE'); as doc) {
+                <button type="button" class="btn-remove" (click)="removeDocument(doc.id)">Remove</button>
+              } @else {
+                <label class="btn-upload">
+                  <span>Upload</span>
+                  <input type="file" (change)="onFileUpload($event, 'TENTH_CERTIFICATE')" accept=".pdf,.jpg,.jpeg,.png" hidden />
+                </label>
+              }
+            </div>
+          </div>
+
+          <!-- Class 12th PCB Marksheet -->
+          <div class="doc-card" [class.uploaded]="getDocumentByType('TWELFTH_CERTIFICATE')">
+            <div class="doc-info">
+              <div class="doc-icon"><app-icon name="bookmark" [size]="20" /></div>
+              <div>
+                <h4>Class 12th PCB Marksheet</h4>
+                <p>Physics, Chemistry, Biology scores</p>
+                @if (getDocumentByType('TWELFTH_CERTIFICATE'); as doc) {
+                  <span class="status-tag uploaded"><app-icon name="check" [size]="12" /> Uploaded ({{ doc.fileName }})</span>
+                } @else {
+                  <span class="status-tag pending">Not Uploaded</span>
+                }
+              </div>
+            </div>
+            <div class="doc-action">
+              @if (getDocumentByType('TWELFTH_CERTIFICATE'); as doc) {
+                <button type="button" class="btn-remove" (click)="removeDocument(doc.id)">Remove</button>
+              } @else {
+                <label class="btn-upload">
+                  <span>Upload</span>
+                  <input type="file" (change)="onFileUpload($event, 'TWELFTH_CERTIFICATE')" accept=".pdf,.jpg,.jpeg,.png" hidden />
+                </label>
+              }
+            </div>
+          </div>
+
+          <!-- NEET Official Scorecard -->
+          <div class="doc-card" [class.uploaded]="getDocumentByType('NEET_SCORECARD')">
+            <div class="doc-info">
+              <div class="doc-icon"><app-icon name="bookmark" [size]="20" /></div>
+              <div>
+                <h4>NEET Official Scorecard</h4>
+                <p>NTA verified scorecard PDF</p>
+                @if (getDocumentByType('NEET_SCORECARD'); as doc) {
+                  <span class="status-tag uploaded"><app-icon name="check" [size]="12" /> Uploaded ({{ doc.fileName }})</span>
+                } @else {
+                  <span class="status-tag pending">Not Uploaded</span>
+                }
+              </div>
+            </div>
+            <div class="doc-action">
+              @if (getDocumentByType('NEET_SCORECARD'); as doc) {
+                <button type="button" class="btn-remove" (click)="removeDocument(doc.id)">Remove</button>
+              } @else {
+                <label class="btn-upload">
+                  <span>Upload</span>
+                  <input type="file" (change)="onFileUpload($event, 'NEET_SCORECARD')" accept=".pdf,.jpg,.jpeg,.png" hidden />
+                </label>
+              }
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Toast Message -->
+  @if (showSuccessToast()) {
+    <div class="toast-popup" role="status">
+      <app-icon name="check" [size]="18" />
+      <span>{{ showSuccessToast() }}</span>
+    </div>
+  }
+</div>

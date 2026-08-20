@@ -9,4 +9,9 @@ export const staticRoutes: Routes = [
     path: 'dashboard',
     redirectTo: '/',
   },
+  {
+    path: 'blogs',
+    loadChildren: () =>
+      import('./blogs/blogs.routes').then((m) => m.blogRoutes),
+  },
 ];

@@ -108,15 +108,21 @@ export class DynamicLayouts implements OnDestroy {
       icon: 'history',
     },
     {
-      label: 'University finder',
-      description: 'Match with medical universities',
-      route: '/dynamic/cse',
-      icon: 'globe',
+      label: 'University invites',
+      description: 'Review university invitations and offers',
+      route: '/dynamic/invites',
+      icon: 'heart',
+    },
+    {
+      label: 'Student profile',
+      description: 'Academic background and MBBS preferences',
+      route: '/dynamic/profile',
+      icon: 'profile',
     },
     {
       label: 'Insights library',
       description: 'Medical admissions articles',
-      route: '/dynamic/blogs',
+      route: '/blogs',
       icon: 'bookmark',
     },
   ];
@@ -267,17 +273,10 @@ export class DynamicLayouts implements OnDestroy {
       ['/dynamic/neet', { eyebrow: 'NEET preparation', title: 'Learning Report' }],
       ['/dynamic/ucat/previous-year', { eyebrow: 'UCAT preparation', title: 'Previous papers' }],
       ['/dynamic/ucat', { eyebrow: 'UCAT preparation', title: 'Practice workspace' }],
-      [
-        '/dynamic/cse/university-details',
-        { eyebrow: 'University finder', title: 'University profile' },
-      ],
-      ['/dynamic/cse/recommendations', { eyebrow: 'University finder', title: 'Your matches' }],
-      ['/dynamic/cse/student-details', { eyebrow: 'University finder', title: 'Student profile' }],
-      ['/dynamic/cse/questionnaire', { eyebrow: 'University finder', title: 'Preferences' }],
-      ['/dynamic/cse', { eyebrow: 'University finder', title: 'Explore destinations' }],
-      ['/dynamic/blogs', { eyebrow: 'Knowledge centre', title: 'Insights' }],
+      ['/dynamic/invites', { eyebrow: 'Admissions', title: 'University Invitations' }],
+      ['/dynamic/profile', { eyebrow: 'Student Space', title: 'Student Profile & Preferences' }],
+      ['/blogs', { eyebrow: 'Knowledge centre', title: 'Insights' }],
       ['/dynamic/ai-chat', { eyebrow: 'AI Assistant', title: 'Knowledge Base' }],
-
     ];
     this.pageMeta.set(
       definitions.find(([route]) => normalized.startsWith(route))?.[1] ?? {

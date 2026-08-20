@@ -1,0 +1,269 @@
+<div class="invite-details-page">
+  @if (loading()) {
+    <div class="loading-wrap" aria-live="polite">
+      <div class="spinner"></div>
+      <p>Loading invitation details...</p>
+    </div>
+  } @else if (invite(); as item) {
+    <!-- Breadcrumb & Top Bar -->
+    <nav class="top-nav-bar" aria-label="Breadcrumb">
+      <div class="nav-crumbs">
+        <a routerLink="/dynamic/invites" class="crumb-link">
+          <app-icon name="heart" [size]="16" />
+          <span>University Invites</span>
+        </a>
+        <span class="crumb-sep">/</span>
+        <span class="crumb-current">{{ item.university.name }}</span>
+      </div>
+
+      @if (statusConfig(); as cfg) {
+        <div class="nav-status">
+          <span class="status-badge" [class]="cfg.badgeClass">
+            <span class="dot" aria-hidden="true"></span>
+            <app-icon [name]="cfg.icon" [size]="13" [strokeWidth]="2" />
+            <span>{{ cfg.label }}</span>
+          </span>
+        </div>
+      }
+    </nav>
+
+    <!-- University Overview Header Banner -->
+    <section class="univ-card">
+      <div class="cover-image">
+        @if (item.university.coverImageUrl) {
+          <img
+            appImageFallback
+            [src]="item.university.coverImageUrl"
+            [alt]="item.university.name + ' Campus'"
+          />
+        }
+        <div class="cover-overlay"></div>
+        @if (item.university.badge) {
+          <span class="univ-badge">
+            <app-icon name="sparkles" [size]="14" />
+            <span>{{ item.university.badge }}</span>
+          </span>
+        }
+      </div>
+
+      <div class="univ-content">
+        <div class="brand-row">
+          <div class="univ-logo">
+            <img
+              appImageFallback
+              [src]="item.university.logoUrl"
+              [alt]="item.university.name + ' Crest'"
+            />
+          </div>
+
+          <div class="univ-title-wrap">
+            <div class="meta-tags">
+              <span class="location-tag">
+                <app-icon name="globe" [size]="14" />
+                <span>{{ item.university.city ? item.university.city + ', ' : '' }}{{ item.university.country || 'International Campus' }}</span>
+              </span>
+              @if (item.university.foundedYear > 0) {
+                <span class="founded-tag">
+                  <app-icon name="history" [size]="14" />
+                  <span>Est. {{ item.university.foundedYear }}</span>
+                </span>
+              }
+              @if (item.university.rankingGlobal) {
+                <span class="rank-tag">
+                  QS World Rank #{{ item.university.rankingGlobal }}
+                </span>
+              }
+            </div>
+
+            <h1 class="name">{{ item.university.name }}</h1>
+            @if (item.university.campusType) {
+              <p class="campus-type">{{ item.university.campusType }}</p>
+            }
+          </div>
+        </div>
+
+        @if (item.university.overview) {
+          <p class="overview">{{ item.university.overview }}</p>
+        }
+
+        @if (item.university.featuredHighlights && item.university.featuredHighlights.length > 0) {
+          <div class="highlights-grid">
+            @for (hl of item.university.featuredHighlights; track hl) {
+              <div class="hl-item">
+                <app-icon name="check" [size]="16" />
+                <span>{{ hl }}</span>
+              </div>
+            }
+          </div>
+        }
+
+        @if (item.university.recognition && item.university.recognition.length > 0) {
+          <div class="recognitions-box">
+            <span class="rec-label">Accreditations & International Recognition</span>
+            <div class="rec-chips">
+              @for (rec of item.university.recognition; track rec) {
+                <span class="rec-chip">
+                  <app-icon name="sparkles" [size]="13" />
+                  <span>{{ rec }}</span>
+                </span>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- Program & Curriculum Details -->
+    <section class="program-card">
+      <div class="section-heading">
+        <div class="heading-icon">
+          <app-icon name="graduation-cap" [size]="20" />
+        </div>
+        <div>
+          <h2>Academic Program Specifications</h2>
+          <p>Curriculum structure, duration, language, and clinical rotations</p>
+        </div>
+      </div>
+
+      <div class="program-grid">
+        <div class="prog-item">
+          <span class="lbl">Degree Awarded</span>
+          <strong>{{ item.program.degree || 'Doctor of Medicine (MD / MBBS)' }}</strong>
+        </div>
+        <div class="prog-item">
+          <span class="lbl">Program Title</span>
+          <strong>{{ item.title || item.program.programName }}</strong>
+        </div>
+        <div class="prog-item">
+          <span class="lbl">Course Duration</span>
+          <strong>{{ item.program.duration || '6 Years (5+1 Clinical Internship)' }}</strong>
+        </div>
+        <div class="prog-item">
+          <span class="lbl">Medium of Instruction</span>
+          <strong>{{ item.program.language || '100% English Medium' }}</strong>
+        </div>
+        <div class="prog-item">
+          <span class="lbl">Intake Period</span>
+          <strong class="highlight-blue">{{ item.program.intake || 'Upcoming Intake' }}</strong>
+        </div>
+        @if (item.expiresAt) {
+          <div class="prog-item">
+            <span class="lbl">Offer Expiry Deadline</span>
+            <strong class="highlight-amber">{{ item.expiresAt | date: 'mediumDate' }}</strong>
+          </div>
+        }
+      </div>
+
+      @if (item.program.clinicalRotations) {
+        <div class="clinical-box">
+          <app-icon name="sparkles" [size]="18" />
+          <div>
+            <strong>Clinical Rotations & Hospital Affiliation</strong>
+            <p>{{ item.program.clinicalRotations }}</p>
+          </div>
+        </div>
+      }
+    </section>
+
+    <!-- Financial Breakdown & Student Match Snapshot -->
+    <section class="financial-card">
+      <div class="fin-layout">
+        <!-- Left: Financials -->
+        <div class="fin-col">
+          <div class="section-heading">
+            <div class="heading-icon gold">
+              <app-icon name="sparkles" [size]="20" />
+            </div>
+            <div>
+              <h2>Financial Transparency & Grant</h2>
+              <p>Direct institutional tuition breakdown</p>
+            </div>
+          </div>
+
+          <div class="fee-breakdown">
+            @if (item.financial.tuitionAnnual > 0) {
+              <div class="fee-line">
+                <span>Standard Annual Tuition</span>
+                <strong>{{ item.financial.tuitionAnnual | currency: item.financial.currency: 'symbol': '1.0-0' }}</strong>
+              </div>
+            }
+
+            @if (item.financial.scholarshipPercentage > 0) {
+              <div class="fee-line scholarship">
+                <span>Merit Scholarship ({{ item.financial.scholarshipPercentage }}%)</span>
+                <strong>-{{ item.financial.scholarshipAmount | currency: item.financial.currency: 'symbol': '1.0-0' }}</strong>
+              </div>
+            }
+
+            <div class="fee-line total">
+              <span>Net Annual Tuition Payable</span>
+              <strong class="net-fee">{{ (item.financial.netTuitionAnnual || item.financial.tuitionAnnual) | currency: item.financial.currency: 'symbol': '1.0-0' }} / yr</strong>
+            </div>
+
+            @if (item.financial.estimatedHostelAnnual > 0) {
+              <div class="fee-line sub">
+                <span>Estimated On-Campus Hostel & Mess</span>
+                <span>{{ item.financial.estimatedHostelAnnual | currency: item.financial.currency: 'symbol': '1.0-0' }} / yr</span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Right: Candidate Criteria Match -->
+        <div class="match-col">
+          <div class="section-heading">
+            <div class="heading-icon emerald">
+              <app-icon name="check" [size]="20" />
+            </div>
+            <div>
+              <h2>Academic Eligibility Verification</h2>
+              <p>Candidate credentials evaluated for admission</p>
+            </div>
+          </div>
+
+          <div class="match-box">
+            <div class="match-hero">
+              <span class="match-pct">{{ item.eligibility.matchPercentage }}%</span>
+              <div class="match-desc">
+                <strong>Profile Match Score</strong>
+                <p>Pre-evaluated based on your verified scorecard</p>
+              </div>
+            </div>
+
+            <div class="criteria-list">
+              <div class="crit-item">
+                <app-icon name="check" [size]="16" />
+                <span>Senior Secondary PCB marks satisfy international medical criteria</span>
+              </div>
+              <div class="crit-item">
+                <app-icon name="check" [size]="16" />
+                <span>NTA NEET qualifying status verified</span>
+              </div>
+              <div class="crit-item">
+                <app-icon name="check" [size]="16" />
+                <span>Passport & document eligibility verified</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bottom Action Bar -->
+    <app-invite-actions
+      [invite]="item"
+      (acceptClicked)="onAcceptInvite()"
+      (declineSubmitted)="onDeclineInvite($event)"
+    />
+  } @else {
+    <div class="empty-wrap" role="alert">
+      <app-icon name="close" [size]="32" />
+      <h2>Invitation Not Found</h2>
+      <p>{{ error() || 'The requested admission opportunity does not exist or has elapsed.' }}</p>
+      <a routerLink="/dynamic/invites" class="btn-back">
+        <app-icon name="arrow-right" [size]="16" />
+        <span>Return to All Invites</span>
+      </a>
+    </div>
+  }
+</div>

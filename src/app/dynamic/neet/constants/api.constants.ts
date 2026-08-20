@@ -17,8 +17,7 @@ export const API = {
   },
 
   PREVIOUS_YEAR_TEST: {
-    BUILTIN: '/neet/tests/builtin',
-    PAPERS: '/previous-year-tests',
-    SUBMIT: '/previous-year-tests/submit'
+    PAPERS: '/previous-year-tests'
   }
 };
+

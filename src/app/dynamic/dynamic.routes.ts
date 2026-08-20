@@ -20,13 +20,7 @@ export const dynamicRoutes: Routes = [
 
       {
         path: 'blogs',
-        loadChildren: () =>
-          import('./blogs/blogs.routes').then(({ blogRoutes }) => blogRoutes),
-      },
-      {
-        path: 'chat',
-        loadComponent: () =>
-          import('./chat/student-chat').then(({ StudentChat }) => StudentChat),
+        redirectTo: '/blogs',
       },
       {
         path: 'ai-chat',
@@ -34,14 +28,23 @@ export const dynamicRoutes: Routes = [
           import('./ai-chat/ai-chat').then(({ AiChat }) => AiChat),
       },
       {
+        path: 'invites',
+        loadChildren: () =>
+          import('./admissions/admissions.routes').then(({ invitesRoutes }) => invitesRoutes),
+      },
+      {
+        path: 'profile',
+        loadChildren: () =>
+          import('./admissions/admissions.routes').then(({ profileRoutes }) => profileRoutes),
+      },
+      {
+        path: 'admissions',
+        redirectTo: 'invites',
+      },
+      {
         path: 'ucat',
         loadChildren: () =>
           import('./ucat/ucat.routes').then(({ ucatRoutes }) => ucatRoutes),
-      },
-      {
-        path: 'cse',
-        loadChildren: () =>
-          import('./cse/cse.routes').then(({ cseRoutes }) => cseRoutes),
       },
       {
         path: 'neet',

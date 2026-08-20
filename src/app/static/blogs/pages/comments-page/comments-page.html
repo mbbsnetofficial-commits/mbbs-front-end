@@ -1,0 +1,119 @@
+<!-- Back link -->
+<a class="back-link" [routerLink]="['/blogs', slug]">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+  Back to article
+</a>
+
+<div class="cp-page">
+  <!-- Heading -->
+  <h1 class="cp-heading">
+    All Comments
+    @if (total()) { <span class="cp-count">({{ total() }})</span> }
+  </h1>
+
+  <!-- Composer -->
+  <div class="cp-composer">
+    <div class="cp-chip" aria-hidden="true">SS</div>
+    <div class="cp-field">
+      <input
+        class="cp-input"
+        type="text"
+        placeholder="Add your comment..."
+        [value]="composerText()"
+        (input)="composerText.set($any($event.target).value)"
+        (keydown.enter)="onEnter($event)"
+        aria-label="Add a comment"
+      >
+      <button
+        class="cp-post-btn"
+        type="button"
+        [disabled]="!composerText().trim() || submitting()"
+        (click)="post()"
+      >{{ submitting() ? '…' : 'Post' }}</button>
+    </div>
+  </div>
+
+  <!-- Loading (first page) -->
+  @if (loading() && !comments().length) {
+    <div class="cp-skeletons">
+      @for (i of [1,2,3,4,5]; track i) {
+        <div class="sk-card">
+          <div class="sk-row">
+            <div class="sk sk-av"></div>
+            <div class="sk-lines"><div class="sk sk-line w50"></div><div class="sk sk-line w30"></div></div>
+          </div>
+          <div class="sk sk-line w100"></div>
+          <div class="sk sk-line w80"></div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Comment list -->
+  @else if (comments().length) {
+    <ul class="cp-list" role="list">
+      @for (comment of comments(); track comment.id) {
+        <li class="cp-card">
+          <!-- Avatar -->
+          <div class="cp-avatar">
+            @if (comment.profilePicture) {
+              <img [src]="comment.profilePicture" [alt]="comment.commenterName" loading="lazy">
+            } @else {
+              <span aria-hidden="true">{{ initials(comment.commenterName) }}</span>
+            }
+          </div>
+
+          <!-- Body -->
+          <div class="cp-body">
+            <div class="cp-hdr">
+              <div class="cp-hdr-left">
+                <strong class="cp-name">{{ comment.commenterName }}</strong>
+                @if (comment.isEdited) { <em class="cp-edited">(edited)</em> }
+              </div>
+              <div class="cp-hdr-right">
+                <time [attr.datetime]="comment.createdAt" class="cp-time">{{ timeAgo(comment.createdAt) }}</time>
+                <button class="cp-more" type="button" aria-label="Options">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="cp-text" [class.expanded]="isExpanded(comment.id)">
+              <p>{{ comment.comment }}</p>
+            </div>
+            @if (comment.comment.length > 220) {
+              <button class="cp-show" type="button" (click)="toggleExpand(comment.id)">
+                {{ isExpanded(comment.id) ? 'show less' : 'show more' }}
+              </button>
+            }
+
+            <div class="cp-react">
+              <button class="cp-react-btn" [class.liked]="comment.isLiked" type="button" (click)="toggleLike(comment)">Like</button>
+              <span class="cp-dot">·</span>
+              <span class="cp-likes">
+                <svg width="13" height="13" viewBox="0 0 24 24" [attr.fill]="comment.isLiked ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+                {{ comment.totalLikes }}
+              </span>
+              <span class="cp-sep" aria-hidden="true">|</span>
+              <button class="cp-react-btn" type="button">Reply</button>
+            </div>
+          </div>
+        </li>
+      }
+    </ul>
+
+    <!-- Paginate -->
+    @if (hasMore()) {
+      <button class="cp-load-more" type="button" (click)="loadMore()" [disabled]="loading()">
+        @if (loading()) { Loading… } @else { Load More Comments }
+      </button>
+    } @else {
+      <p class="cp-end">You've seen all comments.</p>
+    }
+  }
+
+  <!-- Empty -->
+  @else {
+    <p class="cp-empty">No comments yet. Start the conversation!</p>
+  }
+</div>

@@ -1,0 +1,118 @@
+<article class="invite-card" [class.highlighted]="isActionable()">
+  <!-- Top Bar: Status, Match Percentage, and Tags -->
+  <div class="card-header">
+    <div class="status-wrap">
+      <span class="status-badge" [class]="statusConfig().badgeClass">
+        <span class="dot" aria-hidden="true"></span>
+        <app-icon [name]="statusConfig().icon" [size]="13" [strokeWidth]="2" />
+        <span>{{ statusConfig().label }}</span>
+      </span>
+      @if (invite().eligibility.matchPercentage >= 90) {
+        <span class="match-pill">
+          <app-icon name="sparkles" [size]="13" />
+          <span>{{ invite().eligibility.matchPercentage }}% Profile Match</span>
+        </span>
+      }
+    </div>
+
+    <div class="date-wrap">
+      <span class="issued-date">
+        <app-icon name="clock" [size]="13" />
+        <span>Issued {{ (invite().issuedAt || invite().createdAt) | date: 'mediumDate' }}</span>
+      </span>
+    </div>
+  </div>
+
+  <!-- Middle Row: University Info, Country Flag & Program -->
+  <div class="card-body">
+    <div class="univ-identity">
+      <div class="logo-box">
+        <img
+          appImageFallback
+          [src]="invite().university.logoUrl"
+          [alt]="invite().university.name + ' Logo'"
+          loading="lazy"
+        />
+      </div>
+
+      <div class="univ-details">
+        <div class="country-row">
+          <span class="location-badge">
+            <app-icon name="globe" [size]="14" />
+            <span>{{ invite().university.city ? invite().university.city + ', ' : '' }}{{ invite().university.country || 'International Medical University' }}</span>
+          </span>
+          @if (invite().university.rankingGlobal) {
+            <span class="rank-badge">
+              QS #{{ invite().university.rankingGlobal }}
+            </span>
+          }
+        </div>
+
+        <h3 class="univ-name">
+          <a [routerLink]="['/dynamic/invites', invite().id]">
+            {{ invite().university.name }}
+          </a>
+        </h3>
+
+        <div class="program-title">
+          <app-icon name="graduation-cap" [size]="16" />
+          <strong>{{ invite().title || invite().program.programName || 'General Medicine (MBBS / MD)' }}</strong>
+          @if (invite().program.duration) {
+            <span class="divider">·</span>
+            <span>{{ invite().program.duration }}</span>
+          }
+          @if (invite().program.intake) {
+            <span class="divider">·</span>
+            <span class="intake-text">{{ invite().program.intake }}</span>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Financial Snapshot -->
+    @if (invite().financial.netTuitionAnnual || invite().financial.tuitionAnnual) {
+      <div class="financial-box">
+        <div class="fee-row">
+          <span class="fee-label">Annual Tuition Fee</span>
+          <div class="fee-value">
+            <strong>{{ (invite().financial.netTuitionAnnual || invite().financial.tuitionAnnual) | currency: (invite().financial.currency || 'USD'): 'symbol': '1.0-0' }}</strong>
+            <span class="per-year">/ year</span>
+          </div>
+        </div>
+
+        @if (invite().financial.scholarshipPercentage > 0) {
+          <div class="scholarship-badge">
+            <app-icon name="sparkles" [size]="14" />
+            <span>Includes {{ invite().financial.scholarshipPercentage }}% Merit Scholarship ({{ invite().financial.scholarshipAmount | currency: (invite().financial.currency || 'USD'): 'symbol': '1.0-0' }}/yr grant)</span>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Invitation Message Snippet -->
+  @if (invite().invitationMessage || invite().description) {
+    <div class="message-snippet">
+      <app-icon name="quote" [size]="16" />
+      <p>{{ invite().invitationMessage || invite().description }}</p>
+    </div>
+  }
+
+  <!-- Card Footer Actions -->
+  <div class="card-footer">
+    <div class="tags-list">
+      @if (invite().tags && invite().tags!.length > 0) {
+        @for (tag of invite().tags; track tag) {
+          <span class="tag-chip">{{ tag }}</span>
+        }
+      }
+    </div>
+
+    <div class="action-buttons">
+      <a [routerLink]="['/dynamic/invites', invite().id]" class="btn-primary" [class.btn-outline]="!isActionable()">
+        <span>Review Invitation</span>
+        <app-icon name="arrow-right" [size]="16" />
+      </a>
+    </div>
+  </div>
+</article>

@@ -1,0 +1,120 @@
+<div class="actions-panel">
+  <div class="panel-left">
+    <a routerLink="/dynamic/invites" class="btn-back">
+      <app-icon name="arrow-right" [size]="16" class="rotate-180" />
+      <span>Back to Invites</span>
+    </a>
+  </div>
+
+  <div class="panel-right">
+    @if (invite().status === 'ACCEPTED') {
+      <span class="accepted-status-text">
+        <app-icon name="check" [size]="16" />
+        <span>You have accepted this invitation.</span>
+      </span>
+    } @else if (invite().status === 'NEW' || invite().status === 'VIEWED' || invite().status === 'PENDING') {
+      <button type="button" class="btn-decline" (click)="openDeclineModal()">
+        <app-icon name="close" [size]="16" />
+        <span>Decline Opportunity</span>
+      </button>
+
+      <button type="button" class="btn-accept" (click)="openAcceptModal()">
+        <app-icon name="check" [size]="18" />
+        <span>Accept Invitation</span>
+      </button>
+    } @else if (invite().status === 'DECLINED') {
+      <span class="declined-status-text">
+        <app-icon name="close" [size]="16" />
+        <span>You have declined this invitation.</span>
+      </span>
+    } @else if (invite().status === 'EXPIRED') {
+      <span class="expired-status-text">
+        <app-icon name="history" [size]="16" />
+        <span>This invitation deadline has expired.</span>
+      </span>
+    }
+  </div>
+</div>
+
+<!-- Accept Confirmation Modal -->
+@if (showAcceptModal()) {
+  <div class="modal-backdrop" (click)="closeAcceptModal()">
+    <div class="modal-dialog" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+      <header class="modal-header">
+        <div class="icon-circle icon-accept-circle">
+          <app-icon name="sparkles" [size]="24" />
+        </div>
+        <div>
+          <h3>Accept University Invitation?</h3>
+          <p class="modal-sub">You are about to accept the invitation from <strong>{{ invite().university.name }}</strong>.</p>
+        </div>
+      </header>
+
+      <div class="modal-body">
+        <div class="info-alert">
+          <app-icon name="check" [size]="18" />
+          <div>
+            <strong>What happens next?</strong>
+            <p>Your acceptance will be recorded and the university admissions team will be notified of your interest.</p>
+          </div>
+        </div>
+      </div>
+
+      <footer class="modal-footer">
+        <button type="button" class="btn-cancel" (click)="closeAcceptModal()">
+          Cancel
+        </button>
+        <button type="button" class="btn-confirm-accept" (click)="confirmAccept()">
+          <span>Confirm & Accept</span>
+          <app-icon name="arrow-right" [size]="16" />
+        </button>
+      </footer>
+    </div>
+  </div>
+}
+
+<!-- Decline Confirmation Modal -->
+@if (showDeclineModal()) {
+  <div class="modal-backdrop" (click)="closeDeclineModal()">
+    <div class="modal-dialog" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+      <header class="modal-header">
+        <div class="icon-circle icon-decline-circle">
+          <app-icon name="close" [size]="24" />
+        </div>
+        <div>
+          <h3>Decline University Opportunity?</h3>
+          <p class="modal-sub">Let <strong>{{ invite().university.name }}</strong> know why this program does not align with your MBBS goals.</p>
+        </div>
+      </header>
+
+      <div class="modal-body">
+        <div class="reason-form">
+          <label for="decline-reason" class="input-label">Primary Reason (Optional)</label>
+          <select id="decline-reason" [(ngModel)]="selectedReason" class="form-select">
+            @for (r of declineReasons; track r.key) {
+              <option [value]="r.key">{{ r.label }}</option>
+            }
+          </select>
+
+          <label for="decline-note" class="input-label">Additional Feedback (Optional)</label>
+          <textarea
+            id="decline-note"
+            [(ngModel)]="declineNote"
+            rows="3"
+            placeholder="Share any specific requirements or notes..."
+            class="form-textarea"
+          ></textarea>
+        </div>
+      </div>
+
+      <footer class="modal-footer">
+        <button type="button" class="btn-cancel" (click)="closeDeclineModal()">
+          Cancel
+        </button>
+        <button type="button" class="btn-confirm-decline" (click)="confirmDecline()">
+          <span>Decline Invitation</span>
+        </button>
+      </footer>
+    </div>
+  </div>
+}
