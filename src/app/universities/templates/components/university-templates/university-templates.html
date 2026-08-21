@@ -1,0 +1,416 @@
+<div class="univ-templates-page">
+  <!-- Header -->
+  <header class="univ-templates-header">
+    <div class="header-content">
+      <div class="header-left">
+        <a routerLink="/university/dashboard" class="back-link">
+          <app-icon name="arrow-right" [size]="15" class="back-icon" />
+          <span>Back to Dashboard</span>
+        </a>
+        <div class="title-row">
+          <div class="icon-badge">
+            <app-icon name="bookmark" [size]="24" />
+          </div>
+          <div>
+            <h1 class="page-title">Admission Offer Templates</h1>
+            <p class="page-subtitle">
+              Create and manage reusable admission offer templates for prospective candidates.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button
+          type="button"
+          class="btn-create-template"
+          (click)="openCreateModal()"
+        >
+          <app-icon name="plus" [size]="16" />
+          <span>Create Template</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="univ-templates-main">
+    <div class="templates-container">
+      <!-- Error State -->
+      @if (error() && !loading()) {
+        <section class="alert-card error" role="alert">
+          <div class="alert-content">
+            <app-icon name="close" [size]="20" />
+            <div class="alert-text">
+              <strong>Failed to Load Templates</strong>
+              <p>{{ error() }}</p>
+            </div>
+          </div>
+          <button type="button" class="btn-retry" (click)="retry()">
+            <app-icon name="retry" [size]="16" />
+            <span>Retry</span>
+          </button>
+        </section>
+      }
+
+      <!-- Skeleton Loading -->
+      @if (loading() && templates().length === 0) {
+        <div class="skeleton-grid">
+          <div class="skeleton-card"></div>
+          <div class="skeleton-card"></div>
+          <div class="skeleton-card"></div>
+        </div>
+      }
+
+      <!-- Templates Grid -->
+      @if (templates().length > 0) {
+        <div class="templates-grid">
+          @for (tmpl of templates(); track tmpl._id) {
+            <article class="template-card">
+              <div class="card-header">
+                <div class="header-info">
+                  <span class="template-badge">Template</span>
+                  <h3 class="template-name">{{ tmpl.name }}</h3>
+                </div>
+
+                <div class="card-actions-group">
+                  <button
+                    type="button"
+                    class="btn-card-action view"
+                    (click)="openViewModal(tmpl)"
+                    title="View Template Details"
+                  >
+                    <app-icon name="test" [size]="14" />
+                    <span>View</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    class="btn-card-action edit"
+                    (click)="openEditModal(tmpl)"
+                    title="Edit Template"
+                  >
+                    <app-icon name="pencil" [size]="14" />
+                    <span>Edit</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    class="btn-card-action delete"
+                    (click)="openDeleteModal(tmpl)"
+                    title="Delete Template"
+                  >
+                    <app-icon name="close" [size]="14" />
+                    <span>Delete</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="subject-box">
+                <span class="subject-label">Subject:</span>
+                <span class="subject-text">{{ tmpl.subject }}</span>
+              </div>
+
+              <p class="template-message">{{ tmpl.message }}</p>
+
+              <div class="card-footer">
+                <div class="meta-item">
+                  <app-icon name="clock" [size]="13" />
+                  <span>Created: {{ tmpl.createdAt ? (tmpl.createdAt | date:'mediumDate') : 'Recently' }}</span>
+                </div>
+
+                @if (tmpl.updatedAt && tmpl.updatedAt !== tmpl.createdAt) {
+                  <div class="meta-item">
+                    <span>Updated: {{ tmpl.updatedAt | date:'mediumDate' }}</span>
+                  </div>
+                }
+              </div>
+            </article>
+          }
+        </div>
+
+        <!-- Backend Pagination Controls -->
+        @if (pagination(); as pag) {
+          @if (pag.totalPages > 1) {
+            <nav class="pagination-nav" aria-label="Templates pagination">
+              <button
+                type="button"
+                class="btn-page prev"
+                (click)="goToPage(currentPage() - 1)"
+                [disabled]="currentPage() <= 1 || loading()"
+              >
+                <app-icon name="chevron" [size]="14" class="icon-prev" />
+                <span>Previous</span>
+              </button>
+
+              <span class="page-status">
+                Page <strong>{{ pag.page }}</strong> of <strong>{{ pag.totalPages }}</strong> ({{ pag.total }} total templates)
+              </span>
+
+              <button
+                type="button"
+                class="btn-page next"
+                (click)="goToPage(currentPage() + 1)"
+                [disabled]="currentPage() >= pag.totalPages || loading()"
+              >
+                <span>Next</span>
+                <app-icon name="chevron" [size]="14" class="icon-next" />
+              </button>
+            </nav>
+          }
+        }
+      }
+
+      <!-- Empty State -->
+      @if (!loading() && templates().length === 0 && !error()) {
+        <section class="empty-state">
+          <div class="empty-icon">
+            <app-icon name="bookmark" [size]="36" />
+          </div>
+          <h3>No Templates Found</h3>
+          <p>
+            Create your first admission offer template to quickly dispatch standardized offers to prospective candidates.
+          </p>
+          <button
+            type="button"
+            class="btn-create-template"
+            (click)="openCreateModal()"
+          >
+            <app-icon name="plus" [size]="16" />
+            <span>Create First Template</span>
+          </button>
+        </section>
+      }
+
+      <!-- Toast Success Notification -->
+      @if (toastSuccessMessage()) {
+        <div class="toast-banner success" role="status">
+          <app-icon name="check" [size]="18" />
+          <span>{{ toastSuccessMessage() }}</span>
+        </div>
+      }
+
+      <!-- View Single Template Modal (API #9) -->
+      @if (isViewModalOpen() && viewTemplate(); as tmpl) {
+        <div class="modal-backdrop" (click)="closeViewModal()">
+          <div
+            class="modal-card view-modal"
+            (click)="$event.stopPropagation()"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="view-template-title"
+          >
+            <div class="modal-header">
+              <div class="modal-icon-wrap">
+                <app-icon name="bookmark" [size]="22" />
+              </div>
+              <div class="header-text-wrap">
+                <h3 id="view-template-title">{{ tmpl.name }}</h3>
+                <p class="modal-subtitle">ID: {{ tmpl._id }}</p>
+              </div>
+            </div>
+
+            <div class="view-body">
+              <div class="view-section">
+                <span class="view-label">Subject Line</span>
+                <div class="view-value subject">{{ tmpl.subject }}</div>
+              </div>
+
+              <div class="view-section">
+                <span class="view-label">Message Template</span>
+                <div class="view-value message">{{ tmpl.message }}</div>
+              </div>
+
+              <div class="view-meta-row">
+                <span class="meta-tag">
+                  Created: {{ tmpl.createdAt ? (tmpl.createdAt | date:'mediumDate') : '—' }}
+                </span>
+                @if (tmpl.updatedAt && tmpl.updatedAt !== tmpl.createdAt) {
+                  <span class="meta-tag">
+                    Updated: {{ tmpl.updatedAt | date:'mediumDate' }}
+                  </span>
+                }
+              </div>
+            </div>
+
+            <div class="modal-actions">
+              <button
+                type="button"
+                class="btn-modal-cancel"
+                (click)="closeViewModal()"
+              >
+                Close
+              </button>
+              <button
+                type="button"
+                class="btn-modal-submit"
+                (click)="closeViewModal(); openEditModal(tmpl)"
+              >
+                <app-icon name="pencil" [size]="16" />
+                <span>Edit Template</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Create / Edit Modal Dialog (APIs #10 and #11) -->
+      @if (isModalOpen()) {
+        <div class="modal-backdrop" (click)="closeModal()">
+          <div
+            class="modal-card"
+            (click)="$event.stopPropagation()"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="template-modal-title"
+          >
+            <div class="modal-header">
+              <div class="modal-icon-wrap" [class.edit]="modalMode() === 'edit'">
+                <app-icon [name]="modalMode() === 'create' ? 'plus' : 'pencil'" [size]="22" />
+              </div>
+              <div>
+                <h3 id="template-modal-title">
+                  {{ modalMode() === 'create' ? 'Create Admission Template' : 'Edit Admission Template' }}
+                </h3>
+                <p class="modal-subtitle">
+                  {{ modalMode() === 'create' ? 'Define a reusable offer format for candidate invitations' : 'Update existing template details and message' }}
+                </p>
+              </div>
+            </div>
+
+            <form (ngSubmit)="submitForm()" class="template-form">
+              <div class="form-group">
+                <label for="template-name">Template Name *</label>
+                <input
+                  id="template-name"
+                  type="text"
+                  name="name"
+                  [(ngModel)]="formName"
+                  required
+                  placeholder="e.g. Scholarship MBBS Invitation"
+                  [disabled]="isSubmitting"
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="template-subject">Subject Line *</label>
+                <input
+                  id="template-subject"
+                  type="text"
+                  name="subject"
+                  [(ngModel)]="formSubject"
+                  required
+                  placeholder="e.g. Merit Scholarship Offer for MBBS 2026 - TSMU"
+                  [disabled]="isSubmitting"
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="template-message">Message Body *</label>
+                <textarea
+                  id="template-message"
+                  name="message"
+                  [(ngModel)]="formMessage"
+                  required
+                  rows="4"
+                  placeholder="Enter the invitation or offer letter body..."
+                  [disabled]="isSubmitting"
+                ></textarea>
+              </div>
+
+              @if (modalErrorMessage()) {
+                <div class="modal-alert error" role="alert">
+                  <app-icon name="close" [size]="16" />
+                  <p>{{ modalErrorMessage() }}</p>
+                </div>
+              }
+
+              <div class="modal-actions">
+                <button
+                  type="button"
+                  class="btn-modal-cancel"
+                  (click)="closeModal()"
+                  [disabled]="isSubmitting"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  class="btn-modal-submit"
+                  [disabled]="isSubmitting || !formName.trim() || !formSubject.trim() || !formMessage.trim()"
+                >
+                  @if (isSubmitting) {
+                    <span class="spinner-small"></span>
+                    <span>{{ modalMode() === 'create' ? 'Creating...' : 'Saving...' }}</span>
+                  } @else {
+                    <app-icon [name]="modalMode() === 'create' ? 'plus' : 'check'" [size]="16" />
+                    <span>{{ modalMode() === 'create' ? 'Create Template' : 'Save Changes' }}</span>
+                  }
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      }
+
+      <!-- Delete Confirmation Modal (API #12) -->
+      @if (isDeleteModalOpen() && templateToDelete(); as tmpl) {
+        <div class="modal-backdrop" (click)="closeDeleteModal()">
+          <div
+            class="modal-card delete-modal"
+            (click)="$event.stopPropagation()"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-modal-title"
+          >
+            <div class="modal-header">
+              <div class="modal-icon-wrap delete">
+                <app-icon name="close" [size]="22" />
+              </div>
+              <div>
+                <h3 id="delete-modal-title">Delete this template?</h3>
+                <p class="modal-subtitle">Deleted templates can no longer be used for new invitations.</p>
+              </div>
+            </div>
+
+            <p class="delete-confirmation-text">
+              Are you sure you want to delete template: <strong>"{{ tmpl.name }}"</strong>?
+            </p>
+
+            @if (deleteErrorMessage()) {
+              <div class="modal-alert error" role="alert">
+                <app-icon name="close" [size]="16" />
+                <p>{{ deleteErrorMessage() }}</p>
+              </div>
+            }
+
+            <div class="modal-actions">
+              <button
+                type="button"
+                class="btn-modal-cancel"
+                (click)="closeDeleteModal()"
+                [disabled]="deleting()"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                class="btn-modal-delete"
+                (click)="confirmDelete()"
+                [disabled]="deleting()"
+              >
+                @if (deleting()) {
+                  <span class="spinner-small"></span>
+                  <span>Deleting...</span>
+                } @else {
+                  <app-icon name="close" [size]="16" />
+                  <span>Delete Template</span>
+                }
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </main>
+</div>

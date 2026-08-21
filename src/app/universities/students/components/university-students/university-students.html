@@ -1,0 +1,406 @@
+<div class="univ-students-page">
+  <!-- Header -->
+  <header class="univ-students-header">
+    <div class="header-content">
+      <div class="header-left">
+        <a routerLink="/university/dashboard" class="back-link">
+          <app-icon name="arrow-right" [size]="16" class="back-icon" />
+          <span>Dashboard</span>
+        </a>
+        <div class="title-wrap">
+          <h1 class="page-title">Candidate Student Discovery</h1>
+          <span class="pool-tag">MBBS.NET Global Talent Pool</span>
+        </div>
+      </div>
+
+      <div class="header-right">
+        @if (pagination(); as pag) {
+          <div class="candidate-counter">
+            <span class="counter-number">{{ pag.total }}</span>
+            <span class="counter-label">Verified Candidates Found</span>
+          </div>
+        }
+      </div>
+    </div>
+  </header>
+
+  <main class="univ-students-main">
+    <div class="students-container">
+      <!-- Search & Filters Panel -->
+      <section class="filters-card" aria-label="Search and filter candidates">
+        <div class="search-row">
+          <div class="search-input-wrap">
+            <app-icon name="search" [size]="18" />
+            <input
+              type="text"
+              [ngModel]="searchQuery"
+              (ngModelChange)="onSearchInput($event)"
+              placeholder="Search by student full name or Student ID (e.g. STU1786...)"
+              aria-label="Search students"
+            />
+          </div>
+        </div>
+
+        <form (ngSubmit)="onFilterSubmit()" class="filter-controls-grid">
+          <!-- Country Filter -->
+          <div class="filter-field">
+            <label for="filter-country">Target / Preferred Country</label>
+            <input
+              id="filter-country"
+              type="text"
+              name="country"
+              [(ngModel)]="country"
+              placeholder="e.g. Georgia, Russia, India"
+            />
+          </div>
+
+          <!-- Course Filter -->
+          <div class="filter-field">
+            <label for="filter-course">Course</label>
+            <input
+              id="filter-course"
+              type="text"
+              name="course"
+              [(ngModel)]="course"
+              placeholder="e.g. MBBS"
+            />
+          </div>
+
+          <!-- Min NEET Score Filter -->
+          <div class="filter-field">
+            <label for="filter-min-neet">Min NEET Score</label>
+            <input
+              id="filter-min-neet"
+              type="number"
+              name="minNeetScore"
+              [(ngModel)]="minNeetScore"
+              placeholder="e.g. 500"
+              min="0"
+              max="720"
+            />
+          </div>
+
+          <!-- Min PCB Percentage Filter -->
+          <div class="filter-field">
+            <label for="filter-min-pcb">Min PCB (%)</label>
+            <input
+              id="filter-min-pcb"
+              type="number"
+              name="minPcb"
+              [(ngModel)]="minPcb"
+              placeholder="e.g. 80"
+              min="0"
+              max="100"
+            />
+          </div>
+
+          <!-- Max Budget USD Filter -->
+          <div class="filter-field">
+            <label for="filter-max-budget">Max Budget (USD)</label>
+            <input
+              id="filter-max-budget"
+              type="number"
+              name="maxBudget"
+              [(ngModel)]="maxBudget"
+              placeholder="e.g. 30000"
+              min="0"
+            />
+          </div>
+
+          <!-- Min Profile Completion Filter -->
+          <div class="filter-field">
+            <label for="filter-profile-completion">Min Profile Completion (%)</label>
+            <input
+              id="filter-profile-completion"
+              type="number"
+              name="profileCompletion"
+              [(ngModel)]="profileCompletion"
+              placeholder="e.g. 75"
+              min="0"
+              max="100"
+            />
+          </div>
+
+          <!-- Filter Actions -->
+          <div class="filter-actions">
+            <button type="submit" class="btn-filter-apply">
+              <app-icon name="check" [size]="16" />
+              <span>Apply Filters</span>
+            </button>
+            <button type="button" class="btn-filter-reset" (click)="resetFilters()">
+              <app-icon name="close" [size]="16" />
+              <span>Reset</span>
+            </button>
+          </div>
+        </form>
+
+        <!-- Sorting Bar -->
+        <div class="sort-bar">
+          <span class="sort-label">Sort Candidates By:</span>
+          <div class="sort-buttons">
+            <button
+              type="button"
+              class="btn-sort"
+              [class.active]="sortBy() === 'createdAt'"
+              (click)="setSorting('createdAt')"
+            >
+              <span>Date Added</span>
+              @if (sortBy() === 'createdAt') {
+                <app-icon [name]="sortOrder() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="14" />
+              }
+            </button>
+
+            <button
+              type="button"
+              class="btn-sort"
+              [class.active]="sortBy() === 'neetScore'"
+              (click)="setSorting('neetScore')"
+            >
+              <span>NEET Score</span>
+              @if (sortBy() === 'neetScore') {
+                <app-icon [name]="sortOrder() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="14" />
+              }
+            </button>
+
+            <button
+              type="button"
+              class="btn-sort"
+              [class.active]="sortBy() === 'pcbPercentage'"
+              (click)="setSorting('pcbPercentage')"
+            >
+              <span>PCB %</span>
+              @if (sortBy() === 'pcbPercentage') {
+                <app-icon [name]="sortOrder() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="14" />
+              }
+            </button>
+
+            <button
+              type="button"
+              class="btn-sort"
+              [class.active]="sortBy() === 'profileCompletion'"
+              (click)="setSorting('profileCompletion')"
+            >
+              <span>Profile Completion</span>
+              @if (sortBy() === 'profileCompletion') {
+                <app-icon [name]="sortOrder() === 'asc' ? 'arrow-up' : 'arrow-down'" [size]="14" />
+              }
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Error State -->
+      @if (error() && !loading()) {
+        <section class="alert-card error" role="alert">
+          <div class="alert-content">
+            <app-icon name="close" [size]="22" />
+            <div class="alert-text">
+              <strong>Failed to Load Candidate Students</strong>
+              <p>{{ error() }}</p>
+            </div>
+          </div>
+          <button type="button" class="btn-retry" (click)="retry()">
+            <app-icon name="retry" [size]="16" />
+            <span>Retry</span>
+          </button>
+        </section>
+      }
+
+      <!-- Loading State -->
+      @if (loading() && students().length === 0) {
+        <div class="loading-grid">
+          @for (i of [1, 2, 3, 4]; track i) {
+            <div class="candidate-card skeleton-card">
+              <div class="skeleton-line full"></div>
+              <div class="skeleton-line medium"></div>
+              <div class="skeleton-line short"></div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Candidate Student List -->
+      @if (!loading() && students().length > 0) {
+        <div class="students-list">
+          @for (student of students(); track student.studentId) {
+            <article class="candidate-card">
+              <!-- Card Header -->
+              <div class="card-top">
+                <div class="student-identity">
+                  <div class="avatar-wrap">
+                    <app-icon name="profile" [size]="24" />
+                  </div>
+                  <div class="name-id-wrap">
+                    <h2 class="student-name">
+                      {{ student.personal?.fullName || 'Candidate Student' }}
+                    </h2>
+                    <span class="student-id-badge">{{ student.studentId }}</span>
+                  </div>
+                </div>
+
+                <div class="badge-group">
+                  @if (student.profileCompletion !== null && student.profileCompletion !== undefined) {
+                    <span class="profile-score-badge">
+                      {{ student.profileCompletion }}% Profile Complete
+                    </span>
+                  }
+                  @if (student.preferences?.course) {
+                    <span class="course-badge">{{ student.preferences?.course }}</span>
+                  }
+                </div>
+              </div>
+
+              <!-- Metrics Summary Grid -->
+              <div class="student-details-grid">
+                <!-- Entrance Exam Column -->
+                <div class="detail-block">
+                  <span class="block-title">Entrance Exams</span>
+                  <div class="detail-row">
+                    <span class="label">NEET Score:</span>
+                    <strong class="value highlight-score">
+                      {{ student.entrance?.neetScore !== null && student.entrance?.neetScore !== undefined ? student.entrance?.neetScore : '—' }}
+                    </strong>
+                  </div>
+                  <div class="detail-row">
+                    <span class="label">NEET Qualified:</span>
+                    <span class="value">
+                      @if (student.entrance?.neetQualified === true) {
+                        <span class="tag-qualified">Qualified</span>
+                      } @else if (student.entrance?.neetQualified === false) {
+                        <span class="tag-not-qualified">Not Qualified</span>
+                      } @else {
+                        —
+                      }
+                    </span>
+                  </div>
+                  @if (student.entrance?.neetYear) {
+                    <div class="detail-row">
+                      <span class="label">NEET Year:</span>
+                      <span class="value">{{ student.entrance?.neetYear }}</span>
+                    </div>
+                  }
+                  @if (student.entrance?.ucatScore !== null && student.entrance?.ucatScore !== undefined) {
+                    <div class="detail-row">
+                      <span class="label">UCAT Score:</span>
+                      <span class="value">{{ student.entrance?.ucatScore }}</span>
+                    </div>
+                  }
+                </div>
+
+                <!-- Academic Column -->
+                <div class="detail-block">
+                  <span class="block-title">Academic Record</span>
+                  <div class="detail-row">
+                    <span class="label">PCB Marks (%):</span>
+                    <strong class="value">
+                      {{ student.academic?.pcbPercentage !== null && student.academic?.pcbPercentage !== undefined ? student.academic?.pcbPercentage + '%' : '—' }}
+                    </strong>
+                  </div>
+                  <div class="detail-row">
+                    <span class="label">12th Board:</span>
+                    <span class="value">{{ student.academic?.twelfthBoard || '—' }}</span>
+                  </div>
+                  @if (student.academic?.schoolName) {
+                    <div class="detail-row">
+                      <span class="label">School:</span>
+                      <span class="value text-truncate">{{ student.academic?.schoolName }}</span>
+                    </div>
+                  }
+                </div>
+
+                <!-- Preferences & Location Column -->
+                <div class="detail-block">
+                  <span class="block-title">Location & Preferences</span>
+                  <div class="detail-row">
+                    <span class="label">Origin / City:</span>
+                    <span class="value">
+                      {{ student.personal?.city ? student.personal?.city + ', ' + student.personal?.country : (student.personal?.country || '—') }}
+                    </span>
+                  </div>
+                  <div class="detail-row">
+                    <span class="label">Preferred Budget:</span>
+                    <span class="value">
+                      {{ student.preferences?.preferredBudgetUsd ? ('$' + student.preferences?.preferredBudgetUsd?.toLocaleString() + ' USD') : '—' }}
+                    </span>
+                  </div>
+                  @if (student.preferences?.preferredIntake) {
+                    <div class="detail-row">
+                      <span class="label">Intake:</span>
+                      <span class="value">{{ student.preferences?.preferredIntake }}</span>
+                    </div>
+                  }
+                  @if (student.preferences?.preferredCountries?.length) {
+                    <div class="detail-row">
+                      <span class="label">Destinations:</span>
+                      <span class="value">{{ student.preferences?.preferredCountries?.join(', ') }}</span>
+                    </div>
+                  }
+                </div>
+              </div>
+
+              <!-- Card Footer -->
+              <div class="card-bottom">
+                <span class="date-registered">
+                  Added on {{ student.createdAt | date:'mediumDate' }}
+                </span>
+                <a [routerLink]="['/university/students', student.studentId]" class="btn-view-profile">
+                  <span>View Profile</span>
+                  <app-icon name="arrow-right" [size]="14" />
+                </a>
+              </div>
+            </article>
+          }
+        </div>
+
+        <!-- Pagination Controls -->
+        @if (pagination(); as pag) {
+          @if (pag.totalPages > 1) {
+            <nav class="pagination-nav" aria-label="Student pagination">
+              <button
+                type="button"
+                class="btn-page prev"
+                (click)="goToPage(currentPage() - 1)"
+                [disabled]="currentPage() <= 1 || loading()"
+              >
+                <app-icon name="chevron" [size]="14" class="icon-prev" />
+                <span>Previous</span>
+              </button>
+
+              <span class="page-status">
+                Page <strong>{{ pag.page }}</strong> of <strong>{{ pag.totalPages }}</strong>
+                ({{ pag.total }} total candidates)
+              </span>
+
+              <button
+                type="button"
+                class="btn-page next"
+                (click)="goToPage(currentPage() + 1)"
+                [disabled]="currentPage() >= pag.totalPages || loading()"
+              >
+                <span>Next</span>
+                <app-icon name="chevron" [size]="14" class="icon-next" />
+              </button>
+            </nav>
+          }
+        }
+      }
+
+      <!-- Empty State -->
+      @if (!loading() && students().length === 0 && !error()) {
+        <section class="empty-state" aria-label="No candidates found">
+          <div class="empty-icon-wrap">
+            <app-icon name="search" [size]="32" />
+          </div>
+          <h3>No Student Candidates Found</h3>
+          <p>
+            No student profiles matched your active search or filtering parameters.
+            Try broadening your search term or adjusting minimum score and budget thresholds.
+          </p>
+          <button type="button" class="btn-clear-filters" (click)="resetFilters()">
+            Clear All Filters
+          </button>
+        </section>
+      }
+    </div>
+  </main>
+</div>

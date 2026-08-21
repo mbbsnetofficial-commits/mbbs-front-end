@@ -1,0 +1,126 @@
+import {
+  HttpClient,
+  HttpErrorResponse,
+  HttpHeaders,
+} from '@angular/common/http';
+import { Injectable, inject, signal } from '@angular/core';
+import { Observable, catchError, tap, throwError } from 'rxjs';
+import { environment } from '../../../../environments/environment';
+import { UniversityAuthService } from '../../auth/services/university-auth.service';
+import { UNIVERSITY_PROFILE_API } from '../constants/university-profile.constants';
+import {
+  UniversityProfile,
+  UniversityProfileResponse,
+  UpdateUniversityProfileRequest,
+  UpdateUniversityProfileResponse,
+} from '../models/university-profile.model';
+
+@Injectable({ providedIn: 'root' })
+export class UniversityProfileService {
+  private readonly http = inject(HttpClient);
+  private readonly authService = inject(UniversityAuthService);
+  private readonly baseUrl = environment.universityApiBaseUrl;
+
+  readonly profile = signal<UniversityProfile | null>(null);
+  readonly loading = signal<boolean>(false);
+  readonly updating = signal<boolean>(false);
+  readonly error = signal<string | null>(null);
+
+  // API #17: GET /organization/profile (View Profile)
+  getProfile(): Observable<UniversityProfileResponse> {
+    this.loading.set(true);
+    this.error.set(null);
+
+    const token = this.authService.getToken();
+    const headers = new HttpHeaders({
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    });
+
+    const url = `${this.baseUrl}${UNIVERSITY_PROFILE_API.PROFILE}`;
+
+    return this.http.get<UniversityProfileResponse>(url, { headers }).pipe(
+      tap((res) => {
+        if (res?.success && res.data) {
+          this.profile.set(res.data);
+        }
+        this.loading.set(false);
+      }),
+      catchError((err: HttpErrorResponse) => {
+        const errorMsg = this.extractErrorMessage(err, 'get');
+        this.error.set(errorMsg);
+        this.loading.set(false);
+        return throwError(() => err);
+      })
+    );
+  }
+
+  // API #18: PUT /organization/profile (Update Profile)
+  updateProfile(
+    payload: UpdateUniversityProfileRequest
+  ): Observable<UpdateUniversityProfileResponse> {
+    this.updating.set(true);
+    this.error.set(null);
+
+    const token = this.authService.getToken();
+    const headers = new HttpHeaders({
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      'Content-Type': 'application/json',
+    });
+
+    const url = `${this.baseUrl}${UNIVERSITY_PROFILE_API.PROFILE}`;
+
+    return this.http
+      .put<UpdateUniversityProfileResponse>(url, payload, { headers })
+      .pipe(
+        tap((res) => {
+          if (res?.success && res.data) {
+            this.profile.set(res.data);
+          }
+          this.updating.set(false);
+        }),
+        catchError((err: HttpErrorResponse) => {
+          const errorMsg = this.extractErrorMessage(err, 'update');
+          this.error.set(errorMsg);
+          this.updating.set(false);
+          return throwError(() => err);
+        })
+      );
+  }
+
+  private extractErrorMessage(
+    err: HttpErrorResponse,
+    action: 'get' | 'update' = 'get'
+  ): string {
+    const errorBody = err.error;
+    if (errorBody?.message) return errorBody.message;
+    if (errorBody?.error?.message) return errorBody.error.message;
+    if (typeof errorBody?.error === 'string') return errorBody.error;
+    if (
+      typeof errorBody === 'string' &&
+      errorBody.trim().length > 0 &&
+      errorBody !== err.statusText
+    ) {
+      return errorBody;
+    }
+
+    switch (err.status) {
+      case 400:
+        return 'Bad request. Please verify all profile fields.';
+      case 401:
+        return 'Session expired or unauthorized. Please sign in again.';
+      case 403:
+        return 'Access denied. You do not have permission to view or edit the organization profile.';
+      case 404:
+        return 'Organization profile not found.';
+      case 409:
+        return 'Conflict: An organization profile update conflict occurred.';
+      case 500:
+        return 'Internal server error while processing profile request. Please try again.';
+      default:
+        return (
+          err.message ||
+          'An unexpected error occurred while communicating with organization profile backend.'
+        );
+    }
+  }
+}

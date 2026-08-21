@@ -1,0 +1,203 @@
+<div class="univ-notifications-page">
+  <!-- Header -->
+  <header class="univ-notifications-header">
+    <div class="header-content">
+      <div class="header-left">
+        <a routerLink="/university/dashboard" class="back-link">
+          <app-icon name="arrow-right" [size]="15" class="back-icon" />
+          <span>Back to Dashboard</span>
+        </a>
+        <div class="title-row">
+          <div class="icon-badge">
+            <app-icon name="bell" [size]="24" />
+          </div>
+          <div>
+            <div class="title-with-badge">
+              <h1 class="page-title">Notifications</h1>
+              @if (unreadCount() > 0) {
+                <span class="unread-pill">{{ unreadCount() }} Unread</span>
+              }
+            </div>
+            <p class="page-subtitle">
+              Stay updated on candidate invitations, status changes, and admissions activity.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Header Controls: Filters & Mark All as Read -->
+      <div class="header-controls">
+        <div class="header-filters">
+          <button
+            type="button"
+            class="filter-tab"
+            [class.active]="!unreadOnlyFilter()"
+            (click)="setFilter(false)"
+          >
+            <span>All</span>
+          </button>
+          <button
+            type="button"
+            class="filter-tab"
+            [class.active]="unreadOnlyFilter()"
+            (click)="setFilter(true)"
+          >
+            <span>Unread Only</span>
+            @if (unreadCount() > 0) {
+              <span class="filter-count-badge">{{ unreadCount() }}</span>
+            }
+          </button>
+        </div>
+
+        @if (unreadCount() > 0) {
+          <button
+            type="button"
+            class="btn-mark-all-read"
+            (click)="onMarkAllAsRead()"
+            [disabled]="markingAllRead()"
+            title="Mark all notifications as read"
+          >
+            @if (markingAllRead()) {
+              <span class="spinner-small"></span>
+              <span>Marking all read...</span>
+            } @else {
+              <app-icon name="check" [size]="15" />
+              <span>Mark all as read</span>
+            }
+          </button>
+        }
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="univ-notifications-main">
+    <div class="notifications-container">
+      <!-- Error State -->
+      @if (error() && !loading()) {
+        <section class="alert-card error" role="alert">
+          <div class="alert-content">
+            <app-icon name="close" [size]="20" />
+            <div class="alert-text">
+              <strong>Notification Request Failed</strong>
+              <p>{{ error() }}</p>
+            </div>
+          </div>
+          <button type="button" class="btn-retry" (click)="retry()">
+            <app-icon name="retry" [size]="16" />
+            <span>Retry</span>
+          </button>
+        </section>
+      }
+
+      <!-- Skeleton Loading -->
+      @if (loading() && notifications().length === 0) {
+        <div class="skeleton-list">
+          <div class="skeleton-item"></div>
+          <div class="skeleton-item"></div>
+          <div class="skeleton-item"></div>
+        </div>
+      }
+
+      <!-- Notification List -->
+      @if (notifications().length > 0) {
+        <div class="notifications-list" role="feed" aria-label="University notifications list">
+          @for (item of notifications(); track item._id) {
+            <article
+              class="notification-card"
+              [class.unread]="!item.read"
+              [class.clickable]="!item.read"
+              (click)="onNotificationClick(item)"
+              [attr.tabindex]="!item.read ? 0 : null"
+              [attr.aria-label]="item.title + (!item.read ? ' (Unread - click to mark as read)' : '')"
+            >
+              <div class="card-icon-wrap" [class.unread]="!item.read">
+                @if (markingReadId() === item._id) {
+                  <span class="spinner-small"></span>
+                } @else {
+                  <app-icon [name]="getNotificationIcon(item.type)" [size]="18" />
+                }
+              </div>
+
+              <div class="card-body">
+                <div class="card-top-row">
+                  <div class="type-and-title">
+                    <span class="type-badge">{{ item.type }}</span>
+                    <h3 class="notification-title">{{ item.title }}</h3>
+                  </div>
+
+                  <div class="meta-right">
+                    @if (!item.read) {
+                      <span class="unread-dot-badge" aria-label="Unread notification">Unread</span>
+                    }
+                    <time class="notification-time">
+                      {{ item.createdAt | date:'medium' }}
+                    </time>
+                  </div>
+                </div>
+
+                <p class="notification-message">{{ item.message }}</p>
+              </div>
+            </article>
+          }
+        </div>
+
+        <!-- Backend Pagination Controls -->
+        @if (pagination(); as pag) {
+          @if (pag.totalPages > 1) {
+            <nav class="pagination-nav" aria-label="Notifications pagination">
+              <button
+                type="button"
+                class="btn-page prev"
+                (click)="goToPage(currentPage() - 1)"
+                [disabled]="currentPage() <= 1 || loading()"
+              >
+                <app-icon name="chevron" [size]="14" class="icon-prev" />
+                <span>Previous</span>
+              </button>
+
+              <span class="page-status">
+                Page <strong>{{ pag.page }}</strong> of <strong>{{ pag.totalPages }}</strong> ({{ pag.total }} total notifications)
+              </span>
+
+              <button
+                type="button"
+                class="btn-page next"
+                (click)="goToPage(currentPage() + 1)"
+                [disabled]="currentPage() >= pag.totalPages || loading()"
+              >
+                <span>Next</span>
+                <app-icon name="chevron" [size]="14" class="icon-next" />
+              </button>
+            </nav>
+          }
+        }
+      }
+
+      <!-- Empty State -->
+      @if (!loading() && notifications().length === 0 && !error()) {
+        <section class="empty-state">
+          <div class="empty-icon">
+            <app-icon name="bell" [size]="36" />
+          </div>
+          <h3>{{ unreadOnlyFilter() ? 'No Unread Notifications' : 'No Notifications Yet' }}</h3>
+          <p>
+            {{ unreadOnlyFilter() 
+              ? 'You have caught up with all unread organization alerts.' 
+              : 'You will receive notifications here when candidate offers are updated, accepted, or require action.' 
+            }}
+          </p>
+          @if (unreadOnlyFilter()) {
+            <button
+              type="button"
+              class="btn-switch-filter"
+              (click)="setFilter(false)"
+            >
+              <span>View All Notifications</span>
+            </button>
+          }
+        </section>
+      }
+    </div>
+  </main>
+</div>

@@ -1,27 +1,27 @@
 import { Routes } from '@angular/router';
 
-import { authGuard } from './auth/services/auth.guard';
+import { authGuard } from './students/auth/services/auth.guard';
 
 export const routes: Routes = [
   {
     path: '',
     pathMatch: 'full',
     loadComponent: () =>
-      import('./static/dashboard/dashboard').then(({ Dashboard }) => Dashboard),
+      import('./students/static/dashboard/dashboard').then(({ Dashboard }) => Dashboard),
   },
   {
     path: 'blogs',
     loadChildren: () =>
-      import('./static/blogs/blogs.routes').then((m) => m.blogRoutes),
+      import('./students/static/blogs/blogs.routes').then((m) => m.blogRoutes),
   },
   {
     path: 'static',
     loadChildren: () =>
-      import('./static/static.routes').then((m) => m.staticRoutes),
+      import('./students/static/static.routes').then((m) => m.staticRoutes),
   },
   {
     path: 'auth',
-    loadChildren: () => import('./auth/auth.routes').then((m) => m.authRoutes),
+    loadChildren: () => import('./students/auth/auth.routes').then((m) => m.authRoutes),
   },
   {
     path: 'student/invites',
@@ -39,7 +39,17 @@ export const routes: Routes = [
     path: 'dynamic',
     canMatch: [authGuard],
     loadChildren: () =>
-      import('./dynamic/dynamic.routes').then((m) => m.dynamicRoutes),
+      import('./students/dynamic/dynamic.routes').then((m) => m.dynamicRoutes),
+  },
+  {
+    path: 'university',
+    loadChildren: () =>
+      import('./universities/university.routes').then((m) => m.universityRoutes),
+  },
+  {
+    path: 'universities',
+    loadChildren: () =>
+      import('./universities/university.routes').then((m) => m.universityRoutes),
   },
   {
     path: '**',

@@ -1,0 +1,331 @@
+<div class="univ-invites-page">
+  <!-- Top Navigation Header -->
+  <header class="univ-invites-header">
+    <div class="header-content">
+      <div class="header-left">
+        <a routerLink="/university/dashboard" class="back-link">
+          <app-icon name="arrow-right" [size]="15" class="back-icon" />
+          <span>Back to Dashboard</span>
+        </a>
+        <div class="title-row">
+          <div class="icon-badge">
+            <app-icon name="share" [size]="24" />
+          </div>
+          <div>
+            <h1 class="page-title">Sent Admission Offers</h1>
+            <p class="page-subtitle">
+              Manage direct MBBS admission letters and invitations issued to prospective candidates.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <a routerLink="/university/students" class="btn-discover">
+          <app-icon name="sparkles" [size]="16" />
+          <span>Discover Candidates</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="univ-invites-main">
+    <div class="invites-container">
+      <!-- Filter Bar & Search Controls -->
+      <section class="controls-card">
+        <!-- Status Tabs -->
+        <div class="status-tabs" role="tablist">
+          <button
+            type="button"
+            class="tab-btn"
+            [class.active]="currentStatus() === 'ALL'"
+            (click)="filterByStatus('ALL')"
+          >
+            All Offers
+          </button>
+          <button
+            type="button"
+            class="tab-btn"
+            [class.active]="currentStatus() === 'PENDING'"
+            (click)="filterByStatus('PENDING')"
+          >
+            Pending
+          </button>
+          <button
+            type="button"
+            class="tab-btn"
+            [class.active]="currentStatus() === 'ACCEPTED'"
+            (click)="filterByStatus('ACCEPTED')"
+          >
+            Accepted
+          </button>
+          <button
+            type="button"
+            class="tab-btn"
+            [class.active]="currentStatus() === 'DECLINED'"
+            (click)="filterByStatus('DECLINED')"
+          >
+            Declined
+          </button>
+          <button
+            type="button"
+            class="tab-btn"
+            [class.active]="currentStatus() === 'CANCELLED'"
+            (click)="filterByStatus('CANCELLED')"
+          >
+            Cancelled
+          </button>
+        </div>
+
+        <!-- Search Input -->
+        <div class="search-wrap">
+          <app-icon name="search" [size]="16" class="search-icon" />
+          <input
+            type="text"
+            placeholder="Search by Student ID or subject..."
+            [ngModel]="searchQuery()"
+            (ngModelChange)="onSearchInput($event)"
+          />
+          @if (searchQuery()) {
+            <button
+              type="button"
+              class="btn-clear-search"
+              (click)="onSearchInput('')"
+            >
+              <app-icon name="close" [size]="14" />
+            </button>
+          }
+        </div>
+      </section>
+
+      <!-- Error State -->
+      @if (error() && !loading()) {
+        <section class="alert-card error" role="alert">
+          <div class="alert-content">
+            <app-icon name="close" [size]="20" />
+            <div class="alert-text">
+              <strong>Failed to Load Invitations</strong>
+              <p>{{ error() }}</p>
+            </div>
+          </div>
+          <button type="button" class="btn-retry" (click)="retry()">
+            <app-icon name="retry" [size]="16" />
+            <span>Retry</span>
+          </button>
+        </section>
+      }
+
+      <!-- Loading Skeletons -->
+      @if (loading() && invitations().length === 0) {
+        <div class="skeleton-list">
+          <div class="skeleton-card"></div>
+          <div class="skeleton-card"></div>
+          <div class="skeleton-card"></div>
+        </div>
+      }
+
+      <!-- Invitations List -->
+      @if (invitations().length > 0) {
+        <div class="invites-grid">
+          @for (inv of invitations(); track inv._id) {
+            <article class="invite-card" [class.cancelled]="inv.status.toUpperCase() === 'CANCELLED'">
+              <div class="card-top">
+                <div class="candidate-meta">
+                  <a [routerLink]="['/university/students', inv.studentId]" class="student-id-link">
+                    <span class="id-tag">{{ inv.studentId }}</span>
+                    <app-icon name="arrow-right" [size]="12" />
+                  </a>
+                  @if (inv.student?.fullName) {
+                    <span class="candidate-name">{{ inv.student?.fullName }}</span>
+                  }
+                  @if (inv.student?.country) {
+                    <span class="candidate-loc">• {{ inv.student?.country }}</span>
+                  }
+                </div>
+
+                <span
+                  class="status-pill"
+                  [class.status-pending]="inv.status.toUpperCase() === 'PENDING'"
+                  [class.status-accepted]="inv.status.toUpperCase() === 'ACCEPTED'"
+                  [class.status-declined]="inv.status.toUpperCase() === 'DECLINED'"
+                  [class.status-cancelled]="inv.status.toUpperCase() === 'CANCELLED'"
+                >
+                  {{ inv.status }}
+                </span>
+              </div>
+
+              <div class="card-main">
+                <h3 class="offer-subject">{{ inv.subject }}</h3>
+                @if (inv.message) {
+                  <p class="offer-snippet">{{ inv.message }}</p>
+                }
+              </div>
+
+              <div class="card-details-row">
+                @if (inv.course) {
+                  <div class="detail-badge">
+                    <span class="lbl">Program:</span>
+                    <span class="val">{{ inv.course }}</span>
+                  </div>
+                }
+                @if (inv.tuitionFeeUsd) {
+                  <div class="detail-badge">
+                    <span class="lbl">Tuition:</span>
+                    <span class="val highlight-amber">${{ inv.tuitionFeeUsd.toLocaleString() }} USD</span>
+                  </div>
+                }
+                <div class="detail-badge">
+                  <span class="lbl">Dispatched:</span>
+                  <span class="val">{{ inv.createdAt | date:'mediumDate' }}</span>
+                </div>
+              </div>
+
+              <div class="card-actions">
+                <a [routerLink]="['/university/students', inv.studentId]" class="btn-view-profile">
+                  <span>View Candidate</span>
+                  <app-icon name="arrow-right" [size]="14" />
+                </a>
+
+                @if (inv.status.toUpperCase() === 'PENDING') {
+                  <button
+                    type="button"
+                    class="btn-cancel-invite"
+                    (click)="promptCancel(inv)"
+                    [disabled]="cancelling()"
+                  >
+                    <app-icon name="close" [size]="14" />
+                    <span>Cancel Offer</span>
+                  </button>
+                }
+              </div>
+            </article>
+          }
+        </div>
+
+        <!-- Pagination Controls -->
+        @if (pagination(); as pag) {
+          @if (pag.totalPages > 1) {
+            <nav class="pagination-nav" aria-label="Invitations pagination">
+              <button
+                type="button"
+                class="btn-page prev"
+                (click)="goToPage(currentPage() - 1)"
+                [disabled]="currentPage() <= 1 || loading()"
+              >
+                <app-icon name="chevron" [size]="14" class="icon-prev" />
+                <span>Previous</span>
+              </button>
+
+              <span class="page-status">
+                Page <strong>{{ pag.page }}</strong> of <strong>{{ pag.totalPages }}</strong> ({{ pag.total }} total offers)
+              </span>
+
+              <button
+                type="button"
+                class="btn-page next"
+                (click)="goToPage(currentPage() + 1)"
+                [disabled]="currentPage() >= pag.totalPages || loading()"
+              >
+                <span>Next</span>
+                <app-icon name="chevron" [size]="14" class="icon-next" />
+              </button>
+            </nav>
+          }
+        }
+      }
+
+      <!-- Empty State -->
+      @if (!loading() && invitations().length === 0 && !error()) {
+        <section class="empty-state">
+          <div class="empty-icon">
+            <app-icon name="share" [size]="36" />
+          </div>
+          <h3>No Invitations Found</h3>
+          <p>
+            @if (currentStatus() !== 'ALL' || searchQuery()) {
+              No sent admission offers match the current filters.
+            } @else {
+              No direct admission offers have been issued to student candidates yet.
+            }
+          </p>
+          <div class="empty-actions">
+            @if (currentStatus() !== 'ALL' || searchQuery()) {
+              <button
+                type="button"
+                class="btn-reset"
+                (click)="filterByStatus('ALL'); onSearchInput('')"
+              >
+                Clear Filters
+              </button>
+            }
+            <a routerLink="/university/students" class="btn-discover">
+              <app-icon name="sparkles" [size]="16" />
+              <span>Discover Candidate Students</span>
+            </a>
+          </div>
+        </section>
+      }
+
+      <!-- Toast Success Notification -->
+      @if (cancelSuccessMessage()) {
+        <div class="toast-banner success" role="status">
+          <app-icon name="check" [size]="18" />
+          <span>{{ cancelSuccessMessage() }}</span>
+        </div>
+      }
+
+      <!-- Cancel Confirmation Modal (API #7) -->
+      @if (selectedInviteToCancel(); as inv) {
+        <div class="modal-backdrop" (click)="closeCancelModal()">
+          <div class="modal-card" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="cancel-modal-title">
+            <div class="modal-header">
+              <div class="modal-icon-wrap cancel">
+                <app-icon name="close" [size]="22" />
+              </div>
+              <div>
+                <h3 id="cancel-modal-title">Cancel Admission Offer?</h3>
+                <p class="modal-subtitle">Student {{ inv.studentId }}</p>
+              </div>
+            </div>
+
+            <p class="modal-desc">
+              Are you sure you want to cancel the offer:
+              <strong>"{{ inv.subject }}"</strong>? This action cannot be reversed once confirmed.
+            </p>
+
+            @if (cancelErrorMessage()) {
+              <div class="modal-alert error" role="alert">
+                <app-icon name="close" [size]="16" />
+                <p>{{ cancelErrorMessage() }}</p>
+              </div>
+            }
+
+            <div class="modal-actions">
+              <button
+                type="button"
+                class="btn-modal-cancel"
+                (click)="closeCancelModal()"
+                [disabled]="cancelling()"
+              >
+                Keep Offer
+              </button>
+              <button
+                type="button"
+                class="btn-modal-confirm"
+                (click)="confirmCancel()"
+                [disabled]="cancelling()"
+              >
+                @if (cancelling()) {
+                  <span class="spinner-small"></span>
+                  <span>Cancelling...</span>
+                } @else {
+                  <span>Confirm Cancellation</span>
+                }
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </main>
+</div>

@@ -1,0 +1,376 @@
+<div class="univ-dashboard-page">
+  <header class="univ-dashboard-header">
+    <div class="header-content">
+      <div class="brand-group">
+        <div class="brand-badge">
+          <app-icon name="graduation-cap" [size]="28" />
+        </div>
+        <div class="brand-meta">
+          <span class="portal-badge">Partner University Portal</span>
+          <h1 class="page-title">University Dashboard</h1>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <a routerLink="/university/notifications" class="btn-nav-link">
+          <app-icon name="bookmark" [size]="16" />
+          <span>Notifications</span>
+          @if (unreadCount() > 0) {
+            <span class="nav-unread-badge">{{ unreadCount() }}</span>
+          }
+        </a>
+
+        <a routerLink="/university/templates" class="btn-nav-link">
+          <app-icon name="bookmark" [size]="16" />
+          <span>Templates</span>
+        </a>
+
+        <a routerLink="/university/invites" class="btn-nav-link">
+          <app-icon name="share" [size]="16" />
+          <span>Sent Offers</span>
+        </a>
+
+        <a routerLink="/university/profile" class="btn-nav-link">
+          <app-icon name="profile" [size]="16" />
+          <span>Profile</span>
+        </a>
+
+        <a routerLink="/university/students" class="btn-discover">
+          <app-icon name="search" [size]="16" />
+          <span>Discover Students</span>
+        </a>
+
+        <button
+          type="button"
+          class="btn-logout"
+          (click)="logout()"
+          [disabled]="logoutLoading()"
+          title="Sign out of university session"
+        >
+          @if (logoutLoading()) {
+            <span class="spinner-small"></span>
+            <span>Signing Out...</span>
+          } @else {
+            <app-icon name="close" [size]="18" />
+            <span>Sign Out</span>
+          }
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="univ-dashboard-main">
+    <div class="dashboard-container">
+      <!-- University Profile & Session Card -->
+      <section class="welcome-card">
+        <div class="card-hero">
+          <div class="status-indicator">
+            <span class="status-dot"></span>
+            <span>Session Active</span>
+          </div>
+
+          <h2 class="univ-name">
+            {{ currentUser()?.name || 'Partner Medical University' }}
+          </h2>
+
+          <p class="univ-tagline">
+            Institutional account verified and active on the MBBS.NET Admissions Exchange.
+          </p>
+        </div>
+
+        <div class="meta-grid">
+          <div class="meta-item">
+            <span class="meta-label">Institutional Email</span>
+            <span class="meta-value">{{ currentUser()?.email || '—' }}</span>
+          </div>
+
+          <div class="meta-item">
+            <span class="meta-label">Assigned Role</span>
+            <span class="meta-value role-badge">{{ currentUser()?.role || 'UNIVERSITY_ADMIN' }}</span>
+          </div>
+
+          <div class="meta-item">
+            <span class="meta-label">Location / Country</span>
+            <span class="meta-value">
+              {{ currentUser()?.city ? currentUser()?.city + ', ' + currentUser()?.country : (currentUser()?.country || '—') }}
+            </span>
+          </div>
+
+          <div class="meta-item">
+            <span class="meta-label">Institution Code</span>
+            <span class="meta-value">{{ currentUser()?.code || '—' }}</span>
+          </div>
+
+          <div class="meta-item">
+            <span class="meta-label">Organization ID</span>
+            <span class="meta-value org-id">{{ currentUser()?.organizationId || currentUser()?.id || '—' }}</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Error State with Retry -->
+      @if (error() && !loading()) {
+        <section class="alert-card error" role="alert">
+          <div class="alert-content">
+            <app-icon name="close" [size]="22" />
+            <div class="alert-text">
+              <strong>Failed to Load Dashboard Metrics</strong>
+              <p>{{ error() }}</p>
+            </div>
+          </div>
+          <button type="button" class="btn-retry" (click)="retry()">
+            <app-icon name="retry" [size]="16" />
+            <span>Retry</span>
+          </button>
+        </section>
+      }
+
+      <!-- Loading Skeleton State -->
+      @if (loading() && !summary()) {
+        <section class="loading-container" aria-label="Loading dashboard metrics">
+          <div class="kpi-grid">
+            @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+              <div class="kpi-card skeleton-card">
+                <div class="skeleton-line short"></div>
+                <div class="skeleton-line large"></div>
+              </div>
+            }
+          </div>
+
+          <div class="content-grid">
+            <div class="dashboard-card skeleton-card block-skeleton"></div>
+            <div class="dashboard-card skeleton-card block-skeleton"></div>
+          </div>
+        </section>
+      }
+
+      <!-- Dashboard Business Metrics (When summary is loaded) -->
+      @if (summary(); as data) {
+        <!-- KPI Summary Cards Grid -->
+        <section class="kpi-section" aria-label="Key Performance Indicators">
+          <div class="kpi-grid">
+            <!-- Total Students -->
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <span class="kpi-title">Total Students</span>
+                <span class="kpi-icon blue"><app-icon name="profile" [size]="18" /></span>
+              </div>
+              <div class="kpi-value">{{ data.totalStudents }}</div>
+              <span class="kpi-caption">Eligible candidate pool</span>
+            </div>
+
+            <!-- Students Viewed -->
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <span class="kpi-title">Students Viewed</span>
+                <span class="kpi-icon purple"><app-icon name="chart" [size]="18" /></span>
+              </div>
+              <div class="kpi-value">{{ data.studentsViewed }}</div>
+              <span class="kpi-caption">Profiles inspected</span>
+            </div>
+
+            <!-- Invitations Sent -->
+            <div class="kpi-card">
+              <div class="kpi-header">
+                <span class="kpi-title">Invitations Sent</span>
+                <span class="kpi-icon sky"><app-icon name="share" [size]="18" /></span>
+              </div>
+              <div class="kpi-value">{{ data.invitesSent }}</div>
+              <span class="kpi-caption">Direct offers dispatched</span>
+            </div>
+
+            <!-- Pending Invitations -->
+            <div class="kpi-card pending">
+              <div class="kpi-header">
+                <span class="kpi-title">Pending Invites</span>
+                <span class="kpi-icon amber"><app-icon name="clock" [size]="18" /></span>
+              </div>
+              <div class="kpi-value highlight-amber">{{ data.pendingInvites }}</div>
+              <span class="kpi-caption">Awaiting student response</span>
+            </div>
+
+            <!-- Accepted Invitations -->
+            <div class="kpi-card accepted">
+              <div class="kpi-header">
+                <span class="kpi-title">Accepted Invites</span>
+                <span class="kpi-icon green"><app-icon name="check" [size]="18" /></span>
+              </div>
+              <div class="kpi-value highlight-green">{{ data.acceptedInvites }}</div>
+              <span class="kpi-caption">Admission offers accepted</span>
+            </div>
+
+            <!-- Declined Invitations -->
+            <div class="kpi-card declined">
+              <div class="kpi-header">
+                <span class="kpi-title">Declined Invites</span>
+                <span class="kpi-icon rose"><app-icon name="close" [size]="18" /></span>
+              </div>
+              <div class="kpi-value highlight-rose">{{ data.declinedInvites }}</div>
+              <span class="kpi-caption">Offers declined by students</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Two-Column Grid: Recent Invitations & Recent Activity -->
+        <div class="content-grid">
+          <!-- Recent Invitations -->
+          <section class="dashboard-card" aria-label="Recent Invitations">
+            <div class="card-section-header">
+              <div class="section-title-wrap">
+                <app-icon name="share" [size]="20" />
+                <h3>Recent Invitations</h3>
+              </div>
+              <div class="header-right-meta">
+                <span class="count-badge">{{ data.recentInvites.length }}</span>
+                <a routerLink="/university/invites" class="link-view-all">View All →</a>
+              </div>
+            </div>
+
+            @if (data.recentInvites.length > 0) {
+              <div class="invites-list">
+                @for (invite of data.recentInvites; track invite._id) {
+                  <div class="invite-item">
+                    <div class="invite-main">
+                      <div class="invite-top">
+                        <span class="student-id-tag">{{ invite.studentId }}</span>
+                        <span
+                          class="status-pill"
+                          [class.status-pending]="invite.status.toUpperCase() === 'PENDING'"
+                          [class.status-accepted]="invite.status.toUpperCase() === 'ACCEPTED'"
+                          [class.status-declined]="invite.status.toUpperCase() === 'DECLINED'"
+                          [class.status-cancelled]="invite.status.toUpperCase() === 'CANCELLED'"
+                        >
+                          {{ invite.status }}
+                        </span>
+                      </div>
+                      <h4 class="invite-subject">{{ invite.subject }}</h4>
+                    </div>
+                    <div class="invite-meta">
+                      <span class="invite-date">{{ invite.createdAt | date:'mediumDate' }}</span>
+                      @if (invite.status.toUpperCase() === 'PENDING') {
+                        <button
+                          type="button"
+                          class="btn-cancel-action"
+                          (click)="promptCancelInvite(invite)"
+                          title="Cancel active invitation"
+                        >
+                          Cancel
+                        </button>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="empty-state">
+                <div class="empty-icon-wrap">
+                  <app-icon name="share" [size]="28" />
+                </div>
+                <h4>No Invitations Sent</h4>
+                <p>Direct admission offers issued to students will appear here.</p>
+              </div>
+            }
+          </section>
+
+          <!-- Recent Activity -->
+          <section class="dashboard-card" aria-label="Recent Activity">
+            <div class="card-section-header">
+              <div class="section-title-wrap">
+                <app-icon name="activity" [size]="20" />
+                <h3>Recent Activity</h3>
+              </div>
+              <span class="count-badge">{{ data.recentActivity.length }}</span>
+            </div>
+
+            @if (data.recentActivity.length > 0) {
+              <div class="activity-timeline">
+                @for (activity of data.recentActivity; track activity._id) {
+                  <div class="activity-item" [class.unread]="!activity.read">
+                    <div class="activity-dot"></div>
+                    <div class="activity-body">
+                      <div class="activity-top">
+                        <span class="activity-type-badge">{{ activity.type }}</span>
+                        <span class="activity-time">{{ activity.createdAt | date:'short' }}</span>
+                      </div>
+                      <h4 class="activity-title">{{ activity.title }}</h4>
+                      <p class="activity-message">{{ activity.message }}</p>
+                    </div>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="empty-state">
+                <div class="empty-icon-wrap">
+                  <app-icon name="activity" [size]="28" />
+                </div>
+                <h4>No Recent Activity</h4>
+                <p>Institutional activity logs and event updates will appear here.</p>
+              </div>
+            }
+          </section>
+        </div>
+      }
+
+      <!-- Toast Success Notification -->
+      @if (cancelSuccessMessage()) {
+        <div class="toast-banner success" role="status">
+          <app-icon name="check" [size]="18" />
+          <span>{{ cancelSuccessMessage() }}</span>
+        </div>
+      }
+
+      <!-- Cancel Confirmation Modal -->
+      @if (selectedInviteToCancel(); as inv) {
+        <div class="modal-backdrop" (click)="closeCancelModal()">
+          <div class="modal-card" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+            <div class="modal-header">
+              <div class="modal-icon-wrap">
+                <app-icon name="close" [size]="22" />
+              </div>
+              <h3 id="modal-title">Cancel this invitation?</h3>
+            </div>
+            <p class="modal-desc">
+              Are you sure you want to cancel the direct admission offer sent to candidate
+              <strong>{{ inv.studentId }}</strong>? Once cancelled, the offer will no longer be valid for student acceptance.
+            </p>
+            <div class="modal-invite-preview">
+              <span class="preview-subject">{{ inv.subject }}</span>
+              <span class="preview-date">Dispatched on {{ inv.createdAt | date:'mediumDate' }}</span>
+            </div>
+
+            @if (cancelErrorMessage()) {
+              <div class="modal-alert error" role="alert">
+                <app-icon name="close" [size]="16" />
+                <p>{{ cancelErrorMessage() }}</p>
+              </div>
+            }
+
+            <div class="modal-actions">
+              <button
+                type="button"
+                class="btn-modal-cancel"
+                (click)="closeCancelModal()"
+                [disabled]="cancellingInvite()"
+              >
+                Keep Invitation
+              </button>
+              <button
+                type="button"
+                class="btn-modal-confirm"
+                (click)="confirmCancelInvite()"
+                [disabled]="cancellingInvite()"
+              >
+                @if (cancellingInvite()) {
+                  <span class="spinner-small"></span>
+                  <span>Cancelling...</span>
+                } @else {
+                  <span>Confirm Cancellation</span>
+                }
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </main>
+</div>

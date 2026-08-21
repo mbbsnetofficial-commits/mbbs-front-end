@@ -1,0 +1,369 @@
+<main class="landing-page">
+  <header class="site-header" (mouseleave)="closeMegaMenu()">
+    <a class="brand" routerLink="/" aria-label="MBBS.NET home"><span class="brand-mark"><app-icon name="activity"
+          [size]="20" [strokeWidth]="2.2" /></span><strong>MBBS<span>.NET</span></strong></a>
+    <nav aria-label="Primary navigation">
+      <a href="#guidance">Guidance</a>
+      <button type="button" (mouseenter)="openMegaMenu('universities')" (focus)="openMegaMenu('universities')"
+        [class.active]="activeMegaMenu() === 'universities'" [attr.aria-expanded]="activeMegaMenu() === 'universities'">
+        Universities <app-icon name="chevron" [size]="13" />
+      </button>
+      <button type="button" (mouseenter)="openMegaMenu('neet')" (focus)="openMegaMenu('neet')"
+        [class.active]="activeMegaMenu() === 'neet'" [attr.aria-expanded]="activeMegaMenu() === 'neet'">
+        Exam prep <app-icon name="chevron" [size]="13" />
+      </button>
+      <a href="#contact">Contact</a>
+    </nav>
+    <div class="header-actions">
+      <a class="univ-portal-link" routerLink="/university/auth/login"><app-icon name="graduation-cap"
+          [size]="14" /><span>University Portal</span></a><a routerLink="/auth/login">Log in</a><a class="primary"
+        routerLink="/auth/register">Create account <app-icon name="arrow-right" [size]="15" /></a>
+    </div>
+    @if (activeMegaMenu(); as menuKey) {
+    <section class="mega-menu">
+      <img [src]="megaMenus[menuKey].image" [alt]="megaMenus[menuKey].imageAlt" />
+      <div class="mega-intro">
+        <span>Explore MBBS.NET</span>
+        <h2>{{ megaMenus[menuKey].title }}</h2>
+        <p>{{ megaMenus[menuKey].description }}</p>
+      </div>
+      <div class="mega-links">
+        @for (item of megaMenus[menuKey].links; track item.label) {
+        @if (item.routerLink) {
+        <a [routerLink]="item.routerLink" [class.portal-entry]="item.isPortal" (click)="closeMegaMenu()"><span>{{
+            item.label }}</span><app-icon name="arrow-right" [size]="14" /></a>
+        } @else {
+        <a [href]="item.href" (click)="closeMegaMenu()"><span>{{ item.label }}</span><app-icon name="arrow-right"
+            [size]="14" /></a>
+        }
+        }
+      </div>
+    </section>
+    }
+  </header>
+
+  <section class="hero">
+    <div class="hero-copy">
+      <span class="eyebrow">A clearer path into medicine</span>
+      <h1>Prepare well.<br /><em>Choose wisely.</em></h1>
+      <p>
+        One focused platform for entrance preparation, medical university research and reliable
+        admissions guidance.
+      </p>
+      <div class="hero-actions">
+        <a class="primary" routerLink="/auth/register">Start your journey <app-icon name="arrow-right"
+            [size]="16" /></a><a href="#guidance"><span class="play-icon"><app-icon name="sparkles"
+              [size]="15" /></span>Explore the
+          platform</a>
+      </div>
+      <div class="trust-row">
+        <span>Built for medical aspirants</span><i></i><span>Data-led preparation</span><i></i><span>Global university
+          discovery</span>
+      </div>
+    </div>
+    <div class="hero-product" aria-label="MBBS.NET student workspace preview">
+      <div class="product-window">
+        <div class="product-top">
+          <span class="mini-brand"><app-icon name="activity" [size]="14" />MBBS.NET</span><span
+            class="window-pill">Student workspace</span><span class="mini-avatar">ST</span>
+        </div>
+        <div class="product-body">
+          <aside><i class="active"></i><i></i><i></i><i></i><i></i></aside>
+          <div class="product-content">
+            <div class="product-heading">
+              <div>
+                <small>PREPARATION OVERVIEW</small><strong>Your progress, at a glance.</strong>
+              </div>
+              <button type="button" tabindex="-1">New test</button>
+            </div>
+            <div class="product-metrics">
+              <article>
+                <span>Accuracy</span><strong>82.5%</strong><small>↑ 4.2% this month</small>
+              </article>
+              <article>
+                <span>Tests complete</span><strong>12</strong><small>of 15 started</small>
+              </article>
+              <article class="dark">
+                <span>Study streak</span><strong>5 days</strong><small>Personal best: 12</small>
+              </article>
+            </div>
+            <div class="product-panels">
+              <article class="chart-preview">
+                <span>Subject performance</span>
+                <div class="bars">
+                  <i style="height: 92%"></i><i style="height: 76%"></i><i style="height: 68%"></i><i
+                    style="height: 84%"></i>
+                </div>
+              </article>
+              <article class="next-preview">
+                <span>Recommended next</span><strong>Build a focused test</strong>
+                <div class="mini-ring">82%</div>
+              </article>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="floating-note">
+        <span><app-icon name="check" [size]="15" /></span>
+        <div><strong>Daily goal complete</strong><small>Your streak is protected.</small></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="signal-strip" aria-label="Platform capabilities">
+    <div>
+      <span>01</span><strong>Focused exam practice</strong>
+      <p>Build custom NEET and UCAT sessions around the areas that need your attention.</p>
+    </div>
+    <div>
+      <span>02</span><strong>Performance intelligence</strong>
+      <p>Understand accuracy, weak subjects, timing and progress without visual clutter.</p>
+    </div>
+    <div>
+      <span>03</span><strong>University matching</strong>
+      <p>Compare study destinations and discover medical programmes aligned to your goals.</p>
+    </div>
+  </section>
+
+  <section class="platform-section" id="guidance">
+    <header class="section-heading">
+      <div>
+        <span class="eyebrow">One connected workspace</span>
+        <h2>From first practice<br />to final decision.</h2>
+      </div>
+      <p>
+        MBBS.NET brings your preparation and university research into one coherent student
+        experience.
+      </p>
+    </header>
+    <div class="platform-grid">
+      <article class="feature-card feature-large">
+        <div class="feature-copy">
+          <span>01 · PREPARE</span>
+          <h3>Practice that adapts to your priorities.</h3>
+          <p>
+            Choose subjects, chapters, question count and duration. Resume timed sessions and review
+            every result with clear explanations.
+          </p>
+          <a routerLink="/auth/register">Explore practice tools <app-icon name="arrow-right" [size]="15" /></a>
+        </div>
+        <div class="practice-visual">
+          <div class="question-meta"><span>Question 08 / 20</span><span>12:42</span></div>
+          <strong>Which principle best explains this clinical observation?</strong>
+          <div class="answer selected">
+            A <span>Selected response</span><app-icon name="check" [size]="14" />
+          </div>
+          <div class="answer">B <span>Alternative response</span></div>
+          <div class="answer">C <span>Alternative response</span></div>
+        </div>
+      </article>
+      <article class="feature-card dark">
+        <span>02 · UNDERSTAND</span>
+        <h3>Turn every attempt into a useful insight.</h3>
+        <div class="accuracy-orbit"><strong>82%</strong><span>accuracy</span></div>
+        <p>
+          Subject-level comparisons and AI-assisted review help you identify what to work on next.
+        </p>
+      </article>
+      <article class="feature-card destination">
+        <span>03 · DISCOVER</span>
+        <h3>Find a medical university that fits.</h3>
+        <p>Shortlist destinations using course, budget and student preference data.</p>
+        <div class="destination-tags">
+          <span>Hungary</span><span>Georgia</span><span>United Kingdom</span><span>+ more</span>
+        </div>
+        <a routerLink="/auth/register">Open the finder <app-icon name="arrow-right" [size]="15" /></a>
+      </article>
+    </div>
+  </section>
+
+  <section class="destinations-section" id="destinations">
+    <header class="section-heading">
+      <div>
+        <span class="eyebrow">Study medicine worldwide</span>
+        <h2>Explore your options<br />with context.</h2>
+      </div>
+      <p>
+        Start with destination insights, then use the student finder to build a shortlist around
+        your own priorities.
+      </p>
+    </header>
+    <div class="country-grid">
+      @for (country of mbbsCountries; track country.name; let index = $index) {
+      <article class="country-card" [class.featured]="index === 0">
+        <img [src]="country.image" [alt]="country.imageAlt" loading="lazy" />
+        <div class="shade"></div>
+        <span>{{ country.tag }}</span>
+        <div>
+          <h3>{{ country.name }}</h3>
+          <p>{{ country.description }}</p>
+        </div>
+      </article>
+      }
+    </div>
+    <div class="university-row">
+      <span>Universities students research</span>
+      <div>
+        @for (destination of featuredUniversities; track destination.university) {
+        <span class="university-logo" [title]="destination.university"><img [src]="destination.logo"
+            [alt]="destination.university + ' logo'" loading="lazy" /></span>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="guidance-section">
+    <div class="guidance-quote">
+      <span class="quote-icon"><app-icon name="quote" [size]="22" /></span>
+      <blockquote>
+        “The right MBBS pathway combines recognised academics, meaningful clinical exposure and a
+        clear route to medical practice.”
+      </blockquote>
+      <div><strong>MBBS.NET Academic Team</strong><span>Independent student guidance</span></div>
+    </div>
+    <div class="guidance-copy">
+      <span class="eyebrow">Decisions that deserve clarity</span>
+      <h2>Build your medical future on verified foundations.</h2>
+      <p>
+        University recognition, eligibility, total cost, teaching language and clinical exposure all
+        matter. Our guidance helps you ask better questions before you commit.
+      </p>
+      <ul>
+        <li><app-icon name="check" [size]="15" />Recognition and licensing pathway</li>
+        <li><app-icon name="check" [size]="15" />Tuition and living-cost context</li>
+        <li><app-icon name="check" [size]="15" />Clinical teaching and student support</li>
+      </ul>
+      <a href="#contact">Speak with the guidance team <app-icon name="arrow-right" [size]="15" /></a>
+    </div>
+  </section>
+
+  <section class="contact-section" id="contact">
+    <div class="contact-intro">
+      <span class="eyebrow">Admissions guidance</span>
+      <h2>Let’s plan your next step.</h2>
+      <p>
+        Tell us where you are in your medical journey. We’ll help you understand the clearest way
+        forward.
+      </p>
+      <div class="contact-detail">
+        <span><app-icon name="activity" [size]="17" /></span>
+        <div>
+          <small>Email</small><a href="mailto:mbbs.net.official@gmail.com">mbbs.net.official&#64;gmail.com</a>
+        </div>
+      </div>
+      <div class="contact-detail">
+        <span><app-icon name="globe" [size]="17" /></span>
+        <div><small>Based in</small><strong>New Delhi, India</strong></div>
+      </div>
+    </div>
+    <form #contactForm (submit)="submitContact($event, contactForm)">
+      <header>
+        <span>Start a conversation</span>
+        <h3>How can we help?</h3>
+      </header>
+      <div class="form-grid">
+        <label><span>Your name</span><input name="name" type="text" autocomplete="name" placeholder="Full name"
+            required /></label><label><span>Email address</span><input name="email" type="email" autocomplete="email"
+            placeholder="you@example.com" required /></label><label class="wide"><span>Subject</span><input
+            name="subject" type="text" placeholder="What do you need guidance with?" required /></label><label
+          class="wide"><span>Message</span><textarea name="message" rows="4"
+            placeholder="Share your study plans or questions…" required></textarea>
+        </label>
+      </div>
+      <footer>
+        <button type="submit">Continue to Gmail <app-icon name="arrow-right" [size]="15" /></button>
+        @if (contactFeedback()) {
+        <p class="feedback" [class.success]="contactState() === 'success'" role="status">
+          {{ contactFeedback() }}
+        </p>
+        } @else {
+        <p>Gmail opens with your message ready to review and send.</p>
+        }
+      </footer>
+    </form>
+  </section>
+
+  <footer class="site-footer">
+    <div>
+      <a class="brand" routerLink="/"><span class="brand-mark"><app-icon name="activity"
+            [size]="19" /></span><strong>MBBS<span>.NET</span></strong></a>
+      <p>Clear guidance for your journey into medicine.</p>
+    </div>
+    <nav>
+      <div>
+        <strong>Platform</strong><a href="#guidance">Preparation</a><a href="#destinations">Universities</a>
+      </div>
+      <div>
+        <strong>Account</strong><a routerLink="/auth/login">Log in</a><a routerLink="/auth/register">Create account</a>
+      </div>
+      <div>
+        <strong>Partners</strong><a routerLink="/university/auth/login">University Portal</a><a
+          href="#contact">Contact</a>
+      </div>
+      <div>
+        <strong>Support</strong><a href="#contact">Help center</a><a href="mailto:mbbs.net.official@gmail.com">Email
+          us</a>
+      </div>
+    </nav>
+    <small>© 2026 MBBS.NET. All rights reserved.</small>
+  </footer>
+
+  @if (helpOpen()) {
+  <aside class="help-widget" aria-label="MBBS.NET help">
+    <header>
+      <div>
+        <span>Student support</span>
+        <h2>
+          {{
+          helpTab() === 'messages'
+          ? 'Talk to our team'
+          : helpTab() === 'help'
+          ? 'Find an answer'
+          : 'How can we help?'
+          }}
+        </h2>
+      </div>
+      <button type="button" aria-label="Close help" (click)="helpOpen.set(false)">
+        <app-icon name="close" [size]="16" />
+      </button>
+    </header>
+    <div class="help-body">
+      @if (helpTab() === 'home' || helpTab() === 'help') {
+      <label class="help-search"><app-icon name="search" [size]="16" /><input type="search"
+          aria-label="Search help topics" placeholder="Search help" [value]="helpSearch()"
+          (input)="helpSearch.set($any($event.target).value)" /></label>
+      <div class="help-topics">
+        @for (topic of filteredHelpTopics; track topic) {
+        <button type="button" (click)="openHelpTab('messages')">
+          <span>{{ topic }}</span><app-icon name="arrow-right" [size]="14" />
+        </button>
+        } @empty {
+        <p>No matching help topics.</p>
+        }
+      </div>
+      } @else {
+      <div class="support-message">
+        <span>M</span>
+        <div>
+          <strong>MBBS.NET Support</strong>
+          <p>Tell us what you need help with and our guidance team will assist you.</p>
+        </div>
+      </div>
+      <a href="#contact" (click)="helpOpen.set(false)">Start a conversation <app-icon name="arrow-right"
+          [size]="14" /></a>
+      }
+    </div>
+    <nav>
+      <button type="button" [class.active]="helpTab() === 'home'" (click)="openHelpTab('home')">
+        Home</button><button type="button" [class.active]="helpTab() === 'messages'" (click)="openHelpTab('messages')">
+        Messages</button><button type="button" [class.active]="helpTab() === 'help'" (click)="openHelpTab('help')">
+        Help
+      </button>
+    </nav>
+  </aside>
+  }
+  <button class="help-launcher" type="button" (click)="helpOpen.set(!helpOpen())" [attr.aria-expanded]="helpOpen()"
+    [attr.aria-label]="helpOpen() ? 'Close help' : 'Open help'">
+    <app-icon [name]="helpOpen() ? 'close' : 'activity'" [size]="20" />
+  </button>
+</main>

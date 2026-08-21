@@ -10,13 +10,13 @@ import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } fro
 import { filter, Subscription } from 'rxjs';
 
 import { Icon, IconName } from '../../shared/ui/icon/icon';
-import { AuthService } from '../../auth/services/auth.service';
-import { TokenService } from '../../auth/services/token.service';
+import { AuthService } from '../../students/auth/services/auth.service';
+import { TokenService } from '../../students/auth/services/token.service';
 
-import { QuickTest } from '../../dynamic/neet/components/quick-test/quick-test';
-import { NeetModalService } from '../../dynamic/neet/services/neet-modal.service';
-import { UcatQuickTest } from '../../dynamic/ucat/components/quick-test/quick-test';
-import { UcatModalService } from '../../dynamic/ucat/services/ucat-modal.service';
+import { QuickTest } from '../../students/dynamic/neet/components/quick-test/quick-test';
+import { NeetModalService } from '../../students/dynamic/neet/services/neet-modal.service';
+import { UcatQuickTest } from '../../students/dynamic/ucat/components/quick-test/quick-test';
+import { UcatModalService } from '../../students/dynamic/ucat/services/ucat-modal.service';
 
 interface NavigationItem {
   label: string;

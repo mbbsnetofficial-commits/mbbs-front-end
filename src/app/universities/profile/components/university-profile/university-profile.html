@@ -1,0 +1,466 @@
+<div class="univ-profile-page">
+  <!-- Header -->
+  <header class="univ-profile-header">
+    <div class="header-content">
+      <div class="header-left">
+        <a routerLink="/university/dashboard" class="back-link">
+          <app-icon name="arrow-right" [size]="15" class="back-icon" />
+          <span>Back to Dashboard</span>
+        </a>
+        <div class="title-row">
+          <div class="icon-badge">
+            <app-icon name="graduation-cap" [size]="24" />
+          </div>
+          <div>
+            <h1 class="page-title">Organization Profile</h1>
+            <p class="page-subtitle">
+              Manage your university's public credentials, contact details, tuition ranges, and accreditations.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        @if (!isEditMode()) {
+          <button
+            type="button"
+            class="btn-edit-profile"
+            (click)="enterEditMode()"
+            [disabled]="loading() || !profile()"
+          >
+            <app-icon name="pencil" [size]="16" />
+            <span>Edit Profile</span>
+          </button>
+        } @else {
+          <button
+            type="button"
+            class="btn-cancel-top"
+            (click)="cancelEditMode()"
+            [disabled]="updating()"
+          >
+            <span>Cancel</span>
+          </button>
+        }
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="univ-profile-main">
+    <div class="profile-container">
+      <!-- Error State -->
+      @if (error() && !loading() && !profile()) {
+        <section class="alert-card error" role="alert">
+          <div class="alert-content">
+            <app-icon name="close" [size]="20" />
+            <div class="alert-text">
+              <strong>Failed to Load Organization Profile</strong>
+              <p>{{ error() }}</p>
+            </div>
+          </div>
+          <button type="button" class="btn-retry" (click)="retry()">
+            <app-icon name="retry" [size]="16" />
+            <span>Retry</span>
+          </button>
+        </section>
+      }
+
+      <!-- Skeleton Loading State -->
+      @if (loading() && !profile()) {
+        <div class="skeleton-profile">
+          <div class="skeleton-header-card"></div>
+          <div class="skeleton-grid">
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+          </div>
+        </div>
+      }
+
+      <!-- Toast Notification -->
+      @if (toastSuccessMessage()) {
+        <div class="toast-banner success" role="status">
+          <app-icon name="check" [size]="18" />
+          <span>{{ toastSuccessMessage() }}</span>
+        </div>
+      }
+
+      <!-- Profile View Mode (API #17) -->
+      @if (profile(); as prof) {
+        @if (!isEditMode()) {
+          <div class="profile-view-layout">
+            <!-- Hero Identity Card -->
+            <article class="profile-card identity-card">
+              <div class="identity-header">
+                <div class="logo-wrap">
+                  @if (prof.logo) {
+                    <img [src]="prof.logo" [alt]="prof.name" class="univ-logo" />
+                  } @else {
+                    <div class="logo-fallback">
+                      <app-icon name="graduation-cap" [size]="36" />
+                    </div>
+                  }
+                </div>
+
+                <div class="identity-info">
+                  <div class="name-badge-row">
+                    <h2 class="univ-name">{{ prof.name }}</h2>
+                    <span class="code-badge">{{ prof.code }}</span>
+                    <span class="org-id-pill">ID: {{ prof.organizationId }}</span>
+                  </div>
+
+                  <div class="location-row">
+                    <span class="location-item">
+                      <app-icon name="globe" [size]="14" />
+                      <span>{{ prof.city }}, {{ prof.country }}</span>
+                    </span>
+
+                    @if (prof.worldRanking) {
+                      <span class="ranking-badge">
+                        <app-icon name="sparkles" [size]="14" />
+                        <span>World Rank #{{ prof.worldRanking }}</span>
+                      </span>
+                    }
+
+                    @if (prof.website) {
+                      <a
+                        [href]="prof.website"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="website-link"
+                      >
+                        <app-icon name="share" [size]="13" />
+                        <span>{{ prof.website }}</span>
+                      </a>
+                    }
+                  </div>
+                </div>
+              </div>
+
+              @if (prof.description) {
+                <div class="description-box">
+                  <span class="section-label">About University</span>
+                  <p class="description-text">{{ prof.description }}</p>
+                </div>
+              }
+            </article>
+
+            <!-- Details Grid -->
+            <div class="profile-details-grid">
+              <!-- Contact Information Card -->
+              <section class="profile-card">
+                <div class="card-title-row">
+                  <app-icon name="authors" [size]="18" />
+                  <h3>Contact & Location</h3>
+                </div>
+
+                <dl class="meta-definition-list">
+                  <div class="meta-row">
+                    <dt>Contact Email</dt>
+                    <dd>
+                      <a [href]="'mailto:' + prof.contactEmail" class="text-link">
+                        {{ prof.contactEmail }}
+                      </a>
+                    </dd>
+                  </div>
+
+                  <div class="meta-row">
+                    <dt>Contact Phone</dt>
+                    <dd>{{ prof.contactPhone || '—' }}</dd>
+                  </div>
+
+                  <div class="meta-row">
+                    <dt>Campus Address</dt>
+                    <dd>{{ prof.address || '—' }}</dd>
+                  </div>
+
+                  <div class="meta-row">
+                    <dt>Official Website</dt>
+                    <dd>
+                      @if (prof.website) {
+                        <a
+                          [href]="prof.website"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          class="text-link"
+                        >
+                          {{ prof.website }}
+                        </a>
+                      } @else {
+                        <span>—</span>
+                      }
+                    </dd>
+                  </div>
+                </dl>
+              </section>
+
+              <!-- Tuition & Accreditations Card -->
+              <section class="profile-card">
+                <div class="card-title-row">
+                  <app-icon name="bookmark" [size]="18" />
+                  <h3>Tuition & Accreditations</h3>
+                </div>
+
+                <div class="tuition-box">
+                  <span class="section-label">Annual Tuition Fee Estimate</span>
+                  <div class="tuition-range">
+                    @if (prof.tuitionFeeMinUsd !== null && prof.tuitionFeeMaxUsd !== null) {
+                      <strong>${{ prof.tuitionFeeMinUsd | number }} - ${{ prof.tuitionFeeMaxUsd | number }}</strong>
+                      <span class="currency-tag">USD / Year</span>
+                    } @else if (prof.tuitionFeeMinUsd !== null) {
+                      <strong>From ${{ prof.tuitionFeeMinUsd | number }}</strong>
+                      <span class="currency-tag">USD / Year</span>
+                    } @else {
+                      <span>Contact Admissions for fee details</span>
+                    }
+                  </div>
+                </div>
+
+                <div class="accreditations-section">
+                  <span class="section-label">Recognized Accreditations</span>
+                  @if (prof.accreditations && prof.accreditations.length > 0) {
+                    <div class="accreditation-chips">
+                      @for (acc of prof.accreditations; track acc) {
+                        <span class="acc-chip">{{ acc }}</span>
+                      }
+                    </div>
+                  } @else {
+                    <p class="empty-field-text">No accreditations specified.</p>
+                  }
+                </div>
+              </section>
+            </div>
+          </div>
+        }
+
+        <!-- Profile Edit Mode (API #18) -->
+        @if (isEditMode()) {
+          <div class="profile-edit-layout">
+            <article class="profile-card edit-card">
+              <div class="edit-card-header">
+                <div class="edit-icon-badge">
+                  <app-icon name="pencil" [size]="20" />
+                </div>
+                <div>
+                  <h2 class="edit-title">Edit Organization Details</h2>
+                  <p class="edit-subtitle">
+                    Update public institutional parameters. Changes will be visible to prospective students.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Read-only metadata note -->
+              <div class="read-only-banner">
+                <span class="ro-label">Organization ID:</span>
+                <strong>{{ prof.organizationId }}</strong>
+                <span class="ro-separator">•</span>
+                <span class="ro-label">University Code:</span>
+                <strong>{{ prof.code }}</strong>
+                <span class="ro-note">(System identifiers cannot be modified)</span>
+              </div>
+
+              <form (ngSubmit)="submitForm()" class="profile-form">
+                <div class="form-grid-2">
+                  <div class="form-group">
+                    <label for="prof-name">University Name *</label>
+                    <input
+                      id="prof-name"
+                      type="text"
+                      name="name"
+                      [(ngModel)]="formName"
+                      required
+                      placeholder="e.g. Tbilisi State Medical University"
+                      [disabled]="updating()"
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="prof-country">Country *</label>
+                    <input
+                      id="prof-country"
+                      type="text"
+                      name="country"
+                      [(ngModel)]="formCountry"
+                      required
+                      placeholder="e.g. Georgia"
+                      [disabled]="updating()"
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="prof-city">City *</label>
+                    <input
+                      id="prof-city"
+                      type="text"
+                      name="city"
+                      [(ngModel)]="formCity"
+                      required
+                      placeholder="e.g. Tbilisi"
+                      [disabled]="updating()"
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="prof-email">Admissions Contact Email *</label>
+                    <input
+                      id="prof-email"
+                      type="email"
+                      name="contactEmail"
+                      [(ngModel)]="formContactEmail"
+                      required
+                      placeholder="admissions@university.edu"
+                      [disabled]="updating()"
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="prof-phone">Contact Phone</label>
+                    <input
+                      id="prof-phone"
+                      type="tel"
+                      name="contactPhone"
+                      [(ngModel)]="formContactPhone"
+                      placeholder="+995 32 254 2488"
+                      [disabled]="updating()"
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="prof-website">Official Website</label>
+                    <input
+                      id="prof-website"
+                      type="url"
+                      name="website"
+                      [(ngModel)]="formWebsite"
+                      placeholder="https://university.edu"
+                      [disabled]="updating()"
+                    />
+                  </div>
+                </div>
+
+                <div class="form-group full-width">
+                  <label for="prof-desc">About / Description *</label>
+                  <textarea
+                    id="prof-desc"
+                    name="description"
+                    [(ngModel)]="formDescription"
+                    required
+                    rows="4"
+                    placeholder="Enter overview of your institution, programs, and strengths..."
+                    [disabled]="updating()"
+                  ></textarea>
+                </div>
+
+                <div class="form-grid-2">
+                  <div class="form-group">
+                    <label for="prof-fee-min">Tuition Fee Minimum (USD/year)</label>
+                    <input
+                      id="prof-fee-min"
+                      type="number"
+                      name="tuitionMin"
+                      [(ngModel)]="formTuitionMin"
+                      min="0"
+                      placeholder="e.g. 6000"
+                      [disabled]="updating()"
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="prof-fee-max">Tuition Fee Maximum (USD/year)</label>
+                    <input
+                      id="prof-fee-max"
+                      type="number"
+                      name="tuitionMax"
+                      [(ngModel)]="formTuitionMax"
+                      min="0"
+                      placeholder="e.g. 8000"
+                      [disabled]="updating()"
+                    />
+                  </div>
+                </div>
+
+                <!-- Interactive Accreditations Manager -->
+                <div class="form-group full-width">
+                  <label>Recognized Accreditations</label>
+                  <div class="accreditations-builder">
+                    <div class="tag-input-row">
+                      <input
+                        type="text"
+                        [(ngModel)]="newAccreditationInput"
+                        name="newAccreditation"
+                        placeholder="e.g. WHO, WFME, NMC, FAIMER, ECFMG"
+                        (keydown.enter)="$event.preventDefault(); addAccreditation()"
+                        [disabled]="updating()"
+                      />
+                      <button
+                        type="button"
+                        class="btn-add-tag"
+                        (click)="addAccreditation()"
+                        [disabled]="updating() || !newAccreditationInput.trim()"
+                      >
+                        <app-icon name="plus" [size]="15" />
+                        <span>Add</span>
+                      </button>
+                    </div>
+
+                    @if (formAccreditations().length > 0) {
+                      <div class="tags-container">
+                        @for (tag of formAccreditations(); track tag; let i = $index) {
+                          <span class="builder-tag">
+                            <span>{{ tag }}</span>
+                            <button
+                              type="button"
+                              class="btn-remove-tag"
+                              (click)="removeAccreditation(i)"
+                              [disabled]="updating()"
+                              title="Remove accreditation"
+                            >
+                              <app-icon name="close" [size]="12" />
+                            </button>
+                          </span>
+                        }
+                      </div>
+                    }
+                  </div>
+                </div>
+
+                <!-- Validation or API Error Alert -->
+                @if (formValidationErrorMessage() || error()) {
+                  <div class="modal-alert error" role="alert">
+                    <app-icon name="close" [size]="16" />
+                    <p>{{ formValidationErrorMessage() || error() }}</p>
+                  </div>
+                }
+
+                <!-- Actions -->
+                <div class="form-actions-bar">
+                  <button
+                    type="button"
+                    class="btn-cancel"
+                    (click)="cancelEditMode()"
+                    [disabled]="updating()"
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    type="submit"
+                    class="btn-save"
+                    [disabled]="updating() || !formName.trim() || !formCountry.trim() || !formCity.trim() || !formDescription.trim() || !formContactEmail.trim()"
+                  >
+                    @if (updating()) {
+                      <span class="spinner-small"></span>
+                      <span>Saving Changes...</span>
+                    } @else {
+                      <app-icon name="check" [size]="16" />
+                      <span>Save Profile</span>
+                    }
+                  </button>
+                </div>
+              </form>
+            </article>
+          </div>
+        }
+      }
+    </div>
+  </main>
+</div>

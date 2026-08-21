@@ -1,0 +1,365 @@
+<div class="univ-student-detail-page">
+  <!-- Header -->
+  <header class="univ-student-header">
+    <div class="header-content">
+      <div class="header-left">
+        <a routerLink="/university/students" class="back-link">
+          <app-icon name="arrow-right" [size]="16" class="back-icon" />
+          <span>Back to Candidate Students</span>
+        </a>
+        <div class="breadcrumb-trail">
+          <span class="crumb">University Portal</span>
+          <span class="sep">/</span>
+          <span class="crumb">Candidates</span>
+          <span class="sep">/</span>
+          <span class="crumb active">{{ studentId() }}</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="univ-student-main">
+    <div class="profile-container">
+      <!-- Error State -->
+      @if (error() && !loading()) {
+        <section class="alert-card error" role="alert">
+          <div class="alert-content">
+            <app-icon name="close" [size]="22" />
+            <div class="alert-text">
+              <strong>Failed to Load Student Profile</strong>
+              <p>{{ error() }}</p>
+            </div>
+          </div>
+          <button type="button" class="btn-retry" (click)="retry()">
+            <app-icon name="retry" [size]="16" />
+            <span>Retry</span>
+          </button>
+        </section>
+      }
+
+      <!-- Loading Skeleton State -->
+      @if (loading() && !student()) {
+        <div class="skeleton-container" aria-label="Loading candidate profile">
+          <div class="skeleton-card hero-skeleton"></div>
+          <div class="skeleton-grid">
+            <div class="skeleton-card block-skeleton"></div>
+            <div class="skeleton-card block-skeleton"></div>
+            <div class="skeleton-card block-skeleton"></div>
+          </div>
+        </div>
+      }
+
+      <!-- Student Profile Content -->
+      @if (student(); as data) {
+        <!-- Hero Identity Card -->
+        <section class="student-hero-card">
+          <div class="hero-main">
+            <div class="avatar-large">
+              <app-icon name="profile" [size]="36" />
+            </div>
+            <div class="hero-info">
+              <div class="name-badge-row">
+                <h1 class="student-full-name">
+                  {{ data.personal?.fullName || 'Candidate Student' }}
+                </h1>
+                <span class="student-id-pill">{{ data.studentId }}</span>
+              </div>
+              <p class="student-location">
+                {{ data.personal?.city ? data.personal?.city + ', ' + data.personal?.country : (data.personal?.country || 'Location not specified') }}
+                @if (data.personal?.nationality) {
+                  • <span class="nationality">{{ data.personal?.nationality }}</span>
+                }
+              </p>
+            </div>
+          </div>
+
+          <div class="hero-badges">
+            @if (data.profileCompletion !== null && data.profileCompletion !== undefined) {
+              <div class="completion-pill">
+                <span class="completion-value">{{ data.profileCompletion }}%</span>
+                <span class="completion-label">Profile Completed</span>
+              </div>
+            }
+            @if (data.preferences?.course) {
+              <span class="course-pill">{{ data.preferences?.course }}</span>
+            }
+          </div>
+        </section>
+
+        <!-- Information Cards Grid -->
+        <div class="info-sections-grid">
+          <!-- Entrance Examinations Card -->
+          <section class="detail-card">
+            <div class="card-header">
+              <app-icon name="sparkles" [size]="20" />
+              <h2>Entrance Examination</h2>
+            </div>
+            <div class="card-body">
+              <div class="info-row">
+                <span class="info-label">NEET Score</span>
+                <strong class="info-value highlight-score">
+                  {{ data.entrance?.neetScore !== null && data.entrance?.neetScore !== undefined ? data.entrance?.neetScore : '—' }}
+                </strong>
+              </div>
+
+              <div class="info-row">
+                <span class="info-label">NEET Status</span>
+                <span class="info-value">
+                  @if (data.entrance?.neetQualified === true) {
+                    <span class="status-tag qualified">Qualified</span>
+                  } @else if (data.entrance?.neetQualified === false) {
+                    <span class="status-tag not-qualified">Not Qualified</span>
+                  } @else {
+                    —
+                  }
+                </span>
+              </div>
+
+              <div class="info-row">
+                <span class="info-label">NEET Examination Year</span>
+                <span class="info-value">{{ data.entrance?.neetYear || '—' }}</span>
+              </div>
+
+              <div class="info-row">
+                <span class="info-label">UCAT Score</span>
+                <span class="info-value">{{ data.entrance?.ucatScore !== null && data.entrance?.ucatScore !== undefined ? data.entrance?.ucatScore : '—' }}</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- Academic Record Card -->
+          <section class="detail-card">
+            <div class="card-header">
+              <app-icon name="chart" [size]="20" />
+              <h2>Academic Record</h2>
+            </div>
+            <div class="card-body">
+              <div class="info-row">
+                <span class="info-label">PCB Marks (%)</span>
+                <strong class="info-value highlight-green">
+                  {{ data.academic?.pcbPercentage !== null && data.academic?.pcbPercentage !== undefined ? data.academic?.pcbPercentage + '%' : '—' }}
+                </strong>
+              </div>
+
+              <div class="info-row">
+                <span class="info-label">12th Grade Board</span>
+                <span class="info-value">{{ data.academic?.twelfthBoard || '—' }}</span>
+              </div>
+
+              <div class="info-row">
+                <span class="info-label">12th Total Marks</span>
+                <span class="info-value">{{ data.academic?.twelfthMarks !== null && data.academic?.twelfthMarks !== undefined ? data.academic?.twelfthMarks : '—' }}</span>
+              </div>
+
+              <div class="info-row">
+                <span class="info-label">10th Total Marks</span>
+                <span class="info-value">{{ data.academic?.tenthMarks !== null && data.academic?.tenthMarks !== undefined ? data.academic?.tenthMarks : '—' }}</span>
+              </div>
+
+              <div class="info-row">
+                <span class="info-label">High School Name</span>
+                <span class="info-value text-wrap">{{ data.academic?.schoolName || '—' }}</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- MBBS Study Preferences Card -->
+          <section class="detail-card">
+            <div class="card-header">
+              <app-icon name="globe" [size]="20" />
+              <h2>Study Preferences</h2>
+            </div>
+            <div class="card-body">
+              <div class="info-row">
+                <span class="info-label">Target Program</span>
+                <span class="info-value">{{ data.preferences?.course || 'MBBS' }}</span>
+              </div>
+
+              <div class="info-row">
+                <span class="info-label">Preferred Countries</span>
+                <span class="info-value">
+                  {{ data.preferences?.preferredCountries?.length ? data.preferences?.preferredCountries?.join(', ') : '—' }}
+                </span>
+              </div>
+
+              <div class="info-row">
+                <span class="info-label">Annual Tuition Budget</span>
+                <strong class="info-value highlight-amber">
+                  {{ data.preferences?.preferredBudgetUsd ? ('$' + data.preferences?.preferredBudgetUsd?.toLocaleString() + ' USD') : '—' }}
+                </strong>
+              </div>
+
+              <div class="info-row">
+                <span class="info-label">Preferred Intake</span>
+                <span class="info-value">{{ data.preferences?.preferredIntake || '—' }}</span>
+              </div>
+
+              <div class="info-row">
+                <span class="info-label">Medium of Instruction</span>
+                <span class="info-value">{{ data.preferences?.preferredLanguage || '—' }}</span>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- Action Footer -->
+        <section class="profile-actions-bar">
+          <a routerLink="/university/students" class="btn-back-action">
+            <app-icon name="arrow-right" [size]="16" class="back-icon" />
+            <span>Back to Candidates</span>
+          </a>
+
+          <div class="primary-actions">
+            <button
+              type="button"
+              class="btn-send-offer"
+              (click)="openOfferModal()"
+              [disabled]="sendingOffer()"
+            >
+              @if (sendingOffer()) {
+                <span class="spinner-small"></span>
+                <span>Sending Offer...</span>
+              } @else {
+                <app-icon name="graduation-cap" [size]="18" />
+                <span>Send Admission Offer</span>
+              }
+            </button>
+          </div>
+        </section>
+      }
+
+      <!-- Toast Success Notification -->
+      @if (offerSuccessMessage()) {
+        <div class="toast-banner success" role="status">
+          <app-icon name="check" [size]="18" />
+          <span>{{ offerSuccessMessage() }}</span>
+        </div>
+      }
+
+      <!-- Send Admission Offer Modal (API #8) -->
+      @if (showOfferModal()) {
+        <div class="modal-backdrop" (click)="closeOfferModal()">
+          <div class="modal-card" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="offer-modal-title">
+            <div class="modal-header">
+              <div class="modal-icon-wrap offer">
+                <app-icon name="sparkles" [size]="22" />
+              </div>
+              <div>
+                <h3 id="offer-modal-title">Issue Admission Offer</h3>
+                <p class="modal-subtitle">Dispatch direct institutional offer to {{ studentId() }}</p>
+              </div>
+            </div>
+
+            <form (ngSubmit)="submitOffer()" class="offer-form">
+              <div class="form-group">
+                <label for="offer-subject">Offer Subject / Title *</label>
+                <input
+                  id="offer-subject"
+                  type="text"
+                  name="subject"
+                  [(ngModel)]="offerSubject"
+                  required
+                  placeholder="e.g. Direct MBBS Admission Offer"
+                  [disabled]="sendingOffer()"
+                />
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="offer-course">Academic Course</label>
+                  <input
+                    id="offer-course"
+                    type="text"
+                    name="course"
+                    [(ngModel)]="offerCourse"
+                    placeholder="MBBS"
+                    [disabled]="sendingOffer()"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="offer-intake">Intake Season</label>
+                  <input
+                    id="offer-intake"
+                    type="text"
+                    name="intake"
+                    [(ngModel)]="offerIntake"
+                    placeholder="September 2026"
+                    [disabled]="sendingOffer()"
+                  />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="offer-tuition">Annual Tuition Fee (USD)</label>
+                <input
+                  id="offer-tuition"
+                  type="number"
+                  name="tuition"
+                  [(ngModel)]="offerTuition"
+                  placeholder="e.g. 25000"
+                  [disabled]="sendingOffer()"
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="offer-message">Custom Letter / Message</label>
+                <textarea
+                  id="offer-message"
+                  name="message"
+                  [(ngModel)]="offerMessage"
+                  rows="3"
+                  placeholder="Include any personalized message, scholarship terms, or instructions for the student..."
+                  [disabled]="sendingOffer()"
+                ></textarea>
+              </div>
+
+              @if (offerErrorMessage()) {
+                <div class="modal-alert error" role="alert">
+                  <app-icon name="close" [size]="16" />
+                  <p>{{ offerErrorMessage() }}</p>
+                </div>
+              }
+
+              <div class="modal-actions">
+                <button
+                  type="button"
+                  class="btn-modal-cancel"
+                  (click)="closeOfferModal()"
+                  [disabled]="sendingOffer()"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  class="btn-modal-submit"
+                  [disabled]="sendingOffer() || !offerSubject.trim()"
+                >
+                  @if (sendingOffer()) {
+                    <span class="spinner-small"></span>
+                    <span>Dispatching Offer...</span>
+                  } @else {
+                    <app-icon name="check" [size]="16" />
+                    <span>Confirm & Send Offer</span>
+                  }
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      }
+
+      <!-- Empty State -->
+      @if (!loading() && !student() && !error()) {
+        <section class="empty-state">
+          <app-icon name="profile" [size]="40" />
+          <h3>Student Profile Unavailable</h3>
+          <p>Student profile information is unavailable or not found on the admissions network.</p>
+          <a routerLink="/university/students" class="btn-back-action">
+            <span>Back to Candidate Students</span>
+          </a>
+        </section>
+      }
+    </div>
+  </main>
+</div>
