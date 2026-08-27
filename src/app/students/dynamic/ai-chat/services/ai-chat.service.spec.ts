@@ -12,7 +12,7 @@ import { AiChatService } from './ai-chat.service';
 describe('AiChatService', () => {
   let service: AiChatService;
   let httpTestingController: HttpTestingController;
-  const baseUrl = environment.apiBaseUrl;
+  const baseUrl = environment.aiChatApiBaseUrl || environment.apiBaseUrl;
 
   beforeEach(() => {
     TestBed.configureTestingModule({

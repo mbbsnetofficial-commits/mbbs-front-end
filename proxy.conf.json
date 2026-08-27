@@ -1,6 +1,6 @@
 {
   "/api/v1": {
-    "target": "https://api2.mbbs.net",
+    "target": "https://api.mbbs.net",
     "secure": false,
     "changeOrigin": true
   },

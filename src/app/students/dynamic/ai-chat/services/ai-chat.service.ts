@@ -10,7 +10,7 @@ import { ChatApiResponse, ChatRequest } from '../models/ai-chat.model';
 })
 export class AiChatService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = environment.apiBaseUrl;
+  private readonly baseUrl = environment.aiChatApiBaseUrl || environment.apiBaseUrl;
 
   /**
    * Sends a user prompt to the backend Knowledge Base AI Chat API.
