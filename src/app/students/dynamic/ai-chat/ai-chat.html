@@ -1,12 +1,15 @@
 <main class="ai-chat-thread-page">
+  <!-- Scrollable Messages Container -->
   <div class="messages-container" #scrollContainer>
     <div class="messages-list">
       @for (msg of messages(); track msg.id) {
         @if (msg.sender === 'assistant') {
           <div class="message-row assistant-row">
-            <div class="assistant-msg">
-              {{ msg.text }}
-            </div>
+            <div
+              class="assistant-msg"
+              [class.error-msg]="msg.isError"
+              [innerHTML]="msg.text | safeMarkdown"
+            ></div>
           </div>
         } @else {
           <div class="message-row user-row">
@@ -16,20 +19,30 @@
           </div>
         }
       }
-    </div>
 
-    <!-- Scroll down floating button -->
-    <button
-      type="button"
-      class="scroll-bottom-btn"
-      aria-label="Scroll to bottom"
-      (click)="scrollToBottom()"
-    >
-      <app-icon name="arrow-down" [size]="16" />
-    </button>
+      @if (loading()) {
+        <div class="message-row assistant-row">
+          <div class="assistant-msg typing-indicator" aria-label="Thinking...">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </div>
+        </div>
+      }
+    </div>
   </div>
 
-  <!-- Bottom Input Section -->
+  <!-- Floating Scroll-to-bottom Button -->
+  <button
+    type="button"
+    class="scroll-bottom-btn"
+    aria-label="Scroll to bottom"
+    (click)="scrollToBottom()"
+  >
+    <app-icon name="arrow-down" [size]="16" />
+  </button>
+
+  <!-- Fixed Bottom Input Section -->
   <div class="chat-footer-dock">
     <div class="prompt-box">
       <input
@@ -52,8 +65,11 @@
         type="text"
         class="chat-input"
         placeholder="Write a message..."
-        [(ngModel)]="promptText"
+        [ngModel]="promptText()"
+        (ngModelChange)="promptText.set($event)"
         (keydown.enter)="$event.preventDefault(); sendMessage()"
+        [disabled]="loading()"
+        autocomplete="off"
       />
 
       <button type="button" class="icon-btn mic-btn" aria-label="Voice input">
@@ -64,6 +80,8 @@
         type="button"
         class="send-btn"
         aria-label="Send message"
+        [disabled]="!canSend()"
+        [attr.aria-disabled]="!canSend()"
         (click)="sendMessage()"
       >
         <app-icon name="arrow-up" [size]="18" />
@@ -71,7 +89,7 @@
     </div>
 
     <p class="disclaimer-text">
-      Claude is AI and can make mistakes. Please double-check responses.
+      MBBS.NET AI is an intelligent assistant and can make mistakes. Please verify important admission details.
     </p>
   </div>
 </main>
