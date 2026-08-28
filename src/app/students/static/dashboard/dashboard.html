@@ -1,7 +1,11 @@
 <main class="landing-page">
   <header class="site-header" (mouseleave)="closeMegaMenu()">
-    <a class="brand" routerLink="/" aria-label="MBBS.NET home"><span class="brand-mark"><app-icon name="activity"
-          [size]="20" [strokeWidth]="2.2" /></span><strong>MBBS<span>.NET</span></strong></a>
+    <a class="brand" routerLink="/" aria-label="MBBS home">
+      <span class="brand-mark">
+        <img src="/images/app-logo.png" alt="MBBS Logo" class="brand-logo-img" />
+      </span>
+      <img src="/images/mbbs-logo.png" alt="Mbbs" class="brand-name-img" />
+    </a>
     <nav aria-label="Primary navigation">
       <a href="#guidance">Guidance</a>
       <button type="button" (mouseenter)="openMegaMenu('universities')" (focus)="openMegaMenu('universities')"
@@ -285,8 +289,12 @@
 
   <footer class="site-footer">
     <div>
-      <a class="brand" routerLink="/"><span class="brand-mark"><app-icon name="activity"
-            [size]="19" /></span><strong>MBBS<span>.NET</span></strong></a>
+      <a class="brand footer-brand" routerLink="/" aria-label="MBBS home">
+        <span class="brand-mark">
+          <img src="/images/app-logo.png" alt="MBBS Logo" class="brand-logo-img" />
+        </span>
+        <img src="/images/mbbs-logo.png" alt="Mbbs" class="brand-name-img footer-name-img" />
+      </a>
       <p>Clear guidance for your journey into medicine.</p>
     </div>
     <nav>

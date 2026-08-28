@@ -9,10 +9,51 @@
 }
 
 .brand {
-  color: #111827;
-  font-size: 20px;
-  font-weight: 700;
   text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition: opacity 0.15s ease;
+
+  &:hover {
+    opacity: 0.88;
+  }
+
+  .brand-mark {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    overflow: hidden;
+    flex-shrink: 0;
+
+    .brand-logo-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      border-radius: 10px;
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+  }
+
+  .brand-name-img {
+    height: 32px;
+    width: auto;
+    max-height: 36px;
+    object-fit: contain;
+    display: block;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  &:hover {
+    .brand-logo-img,
+    .brand-name-img {
+      transform: scale(1.03);
+    }
+  }
 }
 
 .header-actions {
