@@ -36,14 +36,19 @@ export function isStudentApiRequest(url: string): boolean {
     return false;
   }
 
-  // 1. Core student API
+  // 1. Core student API (e.g. https://api.mbbs.net/api/v1/...)
   if (environment.apiBaseUrl && url.startsWith(environment.apiBaseUrl)) {
     return true;
   }
 
-  // 2. Admissions student API
+  // 2. Admissions & Student Dashboard API (e.g. https://api2.mbbs.net/api/v1/student/...)
   const studentAdmissionsPrefix = `${environment.admissionsApiBaseUrl}/student`;
   if (url.startsWith(studentAdmissionsPrefix)) {
+    return true;
+  }
+
+  // 3. GAMSAT student API (e.g. https://api2.mbbs.net/api/v1/gamsat/...)
+  if (environment.gamsatApiBaseUrl && url.startsWith(`${environment.gamsatApiBaseUrl}/gamsat`)) {
     return true;
   }
 

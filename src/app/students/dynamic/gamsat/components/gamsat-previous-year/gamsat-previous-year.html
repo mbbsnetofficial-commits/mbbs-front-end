@@ -1,0 +1,689 @@
+<div class="gamsat-container">
+  @if (isStartingTest() || (view() === 'test' && !activeSession())) {
+    <div class="loading-exam-workspace">
+      <div class="loading-exam-card">
+        <div class="spinner"></div>
+        <h2>Preparing Examination Session...</h2>
+        <p>Initializing timed GAMSAT examination paper and loading stimulus materials.</p>
+      </div>
+    </div>
+  } @else {
+    @if (view() !== 'test' && view() !== 'result') {
+      <!-- Top Nav Bar -->
+      <header class="top-nav-bar">
+        <div class="brand-title">
+          <span class="icon-mark" aria-hidden="true">GM</span>
+          <div>
+            <h1>GAMSAT previous papers</h1>
+            <small>Authentic past papers and timed exam simulations</small>
+          </div>
+        </div>
+
+        <div class="nav-tabs">
+          <a routerLink="/dynamic/gamsat/practice" class="tab-btn">Practice tests</a>
+          <button type="button" class="tab-btn active">Previous papers</button>
+        </div>
+      </header>
+
+      <!-- Daily Streak Banner Widget -->
+      @if (streakData(); as streak) {
+        <div class="streak-widget-banner">
+          <div class="streak-main">
+            <div class="flame-badge" [class.active]="streak.currentStreak > 0">
+              <span class="flame-icon">🔥</span>
+              <span class="streak-num">{{ streak.currentStreak }}</span>
+            </div>
+            <div class="streak-info">
+              <h3>
+                @if (streak.currentStreak > 0) {
+                  🔥 Keep your streak alive!
+                } @else {
+                  Start a past paper exam today to kick off your streak!
+                }
+              </h3>
+              <p>
+                Current Streak:
+                <strong>{{ streak.currentStreak }} {{ streak.currentStreak === 1 ? 'day' : 'days' }}</strong>
+                • Longest Streak:
+                <strong>{{ streak.longestStreak }} {{ streak.longestStreak === 1 ? 'day' : 'days' }}</strong>
+                @if (streak.lastActivityDate) {
+                  • Last Activity: <strong>{{ streak.lastActivityDate }}</strong>
+                }
+              </p>
+            </div>
+          </div>
+
+          @if (streak.history && streak.history.length > 0) {
+            <div class="streak-history-pills">
+              <span class="history-label">Recent Activity:</span>
+              @for (item of streak.history.slice(-3); track item._id || item.date) {
+                <span class="history-chip">
+                  ✅ {{ item.activityType.replace('_', ' ') }} ({{ item.date }})
+                </span>
+              }
+            </div>
+          }
+        </div>
+      }
+    }
+
+    <!-- Global Error Banner -->
+    @if (errorMessage()) {
+      <div class="alert alert-error">
+        <span class="alert-icon">⚠️</span>
+        <div class="alert-content">
+          <p>{{ errorMessage() }}</p>
+        </div>
+        <button type="button" class="close-btn" (click)="errorMessage.set(null)">✕</button>
+      </div>
+    }
+
+  <!-- STEP 1: PAPER LIST VIEW -->
+  @if (view() === 'papers') {
+    <div class="paper-list-container">
+      <div class="section-header">
+        <div class="section-intro">
+          <h2>Official GAMSAT Past Papers</h2>
+          <p>
+            Select a mapped GAMSAT paper to experience authentic timed conditions with Section I, II &amp; III stimulus materials.
+          </p>
+        </div>
+
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input
+            type="text"
+            placeholder="Search papers e.g. GAMSAT 2019..."
+            [ngModel]="searchQuery()"
+            (ngModelChange)="searchQuery.set($event)"
+          />
+        </div>
+      </div>
+
+      @if (isLoadingPapers()) {
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Loading previous papers...</p>
+        </div>
+      } @else if (filteredPapers().length === 0) {
+        <div class="empty-state">
+          <span class="empty-icon">📂</span>
+          <h3>No previous papers available.</h3>
+          <p>No past papers match your search criteria. Try a different term or refresh.</p>
+          <button type="button" class="btn btn-secondary" (click)="loadPapers()">
+            ↻ Refresh Papers List
+          </button>
+        </div>
+      } @else {
+        <div class="papers-grid">
+          @for (paper of filteredPapers(); track paper.id) {
+            <div class="paper-card">
+              <div class="card-top">
+                <span class="paper-badge">Official Paper</span>
+                <span class="paper-year">{{ getPaperYear(paper) }}</span>
+              </div>
+
+              <h3 class="paper-title">{{ getPaperTitle(paper) }}</h3>
+
+              <div class="card-meta">
+                <span class="meta-tag">
+                  📝 {{ getPaperQuestionCount(paper) }} Questions
+                </span>
+                <span class="meta-tag">
+                  ⏱ {{ getPaperDuration(paper) }} Mins
+                </span>
+              </div>
+
+              <div class="card-footer">
+                <button
+                  type="button"
+                  class="btn btn-primary btn-start-paper"
+                  [disabled]="isStartingTest()"
+                  (click)="onSelectPaper(paper)"
+                >
+                  Configure &amp; Start →
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  <!-- STEP 2: PAPER CONFIGURATION & INSTRUCTIONS VIEW -->
+  @if (view() === 'config' && selectedPaper(); as paper) {
+    <div class="config-view-container">
+      <div class="config-card">
+        <header class="config-header">
+          <span class="badge badge-accent">EXAMINATION SETUP</span>
+          <h2>{{ getPaperTitle(paper) }}</h2>
+          <p>Please review the exam format before starting the timed session.</p>
+        </header>
+
+        <div class="config-specs-grid">
+          <div class="spec-item">
+            <span class="spec-label">Total Questions</span>
+            <strong class="spec-val">{{ getPaperQuestionCount(paper) }}</strong>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">Total Duration</span>
+            <strong class="spec-val">{{ getPaperDuration(paper) }} Mins</strong>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">Exam Type</span>
+            <strong class="spec-val">{{ (paper.examType || 'GAMSAT').toUpperCase() }}</strong>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">Sections Covered</span>
+            <strong class="spec-val">Section I, II &amp; III</strong>
+          </div>
+        </div>
+
+        <div class="instructions-box">
+          <h4>Examination Guidelines:</h4>
+          <ul>
+            <li>Stimulus texts and visual diagrams are provided where applicable.</li>
+            <li>You can navigate freely between questions using the Question Navigator palette.</li>
+            <li>Your answers are autosaved as you progress.</li>
+            <li>The test will automatically submit when the countdown timer reaches zero.</li>
+          </ul>
+        </div>
+
+        <footer class="config-footer">
+          <button type="button" class="btn btn-secondary" (click)="backToPapers()">
+            ← Back to Papers
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary btn-launch"
+            [disabled]="isStartingTest()"
+            (click)="onStartTest()"
+          >
+            @if (isStartingTest()) {
+              <span class="btn-spinner"></span>
+              Launching Exam...
+            } @else {
+              Start Examination Now →
+            }
+          </button>
+        </footer>
+      </div>
+    </div>
+  }
+
+  <!-- STEP 3: EXAM RUNNER -->
+  @if (view() === 'test' && activeSession()) {
+    <div class="test-runner-container">
+      <!-- Test Header -->
+      <header class="test-runner-header">
+        <div class="runner-header-left">
+          <p class="runner-eyebrow">GAMSAT Previous Paper</p>
+          <h1 class="runner-title">{{ resultTestTitle() }}</h1>
+        </div>
+
+        <div class="runner-header-center">
+          <div class="progress-info">
+            <span class="progress-text">
+              Question <strong>{{ currentQuestionIndex() + 1 }}</strong> of {{ questionStates().length }}
+            </span>
+            <span class="progress-pct">{{ progressPercentage() }}% answered</span>
+          </div>
+          <div class="progress-bar-track" role="progressbar" [attr.aria-valuenow]="progressPercentage()" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar-fill" [style.width.%]="progressPercentage()"></div>
+          </div>
+        </div>
+
+        <div class="runner-header-right">
+          <div class="timer-card" [class.urgent]="remainingSeconds() <= 120">
+            <span class="timer-label">Time Remaining</span>
+            <strong class="timer-value">⏱ {{ formattedRemainingTime() }}</strong>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Two-Column Exam Workspace -->
+      <div class="test-workspace">
+        <!-- Question Column -->
+        <main class="question-workspace">
+          @if (currentQuestion(); as q) {
+            <article class="runner-question-card">
+              <div class="card-top-bar">
+                <div class="badge-group">
+                  <span class="q-index-pill">Question {{ currentQuestionIndex() + 1 }}</span>
+                  @if (q.section) {
+                    <span class="badge badge-subject">{{ q.section.replace('_', ' ') }}</span>
+                  }
+                  @if (q.unit) {
+                    <span class="badge badge-unit">{{ q.unit }}</span>
+                  }
+                </div>
+                <button
+                  type="button"
+                  class="mobile-palette-toggle"
+                  (click)="showReviewModal.set(true)"
+                  aria-label="Open Question Navigator"
+                >
+                  📋 Palette ({{ answeredCount() }}/{{ questionStates().length }})
+                </button>
+              </div>
+
+              <!-- GAMSAT Stimulus Block (Passage / Diagram / Image) -->
+              @if (q.stimulus_text || q.stimulus_image || q.stimulus_title) {
+                <section class="gamsat-stimulus-container">
+                  <header class="stimulus-header">
+                    <span class="stimulus-icon">📖</span>
+                    <strong>STIMULUS MATERIAL</strong>
+                    @if (q.stimulus_title) {
+                      <span class="stimulus-title-tag">{{ q.stimulus_title }}</span>
+                    }
+                  </header>
+
+                  @if (q.stimulus_text) {
+                    <div class="stimulus-text">{{ q.stimulus_text }}</div>
+                  }
+
+                  @if (q.stimulus_image) {
+                    <div class="stimulus-image-wrap">
+                      <img [src]="q.stimulus_image" alt="GAMSAT Stimulus Graphic" class="stimulus-img" />
+                    </div>
+                  }
+                </section>
+              }
+
+              <!-- Question Text -->
+              <h2 class="runner-question-text">{{ q.question }}</h2>
+
+              <!-- Options List -->
+              <div class="runner-options-list" role="radiogroup" aria-label="Question options">
+                @for (key of optionKeys; track key) {
+                  <button
+                    type="button"
+                    role="radio"
+                    class="runner-option-row"
+                    [class.selected]="currentQuestionState()?.selectedOption === key"
+                    [attr.aria-checked]="currentQuestionState()?.selectedOption === key"
+                    (click)="selectOption(key)"
+                  >
+                    <span class="option-indicator">{{ key }}</span>
+                    <span class="option-content-text">{{
+                      key === 'A'
+                        ? q.option_a
+                        : key === 'B'
+                          ? q.option_b
+                          : key === 'C'
+                            ? q.option_c
+                            : q.option_d
+                    }}</span>
+                  </button>
+                }
+              </div>
+
+              <!-- Question Bottom Actions -->
+              <div class="question-bottom-actions">
+                <button
+                  type="button"
+                  class="btn-nav btn-previous"
+                  [disabled]="currentQuestionIndex() === 0"
+                  (click)="prevQuestion()"
+                >
+                  ← Previous
+                </button>
+
+                <button
+                  type="button"
+                  class="btn-nav btn-skip"
+                  (click)="skipQuestion()"
+                >
+                  Skip Question
+                </button>
+
+                @if (currentQuestionIndex() < questionStates().length - 1) {
+                  <button
+                    type="button"
+                    class="btn-nav btn-next"
+                    (click)="nextQuestion()"
+                  >
+                    Next Question →
+                  </button>
+                } @else {
+                  <button
+                    type="button"
+                    class="btn-nav btn-submit-final"
+                    [disabled]="isSubmittingTest()"
+                    (click)="openReviewModal()"
+                  >
+                    {{ isSubmittingTest() ? 'Submitting...' : 'Submit Test' }}
+                  </button>
+                }
+              </div>
+            </article>
+          }
+        </main>
+
+        <!-- Right-Side Question Navigator -->
+        <aside class="navigator-sidebar">
+          <div class="navigator-card">
+            <div class="navigator-header">
+              <h3>QUESTION NAVIGATOR</h3>
+              <div class="navigator-stats">
+                <span class="stat-item answered"><strong>{{ answeredCount() }}</strong> Answered</span>
+                <span class="stat-item unanswered"><strong>{{ skippedCount() }}</strong> Unanswered</span>
+              </div>
+            </div>
+
+            <div class="navigator-grid-container">
+              <div class="navigator-grid">
+                @for (st of questionStates(); track $index) {
+                  <button
+                    type="button"
+                    class="nav-cell"
+                    [class.current]="currentQuestionIndex() === $index"
+                    [class.answered]="st.selectedOption !== null"
+                    [class.visited]="st.visited && st.selectedOption === null"
+                    [attr.aria-label]="'Question ' + ($index + 1) + (st.selectedOption ? ' Answered' : ' Unanswered')"
+                    (click)="jumpToQuestion($index)"
+                  >
+                    {{ $index + 1 }}
+                  </button>
+                }
+              </div>
+            </div>
+
+            <div class="navigator-legend">
+              <div class="legend-item"><span class="legend-dot answered"></span> Answered</div>
+              <div class="legend-item"><span class="legend-dot visited"></span> Unanswered</div>
+              <div class="legend-item"><span class="legend-dot current"></span> Current</div>
+            </div>
+
+            <div class="navigator-footer">
+              <button
+                type="button"
+                class="btn-sidebar-submit"
+                [disabled]="isSubmittingTest()"
+                (click)="openReviewModal()"
+              >
+                {{ isSubmittingTest() ? 'Submitting...' : 'Submit Test' }}
+              </button>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      <!-- Review Before Submit Modal Overlay -->
+      @if (showReviewModal()) {
+        <div class="modal-overlay" (click)="closeReviewModal()">
+          <div class="modal-card" (click)="$event.stopPropagation()">
+            <header class="modal-header">
+              <h2>Review Before Submission</h2>
+              <button type="button" class="btn-close" (click)="closeReviewModal()">×</button>
+            </header>
+
+            <main class="modal-body">
+              <div class="review-stats">
+                <div class="stat-box answered">
+                  <span class="num">{{ answeredCount() }}</span>
+                  <span class="lbl">Answered</span>
+                </div>
+                <div class="stat-box unanswered">
+                  <span class="num">{{ skippedCount() }}</span>
+                  <span class="lbl">Unanswered</span>
+                </div>
+                <div class="stat-box total">
+                  <span class="num">{{ questionStates().length }}</span>
+                  <span class="lbl">Total</span>
+                </div>
+              </div>
+
+              <h3>Questions Status</h3>
+              <div class="modal-grid">
+                @for (st of questionStates(); track $index) {
+                  <button
+                    type="button"
+                    class="modal-q-btn"
+                    [class.answered]="st.selectedOption !== null"
+                    [class.current]="currentQuestionIndex() === $index"
+                    (click)="jumpToQuestion($index)"
+                  >
+                    <span class="q-label">Q{{ $index + 1 }}</span>
+                    <small class="q-val">{{
+                      st.selectedOption ? 'Option ' + st.selectedOption : 'Skipped'
+                    }}</small>
+                  </button>
+                }
+              </div>
+            </main>
+
+            <footer class="modal-footer">
+              <button type="button" class="btn-modal-back" (click)="closeReviewModal()">
+                Back to Test
+              </button>
+              <button
+                type="button"
+                class="btn-modal-submit"
+                [disabled]="isSubmittingTest()"
+                (click)="onSubmitTest()"
+              >
+                {{ isSubmittingTest() ? 'Submitting...' : 'Confirm & Submit' }}
+              </button>
+            </footer>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- STEP 4: RESULT DASHBOARD & ANSWER ANALYSIS -->
+  @if (view() === 'result') {
+    <div class="result-page-container">
+      @if (isLoadingResult()) {
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Retrieving official result report from server...</p>
+        </div>
+      } @else if (testResult(); as res) {
+        <!-- Header -->
+        <header class="result-header">
+          <div>
+            <p class="eyebrow">TEST COMPLETED</p>
+            <h1>{{ resultTestTitle() }} Result</h1>
+            <p class="result-subtitle">Your result is ready. Review your section performance and detailed explanations below.</p>
+          </div>
+          <div class="result-actions">
+            <button type="button" class="btn-back-learning" (click)="backToLearningReport()">
+              Back to Learning Report
+            </button>
+          </div>
+        </header>
+
+        <!-- Result Summary KPI Cards -->
+        <section class="result-summary">
+          <article class="score-card">
+            <span class="stat-label">Score</span>
+            <strong class="stat-val">{{ res.score || (res.rawScore !== undefined ? res.rawScore + ' / ' + (res.maximumRawScore || res.totalQuestions || res.total_questions || allReviewQuestions().length) : (res.correct !== undefined ? res.correct + ' / ' + (res.totalQuestions || res.total_questions || allReviewQuestions().length) : '—')) }}</strong>
+          </article>
+          <article class="accuracy-card">
+            <span class="stat-label">Accuracy</span>
+            <strong class="stat-val">{{ res.accuracy !== undefined ? res.accuracy + '%' : (res.percentage !== undefined ? res.percentage + '%' : '—') }}</strong>
+          </article>
+          <article class="correct-stat">
+            <span class="stat-label">Correct</span>
+            <strong class="stat-val">{{ res.correct ?? 0 }}</strong>
+          </article>
+          <article class="wrong-stat">
+            <span class="stat-label">Wrong</span>
+            <strong class="stat-val">{{ res.wrong ?? (res.incorrect ?? 0) }}</strong>
+          </article>
+          <article class="skipped-stat">
+            <span class="stat-label">Skipped</span>
+            <strong class="stat-val">{{ res.skipped ?? 0 }}</strong>
+          </article>
+        </section>
+
+        <!-- Test Metadata Bar -->
+        @if (res.duration || res.started_at || res.submitted_at || res.totalQuestions || res.total_questions) {
+          <div class="test-meta-bar">
+            @if (res.totalQuestions || res.total_questions) {
+              <div class="meta-item">
+                <span class="meta-label">Total Questions:</span>
+                <strong class="meta-value">{{ res.totalQuestions || res.total_questions }}</strong>
+              </div>
+            }
+            @if (res.duration) {
+              <div class="meta-item">
+                <span class="meta-label">Duration:</span>
+                <strong class="meta-value">{{ res.duration }} mins</strong>
+              </div>
+            }
+            @if (res.started_at) {
+              <div class="meta-item">
+                <span class="meta-label">Started:</span>
+                <strong class="meta-value">{{ res.started_at | date: 'medium' }}</strong>
+              </div>
+            }
+            @if (res.submitted_at) {
+              <div class="meta-item">
+                <span class="meta-label">Submitted:</span>
+                <strong class="meta-value">{{ res.submitted_at | date: 'medium' }}</strong>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Answer Analysis Review Section -->
+        <section class="review-section">
+          <div class="review-heading">
+            <div>
+              <p class="eyebrow">ANSWER ANALYSIS</p>
+              <h2>Review Attempted Questions</h2>
+              <p class="section-subtext">Review your answers and understand where you lost or gained marks with full stimulus context.</p>
+            </div>
+            <div class="result-filters" aria-label="Filter reviewed answers">
+              <button
+                type="button"
+                class="filter-pill"
+                [class.active]="resultFilter() === 'all'"
+                (click)="setResultFilter('all')"
+              >
+                All ({{ allReviewQuestions().length }})
+              </button>
+              <button
+                type="button"
+                class="filter-pill"
+                [class.active]="resultFilter() === 'correct'"
+                (click)="setResultFilter('correct')"
+              >
+                Correct ({{ res.correct ?? 0 }})
+              </button>
+              <button
+                type="button"
+                class="filter-pill"
+                [class.active]="resultFilter() === 'wrong'"
+                (click)="setResultFilter('wrong')"
+              >
+                Wrong ({{ res.wrong ?? (res.incorrect ?? 0) }})
+              </button>
+              <button
+                type="button"
+                class="filter-pill"
+                [class.active]="resultFilter() === 'skipped'"
+                (click)="setResultFilter('skipped')"
+              >
+                Skipped ({{ res.skipped ?? 0 }})
+              </button>
+            </div>
+          </div>
+
+          @if (filteredReview().length === 0) {
+            <div class="empty-review">No answers match this filter.</div>
+          } @else {
+            <div class="review-list">
+              @for (item of filteredReview(); track item.question_id || item.id || $index; let index = $index) {
+                <article class="review-card">
+                  <div class="review-card-header">
+                    <div class="header-left">
+                      <strong>Question {{ index + 1 }}</strong>
+                      @if (item.section) {
+                        <span class="badge badge-subject">{{ item.section.replace('_', ' ') }}</span>
+                      }
+                      @if (item.unit) {
+                        <span class="badge badge-unit">{{ item.unit }}</span>
+                      }
+                    </div>
+                    <div class="header-right">
+                      @if (item.isCorrect || item.is_correct) {
+                        <span class="review-status correct">Correct</span>
+                      } @else if (item.is_skipped || (!item.selected && !item.selected_option)) {
+                        <span class="review-status skipped">Skipped</span>
+                      } @else {
+                        <span class="review-status wrong">Wrong</span>
+                      }
+                      @if (item.time_spent !== undefined && item.time_spent !== null) {
+                        <small class="time-spent">{{ formatSeconds(item.time_spent) }}</small>
+                      }
+                    </div>
+                  </div>
+
+                  <!-- Stimulus in Review if present -->
+                  @if (item.stimulus_text || item.stimulus_image || item.stimulus_title) {
+                    <div class="review-stimulus">
+                      @if (item.stimulus_title) {
+                        <div class="review-stimulus-title">📖 {{ item.stimulus_title }}</div>
+                      }
+                      @if (item.stimulus_text) {
+                        <div class="review-stimulus-text">{{ item.stimulus_text }}</div>
+                      }
+                      @if (item.stimulus_image) {
+                        <div class="review-stimulus-img-wrap">
+                          <img [src]="item.stimulus_image" alt="Review Stimulus graphic" />
+                        </div>
+                      }
+                    </div>
+                  }
+
+                  <p class="review-question">{{ item.question }}</p>
+
+                  <div class="review-options">
+                    @for (key of optionKeys; track key) {
+                      <div class="review-option-row" [ngClass]="reviewOptionClass(item, key)">
+                        <span class="option-letter">{{ key }}</span>
+                        <span class="option-text">{{ getReviewOptionText(item, key) }}</span>
+                        @if (key === item.correct_answer) {
+                          <small class="option-tag tag-correct">Correct answer</small>
+                        } @else if (key === (item.selected || item.selected_option)) {
+                          <small class="option-tag tag-your-answer">Your answer</small>
+                        }
+                      </div>
+                    }
+                  </div>
+
+                  @if (item.explanation) {
+                    <div class="review-explanation">
+                      <strong>Explanation</strong>
+                      <p>{{ item.explanation }}</p>
+                    </div>
+                  }
+                </article>
+              }
+            </div>
+          }
+        </section>
+      } @else {
+        <div class="loading-state empty-state">
+          <span class="empty-icon">⚠️</span>
+          <h3>Result Unavailable</h3>
+          <p>{{ errorMessage() || 'Unable to display test results for this session. Please retry or return to the learning report.' }}</p>
+          <div style="display: flex; gap: 12px; justify-content: center; margin-top: 16px;">
+            <button type="button" class="btn btn-primary" (click)="retryLoadResult()">
+              ↻ Retry Loading Results
+            </button>
+            <button type="button" class="btn btn-secondary" (click)="backToLearningReport()">
+              Back to Learning Report
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+}
+</div>

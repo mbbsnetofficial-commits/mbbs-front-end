@@ -89,6 +89,29 @@ describe('AuthInterceptor Domain Isolation', () => {
       ).toBe(true);
     });
 
+    it('should return true for GAMSAT student API URLs on api2.mbbs.net', () => {
+      expect(
+        isStudentApiRequest(
+          `${environment.gamsatApiBaseUrl}/gamsat/test/start`
+        )
+      ).toBe(true);
+      expect(
+        isStudentApiRequest(
+          `${environment.gamsatApiBaseUrl}/gamsat/previous-year-tests/paper-1/start`
+        )
+      ).toBe(true);
+      expect(
+        isStudentApiRequest(
+          `${environment.gamsatApiBaseUrl}/gamsat/test/submit`
+        )
+      ).toBe(true);
+      expect(
+        isStudentApiRequest(
+          `${environment.gamsatApiBaseUrl}/gamsat/test/sessions/sess-1`
+        )
+      ).toBe(true);
+    });
+
     it('should return false for University API URLs', () => {
       expect(
         isStudentApiRequest(

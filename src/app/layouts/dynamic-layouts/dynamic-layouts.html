@@ -57,6 +57,15 @@
       >
         <span class="nav-icon"><app-icon name="plus" [size]="24" /></span>
       </a>
+
+      <a
+        routerLink="/dynamic/gamsat"
+        routerLinkActive="active"
+        aria-label="GAMSAT"
+        (click)="closeMobileNav()"
+      >
+        <span class="nav-icon"><app-icon name="microscope" [size]="24" /></span>
+      </a>
     </nav>
 
     <div class="sidebar-footer">
@@ -143,6 +152,11 @@
           <app-icon name="sparkles" [size]="16" />
           <span>Build your own test</span>
         </button>
+      } @else if (router.url.startsWith('/dynamic/gamsat')) {
+        <button type="button" class="build-test-btn" (click)="triggerGamsatBuildTestModal($event)">
+          <app-icon name="sparkles" [size]="16" />
+          <span>Build your own test</span>
+        </button>
       }
     </header>
 
@@ -171,6 +185,19 @@
       </button>
       <div class="modal-body">
         <app-ucat-quick-test (testSaved)="onUcatTestSaved($event)" />
+      </div>
+    </div>
+  </div>
+}
+
+@if (gamsatModalService.buildTestModalOpen()) {
+  <div class="modal-overlay" (click)="closeGamsatQuickTestModal()">
+    <div class="modal-card" (click)="$event.stopPropagation()">
+      <button type="button" class="modal-close-btn" (click)="closeGamsatQuickTestModal()" aria-label="Close modal">
+        <app-icon name="close" [size]="18" />
+      </button>
+      <div class="modal-body">
+        <app-gamsat-quick-test (testSaved)="onGamsatTestSaved($event)" />
       </div>
     </div>
   </div>

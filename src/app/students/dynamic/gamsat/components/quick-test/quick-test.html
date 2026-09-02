@@ -1,0 +1,276 @@
+<section class="quick-test-shell">
+
+  <!-- Modern Sleek Modal Header -->
+  <header class="modal-wizard-header">
+    <div class="header-left">
+      <div class="header-badge">
+        <span class="sparkle-icon">✨</span>
+        <span>GAMSAT PREPARATION</span>
+      </div>
+      <h1 class="header-title">Create Custom Test</h1>
+    </div>
+
+    <div class="header-right">
+      <div class="step-meta">
+        <span class="step-count">Step {{ step() }} of 4</span>
+        <span class="step-title">
+          @switch (step()) {
+            @case (1) { Test Title }
+            @case (2) { Pick Sections }
+            @case (3) { Pick Topics }
+            @case (4) { Configure Test }
+          }
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Sleek Progress Track -->
+  <div class="step-progress-track">
+    <div class="progress-fill" [style.width.%]="(step() / 4) * 100"></div>
+  </div>
+
+  @if (errorMessage()) {
+    <p class="error-message" role="alert">{{ errorMessage() }}</p>
+  }
+
+  <!-- Step 1: Test Name -->
+  @if (step() === 1) {
+    <div class="step-body">
+      <div class="step-heading">
+        <h2>Name Your Test</h2>
+        <p>Give your custom GAMSAT practice session a descriptive title to track your learning performance.</p>
+      </div>
+
+      <div class="input-group">
+        <label for="gamsat-test-name-input">Test Title</label>
+        <input
+          id="gamsat-test-name-input"
+          type="text"
+          class="custom-input"
+          placeholder="e.g. Section I & III High-Yield Scientific Drill"
+          [value]="testName()"
+          (input)="testName.set($any($event.target).value)"
+        />
+      </div>
+
+      <div class="wizard-actions">
+        <div></div>
+        <button
+          type="button"
+          class="primary-action-btn"
+          [disabled]="!testName().trim()"
+          (click)="goToSections()">
+          <span>Next: Pick Sections</span>
+          <span class="arrow">&rarr;</span>
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Step 2: Pick Sections -->
+  @if (step() === 2) {
+    <div class="step-body">
+      <div class="step-heading flex-between">
+        <div>
+          <h2>Pick GAMSAT Sections</h2>
+          <p>Select one or more exam sections to include in your customized assessment.</p>
+        </div>
+        <button
+          type="button"
+          class="select-all-btn"
+          (click)="toggleAllSections()">
+          {{ selectedSections().length === sections().length ? 'Deselect All' : 'Select All' }}
+        </button>
+      </div>
+
+      @if (isLoading()) {
+        <div class="selection-skeleton" role="status">
+          @for (item of [1, 2, 3]; track item) {
+            <span></span>
+          }
+        </div>
+      } @else {
+        <div class="section-grid">
+          @for (section of sections(); track section.code) {
+            <button
+              type="button"
+              class="section-card"
+              [class.selected]="selectedSections().includes(section.code)"
+              [attr.aria-pressed]="selectedSections().includes(section.code)"
+              (click)="toggleSection(section.code)">
+              <div class="card-content">
+                <span class="section-icon-badge">{{ section.code.charAt(section.code.length - 1) }}</span>
+                <div class="card-text">
+                  <strong class="section-name">{{ section.name }}</strong>
+                  <p class="section-desc">{{ section.description }}</p>
+                </div>
+              </div>
+              <span class="selection-check">&#10003;</span>
+            </button>
+          }
+        </div>
+      }
+
+      <div class="wizard-actions">
+        <button type="button" class="back-action-btn" (click)="previousStep()">&larr; Back</button>
+        <span class="selection-counter">{{ selectedSections().length }} section(s) selected</span>
+        <button
+          type="button"
+          class="primary-action-btn"
+          [disabled]="selectedSections().length === 0 || isLoading()"
+          (click)="goToTopics()">
+          <span>Next: Pick Topics</span>
+          <span class="arrow">&rarr;</span>
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Step 3: Pick Topics -->
+  @if (step() === 3) {
+    <div class="step-body">
+      <div class="step-heading flex-between">
+        <div>
+          <h2>Select Practice Topics</h2>
+          <p>Choose high-yield topics from the selected sections or drill across all curriculum topics.</p>
+        </div>
+        <button
+          type="button"
+          class="select-all-btn"
+          (click)="toggleAllTopics()">
+          {{ selectedTopics().length === topics().length ? 'Deselect All' : 'Select All' }}
+        </button>
+      </div>
+
+      @if (isLoading()) {
+        <div class="selection-skeleton topic-skeleton" role="status">
+          @for (item of [1, 2, 3, 4, 5, 6]; track item) {
+            <span></span>
+          }
+        </div>
+      } @else if (topics().length === 0) {
+        <div class="empty-selection-note">
+          <p>All core questions from the selected section(s) will be automatically included.</p>
+        </div>
+      } @else {
+        <div class="topics-grid">
+          @for (topic of topics(); track (topic.id || topic._id || topic.name)) {
+            <button
+              type="button"
+              class="topic-chip-card"
+              [class.selected]="selectedTopics().includes(topic.id || topic._id || topic.name)"
+              [attr.aria-pressed]="selectedTopics().includes(topic.id || topic._id || topic.name)"
+              (click)="toggleTopic(topic.id || topic._id || topic.name)">
+              <span class="topic-dot"></span>
+              <span class="topic-title">{{ topic.name }}</span>
+              <span class="topic-sec-tag">{{ topic.section || topic.unit || 'Core' }}</span>
+              <span class="selection-check">&#10003;</span>
+            </button>
+          }
+        </div>
+      }
+
+      <div class="wizard-actions">
+        <button type="button" class="back-action-btn" (click)="previousStep()">&larr; Back</button>
+        <span class="selection-counter">{{ selectedTopics().length }} topic(s) selected</span>
+        <button
+          type="button"
+          class="primary-action-btn"
+          [disabled]="isLoading()"
+          (click)="goToConfiguration()">
+          <span>Next: Configure Test</span>
+          <span class="arrow">&rarr;</span>
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Step 4: Configure Test -->
+  @if (step() === 4) {
+    <div class="step-body">
+      <div class="step-heading">
+        <h2>Configure & Finalize</h2>
+        <p>Set question volume, target duration, and difficulty for this practice drill.</p>
+      </div>
+
+      <div class="config-grid">
+        <!-- Question Count Selector -->
+        <div class="config-block">
+          <label class="block-label">Number of Questions</label>
+          <div class="options-pills">
+            @for (count of questionCountOptions; track count) {
+              <button
+                type="button"
+                class="pill-btn"
+                [class.active]="questionCount() === count"
+                (click)="setQuestionCount(count)">
+                {{ count }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Difficulty Level Selector -->
+        <div class="config-block">
+          <label class="block-label">Difficulty Level</label>
+          <div class="options-pills">
+            @for (lvl of difficultyOptions; track lvl) {
+              <button
+                type="button"
+                class="pill-btn"
+                [class.active]="level() === lvl"
+                (click)="setLevel(lvl)">
+                {{ lvl }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Summary Card -->
+        <div class="summary-recap-card">
+          <h3 class="recap-title">Test Summary</h3>
+          <div class="recap-rows">
+            <div class="recap-row">
+              <span>Title:</span>
+              <strong>{{ testName() }}</strong>
+            </div>
+            <div class="recap-row">
+              <span>Sections:</span>
+              <strong>{{ selectedSections().length }} section(s)</strong>
+            </div>
+            <div class="recap-row">
+              <span>Topics:</span>
+              <strong>{{ selectedTopics().length > 0 ? selectedTopics().length + ' topic(s)' : 'All Section Questions' }}</strong>
+            </div>
+            <div class="recap-row">
+              <span>Questions:</span>
+              <strong>{{ questionCount() }} Questions</strong>
+            </div>
+            <div class="recap-row">
+              <span>Estimated Duration:</span>
+              <strong>{{ duration() }} Minutes</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="wizard-actions">
+        <button type="button" class="back-action-btn" (click)="previousStep()">&larr; Back</button>
+        <div></div>
+        <button
+          type="button"
+          class="primary-action-btn save-btn"
+          [disabled]="isSaving()"
+          (click)="saveAndStartTest()">
+          @if (isSaving()) {
+            <span>Saving & Launching...</span>
+          } @else {
+            <span>Save & Start Test &rarr;</span>
+          }
+        </button>
+      </div>
+    </div>
+  }
+
+</section>

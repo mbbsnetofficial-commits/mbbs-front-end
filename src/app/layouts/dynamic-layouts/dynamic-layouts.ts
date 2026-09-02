@@ -17,6 +17,8 @@ import { QuickTest } from '../../students/dynamic/neet/components/quick-test/qui
 import { NeetModalService } from '../../students/dynamic/neet/services/neet-modal.service';
 import { UcatQuickTest } from '../../students/dynamic/ucat/components/quick-test/quick-test';
 import { UcatModalService } from '../../students/dynamic/ucat/services/ucat-modal.service';
+import { GamsatQuickTest } from '../../students/dynamic/gamsat/components/quick-test/quick-test';
+import { GamsatModalService } from '../../students/dynamic/gamsat/services/gamsat-modal.service';
 
 interface NavigationItem {
   label: string;
@@ -33,7 +35,7 @@ interface PageMeta {
 @Component({
   selector: 'app-dynamic-layouts',
   standalone: true,
-  imports: [Icon, RouterLink, RouterLinkActive, RouterOutlet, QuickTest, UcatQuickTest],
+  imports: [Icon, RouterLink, RouterLinkActive, RouterOutlet, QuickTest, UcatQuickTest, GamsatQuickTest],
   templateUrl: './dynamic-layouts.html',
   styleUrl: './dynamic-layouts.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -105,6 +107,18 @@ export class DynamicLayouts implements OnDestroy {
       label: 'Previous UCAT papers',
       description: 'Past-paper test environment',
       route: '/dynamic/ucat/previous-year',
+      icon: 'history',
+    },
+    {
+      label: 'GAMSAT practice',
+      description: 'Create a GAMSAT practice session',
+      route: '/dynamic/gamsat',
+      icon: 'microscope',
+    },
+    {
+      label: 'Previous GAMSAT papers',
+      description: 'Past-paper test environment',
+      route: '/dynamic/gamsat',
       icon: 'history',
     },
     {
@@ -200,6 +214,7 @@ export class DynamicLayouts implements OnDestroy {
 
   protected readonly neetModalService = inject(NeetModalService);
   protected readonly ucatModalService = inject(UcatModalService);
+  protected readonly gamsatModalService = inject(GamsatModalService);
 
   protected triggerBuildTestModal(event?: MouseEvent): void {
     if (event) event.preventDefault();
@@ -225,6 +240,19 @@ export class DynamicLayouts implements OnDestroy {
 
   protected onUcatTestSaved(payload: any): void {
     this.ucatModalService.saveTest(payload);
+  }
+
+  protected triggerGamsatBuildTestModal(event?: MouseEvent): void {
+    if (event) event.preventDefault();
+    this.gamsatModalService.openBuildTestModal();
+  }
+
+  protected closeGamsatQuickTestModal(): void {
+    this.gamsatModalService.closeBuildTestModal();
+  }
+
+  protected onGamsatTestSaved(payload: any): void {
+    this.gamsatModalService.saveTest(payload);
   }
 
   protected closeOverlays(): void {
@@ -273,6 +301,10 @@ export class DynamicLayouts implements OnDestroy {
       ['/dynamic/neet', { eyebrow: 'NEET preparation', title: 'Learning Report' }],
       ['/dynamic/ucat/previous-year', { eyebrow: 'UCAT preparation', title: 'Previous papers' }],
       ['/dynamic/ucat', { eyebrow: 'UCAT preparation', title: 'Practice workspace' }],
+      ['/dynamic/gamsat/previous-year', { eyebrow: 'GAMSAT preparation', title: 'Previous papers' }],
+      ['/dynamic/gamsat/quick-test', { eyebrow: 'GAMSAT preparation', title: 'Custom practice' }],
+      ['/dynamic/gamsat/practice', { eyebrow: 'GAMSAT preparation', title: 'Practice workspace' }],
+      ['/dynamic/gamsat', { eyebrow: 'GAMSAT preparation', title: 'Learning Report' }],
       ['/dynamic/invites', { eyebrow: 'Admissions', title: 'University Invitations' }],
       ['/dynamic/profile', { eyebrow: 'Student Space', title: 'Student Profile & Preferences' }],
       ['/blogs', { eyebrow: 'Knowledge centre', title: 'Insights' }],

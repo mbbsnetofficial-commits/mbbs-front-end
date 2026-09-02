@@ -624,7 +624,11 @@ describe('UcatLearningReport', () => {
         id: 602,
         test_id: 602,
         type: 'Decision Making',
-        test_name: 'Decision Making Drill'
+        test_name: 'Decision Making Drill',
+        course_name: {
+          title: 'Decision Making Drill',
+          subtitle: 'Decision Making Practice'
+        }
       }
     ];
 

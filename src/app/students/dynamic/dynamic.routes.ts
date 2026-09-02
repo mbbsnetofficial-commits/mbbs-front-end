@@ -51,6 +51,11 @@ export const dynamicRoutes: Routes = [
         loadChildren: () =>
           import('./neet/neet.routes').then(({ neetRoutes }) => neetRoutes),
       },
+      {
+        path: 'gamsat',
+        loadChildren: () =>
+          import('./gamsat/gamsat.routes').then(({ gamsatRoutes }) => gamsatRoutes),
+      },
     ],
   },
 ];

@@ -1,0 +1,390 @@
+<main class="gamsat-report-page">
+  <!-- Top 4 Stat Cards -->
+  <section class="stats-grid">
+    <!-- Stat 1: Total Practice Time -->
+    <article class="stat-card">
+      <div class="stat-card-header">
+        <div class="stat-title-wrap">
+          <div class="stat-icon-box">
+            <app-icon name="bookmark" [size]="18" />
+          </div>
+          <span class="stat-title">Total Practice Time</span>
+        </div>
+      </div>
+      <div class="stat-value">{{ formattedPracticeTime() }}</div>
+      <p class="stat-subtext">Based on your current activity</p>
+    </article>
+
+    <!-- Stat 2: Average Score -->
+    <article class="stat-card">
+      <div class="stat-card-header">
+        <div class="stat-title-wrap">
+          <div class="stat-icon-box">
+            <app-icon name="test" [size]="18" />
+          </div>
+          <span class="stat-title">Average Score</span>
+        </div>
+      </div>
+      <div class="stat-value">{{ formattedAverageScore() }}</div>
+      <p class="stat-subtext">Across all attempted tests</p>
+    </article>
+
+    <!-- Stat 3: Completed Tests -->
+    <article class="stat-card">
+      <div class="stat-card-header">
+        <div class="stat-title-wrap">
+          <div class="stat-icon-box">
+            <app-icon name="check" [size]="18" />
+          </div>
+          <span class="stat-title">Completed Tests</span>
+        </div>
+      </div>
+      <div class="stat-value">{{ formattedCompletedTests() }}</div>
+      <p class="stat-subtext">Total completed assessments</p>
+    </article>
+
+    <!-- Stat 4: Current Streak -->
+    <article class="stat-card">
+      <div class="stat-card-header">
+        <div class="stat-title-wrap">
+          <div class="stat-icon-box">
+            <app-icon name="flame" [size]="18" />
+          </div>
+          <span class="stat-title">Current Streak</span>
+        </div>
+      </div>
+      <div class="stat-value">{{ formattedStreak() }}</div>
+      <p class="stat-subtext">Continuous practice streak</p>
+    </article>
+  </section>
+
+  <!-- Main Table Section -->
+  <section class="table-card">
+    <!-- Filter Controls Header -->
+    <div class="filter-controls-row">
+      <!-- Left Tabs -->
+      <div class="tabs-group">
+        <button
+          type="button"
+          class="tab-btn"
+          [class.active]="activeTab() === 'all'"
+          (click)="setTab('all')"
+        >
+          All
+        </button>
+        <button
+          type="button"
+          class="tab-btn"
+          [class.active]="activeTab() === 'in_progress'"
+          (click)="setTab('in_progress')"
+        >
+          In Progress
+        </button>
+        <button
+          type="button"
+          class="tab-btn"
+          [class.active]="activeTab() === 'completed'"
+          (click)="setTab('completed')"
+        >
+          Completed
+        </button>
+      </div>
+
+      <!-- Right Active Tags & Filter Dropdown & Search -->
+      <div class="filters-group">
+        <!-- Search Input -->
+        <div class="search-input-wrap">
+          <app-icon name="search" [size]="16" class="search-icon" />
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Search tests..."
+            [ngModel]="searchQuery()"
+            (ngModelChange)="searchQuery.set($event)"
+          />
+          @if (searchQuery()) {
+            <button type="button" class="btn-clear-search" (click)="searchQuery.set('')">✕</button>
+          }
+        </div>
+
+        @for (cat of activeCategories(); track cat) {
+          <span class="category-chip">
+            <span>{{ cat }}</span>
+            <button type="button" (click)="removeCategory(cat)" aria-label="Remove category">
+              ✕
+            </button>
+          </span>
+        }
+
+        <div class="filter-dropdown-wrap">
+          <button
+            type="button"
+            class="filter-btn"
+            (click)="toggleFilterDropdown($event)"
+          >
+            <span>Filter</span>
+            <span class="filter-count-badge">{{ activeCategories().length }}</span>
+          </button>
+
+          @if (filterDropdownOpen()) {
+            <div class="filter-popover">
+              @for (cat of availableCategories(); track cat) {
+                <label class="filter-checkbox-item">
+                  <input
+                    type="checkbox"
+                    [checked]="isCategorySelected(cat)"
+                    (change)="toggleCategory(cat)"
+                  />
+                  <span>{{ cat }}</span>
+                </label>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Error Alert -->
+    @if (errorMessage()) {
+      <div class="alert-error-banner" role="alert">
+        <span>{{ errorMessage() }}</span>
+        <button type="button" class="btn-retry" (click)="loadReport()">Retry</button>
+      </div>
+    }
+
+    <!-- Table -->
+    <div class="table-container">
+      <table class="report-table">
+        <thead>
+          <tr>
+            <!-- 1. Date Modified -->
+            <th class="col-date">
+              <button type="button" class="th-sort-btn" (click)="toggleSort('date')">
+                <span>Date Modified</span>
+                <svg class="sort-icon" [class.sort-active]="sortField() === 'date'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M7 17V4M4 7l3-3 3 3M17 7v13m-3-3 3 3 3-3"/>
+                </svg>
+              </button>
+            </th>
+
+            <!-- 2. Course Name / Test & Section -->
+            <th class="col-course">
+              <button type="button" class="th-sort-btn" (click)="toggleSort('title')">
+                <span>Test & Section</span>
+                <svg class="sort-icon" [class.sort-active]="sortField() === 'title'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M7 17V4M4 7l3-3 3 3M17 7v13m-3-3 3 3 3-3"/>
+                </svg>
+              </button>
+            </th>
+
+            <!-- 3. Type -->
+            <th class="col-type">
+              <span class="th-label">Type</span>
+            </th>
+
+            <!-- 4. Level -->
+            <th class="col-level">
+              <span class="th-label">Level</span>
+            </th>
+
+            <!-- 5. Status -->
+            <th class="col-status">
+              <span class="th-label">Status</span>
+            </th>
+
+            <!-- 6. Progress -->
+            <th class="col-progress">
+              <button type="button" class="th-sort-btn" (click)="toggleSort('progress')">
+                <span>Progress</span>
+                <svg class="sort-icon" [class.sort-active]="sortField() === 'progress'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M7 17V4M4 7l3-3 3 3M17 7v13m-3-3 3 3 3-3"/>
+                </svg>
+              </button>
+            </th>
+
+            <!-- 7. Time Spent -->
+            <th class="col-time">
+              <span class="th-label">Time Spent</span>
+            </th>
+
+            <!-- 8. Score -->
+            <th class="col-score">
+              <button type="button" class="th-sort-btn" (click)="toggleSort('score')">
+                <span>Score</span>
+                <svg class="sort-icon" [class.sort-active]="sortField() === 'score'" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M7 17V4M4 7l3-3 3 3M17 7v13m-3-3 3 3 3-3"/>
+                </svg>
+              </button>
+            </th>
+
+            <!-- 9. Action -->
+            <th class="col-action">
+              <span class="th-label">Action</span>
+            </th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <!-- Loading Skeletons -->
+          @if (isLoading()) {
+            @for (item of [1, 2, 3, 4, 5]; track item) {
+              <tr>
+                <td colspan="9" style="padding: 14px 16px; text-align: center; color: #94a3b8; font-size: 13px;">
+                  Loading test records...
+                </td>
+              </tr>
+            }
+          } @else if (filteredCourses().length === 0 && !errorMessage()) {
+            <tr>
+              <td colspan="9" style="padding: 32px 16px; text-align: center; color: #64748b; font-size: 14px;">
+                No test records found for the selected filter.
+              </td>
+            </tr>
+          } @else {
+            <!-- Dynamic Test Rows -->
+            @for (course of filteredCourses(); track course.id) {
+              <tr class="clickable-row" (click)="startOrResumeTest(course, $event)">
+                <!-- 1. Date Modified -->
+                <td class="col-date">
+                  <span class="date-modified-text">{{ course.dateModified }}</span>
+                </td>
+
+                <!-- 2. Course Name / Test & Section -->
+                <td class="col-course">
+                  <div class="course-cell">
+                    <div
+                      class="course-icon-bg"
+                      [style.background-color]="course.iconBg"
+                    >
+                      <app-icon [name]="$any(course.iconName)" [size]="18" />
+                    </div>
+                    <div class="course-meta">
+                      <strong class="course-title">{{ course.title }}</strong>
+                      <small class="course-subtitle">{{ course.test_code }}</small>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- 3. Type -->
+                <td class="col-type">
+                  <span class="type-badge">{{ course.type }}</span>
+                </td>
+
+                <!-- 4. Level -->
+                <td class="col-level">
+                  @if (course.level && course.level !== '—') {
+                    <span
+                      class="level-badge"
+                      [class.level-beginner]="course.level === 'Beginner' || course.level === 'Easy'"
+                      [class.level-intermediate]="course.level === 'Intermediate' || course.level === 'Medium' || course.level === 'Standard' || course.level === 'MIXED'"
+                      [class.level-advanced]="course.level === 'Advanced' || course.level === 'Hard'"
+                    >
+                      {{ course.level }}
+                    </span>
+                  } @else {
+                    <span class="level-empty">—</span>
+                  }
+                </td>
+
+                <!-- 5. Status -->
+                <td class="col-status">
+                  <span
+                    class="status-pill"
+                    [class.status-completed]="course.rawStatus === 'completed'"
+                    [class.status-in-progress]="course.rawStatus === 'in_progress'"
+                    [class.status-not-started]="course.rawStatus === 'not_started'"
+                  >
+                    • {{ course.status }}
+                  </span>
+                </td>
+
+                <!-- 6. Progress -->
+                <td class="col-progress">
+                  <div class="progress-cell">
+                    <div class="progress-meta">
+                      <span class="percent-text">{{ course.progressPercent }}%</span>
+                    </div>
+                    <div class="progress-bar-track">
+                      <div
+                        class="progress-bar-fill"
+                        [style.width.%]="course.progressPercent"
+                        [style.background-color]="course.progressColor"
+                      ></div>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- 7. Time Spent -->
+                <td class="col-time">
+                  <div class="time-cell">
+                    <app-icon name="clock" [size]="14" class="time-icon" />
+                    <span>{{ course.learningTime }}</span>
+                  </div>
+                </td>
+
+                <!-- 8. Score -->
+                <td class="col-score">
+                  <span class="score-badge">{{ course.score }}</span>
+                </td>
+
+                <!-- 9. Action -->
+                <td class="col-action">
+                  @if (course.rawStatus === 'not_started') {
+                    <button
+                      type="button"
+                      class="start-test-btn"
+                      [disabled]="startingTestId() === course.id"
+                      (click)="startTest(course, $event)"
+                    >
+                      @if (startingTestId() === course.id) {
+                        <span>Starting...</span>
+                      } @else {
+                        <span>Start Test</span>
+                      }
+                    </button>
+                  } @else if (course.rawStatus === 'in_progress') {
+                    <button
+                      type="button"
+                      class="continue-test-btn"
+                      [disabled]="startingTestId() === course.id"
+                      (click)="resumeTest(course, $event)"
+                    >
+                      @if (startingTestId() === course.id) {
+                        <span>Resuming...</span>
+                      } @else {
+                        <span>Resume</span>
+                      }
+                    </button>
+                  } @else {
+                    <button
+                      type="button"
+                      class="retest-btn"
+                      [disabled]="startingTestId() === course.id"
+                      (click)="retestCourse(course, $event)"
+                    >
+                      @if (startingTestId() === course.id) {
+                        <span>Starting...</span>
+                      } @else {
+                        <span>Retest</span>
+                      }
+                    </button>
+                  }
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Infinite Scroll Sentinel -->
+    <div #paginationSentinel class="sentinel-anchor">
+      @if (isLoadingMore()) {
+        <div class="scroll-loading-indicator">
+          <div class="loading-spinner"></div>
+          <span>Loading more records...</span>
+        </div>
+      }
+    </div>
+  </section>
+</main>
