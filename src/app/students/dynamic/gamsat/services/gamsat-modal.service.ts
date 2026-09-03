@@ -4,8 +4,12 @@ export interface GamsatSavedTestPayload {
   title: string;
   sections: string[];
   units?: string[];
+  topic_ids?: (number | string)[];
   questionCount: number;
   duration: number;
+  difficulty?: string;
+  level?: string;
+  sessionId?: string;
 }
 
 @Injectable({

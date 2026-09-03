@@ -64,6 +64,15 @@ export class StudentProfileComponent {
   readonly activeSection = signal<string>('personal');
   readonly showSuccessToast = signal<string | null>(null);
 
+  // Loading & Saving states
+  readonly isSavingPersonal = signal<boolean>(false);
+  readonly isSavingAcademic = signal<boolean>(false);
+  readonly isSavingEntrance = signal<boolean>(false);
+  readonly isSavingPreferences = signal<boolean>(false);
+  readonly isUploadingDocument = signal<string | null>(null);
+  readonly isDeletingDocument = signal<string | null>(null);
+  readonly isUploadingPhoto = signal<boolean>(false);
+
   // Edit states for sections
   readonly editingPersonal = signal<boolean>(false);
   readonly editingAcademic = signal<boolean>(false);
@@ -103,9 +112,22 @@ export class StudentProfileComponent {
     this.editingPersonal.set(false);
   }
   savePersonal(): void {
-    this.profileService.updatePersonal(this.personalDraft);
-    this.editingPersonal.set(false);
-    this.triggerToast('Personal details updated successfully.');
+    if (this.isSavingPersonal()) return;
+    this.isSavingPersonal.set(true);
+
+    this.profileService.updatePersonal(this.personalDraft).subscribe({
+      next: (updated) => {
+        this.personalDraft = { ...updated.personal };
+        this.editingPersonal.set(false);
+        this.isSavingPersonal.set(false);
+        this.triggerToast('Personal details updated successfully.');
+      },
+      error: (err) => {
+        this.isSavingPersonal.set(false);
+        const msg = err?.error?.message || 'Failed to update personal details. Please try again.';
+        this.triggerToast(msg);
+      },
+    });
   }
 
   // Academic
@@ -117,9 +139,22 @@ export class StudentProfileComponent {
     this.editingAcademic.set(false);
   }
   saveAcademic(): void {
-    this.profileService.updateAcademic(this.academicDraft);
-    this.editingAcademic.set(false);
-    this.triggerToast('Academic records updated successfully.');
+    if (this.isSavingAcademic()) return;
+    this.isSavingAcademic.set(true);
+
+    this.profileService.updateAcademic(this.academicDraft).subscribe({
+      next: (updated) => {
+        this.academicDraft = { ...updated.academic };
+        this.editingAcademic.set(false);
+        this.isSavingAcademic.set(false);
+        this.triggerToast('Academic records updated successfully.');
+      },
+      error: (err) => {
+        this.isSavingAcademic.set(false);
+        const msg = err?.error?.message || 'Failed to update academic records. Please try again.';
+        this.triggerToast(msg);
+      },
+    });
   }
 
   // Entrance
@@ -142,9 +177,22 @@ export class StudentProfileComponent {
     this.editingEntrance.set(false);
   }
   saveEntrance(): void {
-    this.profileService.updateEntrance(this.entranceDraft);
-    this.editingEntrance.set(false);
-    this.triggerToast('NEET & Entrance examination scores updated.');
+    if (this.isSavingEntrance()) return;
+    this.isSavingEntrance.set(true);
+
+    this.profileService.updateEntrance(this.entranceDraft).subscribe({
+      next: (updated) => {
+        this.entranceDraft = JSON.parse(JSON.stringify(updated.entranceExams || []));
+        this.editingEntrance.set(false);
+        this.isSavingEntrance.set(false);
+        this.triggerToast('NEET & Entrance examination scores updated.');
+      },
+      error: (err) => {
+        this.isSavingEntrance.set(false);
+        const msg = err?.error?.message || 'Failed to update entrance examination scores. Please try again.';
+        this.triggerToast(msg);
+      },
+    });
   }
 
   // Preferences
@@ -160,9 +208,26 @@ export class StudentProfileComponent {
     this.editingPreferences.set(false);
   }
   savePreferences(): void {
-    this.profileService.updatePreferences(this.preferencesDraft);
-    this.editingPreferences.set(false);
-    this.triggerToast('MBBS matching preferences updated.');
+    if (this.isSavingPreferences()) return;
+    this.isSavingPreferences.set(true);
+
+    this.profileService.updatePreferences(this.preferencesDraft).subscribe({
+      next: (updated) => {
+        this.preferencesDraft = {
+          ...updated.preferences,
+          preferredCountries: [...(updated.preferences.preferredCountries || [])],
+          preferredIntake: [...(updated.preferences.preferredIntake || [])],
+        };
+        this.editingPreferences.set(false);
+        this.isSavingPreferences.set(false);
+        this.triggerToast('MBBS matching preferences updated.');
+      },
+      error: (err) => {
+        this.isSavingPreferences.set(false);
+        const msg = err?.error?.message || 'Failed to update MBBS preferences. Please try again.';
+        this.triggerToast(msg);
+      },
+    });
   }
   toggleCountryPreference(country: string): void {
     const list = this.preferencesDraft.preferredCountries || [];
@@ -179,29 +244,114 @@ export class StudentProfileComponent {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
       const file = input.files[0];
-      const sizeStr = `${(file.size / (1024 * 1024)).toFixed(2)} MB`;
-      this.profileService.uploadDocument(type, { name: file.name, size: sizeStr });
-      this.triggerToast(`Uploaded ${file.name} successfully.`);
+
+      // File size validation (10 MB max)
+      if (file.size > 10 * 1024 * 1024) {
+        this.triggerToast('File is too large. Maximum allowed size is 10 MB.');
+        input.value = '';
+        return;
+      }
+
+      // File type validation
+      const allowed = ['pdf', 'png', 'jpeg', 'jpg', 'webp'];
+      const ext = file.name.split('.').pop()?.toLowerCase() || '';
+      if (!allowed.includes(ext)) {
+        this.triggerToast('Unsupported file type. Please upload a PDF, PNG, JPG, or WEBP file.');
+        input.value = '';
+        return;
+      }
+
+      this.isUploadingDocument.set(type);
+      this.profileService.uploadDocument(type, file).subscribe({
+        next: (doc) => {
+          this.isUploadingDocument.set(null);
+          input.value = '';
+          this.triggerToast(`Uploaded ${doc.title || file.name} successfully.`);
+        },
+        error: (err) => {
+          this.isUploadingDocument.set(null);
+          input.value = '';
+          const msg = err?.error?.message || 'Failed to upload document. Please try again.';
+          this.triggerToast(msg);
+        },
+      });
     }
   }
 
-  removeDocument(docId: string): void {
-    this.profileService.removeDocument(docId);
-    this.triggerToast('Document removed.');
+  removeDocument(docIdOrType: string): void {
+    const doc = this.profile().documents.find(
+      (d) => d.id === docIdOrType || d.type === docIdOrType
+    );
+    const targetType = doc ? doc.type : (docIdOrType as DocumentType);
+
+    this.isDeletingDocument.set(targetType);
+    this.profileService.deleteDocument(targetType).subscribe({
+      next: () => {
+        this.isDeletingDocument.set(null);
+        this.triggerToast('Document removed.');
+      },
+      error: (err) => {
+        this.isDeletingDocument.set(null);
+        const msg = err?.error?.message || 'Failed to remove document. Please try again.';
+        this.triggerToast(msg);
+      },
+    });
+  }
+
+  onPhotoSelected(file: File): void {
+    if (!file) return;
+
+    // Photo size validation (5 MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      this.triggerToast('Photo is too large. Maximum allowed size is 5 MB.');
+      return;
+    }
+
+    // Photo type validation
+    const allowed = ['png', 'jpeg', 'jpg', 'webp'];
+    const ext = file.name.split('.').pop()?.toLowerCase() || '';
+    if (!allowed.includes(ext)) {
+      this.triggerToast('Unsupported image format. Please upload a PNG, JPG, or WEBP image.');
+      return;
+    }
+
+    this.isUploadingPhoto.set(true);
+    this.profileService.uploadPhoto(file).subscribe({
+      next: () => {
+        this.isUploadingPhoto.set(false);
+        this.triggerToast('Profile photo updated successfully.');
+      },
+      error: (err) => {
+        this.isUploadingPhoto.set(false);
+        const msg = err?.error?.message || 'Failed to upload photo. Please try again.';
+        this.triggerToast(msg);
+      },
+    });
   }
 
   onToggleDiscoverability(): void {
-    this.profileService.toggleDiscoverability();
-    const isNow = this.profile().isDiscoverable;
-    this.triggerToast(
-      isNow
-        ? 'University Discovery Activated!'
-        : 'University Discovery paused.'
-    );
+    const target = !this.profile().isDiscoverable;
+    this.profileService.updateVisibility(target).subscribe({
+      next: (res) => {
+        const isNow = res?.data?.discoverable ?? target;
+        this.triggerToast(
+          isNow
+            ? 'University Discovery Activated!'
+            : 'University Discovery paused.'
+        );
+      },
+      error: (err) => {
+        const msg = err?.error?.message || 'Failed to update discovery status. Please try again.';
+        this.triggerToast(msg);
+      },
+    });
   }
 
   getDocumentByType(type: DocumentType): StudentDocument | undefined {
-    return this.profile().documents.find((d) => d.type === type);
+    const doc = this.profile().documents.find((d) => d.type === type);
+    return doc && (doc.status === 'UPLOADED' || doc.status === 'VERIFIED')
+      ? doc
+      : undefined;
   }
 
   private triggerToast(message: string): void {

@@ -830,7 +830,11 @@ export class GamsatPractice implements OnInit, OnDestroy {
         this.isStartingTest.set(true);
         this.errorMessage.set(null);
 
-        this.gamsatService.startTest({ test_id: testId }).subscribe({
+        const payload: GamsatStartTestRequest = String(testId).startsWith('SECTION_')
+          ? { sections: [String(testId)], test_type: 'PRACTICE_TEST' }
+          : { test_id: testId };
+
+        this.gamsatService.startTest(payload).subscribe({
           next: (res) => {
             this.isStartingTest.set(false);
             const sessionData = (res.data ?? res) as GamsatActiveSession | GamsatStartTestData;

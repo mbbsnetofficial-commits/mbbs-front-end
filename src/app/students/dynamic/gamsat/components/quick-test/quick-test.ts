@@ -244,7 +244,7 @@ export class GamsatQuickTest implements OnInit {
     this.errorMessage.set(null);
   }
 
-  saveAndStartTest(): void {
+  saveTest(): void {
     if (this.isSaving()) {
       return;
     }
@@ -270,74 +270,68 @@ export class GamsatQuickTest implements OnInit {
       difficulty: difficultyVal
     };
 
+    console.log('[ GAMSAT ] Saving Custom Test Configuration to Learning Report', payload);
+
     this.gamsatService.saveCustomTest(payload).subscribe({
       next: (response) => {
+        this.isSaving.set(false);
         if (!response.success && (response as any).error) {
-          this.isSaving.set(false);
           this.errorMessage.set(this.getErrorMessage((response as any).error, 'Unable to save custom test.'));
           return;
         }
 
-        const testId =
-          response.data?.custom_test_id ||
-          response.data?.test_id ||
-          response.data?.id ||
-          (response as any).custom_test_id ||
-          (response as any).test_id ||
-          (response as any).id;
+        console.log('[ GAMSAT ] Custom Test Configuration Validated & Saved', response);
 
-        if (!testId) {
-          this.isSaving.set(false);
-          this.errorMessage.set('Test created, but no valid test identifier was returned by the server.');
-          return;
-        }
+        const config = response.data || ({} as any);
+        const finalTitle = config.name || config.title || payload.title;
+        const finalSections = (config.sections && config.sections.length > 0) ? config.sections : payload.sections;
+        const finalTopics = (config.topicIds && config.topicIds.length > 0) ? config.topicIds : (config.topic_ids || payload.topic_ids);
+        const finalQuestionCount = config.questionCount || config.total_questions || payload.questionCount;
+        const finalDuration = config.durationMinutes || config.duration_minutes || config.duration || payload.duration;
+        const finalDifficulty = config.difficulty || payload.difficulty;
 
         const eventPayload: GamsatSavedTestPayload = {
-          title: payload.title,
-          sections: payload.sections || [],
-          questionCount: payload.questionCount || 0,
-          duration: payload.duration || 0
+          title: finalTitle,
+          sections: finalSections || [],
+          topic_ids: finalTopics,
+          questionCount: finalQuestionCount || 0,
+          duration: finalDuration || 0,
+          difficulty: finalDifficulty,
+          level: this.level()
         };
+
+        // Persist to local custom test catalogue so it stays present across browser refreshes
+        try {
+          const storedRaw = localStorage.getItem('gamsat_saved_custom_tests');
+          const storedList: GamsatSavedTestPayload[] = storedRaw ? JSON.parse(storedRaw) : [];
+          const existingIdx = storedList.findIndex((t) => t.title.toLowerCase() === finalTitle.toLowerCase());
+          if (existingIdx >= 0) {
+            storedList[existingIdx] = eventPayload;
+          } else {
+            storedList.unshift(eventPayload);
+          }
+          localStorage.setItem('gamsat_saved_custom_tests', JSON.stringify(storedList));
+        } catch {
+          // Ignore storage quota errors
+        }
 
         this.testSaved.emit(eventPayload);
         this.gamsatModalService.saveTest(eventPayload);
 
-        // Start session and route to practice test
-        const startPayload: GamsatStartTestRequest = {
-          custom_test_id: testId,
-          test_id: testId,
-          duration: payload.duration,
-          total_questions: payload.questionCount,
-          sections: payload.sections
-        };
-
-        this.gamsatService.startTest(startPayload).subscribe({
-          next: (startRes) => {
-            this.isSaving.set(false);
-            const sid = startRes.sessionId || (startRes.data as any)?.sessionId;
-            if (sid) {
-              this.router.navigate(['/dynamic/gamsat/practice'], {
-                queryParams: { sessionId: sid }
-              });
-            } else {
-              this.router.navigate(['/dynamic/gamsat/practice'], {
-                queryParams: { testId, start: 'true' }
-              });
-            }
-          },
-          error: () => {
-            this.isSaving.set(false);
-            this.router.navigate(['/dynamic/gamsat/practice'], {
-              queryParams: { testId, start: 'true' }
-            });
-          }
-        });
+        if (this.router.url.includes('/quick-test') || this.router.url.includes('/practice')) {
+          void this.router.navigate(['/dynamic/gamsat']);
+        }
       },
       error: (error) => {
         this.isSaving.set(false);
+        console.error('[ GAMSAT ] Custom save configuration failed', error);
         this.errorMessage.set(this.getErrorMessage(error, 'Unable to save custom test. Please check your criteria and try again.'));
       }
     });
+  }
+
+  saveAndStartTest(): void {
+    this.saveTest();
   }
 
   private mapDifficultyToBackend(lvl: string): string {

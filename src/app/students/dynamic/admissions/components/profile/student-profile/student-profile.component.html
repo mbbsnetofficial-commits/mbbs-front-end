@@ -3,6 +3,7 @@
   <app-profile-header
     [profile]="profile()"
     (toggleDiscoverability)="onToggleDiscoverability()"
+    (photoSelected)="onPhotoSelected($event)"
   />
 
   <div class="profile-layout">
@@ -84,10 +85,10 @@
 
           <div class="header-actions">
             @if (editingPersonal()) {
-              <button type="button" class="btn-cancel" (click)="cancelEditPersonal()">Cancel</button>
-              <button type="button" class="btn-save" (click)="savePersonal()">
+              <button type="button" class="btn-cancel" [disabled]="isSavingPersonal()" (click)="cancelEditPersonal()">Cancel</button>
+              <button type="button" class="btn-save" [disabled]="isSavingPersonal()" (click)="savePersonal()">
                 <app-icon name="check" [size]="16" />
-                <span>Save</span>
+                <span>{{ isSavingPersonal() ? 'Saving...' : 'Save' }}</span>
               </button>
             } @else {
               <button type="button" class="btn-edit" (click)="startEditPersonal()">
@@ -171,10 +172,10 @@
 
           <div class="header-actions">
             @if (editingAcademic()) {
-              <button type="button" class="btn-cancel" (click)="cancelEditAcademic()">Cancel</button>
-              <button type="button" class="btn-save" (click)="saveAcademic()">
+              <button type="button" class="btn-cancel" [disabled]="isSavingAcademic()" (click)="cancelEditAcademic()">Cancel</button>
+              <button type="button" class="btn-save" [disabled]="isSavingAcademic()" (click)="saveAcademic()">
                 <app-icon name="check" [size]="16" />
-                <span>Save</span>
+                <span>{{ isSavingAcademic() ? 'Saving...' : 'Save' }}</span>
               </button>
             } @else {
               <button type="button" class="btn-edit" (click)="startEditAcademic()">
@@ -249,10 +250,10 @@
 
           <div class="header-actions">
             @if (editingEntrance()) {
-              <button type="button" class="btn-cancel" (click)="cancelEditEntrance()">Cancel</button>
-              <button type="button" class="btn-save" (click)="saveEntrance()">
+              <button type="button" class="btn-cancel" [disabled]="isSavingEntrance()" (click)="cancelEditEntrance()">Cancel</button>
+              <button type="button" class="btn-save" [disabled]="isSavingEntrance()" (click)="saveEntrance()">
                 <app-icon name="check" [size]="16" />
-                <span>Save</span>
+                <span>{{ isSavingEntrance() ? 'Saving...' : 'Save' }}</span>
               </button>
             } @else {
               <button type="button" class="btn-edit" (click)="startEditEntrance()">
@@ -340,10 +341,10 @@
 
           <div class="header-actions">
             @if (editingPreferences()) {
-              <button type="button" class="btn-cancel" (click)="cancelEditPreferences()">Cancel</button>
-              <button type="button" class="btn-save" (click)="savePreferences()">
+              <button type="button" class="btn-cancel" [disabled]="isSavingPreferences()" (click)="cancelEditPreferences()">Cancel</button>
+              <button type="button" class="btn-save" [disabled]="isSavingPreferences()" (click)="savePreferences()">
                 <app-icon name="check" [size]="16" />
-                <span>Save</span>
+                <span>{{ isSavingPreferences() ? 'Saving...' : 'Save' }}</span>
               </button>
             } @else {
               <button type="button" class="btn-edit" (click)="startEditPreferences()">
@@ -454,11 +455,13 @@
             </div>
             <div class="doc-action">
               @if (getDocumentByType('PASSPORT'); as doc) {
-                <button type="button" class="btn-remove" (click)="removeDocument(doc.id)">Remove</button>
+                <button type="button" class="btn-remove" [disabled]="isDeletingDocument() === 'PASSPORT' || isUploadingDocument() === 'PASSPORT'" (click)="removeDocument(doc.id)">
+                  {{ isDeletingDocument() === 'PASSPORT' ? 'Removing...' : 'Remove' }}
+                </button>
               } @else {
-                <label class="btn-upload">
-                  <span>Upload</span>
-                  <input type="file" (change)="onFileUpload($event, 'PASSPORT')" accept=".pdf,.jpg,.jpeg,.png" hidden />
+                <label class="btn-upload" [class.disabled]="isUploadingDocument() === 'PASSPORT'">
+                  <span>{{ isUploadingDocument() === 'PASSPORT' ? 'Uploading...' : 'Upload' }}</span>
+                  <input type="file" (change)="onFileUpload($event, 'PASSPORT')" accept=".pdf,.png,.jpeg,.jpg,.webp" [disabled]="isUploadingDocument() === 'PASSPORT'" hidden />
                 </label>
               }
             </div>
@@ -480,11 +483,13 @@
             </div>
             <div class="doc-action">
               @if (getDocumentByType('TENTH_CERTIFICATE'); as doc) {
-                <button type="button" class="btn-remove" (click)="removeDocument(doc.id)">Remove</button>
+                <button type="button" class="btn-remove" [disabled]="isDeletingDocument() === 'TENTH_CERTIFICATE' || isUploadingDocument() === 'TENTH_CERTIFICATE'" (click)="removeDocument(doc.id)">
+                  {{ isDeletingDocument() === 'TENTH_CERTIFICATE' ? 'Removing...' : 'Remove' }}
+                </button>
               } @else {
-                <label class="btn-upload">
-                  <span>Upload</span>
-                  <input type="file" (change)="onFileUpload($event, 'TENTH_CERTIFICATE')" accept=".pdf,.jpg,.jpeg,.png" hidden />
+                <label class="btn-upload" [class.disabled]="isUploadingDocument() === 'TENTH_CERTIFICATE'">
+                  <span>{{ isUploadingDocument() === 'TENTH_CERTIFICATE' ? 'Uploading...' : 'Upload' }}</span>
+                  <input type="file" (change)="onFileUpload($event, 'TENTH_CERTIFICATE')" accept=".pdf,.png,.jpeg,.jpg,.webp" [disabled]="isUploadingDocument() === 'TENTH_CERTIFICATE'" hidden />
                 </label>
               }
             </div>
@@ -506,11 +511,13 @@
             </div>
             <div class="doc-action">
               @if (getDocumentByType('TWELFTH_CERTIFICATE'); as doc) {
-                <button type="button" class="btn-remove" (click)="removeDocument(doc.id)">Remove</button>
+                <button type="button" class="btn-remove" [disabled]="isDeletingDocument() === 'TWELFTH_CERTIFICATE' || isUploadingDocument() === 'TWELFTH_CERTIFICATE'" (click)="removeDocument(doc.id)">
+                  {{ isDeletingDocument() === 'TWELFTH_CERTIFICATE' ? 'Removing...' : 'Remove' }}
+                </button>
               } @else {
-                <label class="btn-upload">
-                  <span>Upload</span>
-                  <input type="file" (change)="onFileUpload($event, 'TWELFTH_CERTIFICATE')" accept=".pdf,.jpg,.jpeg,.png" hidden />
+                <label class="btn-upload" [class.disabled]="isUploadingDocument() === 'TWELFTH_CERTIFICATE'">
+                  <span>{{ isUploadingDocument() === 'TWELFTH_CERTIFICATE' ? 'Uploading...' : 'Upload' }}</span>
+                  <input type="file" (change)="onFileUpload($event, 'TWELFTH_CERTIFICATE')" accept=".pdf,.png,.jpeg,.jpg,.webp" [disabled]="isUploadingDocument() === 'TWELFTH_CERTIFICATE'" hidden />
                 </label>
               }
             </div>
@@ -532,11 +539,13 @@
             </div>
             <div class="doc-action">
               @if (getDocumentByType('NEET_SCORECARD'); as doc) {
-                <button type="button" class="btn-remove" (click)="removeDocument(doc.id)">Remove</button>
+                <button type="button" class="btn-remove" [disabled]="isDeletingDocument() === 'NEET_SCORECARD' || isUploadingDocument() === 'NEET_SCORECARD'" (click)="removeDocument(doc.id)">
+                  {{ isDeletingDocument() === 'NEET_SCORECARD' ? 'Removing...' : 'Remove' }}
+                </button>
               } @else {
-                <label class="btn-upload">
-                  <span>Upload</span>
-                  <input type="file" (change)="onFileUpload($event, 'NEET_SCORECARD')" accept=".pdf,.jpg,.jpeg,.png" hidden />
+                <label class="btn-upload" [class.disabled]="isUploadingDocument() === 'NEET_SCORECARD'">
+                  <span>{{ isUploadingDocument() === 'NEET_SCORECARD' ? 'Uploading...' : 'Upload' }}</span>
+                  <input type="file" (change)="onFileUpload($event, 'NEET_SCORECARD')" accept=".pdf,.png,.jpeg,.jpg,.webp" [disabled]="isUploadingDocument() === 'NEET_SCORECARD'" hidden />
                 </label>
               }
             </div>

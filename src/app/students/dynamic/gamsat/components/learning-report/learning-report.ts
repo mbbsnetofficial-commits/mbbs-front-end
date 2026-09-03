@@ -591,8 +591,76 @@ export class GamsatLearningReport implements OnInit, AfterViewInit, OnDestroy {
           });
         }
 
-        // Step 6: Exactly ONE row per unique master test definition across all 3 categories
-        const unifiedList = [...representativeAttempts, ...unattemptedPaperItems, ...unattemptedBuiltinItems];
+        // Step 5b: Unattempted Custom Tests (from client custom tests registry)
+        const unattemptedCustomItems: GamsatCourseItem[] = [];
+        const seenCustomKeys = new Set<string>();
+
+        let storedCustomConfigs: any[] = [];
+        try {
+          const storedRaw = localStorage.getItem('gamsat_saved_custom_tests');
+          if (storedRaw) {
+            storedCustomConfigs = JSON.parse(storedRaw);
+          }
+        } catch {
+          storedCustomConfigs = [];
+        }
+
+        for (const cfg of storedCustomConfigs) {
+          const masterKey = this.getMasterTestKey(cfg, 'custom');
+          if (seenCustomKeys.has(masterKey) || attemptsByMasterKey.has(masterKey)) {
+            continue;
+          }
+          seenCustomKeys.add(masterKey);
+
+          const qCount = cfg.questionCount || 40;
+          const duration = cfg.duration || 79;
+          const secList = Array.isArray(cfg.sections) && cfg.sections.length > 0
+            ? cfg.sections.map((s: string) => this.formatSectionName(s)).join(', ')
+            : 'Custom Practice Drill';
+
+          unattemptedCustomItems.push({
+            id: masterKey,
+            testId: masterKey,
+            testDefinitionId: masterKey,
+            test_id: 0,
+            test_code: `GM-TEST-${this.normalizeKey(cfg.title || 'CUSTOM').toUpperCase()}`,
+            title: cfg.title || 'GAMSAT Custom Practice Test',
+            type: 'CUSTOM TEST',
+            source: 'custom',
+            stagesCount: `${qCount} Questions`,
+            level: cfg.difficulty || cfg.level || 'Hard',
+            status: 'Not Started',
+            rawStatus: 'not_started',
+            stageInfo: `${qCount} Questions · ${duration}m`,
+            progressPercent: 0,
+            progressColor: '#e2e8f0',
+            dateRange: 'Available',
+            dateModified: 'Available',
+            dateModifiedTimestamp: 0,
+            learningTime: '0m',
+            score: '—',
+            scoreNum: 0,
+            category: secList,
+            iconBg: '#f59e0b',
+            iconName: 'sparkles',
+            rawItem: {
+              title: cfg.title,
+              testName: cfg.title,
+              source: 'custom',
+              type: 'CUSTOM',
+              status: 'not_started',
+              durationMinutes: duration,
+              totalQuestions: qCount,
+              sections: cfg.sections,
+              topic_ids: cfg.topic_ids,
+              difficulty: cfg.difficulty,
+              level: cfg.level
+            } as any
+          });
+        }
+
+        // Step 6: Exactly ONE row per unique master test definition across all categories
+        const unifiedList = [...representativeAttempts, ...unattemptedPaperItems, ...unattemptedBuiltinItems, ...unattemptedCustomItems];
 
         if (append) {
           this.courses.update((existing) => {
@@ -1023,10 +1091,59 @@ export class GamsatLearningReport implements OnInit, AfterViewInit, OnDestroy {
         queryParams: { paperId, start: 'true' }
       }).then(() => this.startingTestId.set(null)).catch(() => this.startingTestId.set(null));
     } else {
-      const testId = course.testId || course.rawItem?.testId || course.rawItem?.custom_test_id || course.id;
-      this.router.navigate(['/dynamic/gamsat/practice'], {
-        queryParams: { testId, start: 'true' }
-      }).then(() => this.startingTestId.set(null)).catch(() => this.startingTestId.set(null));
+      const raw = course.rawItem;
+      const isCustom = course.source === 'custom' || course.type.toLowerCase().includes('custom');
+
+      if (isCustom) {
+        const qCount = raw?.total_questions || raw?.totalQuestions || (typeof course.stagesCount === 'string' ? parseInt(course.stagesCount, 10) : 40);
+        const duration = raw?.duration_minutes || raw?.durationMinutes || 79;
+
+        const customStartPayload: GamsatStartTestRequest = {
+          title: course.title,
+          custom_test_id: raw?.custom_test_id || raw?.testId || raw?.test_id,
+          test_id: raw?.custom_test_id || raw?.testId || raw?.test_id,
+          sections: raw?.sections && raw.sections.length > 0 ? raw.sections : undefined,
+          topics: raw?.topic_ids || raw?.topics,
+          topic_ids: raw?.topic_ids || raw?.topics,
+          total_questions: qCount,
+          limit: qCount,
+          duration: duration,
+          duration_minutes: duration,
+          difficulty: raw?.difficulty || raw?.level || course.level,
+          level: raw?.level || course.level,
+          test_type: 'CUSTOM'
+        };
+
+        console.log('[ GAMSAT ] Starting Custom Test from Learning Report', customStartPayload);
+
+        this.gamsatService.startTest(customStartPayload).subscribe({
+          next: (startRes) => {
+            this.startingTestId.set(null);
+            const sessionData = (startRes.data ?? startRes) as any;
+            const sid = startRes.sessionId || sessionData?.sessionId || (startRes as any)?.session_id || sessionData?.session_id;
+
+            if (sid) {
+              this.router.navigate(['/dynamic/gamsat/practice'], {
+                queryParams: { sessionId: sid }
+              });
+            } else {
+              const testId = course.testId || course.rawItem?.testId || course.rawItem?.custom_test_id || course.id;
+              this.router.navigate(['/dynamic/gamsat/practice'], {
+                queryParams: { testId, start: 'true' }
+              });
+            }
+          },
+          error: (err) => {
+            this.startingTestId.set(null);
+            this.errorMessage.set(this.getErrorMessage(err, 'Unable to start test session. Please try again.'));
+          }
+        });
+      } else {
+        const testId = course.testId || course.rawItem?.testId || course.rawItem?.builtin_test_id || course.id;
+        this.router.navigate(['/dynamic/gamsat/practice'], {
+          queryParams: { testId, start: 'true' }
+        }).then(() => this.startingTestId.set(null)).catch(() => this.startingTestId.set(null));
+      }
     }
   }
 
@@ -1075,10 +1192,57 @@ export class GamsatLearningReport implements OnInit, AfterViewInit, OnDestroy {
         queryParams: { paperId, start: 'true' }
       }).then(() => this.startingTestId.set(null)).catch(() => this.startingTestId.set(null));
     } else {
-      const testId = course.testId || course.rawItem?.testId || course.rawItem?.custom_test_id || course.id;
-      this.router.navigate(['/dynamic/gamsat/practice'], {
-        queryParams: { testId, start: 'true' }
-      }).then(() => this.startingTestId.set(null)).catch(() => this.startingTestId.set(null));
+      const raw = course.rawItem;
+      const isCustom = course.source === 'custom' || course.type.toLowerCase().includes('custom');
+
+      if (isCustom) {
+        const qCount = raw?.total_questions || raw?.totalQuestions || (typeof course.stagesCount === 'string' ? parseInt(course.stagesCount, 10) : 40);
+        const duration = raw?.duration_minutes || raw?.durationMinutes || 79;
+
+        const customStartPayload: GamsatStartTestRequest = {
+          title: course.title,
+          custom_test_id: raw?.custom_test_id || raw?.testId || raw?.test_id,
+          test_id: raw?.custom_test_id || raw?.testId || raw?.test_id,
+          sections: raw?.sections && raw.sections.length > 0 ? raw.sections : undefined,
+          topics: raw?.topic_ids || raw?.topics,
+          topic_ids: raw?.topic_ids || raw?.topics,
+          total_questions: qCount,
+          limit: qCount,
+          duration: duration,
+          duration_minutes: duration,
+          difficulty: raw?.difficulty || raw?.level || course.level,
+          level: raw?.level || course.level,
+          test_type: 'CUSTOM'
+        };
+
+        this.gamsatService.startTest(customStartPayload).subscribe({
+          next: (startRes) => {
+            this.startingTestId.set(null);
+            const sessionData = (startRes.data ?? startRes) as any;
+            const sid = startRes.sessionId || sessionData?.sessionId || (startRes as any)?.session_id || sessionData?.session_id;
+
+            if (sid) {
+              this.router.navigate(['/dynamic/gamsat/practice'], {
+                queryParams: { sessionId: sid }
+              });
+            } else {
+              const testId = course.testId || course.rawItem?.testId || course.rawItem?.custom_test_id || course.id;
+              this.router.navigate(['/dynamic/gamsat/practice'], {
+                queryParams: { testId, start: 'true' }
+              });
+            }
+          },
+          error: (err) => {
+            this.startingTestId.set(null);
+            this.errorMessage.set(this.getErrorMessage(err, 'Unable to start test session. Please try again.'));
+          }
+        });
+      } else {
+        const testId = course.testId || course.rawItem?.testId || course.rawItem?.custom_test_id || course.id;
+        this.router.navigate(['/dynamic/gamsat/practice'], {
+          queryParams: { testId, start: 'true' }
+        }).then(() => this.startingTestId.set(null)).catch(() => this.startingTestId.set(null));
+      }
     }
   }
 
@@ -1131,6 +1295,14 @@ export class GamsatLearningReport implements OnInit, AfterViewInit, OnDestroy {
     );
 
     this.observer.observe(this.sentinelRef.nativeElement);
+  }
+
+  private formatSectionName(code: string): string {
+    const c = (code || '').toUpperCase();
+    if (c.includes('WRITTEN') || c === 'SECTION_I' || c === '1') return 'Written Communication';
+    if (c.includes('HUMANITIES') || c.includes('SOCIAL') || c === 'SECTION_II' || c === '2') return 'Humanities & Social Sciences';
+    if (c.includes('BIOLOGICAL') || c.includes('PHYSICAL') || c === 'SECTION_III' || c === '3') return 'Biological & Physical Sciences';
+    return code.replace(/_/g, ' ');
   }
 
   private getErrorMessage(error: unknown, fallback: string): string {

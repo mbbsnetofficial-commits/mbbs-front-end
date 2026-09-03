@@ -262,11 +262,11 @@
           type="button"
           class="primary-action-btn save-btn"
           [disabled]="isSaving()"
-          (click)="saveAndStartTest()">
+          (click)="saveTest()">
           @if (isSaving()) {
-            <span>Saving & Launching...</span>
+            <span>Saving to Learning Report...</span>
           } @else {
-            <span>Save & Start Test &rarr;</span>
+            <span>Save to Learning Report &rarr;</span>
           }
         </button>
       </div>

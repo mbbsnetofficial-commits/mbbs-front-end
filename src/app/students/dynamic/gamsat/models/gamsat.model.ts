@@ -120,6 +120,7 @@ export interface GamsatCustomTestTopicConfig {
 
 export interface GamsatCreateCustomTestRequest {
   title: string;
+  name?: string;
   section?: GamsatSection;
   sections?: string[];
   difficulty?: GamsatDifficulty | string;
@@ -134,32 +135,51 @@ export interface GamsatCreateCustomTestRequest {
 
 export type GamsatCustomTestSaveRequest = GamsatCreateCustomTestRequest;
 
+export interface GamsatCustomTestConfigData {
+  id?: number | string;
+  test_id?: number | string;
+  custom_test_id?: number | string;
+  name?: string;
+  title?: string;
+  sections?: string[];
+  topicIds?: number[];
+  topic_ids?: (number | string)[];
+  questionCount?: number;
+  total_questions?: number;
+  difficulty?: string;
+  durationMinutes?: number;
+  duration_minutes?: number;
+  duration?: number;
+  availableQuestions?: number;
+}
+
 export interface GamsatSaveCustomTestResponse {
   success: boolean;
-  message: string;
-  data: {
-    id?: number;
-    test_id?: number;
-    custom_test_id?: number;
-    title: string;
-    total_questions: number;
-    duration_minutes: number;
-  };
+  message?: string;
+  data?: GamsatCustomTestConfigData;
 }
 
 export type GamsatCustomTestSaveResponse = GamsatSaveCustomTestResponse;
 
 export interface GamsatStartTestRequest {
+  title?: string;
+  name?: string;
   test_id?: number | string;
   custom_test_id?: number | string;
   platform_test_id?: number | string;
   builtin_test_id?: number | string;
   previous_year_paper_id?: number | string;
-  test_type?: 'BUILTIN' | 'CUSTOM' | 'PREVIOUS_YEAR';
+  test_type?: 'BUILTIN' | 'CUSTOM' | 'PREVIOUS_YEAR' | string;
   duration?: number;
+  duration_minutes?: number;
   total_questions?: number;
+  questionCount?: number;
   limit?: number;
   sections?: string[];
+  topics?: (number | string)[];
+  topic_ids?: (number | string)[];
+  difficulty?: string;
+  level?: string;
 }
 
 export interface GamsatStartTestData {

@@ -956,4 +956,115 @@ describe('GamsatLearningReport', () => {
 
     expect(component.courses().length).toBe(2);
   });
+
+  it('13. should display newly saved custom test as Not Started course row with 0% progress and Start Test action', () => {
+    localStorage.setItem('gamsat_saved_custom_tests', JSON.stringify([
+      {
+        title: 'GAMSAT Custom Biology Drill',
+        sections: ['SECTION_III'],
+        topic_ids: [3010, 3011],
+        questionCount: 30,
+        duration: 60,
+        difficulty: 'Hard',
+        level: 'Advanced'
+      }
+    ]));
+
+    fixture.detectChanges();
+
+    const summaryReq = httpTesting.expectOne(`${environment.gamsatApiBaseUrl}${API.STUDENT_DASHBOARD.GAMSAT_SUMMARY}`);
+    summaryReq.flush({ success: true, data: {} });
+
+    const filtersReq = httpTesting.expectOne(`${environment.gamsatApiBaseUrl}${API.STUDENT_DASHBOARD.GAMSAT_LEARNING_REPORT_FILTERS}`);
+    filtersReq.flush({ success: true, data: { sections: [] } });
+
+    const reportReq = httpTesting.expectOne((req) => req.url.includes(API.STUDENT_DASHBOARD.GAMSAT_LEARNING_REPORT));
+    reportReq.flush({ success: true, data: { tests: [] } });
+
+    const papersReq = httpTesting.expectOne(`${environment.gamsatApiBaseUrl}${API.PREVIOUS_YEAR_TEST.PAPERS}`);
+    papersReq.flush({ success: true, data: [] });
+
+    const builtinReq = httpTesting.expectOne(`${environment.gamsatApiBaseUrl}${API.TEST.BUILTIN}`);
+    builtinReq.flush({ success: true, data: [] });
+
+    const courses = component.courses();
+    expect(courses.length).toBe(1);
+
+    const customCourse = courses[0];
+    expect(customCourse.title).toBe('GAMSAT Custom Biology Drill');
+    expect(customCourse.type).toBe('CUSTOM TEST');
+    expect(customCourse.source).toBe('custom');
+    expect(customCourse.rawStatus).toBe('not_started');
+    expect(customCourse.status).toBe('Not Started');
+    expect(customCourse.progressPercent).toBe(0);
+    expect(customCourse.score).toBe('—');
+    expect(customCourse.learningTime).toBe('0m');
+    expect(customCourse.level).toBe('Hard');
+  });
+
+  it('14. should call POST /gamsat/test/start and navigate with real sessionId when Start Test is clicked on custom course', () => {
+    const customCourse = {
+      id: 'custom_gamsatcustombiologydrill',
+      test_id: 0,
+      test_code: 'GM-TEST-CUSTOM',
+      dateModifiedTimestamp: 0,
+      title: 'GAMSAT Custom Biology Drill',
+      type: 'CUSTOM TEST',
+      source: 'custom' as const,
+      stagesCount: '30 Questions',
+      level: 'Hard',
+      status: 'Not Started',
+      rawStatus: 'not_started' as const,
+      stageInfo: '30 Questions · 60m',
+      progressPercent: 0,
+      progressColor: '#e2e8f0',
+      dateRange: 'Available',
+      dateModified: 'Available',
+      learningTime: '0m',
+      score: '—',
+      scoreNum: 0,
+      category: 'Biological & Physical Sciences',
+      iconBg: '#f59e0b',
+      iconName: 'sparkles',
+      rawItem: {
+        title: 'GAMSAT Custom Biology Drill',
+        testName: 'GAMSAT Custom Biology Drill',
+        source: 'custom',
+        type: 'CUSTOM',
+        status: 'not_started',
+        durationMinutes: 60,
+        totalQuestions: 30,
+        sections: ['SECTION_III'],
+        topic_ids: [3010, 3011],
+        difficulty: 'Hard',
+        level: 'Advanced'
+      }
+    };
+
+    const routerSpy = vi.spyOn((component as any).router, 'navigate');
+
+    component.startTest(customCourse);
+    expect(component.startingTestId()).toBe('custom_gamsatcustombiologydrill');
+
+    const startReq = httpTesting.expectOne(`${environment.gamsatApiBaseUrl}${API.TEST.START}`);
+    expect(startReq.request.method).toBe('POST');
+    expect(startReq.request.body.title).toBe('GAMSAT Custom Biology Drill');
+    expect(startReq.request.body.total_questions).toBe(30);
+    expect(startReq.request.body.duration).toBe(60);
+    expect(startReq.request.body.difficulty).toBe('Hard');
+    expect(startReq.request.body.test_type).toBe('CUSTOM');
+
+    startReq.flush({
+      success: true,
+      sessionId: 'GAMSAT-1799200000000-BIO',
+      duration: 60,
+      totalQuestions: 30,
+      status: 'IN_PROGRESS'
+    });
+
+    expect(component.startingTestId()).toBeNull();
+    expect(routerSpy).toHaveBeenCalledWith(['/dynamic/gamsat/practice'], {
+      queryParams: { sessionId: 'GAMSAT-1799200000000-BIO' }
+    });
+  });
 });

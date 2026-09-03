@@ -1,14 +1,17 @@
 <div class="profile-header-card">
   <div class="header-main">
     <div class="avatar-wrap">
-      <img
-        appImageFallback
-        [src]="profile().avatarUrl"
-        [alt]="profile().personal.fullName || 'Student Avatar'"
-      />
-      @if (profile().isDiscoverable) {
-        <span class="online-indicator" title="Profile discoverable by universities"></span>
-      }
+      <label class="avatar-file-label" title="Change Profile Photo" style="display: block; width: 100%; height: 100%; cursor: pointer;">
+        <input type="file" (change)="onFileSelected($event)" accept="image/png,image/jpeg,image/jpg,image/webp" hidden />
+        <img
+          appImageFallback
+          [src]="profile().avatarUrl"
+          [alt]="profile().personal.fullName || 'Student Avatar'"
+        />
+        @if (profile().isDiscoverable) {
+          <span class="online-indicator" title="Profile discoverable by universities"></span>
+        }
+      </label>
     </div>
 
     <div class="identity-wrap">

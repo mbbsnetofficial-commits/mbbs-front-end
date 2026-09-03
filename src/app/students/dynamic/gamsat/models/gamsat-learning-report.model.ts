@@ -54,6 +54,7 @@ export interface GamsatLearningReportItem {
   durationMinutes?: number;
   total_questions?: number;
   totalQuestions?: number;
+  topics?: (number | string)[];
   answeredQuestions?: number;
   answered_questions?: number;
   answeredCount?: number;

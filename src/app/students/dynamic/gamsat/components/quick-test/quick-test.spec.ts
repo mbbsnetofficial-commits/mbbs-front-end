@@ -171,14 +171,15 @@ describe('GamsatQuickTest', () => {
     expect(component.topics().length).toBe(0);
   });
 
-  it('5. should save custom test with mapped difficulty and start exam session routing to practice test runner', () => {
+  it('5. should call ONLY POST /custom/save without calling startTest, emit testSaved, and close modal without opening test runner', () => {
     fixture.detectChanges();
 
     const sectionsReq = httpTesting.expectOne(`${environment.gamsatApiBaseUrl}${API.TEST.SECTIONS}`);
-    sectionsReq.flush({ success: true, data: ['WRITTEN_COMMUNICATION'] });
+    sectionsReq.flush({ success: true, data: ['WRITTEN_COMMUNICATION', 'HUMANITIES_AND_SOCIAL_SCIENCES'] });
 
     component.goToSections();
     component.toggleSection('WRITTEN_COMMUNICATION');
+    component.toggleSection('HUMANITIES_AND_SOCIAL_SCIENCES');
     component.goToTopics();
 
     const topicsReq = httpTesting.expectOne(`${environment.gamsatApiBaseUrl}${API.TEST.TOPICS}`);
@@ -190,51 +191,56 @@ describe('GamsatQuickTest', () => {
       ]
     });
 
-    // Specifically pick 1 topic out of 2
-    component.toggleTopic(3002);
-    expect(component.selectedTopics()).toEqual([3001]);
-
     component.goToConfiguration();
-    component.setQuestionCount(20);
-    component.setLevel('Easy');
-    expect(component.questionCount()).toBe(20);
-    expect(component.duration()).toBe(30); // 20 * 1.5 = 30m
+    component.setQuestionCount(40);
+    component.setLevel('Hard');
+    expect(component.questionCount()).toBe(40);
 
     const routerSpy = vi.spyOn(router, 'navigate');
+    let emittedPayload: any = null;
+    component.testSaved.subscribe((p) => {
+      emittedPayload = p;
+    });
 
-    // Trigger Save & Start
-    component.saveAndStartTest();
+    // Trigger Save to Learning Report
+    component.saveTest();
     expect(component.isSaving()).toBe(true);
 
+    // 1. Verify ONLY /custom/save POST request is made
     const saveReq = httpTesting.expectOne(`${environment.gamsatApiBaseUrl}${API.TEST.CUSTOM_SAVE}`);
     expect(saveReq.request.method).toBe('POST');
-    expect(saveReq.request.body.questionCount).toBe(20);
-    expect(saveReq.request.body.duration).toBe(30);
-    expect(saveReq.request.body.difficulty).toBe('Easy');
-    expect(saveReq.request.body.topic_ids).toEqual([3001]);
-    expect(saveReq.request.body.sections).toEqual(['WRITTEN_COMMUNICATION']);
+    expect(saveReq.request.body.questionCount).toBe(40);
+    expect(saveReq.request.body.difficulty).toBe('Hard');
+    expect(saveReq.request.body.sections).toEqual(['WRITTEN_COMMUNICATION', 'HUMANITIES_AND_SOCIAL_SCIENCES']);
+
+    // 2. Real Backend Response: validated configuration data
     saveReq.flush({
       success: true,
+      message: 'GAMSAT custom test configuration validated and created successfully',
       data: {
-        custom_test_id: 8899,
-        title: 'GAMSAT Custom Practice Drill',
-        total_questions: 20,
-        duration_minutes: 30
+        name: 'GAMSAT Custom Practice Test',
+        sections: [
+          'WRITTEN_COMMUNICATION',
+          'HUMANITIES_AND_SOCIAL_SCIENCES'
+        ],
+        topicIds: [3001, 3002],
+        questionCount: 40,
+        difficulty: 'Hard',
+        durationMinutes: 79,
+        availableQuestions: 2407
       }
     });
 
-    const startReq = httpTesting.expectOne(`${environment.gamsatApiBaseUrl}${API.TEST.START}`);
-    expect(startReq.request.method).toBe('POST');
-    expect(startReq.request.body.custom_test_id).toBe(8899);
-    startReq.flush({
-      success: true,
-      sessionId: 'GAMSAT-1788199999999-CUSTM'
-    });
-
+    // 3. Confirm saving completed, event emitted, and NO session/start request was made
     expect(component.isSaving()).toBe(false);
-    expect(routerSpy).toHaveBeenCalledWith(['/dynamic/gamsat/practice'], {
-      queryParams: { sessionId: 'GAMSAT-1788199999999-CUSTM' }
-    });
+    expect(emittedPayload).toBeTruthy();
+    expect(emittedPayload.title).toBe('GAMSAT Custom Practice Test');
+    expect(emittedPayload.questionCount).toBe(40);
+    expect(emittedPayload.duration).toBe(79);
+
+    // Verified: startTest API is NOT called
+    httpTesting.expectNone(`${environment.gamsatApiBaseUrl}${API.TEST.START}`);
+    expect(routerSpy).not.toHaveBeenCalledWith(['/dynamic/gamsat/practice'], expect.anything());
   });
 
   it('6. should handle INSUFFICIENT_QUESTIONS error response without navigating or creating fake session', () => {
@@ -258,7 +264,7 @@ describe('GamsatQuickTest', () => {
 
     const routerSpy = vi.spyOn(router, 'navigate');
 
-    component.saveAndStartTest();
+    component.saveTest();
     expect(component.isSaving()).toBe(true);
 
     const saveReq = httpTesting.expectOne(`${environment.gamsatApiBaseUrl}${API.TEST.CUSTOM_SAVE}`);
@@ -295,19 +301,28 @@ describe('GamsatQuickTest', () => {
     component.goToConfiguration();
 
     // First click
-    component.saveAndStartTest();
+    component.saveTest();
     expect(component.isSaving()).toBe(true);
 
     // Second click while pending
-    component.saveAndStartTest();
+    component.saveTest();
 
     // Exactly 1 POST request must be made
     const requests = httpTesting.match(`${environment.gamsatApiBaseUrl}${API.TEST.CUSTOM_SAVE}`);
     expect(requests.length).toBe(1);
-    requests[0].flush({ success: true, data: { id: 101 } });
+    requests[0].flush({
+      success: true,
+      data: {
+        name: 'GAMSAT Custom Practice Test',
+        sections: ['WRITTEN_COMMUNICATION'],
+        topicIds: [3001],
+        questionCount: 15,
+        difficulty: 'Medium',
+        durationMinutes: 23
+      }
+    });
 
-    const startReq = httpTesting.expectOne(`${environment.gamsatApiBaseUrl}${API.TEST.START}`);
-    startReq.flush({ success: true, sessionId: 'sess-1' });
+    expect(component.isSaving()).toBe(false);
   });
 
   it('8. should handle HTTP 500 server error cleanly without proceeding', () => {
@@ -326,7 +341,7 @@ describe('GamsatQuickTest', () => {
     component.goToConfiguration();
 
     const routerSpy = vi.spyOn(router, 'navigate');
-    component.saveAndStartTest();
+    component.saveTest();
 
     const saveReq = httpTesting.expectOne(`${environment.gamsatApiBaseUrl}${API.TEST.CUSTOM_SAVE}`);
     saveReq.error(new ProgressEvent('Server error'), { status: 500, statusText: 'Internal Server Error' });

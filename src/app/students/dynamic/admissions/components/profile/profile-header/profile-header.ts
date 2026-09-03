@@ -17,6 +17,14 @@ export class ProfileHeaderComponent {
 
   readonly toggleDiscoverability = output<void>();
   readonly editModeToggled = output<void>();
+  readonly photoSelected = output<File>();
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      this.photoSelected.emit(input.files[0]);
+    }
+  }
 
   formatLocation(city?: string, country?: string): string {
     if (city && country) return `${city}, ${country}`;

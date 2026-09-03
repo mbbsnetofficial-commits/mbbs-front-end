@@ -173,3 +173,150 @@ export interface CreateStudentProfileRequest {
     preferredDurationYears?: number;
   };
 }
+
+export interface BackendDocumentItem {
+  id?: string;
+  _id?: string;
+  publicId?: string;
+  name?: string;
+  title?: string;
+  fileName?: string;
+  fileSize?: string;
+  documentType?: string;
+  type?: string;
+  status?: string;
+  url?: string;
+  fileUrl?: string;
+  uploadedAt?: string;
+  description?: string;
+  rejectionReason?: string;
+}
+
+export interface BackendVisibilityData {
+  discoverable?: boolean;
+  status?: string;
+  displayText?: string;
+}
+
+export interface BackendVisibilityResponse {
+  success: boolean;
+  message?: string;
+  data?: BackendVisibilityData;
+}
+
+export interface BackendPhotoUploadResponse {
+  success: boolean;
+  message?: string;
+  data?: {
+    url?: string;
+    avatarUrl?: string;
+    avatar?: string;
+  };
+}
+
+export interface BackendDocumentUploadResponse {
+  success: boolean;
+  message?: string;
+  data?: BackendDocumentItem;
+}
+
+export interface BackendStudentProfileData {
+  _id?: string;
+  id?: string;
+  studentId?: string;
+  userId?: string;
+  personal?: {
+    fullName?: string;
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    phoneNumber?: string;
+    phone?: string;
+    dateOfBirth?: string;
+    dob?: string;
+    dateOfBirthFormatted?: string;
+    gender?: string;
+    nationality?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    address?: string;
+    pincode?: string;
+    location?: string;
+    avatar?: string;
+  };
+  academic?: {
+    schoolName?: string;
+    boardOfEducation?: string;
+    boardName?: string;
+    twelfthBoard?: string;
+    twelfthPassingYear?: number;
+    twelfthMarks?: number;
+    tenthMarks?: number;
+    tenthBoard?: string;
+    tenthPassingYear?: number;
+    pcbAggregate?: number;
+    pcbPercentage?: number;
+    physicsMarks?: number;
+    chemistryMarks?: number;
+    biologyMarks?: number;
+    englishMarks?: number;
+  };
+  entrance?: {
+    examType?: string;
+    examYear?: number;
+    rollNumber?: string;
+    score?: number;
+    maximumScore?: number;
+    qualified?: boolean;
+    exams?: Array<{
+      id?: string;
+      examType?: string;
+      examYear?: number;
+      year?: number;
+      rollNumber?: string;
+      score?: number;
+      maxScore?: number;
+      maximumScore?: number;
+      qualified?: boolean;
+    }>;
+    neetScore?: number;
+    neetYear?: number;
+    neetRollNumber?: string;
+    neetQualified?: boolean;
+    ucatScore?: number | null;
+    otherExams?: any[];
+  };
+  preferences?: {
+    preferredCountries?: string[];
+    preferredIntake?: string | string[];
+    targetIntake?: string | string[];
+    preferredBudgetUsd?: number;
+    annualBudget?: string | number;
+    instructionMedium?: string;
+    preferredLanguage?: string;
+    course?: string;
+    specialization?: string;
+    hostelRequired?: boolean;
+    scholarshipRequired?: boolean;
+  };
+  documents?: {
+    passport?: BackendDocumentItem;
+    tenthCertificate?: BackendDocumentItem;
+    twelfthMarksheet?: BackendDocumentItem;
+    neetScorecard?: BackendDocumentItem;
+    [key: string]: BackendDocumentItem | undefined;
+  } | BackendDocumentItem[];
+  visibility?: BackendVisibilityData;
+  isDiscoverable?: boolean;
+  goals?: Record<string, any>;
+  profileCompletion?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface BackendStudentProfileResponse {
+  success: boolean;
+  message?: string;
+  data: BackendStudentProfileData;
+}

@@ -13,6 +13,7 @@ describe('StudentProfileService', () => {
     success: true,
     data: {
       _id: 'student-profile-01',
+      studentId: 'STU-12345',
       userId: 'user-01',
       personal: {
         fullName: 'Sanjay Sivakumar',
@@ -21,47 +22,79 @@ describe('StudentProfileService', () => {
         email: 'sanjay@example.com',
         phoneNumber: '+91 98765 43210',
         dateOfBirth: '2005-04-16',
-        gender: 'MALE',
+        gender: 'Male',
         nationality: 'Indian',
         city: 'Chennai',
         state: 'Tamil Nadu',
         country: 'India',
         address: '123 Main Road',
         pincode: '600001',
-        avatar: '/images/profile.jpg',
+        avatar: 'https://res.cloudinary.com/mbbs/image/upload/v1/avatar.jpg',
       },
       academic: {
         tenthMarks: 470,
         tenthBoard: 'CBSE',
         tenthPassingYear: 2021,
         twelfthMarks: 460,
-        twelfthBoard: 'CBSE',
+        boardOfEducation: 'CBSE',
         twelfthPassingYear: 2023,
-        pcbPercentage: 92,
+        pcbAggregate: 92,
         physicsMarks: 90,
         chemistryMarks: 92,
         biologyMarks: 94,
         englishMarks: 88,
-        schoolName: 'St. John’s Senior Secondary School',
+        schoolName: 'St. John Senior Secondary School',
       },
       entrance: {
-        neetScore: 580,
-        neetRollNumber: '4408192041',
-        neetYear: 2025,
-        neetQualified: true,
-        ucatScore: null,
-        otherExams: [],
+        examType: 'NEET',
+        examYear: 2024,
+        rollNumber: '4408192041',
+        score: 665,
+        maximumScore: 720,
+        qualified: true,
       },
       preferences: {
         preferredCountries: ['Georgia', 'Russia', 'Uzbekistan'],
         preferredBudgetUsd: 30000,
-        preferredIntake: 'September',
-        preferredLanguage: 'English',
+        targetIntake: 'September 2024',
+        instructionMedium: 'English',
         course: 'MBBS',
         specialization: 'General Medicine',
+        hostelRequired: true,
       },
-      profileCompletion: 100,
-      isDiscoverable: true,
+      documents: {
+        passport: {
+          name: 'International Passport',
+          documentType: 'passport',
+          status: 'Uploaded',
+          url: 'https://res.cloudinary.com/mbbs/raw/upload/v1/passport.pdf',
+          uploadedAt: '2024-03-01T10:00:00.000Z',
+        },
+        tenthCertificate: {
+          name: 'Class 10th Certificate',
+          documentType: 'tenthCertificate',
+          status: 'Not Uploaded',
+        },
+        twelfthMarksheet: {
+          name: 'Class 12th PCB Marksheet',
+          documentType: 'twelfthMarksheet',
+          status: 'Uploaded',
+          url: 'https://res.cloudinary.com/mbbs/raw/upload/v1/twelfth.pdf',
+          uploadedAt: '2024-03-02T10:00:00.000Z',
+        },
+        neetScorecard: {
+          name: 'NEET Official Scorecard',
+          documentType: 'neetScorecard',
+          status: 'Not Uploaded',
+        },
+      },
+      visibility: {
+        discoverable: true,
+        status: 'Active',
+        displayText: 'Active — Profile is discoverable by universities.',
+      },
+      profileCompletion: 85,
+      updatedAt: '2024-03-05T12:00:00.000Z',
     },
   };
 
@@ -77,6 +110,7 @@ describe('StudentProfileService', () => {
     httpTesting = TestBed.inject(HttpTestingController);
     service = TestBed.inject(StudentProfileService);
 
+    // Automatic initial profile load
     const req = httpTesting.expectOne(`${environment.admissionsApiBaseUrl}/student/profile`);
     expect(req.request.method).toBe('GET');
     req.flush(mockBackendResponse);
@@ -86,227 +120,430 @@ describe('StudentProfileService', () => {
     httpTesting.verify();
   });
 
-  it('should accurately map academic marks without converting to fake percentages', () => {
-    const p = service.profile();
-    expect(p.academic.tenthMarks).toBe(470);
-    expect(p.academic.twelfthMarks).toBe(460);
-    expect(p.academic.tenthPercentage).toBeUndefined();
-    expect(p.academic.overallPercentage).toBeUndefined();
-    expect(p.academic.pcbPercentage).toBe(92);
-    expect(p.academic.physicsScore).toBe(90);
-    expect(p.academic.chemistryScore).toBe(92);
-    expect(p.academic.biologyScore).toBe(94);
-    expect(p.academic.englishScore).toBe(88);
+  describe('1. GET /student/profile Mapping', () => {
+    it('should map Personal Information correctly including gender normalization', () => {
+      const p = service.profile().personal;
+      expect(p.fullName).toBe('Sanjay Sivakumar');
+      expect(p.dob).toBe('2005-04-16');
+      expect(p.gender).toBe('MALE');
+      expect(p.nationality).toBe('Indian');
+      expect(p.email).toBe('sanjay@example.com');
+      expect(p.phone).toBe('+91 98765 43210');
+      expect(p.city).toBe('Chennai');
+      expect(p.state).toBe('Tamil Nadu');
+      expect(p.country).toBe('India');
+    });
+
+    it('should map Academic Information correctly with pcbAggregate preference', () => {
+      const a = service.profile().academic;
+      expect(a.schoolName).toBe('St. John Senior Secondary School');
+      expect(a.boardName).toBe('CBSE');
+      expect(a.tenthYear).toBe(2021);
+      expect(a.tenthMarks).toBe(470);
+      expect(a.twelfthYear).toBe(2023);
+      expect(a.twelfthMarks).toBe(460);
+      expect(a.physicsScore).toBe(90);
+      expect(a.chemistryScore).toBe(92);
+      expect(a.biologyScore).toBe(94);
+      expect(a.englishScore).toBe(88);
+      expect(a.pcbPercentage).toBe(92);
+    });
+
+    it('should map Entrance / NEET information accurately without duplicate exams', () => {
+      const exams = service.profile().entranceExams;
+      expect(exams.length).toBe(1);
+      const neet = exams[0];
+      expect(neet.examType).toBe('NEET');
+      expect(neet.year).toBe(2024);
+      expect(neet.rollNumber).toBe('4408192041');
+      expect(neet.score).toBe(665);
+      expect(neet.maxScore).toBe(720);
+      expect(neet.qualified).toBe(true);
+    });
+
+    it('should map Preferences normalizing single intake string to array', () => {
+      const pref = service.profile().preferences;
+      expect(pref.preferredCountries).toEqual(['Georgia', 'Russia', 'Uzbekistan']);
+      expect(pref.preferredIntake).toEqual(['September 2024']);
+      expect(pref.preferredBudgetUsd).toBe(30000);
+      expect(pref.preferredLanguage).toBe('English');
+      expect(pref.hostelRequired).toBe(true);
+    });
+
+    it('should map Documents object to StudentDocument[] with all 4 cards always present', () => {
+      const docs = service.profile().documents;
+      expect(docs.length).toBe(4);
+
+      const passport = docs.find((d) => d.type === 'PASSPORT');
+      expect(passport).toBeDefined();
+      expect(passport?.status).toBe('UPLOADED');
+      expect(passport?.fileUrl).toBe('https://res.cloudinary.com/mbbs/raw/upload/v1/passport.pdf');
+
+      const tenth = docs.find((d) => d.type === 'TENTH_CERTIFICATE');
+      expect(tenth).toBeDefined();
+      expect(tenth?.status).toBe('NOT_UPLOADED');
+
+      const twelfth = docs.find((d) => d.type === 'TWELFTH_CERTIFICATE');
+      expect(twelfth).toBeDefined();
+      expect(twelfth?.status).toBe('UPLOADED');
+
+      const neet = docs.find((d) => d.type === 'NEET_SCORECARD');
+      expect(neet).toBeDefined();
+      expect(neet?.status).toBe('NOT_UPLOADED');
+    });
+
+    it('should map Visibility and Profile Completion from backend', () => {
+      const p = service.profile();
+      expect(p.isDiscoverable).toBe(true);
+      expect(p.discoveryStatusText).toBe('Active — Profile is discoverable by universities.');
+      expect(p.completionPercentage).toBe(85);
+      expect(p.avatarUrl).toBe('https://res.cloudinary.com/mbbs/image/upload/v1/avatar.jpg');
+    });
   });
 
-  it('should map NEET exam fields without fabricating nonexistent rank or percentile', () => {
-    const p = service.profile();
-    expect(p.entranceExams.length).toBe(1);
-    const neet = p.entranceExams[0];
-    expect(neet.score).toBe(580);
-    expect(neet.rollNumber).toBe('4408192041');
-    expect(neet.year).toBe(2025);
-    expect(neet.qualified).toBe(true);
-    // Explicitly verify nonexistent backend fields are NOT fabricated
-    expect(neet.rank).toBeUndefined();
-    expect(neet.percentile).toBeUndefined();
-  });
-
-  it('should accurately map USD budget and preferences', () => {
-    const p = service.profile();
-    expect(p.preferences.preferredCountries).toEqual(['Georgia', 'Russia', 'Uzbekistan']);
-    expect(p.preferences.preferredBudgetUsd).toBe(30000);
-    expect(p.preferences.currency).toBe('USD');
-    expect(p.preferences.preferredIntake).toEqual(['September']);
-    expect(p.preferences.preferredLanguage).toBe('English');
-    expect(p.preferences.preferredCourse).toBe('MBBS (General Medicine)');
-  });
-
-  it('should map profile completion directly from backend contract', () => {
-    const p = service.profile();
-    expect(p.completionPercentage).toBe(100);
-  });
-
-  it('should update personal information on local user edit', () => {
-    service.updatePersonal({ fullName: 'Sanjay S. Sivakumar' });
-    expect(service.profile().personal.fullName).toBe('Sanjay S. Sivakumar');
-  });
-
-  it('should toggle discoverability', () => {
-    const initial = service.profile().isDiscoverable;
-    service.toggleDiscoverability();
-    expect(service.profile().isDiscoverable).toBe(!initial);
-  });
-
-  it('should upload a document and add it to profile', async () => {
-    const doc = await firstValueFrom(
-      service.uploadDocument('MEDICAL_CERTIFICATE', { name: 'health_fit.pdf', size: '1.1 MB' })
-    );
-    expect(doc.type).toBe('MEDICAL_CERTIFICATE');
-    expect(doc.status).toBe('UPLOADED');
-  });
-
-  describe('createProfile API (POST /student/profile)', () => {
-    const newProfilePayload = {
-      personal: {
-        fullName: 'Rahul Sharma',
-        firstName: 'Rahul',
-        lastName: 'Sharma',
-        email: 'rahul@example.com',
-        phoneNumber: '+91 91234 56789',
-        dateOfBirth: '2006-02-20',
-        gender: 'MALE',
+  describe('2. PUT /student/profile Section Updates', () => {
+    it('should save Personal section with exact payload and update state from response', async () => {
+      const personalUpdate = {
+        fullName: 'Sanjay Sivakumar Jr.',
+        dob: '2005-04-16',
+        gender: 'MALE' as const,
         nationality: 'Indian',
-        city: 'Mumbai',
-        state: 'Maharashtra',
+        city: 'Coimbatore',
+        state: 'Tamil Nadu',
         country: 'India',
-      },
-      academic: {
-        tenthMarks: 480,
-        tenthBoard: 'CBSE',
-        tenthPassingYear: 2022,
-        twelfthMarks: 470,
-        twelfthBoard: 'CBSE',
-        twelfthPassingYear: 2024,
-        pcbPercentage: 94,
-        physicsMarks: 92,
-        chemistryMarks: 94,
-        biologyMarks: 96,
-        englishMarks: 90,
-        schoolName: 'Delhi Public School',
-      },
-      entrance: {
-        neetScore: 620,
-        neetRollNumber: '8899001122',
-        neetYear: 2026,
-        neetQualified: true,
-        ucatScore: null,
-      },
-      preferences: {
-        preferredCountries: ['Russia', 'Kazakhstan'],
-        preferredBudgetUsd: 25000,
-        preferredIntake: 'September 2026',
-        preferredLanguage: 'English',
-        course: 'MBBS',
-        specialization: 'General Medicine',
-      },
-    };
+        email: 'sanjay.new@example.com',
+        phone: '+91 99999 88888',
+      };
 
-    it('should call POST /student/profile with payload and update state upon success', async () => {
-      const createdBackendResponse: BackendStudentProfileResponse = {
+      const updatedBackendResponse: BackendStudentProfileResponse = {
         success: true,
-        message: 'Student profile created successfully',
+        message: 'Profile updated successfully',
         data: {
-          _id: 'student-profile-new-99',
-          userId: 'user-99',
-          ...newProfilePayload,
-          profileCompletion: 85,
-          isDiscoverable: true,
-          updatedAt: '2026-08-20T17:00:00.000Z',
+          ...mockBackendResponse.data,
+          personal: {
+            ...mockBackendResponse.data.personal,
+            fullName: 'Sanjay Sivakumar Jr.',
+            city: 'Coimbatore',
+            email: 'sanjay.new@example.com',
+            phoneNumber: '+91 99999 88888',
+          },
+          updatedAt: '2024-03-05T15:00:00.000Z',
         },
       };
 
-      const promise = firstValueFrom(service.createProfile(newProfilePayload));
-      const req = httpTesting.expectOne(`${environment.admissionsApiBaseUrl}/student/profile`);
-      expect(req.request.method).toBe('POST');
-      expect(req.request.body).toEqual(newProfilePayload);
-      req.flush(createdBackendResponse);
+      const promise = firstValueFrom(service.updatePersonal(personalUpdate));
 
-      const created = await promise;
-      expect(created.id).toBe('student-profile-new-99');
-      expect(created.personal.fullName).toBe('Rahul Sharma');
-      expect(created.academic.pcbPercentage).toBe(94);
-      expect(created.entranceExams[0].score).toBe(620);
-      expect(service.profile().id).toBe('student-profile-new-99');
-      expect(service.loading()).toBe(false);
-      expect(service.error()).toBeNull();
+      const req = httpTesting.expectOne(`${environment.admissionsApiBaseUrl}/student/profile`);
+      expect(req.request.method).toBe('PUT');
+      expect(req.request.body).toEqual({
+        fullName: 'Sanjay Sivakumar Jr.',
+        dateOfBirth: '2005-04-16',
+        gender: 'Male',
+        nationality: 'Indian',
+        city: 'Coimbatore',
+        state: 'Tamil Nadu',
+        country: 'India',
+        email: 'sanjay.new@example.com',
+        phone: '+91 99999 88888',
+        phoneNumber: '+91 99999 88888',
+      });
+
+      req.flush(updatedBackendResponse);
+      const updated = await promise;
+
+      expect(updated.personal.fullName).toBe('Sanjay Sivakumar Jr.');
+      expect(updated.personal.city).toBe('Coimbatore');
+      expect(service.profile().personal.fullName).toBe('Sanjay Sivakumar Jr.');
     });
 
-    it('should handle 400 Bad Request error without mutating profile state', async () => {
-      const promise = firstValueFrom(service.createProfile(newProfilePayload));
+    it('should save Academic section with exact flat payload and update state from response', async () => {
+      const academicUpdate = {
+        schoolName: 'National Public School',
+        boardName: 'ICSE',
+        twelfthYear: 2024,
+        physicsScore: 95,
+        chemistryScore: 94,
+        biologyScore: 98,
+        englishScore: 92,
+      };
+
+      const updatedBackendResponse: BackendStudentProfileResponse = {
+        success: true,
+        message: 'Academic details updated',
+        data: {
+          ...mockBackendResponse.data,
+          academic: {
+            ...mockBackendResponse.data.academic,
+            schoolName: 'National Public School',
+            boardOfEducation: 'ICSE',
+            twelfthPassingYear: 2024,
+            physicsMarks: 95,
+            chemistryMarks: 94,
+            biologyMarks: 98,
+            englishMarks: 92,
+            pcbAggregate: 95.67,
+          },
+        },
+      };
+
+      const promise = firstValueFrom(service.updateAcademic(academicUpdate));
+
       const req = httpTesting.expectOne(`${environment.admissionsApiBaseUrl}/student/profile`);
-      req.flush(
-        { success: false, message: 'Invalid profile data provided' },
-        { status: 400, statusText: 'Bad Request' }
+      expect(req.request.method).toBe('PUT');
+      expect(req.request.body).toEqual({
+        schoolName: 'National Public School',
+        boardOfEducation: 'ICSE',
+        twelfthBoard: 'ICSE',
+        twelfthPassingYear: 2024,
+        physicsMarks: 95,
+        chemistryMarks: 94,
+        biologyMarks: 98,
+        englishMarks: 92,
+      });
+
+      req.flush(updatedBackendResponse);
+      const updated = await promise;
+
+      expect(updated.academic.schoolName).toBe('National Public School');
+      expect(updated.academic.boardName).toBe('ICSE');
+      expect(service.profile().academic.schoolName).toBe('National Public School');
+    });
+
+    it('should save Entrance section with exact NEET payload', async () => {
+      const entranceUpdate = [
+        {
+          id: 'exam-neet',
+          examType: 'NEET',
+          year: 2024,
+          rollNumber: '2401008899',
+          score: 680,
+          qualified: true,
+        },
+      ];
+
+      const updatedBackendResponse: BackendStudentProfileResponse = {
+        success: true,
+        data: {
+          ...mockBackendResponse.data,
+          entrance: {
+            examType: 'NEET',
+            examYear: 2024,
+            rollNumber: '2401008899',
+            score: 680,
+            maximumScore: 720,
+            qualified: true,
+          },
+        },
+      };
+
+      const promise = firstValueFrom(service.updateEntrance(entranceUpdate));
+
+      const req = httpTesting.expectOne(`${environment.admissionsApiBaseUrl}/student/profile`);
+      expect(req.request.method).toBe('PUT');
+      expect(req.request.body).toEqual({
+        examType: 'NEET',
+        examYear: 2024,
+        rollNumber: '2401008899',
+        score: 680,
+        qualified: true,
+      });
+
+      req.flush(updatedBackendResponse);
+      const updated = await promise;
+
+      expect(updated.entranceExams[0].score).toBe(680);
+      expect(service.profile().entranceExams[0].score).toBe(680);
+    });
+
+    it('should save Preferences section with exact payload', async () => {
+      const preferencesUpdate = {
+        preferredCountries: ['Georgia', 'Kazakhstan'],
+        preferredIntake: ['September 2025'],
+        preferredBudgetUsd: 25000,
+        preferredLanguage: 'English',
+        hostelRequired: true,
+      };
+
+      const updatedBackendResponse: BackendStudentProfileResponse = {
+        success: true,
+        data: {
+          ...mockBackendResponse.data,
+          preferences: {
+            preferredCountries: ['Georgia', 'Kazakhstan'],
+            targetIntake: 'September 2025',
+            preferredBudgetUsd: 25000,
+            instructionMedium: 'English',
+            hostelRequired: true,
+          },
+        },
+      };
+
+      const promise = firstValueFrom(service.updatePreferences(preferencesUpdate));
+
+      const req = httpTesting.expectOne(`${environment.admissionsApiBaseUrl}/student/profile`);
+      expect(req.request.method).toBe('PUT');
+      expect(req.request.body).toEqual({
+        preferredCountries: ['Georgia', 'Kazakhstan'],
+        targetIntake: 'September 2025',
+        preferredIntake: 'September 2025',
+        preferredBudgetUsd: 25000,
+        annualBudget: '25000 USD',
+        instructionMedium: 'English',
+        preferredLanguage: 'English',
+        hostelRequired: true,
+      });
+
+      req.flush(updatedBackendResponse);
+      const updated = await promise;
+
+      expect(updated.preferences.preferredCountries).toEqual(['Georgia', 'Kazakhstan']);
+      expect(service.profile().preferences.preferredCountries).toEqual(['Georgia', 'Kazakhstan']);
+    });
+  });
+
+  describe('3. PATCH /student/profile/visibility', () => {
+    it('should call PATCH with { discoverable: false } and update state', async () => {
+      const promise = firstValueFrom(service.updateVisibility(false));
+
+      const req = httpTesting.expectOne(`${environment.admissionsApiBaseUrl}/student/profile/visibility`);
+      expect(req.request.method).toBe('PATCH');
+      expect(req.request.body).toEqual({ discoverable: false });
+
+      req.flush({
+        success: true,
+        data: {
+          discoverable: false,
+          status: 'Inactive',
+          displayText: 'Inactive — Profile is currently not discoverable by universities.',
+        },
+      });
+
+      await promise;
+      expect(service.profile().isDiscoverable).toBe(false);
+      expect(service.profile().discoveryStatusText).toBe(
+        'Inactive — Profile is currently not discoverable by universities.'
       );
-
-      try {
-        await promise;
-      } catch (err: any) {
-        expect(err.status).toBe(400);
-      }
-
-      expect(service.error()).toBe('Invalid profile data provided');
-      expect(service.loading()).toBe(false);
-      expect(service.profile().id).toBe('student-profile-01'); // Previous state preserved
     });
 
-    it('should handle 401 Unauthorized error during profile creation', async () => {
-      const promise = firstValueFrom(service.createProfile(newProfilePayload));
-      const req = httpTesting.expectOne(`${environment.admissionsApiBaseUrl}/student/profile`);
+    it('should not mutate discoverability state on PATCH error', async () => {
+      const promise = firstValueFrom(service.updateVisibility(false));
+
+      const req = httpTesting.expectOne(`${environment.admissionsApiBaseUrl}/student/profile/visibility`);
       req.flush(
-        { success: false, message: 'Unauthorized' },
-        { status: 401, statusText: 'Unauthorized' }
-      );
-
-      try {
-        await promise;
-      } catch (err: any) {
-        expect(err.status).toBe(401);
-      }
-
-      expect(service.error()).toBe('Unauthorized');
-    });
-
-    it('should handle 409 Conflict error when profile already exists', async () => {
-      const promise = firstValueFrom(service.createProfile(newProfilePayload));
-      const req = httpTesting.expectOne(`${environment.admissionsApiBaseUrl}/student/profile`);
-      req.flush(
-        { success: false, message: 'Student profile already exists' },
-        { status: 409, statusText: 'Conflict' }
-      );
-
-      try {
-        await promise;
-      } catch (err: any) {
-        expect(err.status).toBe(409);
-      }
-
-      expect(service.error()).toBe('Student profile already exists');
-    });
-
-    it('should handle 422 Validation Error during profile creation', async () => {
-      const promise = firstValueFrom(service.createProfile(newProfilePayload));
-      const req = httpTesting.expectOne(`${environment.admissionsApiBaseUrl}/student/profile`);
-      req.flush(
-        { success: false, message: 'Validation failed: Invalid email format' },
-        { status: 422, statusText: 'Unprocessable Entity' }
-      );
-
-      try {
-        await promise;
-      } catch (err: any) {
-        expect(err.status).toBe(422);
-      }
-
-      expect(service.error()).toBe('Validation failed: Invalid email format');
-    });
-
-    it('should handle 500 Server Error during profile creation', async () => {
-      const promise = firstValueFrom(service.createProfile(newProfilePayload));
-      const req = httpTesting.expectOne(`${environment.admissionsApiBaseUrl}/student/profile`);
-      req.flush(
-        { success: false, message: 'Internal Server Error' },
+        { success: false, message: 'Server error' },
         { status: 500, statusText: 'Server Error' }
       );
 
       try {
         await promise;
-      } catch (err: any) {
-        expect(err.status).toBe(500);
+      } catch (err) {
+        expect(err).toBeDefined();
       }
 
-      expect(service.error()).toBe('Internal Server Error');
+      // State remains unchanged
+      expect(service.profile().isDiscoverable).toBe(true);
+    });
+  });
+
+  describe('4. Document Upload & Delete', () => {
+    it('should upload document via POST /student/profile/documents/passport using FormData', async () => {
+      const file = new File(['dummy-content'], 'my_passport.pdf', { type: 'application/pdf' });
+      const promise = firstValueFrom(service.uploadDocument('PASSPORT', file));
+
+      const req = httpTesting.expectOne(`${environment.admissionsApiBaseUrl}/student/profile/documents/passport`);
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body instanceof FormData).toBe(true);
+      expect((req.request.body as FormData).get('document')).toBeTruthy();
+
+      req.flush({
+        success: true,
+        data: {
+          id: 'doc-passport-999',
+          name: 'International Passport',
+          documentType: 'passport',
+          status: 'Uploaded',
+          url: 'https://res.cloudinary.com/mbbs/raw/upload/v1/new_passport.pdf',
+          uploadedAt: '2024-03-05T14:00:00.000Z',
+        },
+      });
+
+      const doc = await promise;
+      expect(doc.type).toBe('PASSPORT');
+      expect(doc.status).toBe('UPLOADED');
+      expect(doc.fileUrl).toBe('https://res.cloudinary.com/mbbs/raw/upload/v1/new_passport.pdf');
+
+      const passportCard = service.profile().documents.find((d) => d.type === 'PASSPORT');
+      expect(passportCard?.fileUrl).toBe('https://res.cloudinary.com/mbbs/raw/upload/v1/new_passport.pdf');
+    });
+
+    it('should delete document via DELETE /student/profile/documents/passport and reset card without removing it', async () => {
+      const promise = firstValueFrom(service.deleteDocument('PASSPORT'));
+
+      const req = httpTesting.expectOne(`${environment.admissionsApiBaseUrl}/student/profile/documents/passport`);
+      expect(req.request.method).toBe('DELETE');
+
+      req.flush({
+        success: true,
+        message: 'Document deleted successfully',
+      });
+
+      await promise;
+
+      const docs = service.profile().documents;
+      expect(docs.length).toBe(4); // All 4 cards must remain visible
+      const passportCard = docs.find((d) => d.type === 'PASSPORT');
+      expect(passportCard).toBeDefined();
+      expect(passportCard?.status).toBe('NOT_UPLOADED');
+      expect(passportCard?.fileUrl).toBe('');
+      expect(passportCard?.uploadedAt).toBeUndefined();
+    });
+  });
+
+  describe('5. Profile Photo Upload', () => {
+    it('should upload photo via POST /student/profile/photo using FormData and update avatarUrl', async () => {
+      const photoFile = new File(['image-bytes'], 'photo.jpg', { type: 'image/jpeg' });
+      const promise = firstValueFrom(service.uploadPhoto(photoFile));
+
+      const req = httpTesting.expectOne(`${environment.admissionsApiBaseUrl}/student/profile/photo`);
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body instanceof FormData).toBe(true);
+      expect((req.request.body as FormData).get('photo')).toBeTruthy();
+
+      req.flush({
+        success: true,
+        data: {
+          url: 'https://res.cloudinary.com/mbbs/image/upload/v1/brand_new_avatar.jpg',
+        },
+      });
+
+      const res = await promise;
+      expect(res.url).toBe('https://res.cloudinary.com/mbbs/image/upload/v1/brand_new_avatar.jpg');
+      expect(service.profile().avatarUrl).toBe(
+        'https://res.cloudinary.com/mbbs/image/upload/v1/brand_new_avatar.jpg'
+      );
+    });
+  });
+
+  describe('6. Error Handling', () => {
+    it('should not mutate profile state when PUT /student/profile fails', async () => {
+      const promise = firstValueFrom(
+        service.updatePersonal({ fullName: 'Malicious Update' })
+      );
+
+      const req = httpTesting.expectOne(`${environment.admissionsApiBaseUrl}/student/profile`);
+      req.flush(
+        { success: false, message: 'Bad Request' },
+        { status: 400, statusText: 'Bad Request' }
+      );
+
+      try {
+        await promise;
+      } catch (err) {
+        expect(err).toBeDefined();
+      }
+
+      expect(service.error()).toBe('Bad Request');
+      expect(service.profile().personal.fullName).toBe('Sanjay Sivakumar'); // Not changed
     });
   });
 });

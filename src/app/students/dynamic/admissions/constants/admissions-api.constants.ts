@@ -1,5 +1,11 @@
 export const ADMISSIONS_API = {
   STUDENT_PROFILE: '/student/profile',
+  STUDENT_PROFILE_VISIBILITY: '/student/profile/visibility',
+  STUDENT_PROFILE_COMPLETION: '/student/profile/completion',
+  STUDENT_PROFILE_DOCUMENTS: '/student/profile/documents',
+  STUDENT_PROFILE_DOCUMENT_UPLOAD: '/student/profile/documents',
+  STUDENT_PROFILE_DOCUMENT_DELETE: '/student/profile/documents',
+  STUDENT_PROFILE_PHOTO: '/student/profile/photo',
   CREATE_STUDENT_PROFILE: '/student/profile',
   INVITE_SUMMARY: '/student/invites/summary',
   INVITES: '/student/invites',
