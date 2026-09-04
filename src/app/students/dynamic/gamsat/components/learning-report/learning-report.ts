@@ -499,7 +499,8 @@ export class GamsatLearningReport implements OnInit, AfterViewInit, OnDestroy {
                 const matchesPyq = pyqData && (
                   pyqData.sessionId === best.sessionId ||
                   pyqData.sessionId === best.id ||
-                  pyqData.paperId === best.paperId
+                  pyqData.paperId === best.paperId ||
+                  String(pyqData.paperId || '') === String(best.paperId || '')
                 );
                 if (matchesPyq && Array.isArray(pyqData.questionStates) && best.rawStatus === 'in_progress') {
                   const answeredLocal = countUniqueAnsweredQuestions(pyqData.questionStates);
@@ -508,6 +509,16 @@ export class GamsatLearningReport implements OnInit, AfterViewInit, OnDestroy {
                   best.totalQuestions = totalLocal;
                   best.progressPercent = calculateGamsatProgress(answeredLocal, totalLocal);
                   best.progressDetail = `${answeredLocal} / ${totalLocal} Questions`;
+                  // Also sync elapsed time from session storage if available
+                  if (pyqData.elapsedSeconds && pyqData.elapsedSeconds > 0) {
+                    const min = Math.floor(pyqData.elapsedSeconds / 60);
+                    const sec = pyqData.elapsedSeconds % 60;
+                    best.learningTime = min > 0 ? `${min}m ${sec}s` : `${sec}s`;
+                  } else if (pyqData.timeSpent && pyqData.timeSpent > 0) {
+                    const min = Math.floor(pyqData.timeSpent / 60);
+                    const sec = pyqData.timeSpent % 60;
+                    best.learningTime = min > 0 ? `${min}m ${sec}s` : `${sec}s`;
+                  }
                 }
               }
             } catch {}
@@ -569,6 +580,13 @@ export class GamsatLearningReport implements OnInit, AfterViewInit, OnDestroy {
                       best.totalQuestions = totalLocal;
                       best.progressPercent = calculateGamsatProgress(answeredLocal, totalLocal);
                       best.progressDetail = `${answeredLocal} / ${totalLocal} Questions`;
+                      // Also sync elapsed time
+                      const elapsed = practiceData.elapsedSeconds || practiceData.timeSpent || 0;
+                      if (elapsed > 0) {
+                        const min = Math.floor(elapsed / 60);
+                        const sec = elapsed % 60;
+                        best.learningTime = min > 0 ? `${min}m ${sec}s` : `${sec}s`;
+                      }
                     }
                   }
                 }
@@ -945,22 +963,35 @@ export class GamsatLearningReport implements OnInit, AfterViewInit, OnDestroy {
       return 0;
     }
 
-    // 3. Real-time sync with active session storage for matching sessionId
+    // 3. Real-time sync with active session storage — match by sessionId OR paperId/testId
     try {
       const targetSessionId = item.sessionId || (item as any).session_id || (item as any).id;
-      if (targetSessionId) {
-        const pyqSaved = sessionStorage.getItem('activeGamsatSession');
-        const practiceSaved = sessionStorage.getItem('activeGamsatPracticeSession');
-        for (const raw of [pyqSaved, practiceSaved]) {
-          if (raw) {
-            const data = JSON.parse(raw);
-            if (data?.sessionId === targetSessionId && Array.isArray(data.questionStates)) {
-              const localAnswered = countUniqueAnsweredQuestions(data.questionStates);
-              const localTotal = data.totalQuestions || data.questions?.length || totalQ;
-              if (localTotal > 0) {
-                return calculateGamsatProgress(localAnswered, localTotal);
-              }
-            }
+      const targetPaperId   = String((item as any).paperId || (item as any).paper_id || (item as any).previous_year_paper_id || (item as any).testId || (item as any).test_id || '');
+
+      const pyqSaved      = sessionStorage.getItem('activeGamsatSession');
+      const practiceSaved = sessionStorage.getItem('activeGamsatPracticeSession');
+
+      for (const raw of [pyqSaved, practiceSaved]) {
+        if (!raw) continue;
+        const data = JSON.parse(raw);
+        if (!data || !Array.isArray(data.questionStates)) continue;
+
+        // Match by sessionId (exact) OR by paperId/testId (for cases where IDs differ)
+        const sessionMatch = targetSessionId && (
+          data.sessionId === targetSessionId ||
+          data.sessionId === (item as any).id
+        );
+        const paperMatch = targetPaperId && (
+          String(data.paperId || '') === targetPaperId ||
+          String(data.paper_id || '') === targetPaperId ||
+          String(data.testId  || '') === targetPaperId
+        );
+
+        if (sessionMatch || paperMatch) {
+          const localAnswered = countUniqueAnsweredQuestions(data.questionStates);
+          const localTotal = data.totalQuestions || data.questions?.length || totalQ;
+          if (localTotal > 0) {
+            return calculateGamsatProgress(localAnswered, localTotal);
           }
         }
       }
@@ -1013,19 +1044,31 @@ export class GamsatLearningReport implements OnInit, AfterViewInit, OnDestroy {
       return Math.max(0, Math.min(totalQ, answeredQ));
     }
 
-    // 3. Real-time sync with active session storage
+    // 3. Real-time sync with active session storage — match by sessionId OR paperId/testId
     try {
       const targetSessionId = item.sessionId || (item as any).session_id || (item as any).id;
-      if (targetSessionId) {
-        const pyqSaved = sessionStorage.getItem('activeGamsatSession');
-        const practiceSaved = sessionStorage.getItem('activeGamsatPracticeSession');
-        for (const raw of [pyqSaved, practiceSaved]) {
-          if (raw) {
-            const data = JSON.parse(raw);
-            if (data?.sessionId === targetSessionId && Array.isArray(data.questionStates)) {
-              return countUniqueAnsweredQuestions(data.questionStates);
-            }
-          }
+      const targetPaperId   = String((item as any).paperId || (item as any).paper_id || (item as any).previous_year_paper_id || (item as any).testId || (item as any).test_id || '');
+
+      const pyqSaved      = sessionStorage.getItem('activeGamsatSession');
+      const practiceSaved = sessionStorage.getItem('activeGamsatPracticeSession');
+
+      for (const raw of [pyqSaved, practiceSaved]) {
+        if (!raw) continue;
+        const data = JSON.parse(raw);
+        if (!data || !Array.isArray(data.questionStates)) continue;
+
+        const sessionMatch = targetSessionId && (
+          data.sessionId === targetSessionId ||
+          data.sessionId === (item as any).id
+        );
+        const paperMatch = targetPaperId && (
+          String(data.paperId || '') === targetPaperId ||
+          String(data.paper_id || '') === targetPaperId ||
+          String(data.testId  || '') === targetPaperId
+        );
+
+        if (sessionMatch || paperMatch) {
+          return countUniqueAnsweredQuestions(data.questionStates);
         }
       }
     } catch {}
