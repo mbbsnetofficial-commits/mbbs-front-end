@@ -1,120 +1,132 @@
 <div class="invites-page">
-  <!-- Page Header & Concept Banner -->
+  <!-- Page Header & Student Profile Summary -->
   <header class="page-header">
     <div class="header-text">
       <div class="eyebrow-row">
-        <span class="eyebrow">Direct University Matching</span>
-        <span class="live-pulse">
+        <span class="eyebrow">Admissions</span>
+        <span class="divider">/</span>
+        <span class="eyebrow-sub">Direct Opportunities</span>
+        <span class="live-pill">
           <span class="pulse-dot"></span>
-          <span>Live Matching Active</span>
+          <span>Live Matching</span>
         </span>
       </div>
       <h1 class="page-title">University Invitations</h1>
       <p class="page-desc">
-        Premier medical institutions discover your verified entrance score and academic records to extend direct admission opportunities with transparent scholarships.
+        Verified medical universities review your academic qualifications to extend pre-approved admission offers and direct scholarship grants.
       </p>
     </div>
 
-    <!-- Profile Context Pill -->
+    <!-- Student Profile Summary Card (Preserved in place) -->
     <div class="profile-nudge-card">
       <div class="nudge-avatar">
-        <app-icon name="profile" [size]="20" />
+        <app-icon name="profile" [size]="18" />
       </div>
       <div class="nudge-text">
         <div class="nudge-top">
-          <strong>{{ profile().personal.fullName || 'Student Profile' }}</strong>
+          <strong class="student-name">{{ profile().personal.fullName || 'Student Profile' }}</strong>
           <span class="pct-badge">{{ profile().completionPercentage }}% Profile</span>
         </div>
-        <p>Entrance Score: <strong>{{ profile().entranceExams[0]?.score || 'N/A' }}</strong></p>
+        <div class="nudge-meta">
+          <span class="meta-label">Entrance Score:</span>
+          <strong class="meta-val">{{ profile().entranceExams[0]?.score || 'N/A' }}</strong>
+        </div>
       </div>
-      <a routerLink="/dynamic/profile" class="btn-view-profile">
+      <a routerLink="/dynamic/profile" class="btn-view-profile" title="Edit your student profile">
         <span>Edit Profile</span>
-        <app-icon name="arrow-right" [size]="14" />
+        <app-icon name="arrow-right" [size]="13" />
       </a>
     </div>
   </header>
 
-  <!-- Summary KPI Cards -->
-  <div class="summary-grid">
-    <div
-      class="kpi-card"
+  <!-- Metric Summary Strip -->
+  <section class="summary-strip" aria-label="Invitations Summary">
+    <button
+      type="button"
+      class="strip-item"
       [class.active]="activeFilter() === 'ALL'"
       (click)="onFilterSelected('ALL')"
     >
-      <div class="kpi-icon blue"><app-icon name="sparkles" [size]="20" /></div>
-      <div class="kpi-data">
-        <span class="kpi-label">Total Received</span>
-        <strong class="kpi-num">{{ summary().total }}</strong>
-      </div>
-    </div>
+      <span class="strip-label">Total Offers</span>
+      <span class="strip-value">{{ summary().total }}</span>
+    </button>
 
-    <div
-      class="kpi-card"
+    <button
+      type="button"
+      class="strip-item"
       [class.active]="activeFilter() === 'PENDING'"
       (click)="onFilterSelected('PENDING')"
     >
-      <div class="kpi-icon amber"><app-icon name="clock" [size]="20" /></div>
-      <div class="kpi-data">
-        <span class="kpi-label">Pending Review</span>
-        <strong class="kpi-num">{{ summary().pending }}</strong>
-      </div>
-    </div>
+      <span class="strip-label">Awaiting Response</span>
+      <span class="strip-value amber">{{ summary().pending }}</span>
+    </button>
 
-    <div
-      class="kpi-card"
+    <button
+      type="button"
+      class="strip-item"
       [class.active]="activeFilter() === 'ACCEPTED'"
       (click)="onFilterSelected('ACCEPTED')"
     >
-      <div class="kpi-icon emerald"><app-icon name="check" [size]="20" /></div>
-      <div class="kpi-data">
-        <span class="kpi-label">Accepted</span>
-        <strong class="kpi-num">{{ summary().accepted }}</strong>
-      </div>
-    </div>
+      <span class="strip-label">Accepted</span>
+      <span class="strip-value emerald">{{ summary().accepted }}</span>
+    </button>
 
-    <div class="kpi-card static">
-      <div class="kpi-icon purple"><app-icon name="globe" [size]="20" /></div>
-      <div class="kpi-data">
-        <span class="kpi-label">Avg. Scholarship</span>
-        <strong class="kpi-num">{{ avgScholarship() | currency: 'USD': 'symbol': '1.0-0' }}</strong>
-      </div>
+    <div class="strip-item static">
+      <span class="strip-label">Avg. Scholarship</span>
+      <span class="strip-value purple">{{ avgScholarship() | currency: 'USD': 'symbol': '1.0-0' }}</span>
     </div>
-  </div>
+  </section>
 
-  <!-- Filter & Search Controls Bar -->
-  <div class="controls-bar">
-    <div class="filter-tabs">
+  <!-- Segmented Tabs & Search / Filter Controls -->
+  <section class="controls-bar" aria-label="Filters and Search">
+    <div class="filter-tabs" role="tablist">
       @for (tab of filterTabs; track tab.key) {
         <button
           type="button"
           class="tab-btn"
+          role="tab"
+          [attr.aria-selected]="activeFilter() === tab.key"
           [class.active]="activeFilter() === tab.key"
           (click)="onFilterSelected(tab.key)"
         >
-          <span>{{ tab.label }}</span>
+          <span class="tab-label">{{ tab.label }}</span>
+          <span class="tab-count">
+            @if (tab.key === 'ALL') {
+              {{ summary().total }}
+            } @else if (tab.key === 'PENDING') {
+              {{ summary().pending }}
+            } @else if (tab.key === 'VIEWED') {
+              {{ summary().viewed }}
+            } @else if (tab.key === 'ACCEPTED') {
+              {{ summary().accepted }}
+            } @else if (tab.key === 'DECLINED') {
+              {{ summary().declined }}
+            }
+          </span>
         </button>
       }
     </div>
 
     <div class="actions-row">
       <div class="search-box">
-        <app-icon name="search" [size]="16" />
+        <app-icon name="search" [size]="16" class="search-icon" />
         <input
           type="text"
           placeholder="Search by university, country, or degree..."
           [ngModel]="searchQuery()"
           (ngModelChange)="onSearchChanged($event)"
+          aria-label="Search invitations"
         />
         @if (searchQuery()) {
-          <button type="button" class="btn-clear" (click)="onSearchChanged('')">
+          <button type="button" class="btn-clear" (click)="onSearchChanged('')" aria-label="Clear search query">
             <app-icon name="close" [size]="14" />
           </button>
         }
       </div>
 
       <div class="sort-select">
-        <select [ngModel]="sortOption()" (ngModelChange)="onSortChanged($event)">
-          <option value="MATCH">Highest Match %</option>
+        <select [ngModel]="sortOption()" (ngModelChange)="onSortChanged($event)" aria-label="Sort invitations">
+          <option value="MATCH">Highest Match Score</option>
           <option value="NEWEST">Most Recent</option>
           <option value="SCHOLARSHIP">Top Scholarship</option>
           <option value="FEE_LOW">Lowest Tuition</option>
@@ -122,21 +134,24 @@
         </select>
       </div>
     </div>
-  </div>
+  </section>
 
-  <!-- Invites List / States -->
+  <!-- Invites List / Loading / Error / Empty States -->
   @if (loading() && filteredInvites().length === 0) {
     <div class="loading-state-box" aria-live="polite">
-      <div class="spinner"></div>
+      <div class="loading-spinner"></div>
       <p>Loading your direct university invitations...</p>
     </div>
   } @else if (error() && filteredInvites().length === 0) {
     <div class="error-state-box" role="alert">
-      <app-icon name="close" [size]="32" />
+      <div class="error-icon">
+        <app-icon name="close" [size]="24" />
+      </div>
+      <h3>Failed to load invitations</h3>
       <p class="error-msg">{{ error() }}</p>
       <button type="button" class="btn-retry" (click)="retry()">
-        <app-icon name="history" [size]="16" />
-        <span>Retry</span>
+        <app-icon name="history" [size]="15" />
+        <span>Try Again</span>
       </button>
     </div>
   } @else if (filteredInvites().length > 0) {
@@ -146,15 +161,26 @@
       }
     </div>
   } @else {
+    <!-- Clean minimal empty state matching reference design -->
     <div class="empty-state-box">
-      <div class="empty-icon"><app-icon name="heart" [size]="32" /></div>
-      <h3>{{ searchQuery() ? 'No Matching Invitations' : 'No Invites in this Category' }}</h3>
-      <p>{{ searchQuery() ? 'Try adjusting your search keywords or clearing filters.' : 'Check back as universities review candidate profiles daily, or complete remaining profile sections.' }}</p>
+      <div class="empty-icon">
+        <app-icon name="sparkles" [size]="24" />
+      </div>
+      <h2 class="empty-title">{{ searchQuery() ? 'No Matching Invitations' : 'Nothing to review yet' }}</h2>
+      <p class="empty-desc">
+        {{ searchQuery()
+          ? 'Try adjusting your search keywords or switching filters to see other offers.'
+          : 'Complete and submit your profile so verified universities and lenders can discover you. Their offers land here.' }}
+      </p>
       @if (!searchQuery()) {
-        <a routerLink="/dynamic/profile" class="btn-cta">
-          <span>Optimize Student Profile</span>
-          <app-icon name="arrow-right" [size]="16" />
+        <a routerLink="/dynamic/profile" class="btn-empty-cta">
+          <span>Complete Student Profile</span>
+          <app-icon name="arrow-right" [size]="15" />
         </a>
+      } @else {
+        <button type="button" class="btn-clear-filter" (click)="onSearchChanged(''); onFilterSelected('ALL')">
+          <span>Clear Search & Filters</span>
+        </button>
       }
     </div>
   }
