@@ -1,23 +1,25 @@
 <a
   [routerLink]="['/dynamic/invites', invite().id]"
-  class="opportunity-row"
+  class="opportunity-card"
   [class.highlighted]="isActionable()"
   title="View details for {{ invite().university.name }}"
 >
   <!-- Left Side: Status Dot, Thumbnail, University & Subline -->
-  <div class="row-left">
+  <div class="card-left">
     <div class="status-dot" [class]="statusConfig().badgeClass"></div>
 
-    @if (invite().university.logoUrl) {
-      <div class="univ-thumb">
+    <div class="univ-thumb" [class.fallback-thumb]="!invite().university.logoUrl">
+      @if (invite().university.logoUrl) {
         <img
           appImageFallback
           [src]="invite().university.logoUrl"
           [alt]="invite().university.name + ' Logo'"
           loading="lazy"
         />
-      </div>
-    }
+      } @else {
+        <app-icon name="graduation-cap" [size]="16" />
+      }
+    </div>
 
     <div class="univ-info-block">
       <div class="univ-name-line">
@@ -46,20 +48,22 @@
     </div>
   </div>
 
-  <!-- Right Side: Status Badge, Date & Arrow -->
-  <div class="row-right">
+  <!-- Right Side: Status Badge, Date & View Button -->
+  <div class="card-right">
     <div class="status-indicator" [class]="statusConfig().badgeClass">
       <span>{{ statusConfig().label }}</span>
     </div>
 
-    <time class="row-date">
+    <time class="card-date">
       {{ (invite().issuedAt || invite().createdAt) | date: 'MMM d' }}
     </time>
 
-    <div class="row-arrow">
-      <app-icon name="arrow-right" [size]="14" />
+    <div class="action-btn-pill">
+      <span>View</span>
+      <app-icon name="arrow-right" [size]="12" />
     </div>
   </div>
 </a>
+
 
 

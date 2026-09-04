@@ -1,40 +1,50 @@
-.opportunity-row {
+:host {
+  display: block;
+}
+
+.opportunity-card {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 14px 20px;
+  padding: 13px 18px;
   background: #ffffff;
-  border-bottom: 1px solid #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
   text-decoration: none;
   color: inherit;
   cursor: pointer;
-  transition: background-color 0.15s ease;
-  position: relative;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+  transition: all 0.15s ease;
 
   &:hover {
-    background-color: #f9fafb;
+    border-color: #cbd5e1;
+    background-color: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transform: translateY(-1px);
 
-    .row-right .row-arrow {
-      color: #111827;
-      transform: translateX(2px);
+    .univ-name {
+      color: #2563eb;
     }
 
-    .row-left .univ-name {
-      color: #2563eb;
+    .action-btn-pill {
+      background: #111827;
+      color: #ffffff;
+      border-color: #111827;
+
+      app-icon {
+        color: #ffffff;
+        transform: translateX(2px);
+      }
     }
   }
 
   &.highlighted {
-    background-color: #ffffff;
-  }
-
-  &:last-child {
-    border-bottom: none;
+    border-left: 3px solid #d97706;
   }
 }
 
 /* Left Side: Dot, Thumbnail, University & Subline */
-.row-left {
+.card-left {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -69,8 +79,8 @@
   }
 
   .univ-thumb {
-    width: 34px;
-    height: 34px;
+    width: 36px;
+    height: 36px;
     border-radius: 6px;
     border: 1px solid #e5e7eb;
     background: #fafafa;
@@ -85,6 +95,11 @@
       height: 100%;
       object-fit: cover;
       border-radius: 4px;
+    }
+
+    &.fallback-thumb {
+      background: #f3f4f6;
+      color: #6b7280;
     }
   }
 
@@ -159,11 +174,11 @@
   }
 }
 
-/* Right Side: Status Badge, Date & Arrow */
-.row-right {
+/* Right Side: Status Badge, Date & View Action */
+.card-right {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
   flex-shrink: 0;
 
   .status-indicator {
@@ -203,7 +218,7 @@
     }
   }
 
-  .row-date {
+  .card-date {
     font-size: 0.8125rem;
     color: #6b7280;
     font-weight: 500;
@@ -211,37 +226,46 @@
     text-align: right;
   }
 
-  .row-arrow {
-    color: #9ca3af;
-    display: flex;
+  .action-btn-pill {
+    display: inline-flex;
     align-items: center;
-    transition: transform 0.15s ease, color 0.15s ease;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #374151;
+    transition: all 0.15s ease;
+
+    app-icon {
+      color: #6b7280;
+      transition: transform 0.15s ease, color 0.15s ease;
+    }
   }
 }
 
 /* Mobile Responsive */
 @media (max-width: 640px) {
-  .opportunity-row {
+  .opportunity-card {
     flex-direction: column;
     align-items: flex-start;
-    gap: 8px;
-    padding: 12px 16px;
+    gap: 10px;
+    padding: 12px 14px;
 
-    .row-left {
+    .card-left {
       width: 100%;
     }
 
-    .row-right {
+    .card-right {
       width: 100%;
       justify-content: space-between;
       padding-left: 20px;
-
-      .row-arrow {
-        display: none;
-      }
     }
   }
 }
+
 
 
 

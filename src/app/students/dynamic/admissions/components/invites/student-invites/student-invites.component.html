@@ -22,6 +22,57 @@
     </div>
   </header>
 
+  <!-- Clear Admissions Process Guidance Track -->
+  <div class="admissions-process-card" aria-label="Admissions process overview">
+    <div class="process-track">
+      <div class="process-step step-done">
+        <div class="step-num-dot">
+          <app-icon name="check" [size]="12" />
+        </div>
+        <div class="step-info">
+          <strong class="step-name">1. Profile Matched</strong>
+          <span class="step-hint">Universities evaluated scorecard</span>
+        </div>
+      </div>
+
+      <div class="process-divider-arrow" aria-hidden="true">
+        <app-icon name="arrow-right" [size]="12" />
+      </div>
+
+      <div class="process-step step-active">
+        <div class="step-num-dot">2</div>
+        <div class="step-info">
+          <strong class="step-name">2. Opportunity Received</strong>
+          <span class="step-hint">Review program & scholarship offer</span>
+        </div>
+      </div>
+
+      <div class="process-divider-arrow" aria-hidden="true">
+        <app-icon name="arrow-right" [size]="12" />
+      </div>
+
+      <div class="process-step">
+        <div class="step-num-dot">3</div>
+        <div class="step-info">
+          <strong class="step-name">3. Student Response</strong>
+          <span class="step-hint">Accept or decline before deadline</span>
+        </div>
+      </div>
+
+      <div class="process-divider-arrow" aria-hidden="true">
+        <app-icon name="arrow-right" [size]="12" />
+      </div>
+
+      <div class="process-step">
+        <div class="step-num-dot">4</div>
+        <div class="step-info">
+          <strong class="step-name">4. Direct Enrollment</strong>
+          <span class="step-hint">Documentation & seat allocation</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Main Opportunities Inbox Container -->
   <div class="opportunities-inbox-container">
     <!-- Top Toolbar: Count on Left, Search & Sort on Right -->
@@ -117,7 +168,7 @@
       </button>
     </nav>
 
-    <!-- Opportunity Rows / List Content -->
+    <!-- Opportunity Rows / List Content with Small Gap Between Cards -->
     <div class="opportunity-list-content">
       @if (loading() && filteredInvites().length === 0) {
         <div class="feed-loading-box" aria-live="polite">
@@ -137,7 +188,7 @@
           </button>
         </div>
       } @else if (filteredInvites().length > 0) {
-        <div class="opportunity-rows">
+        <div class="opportunity-cards-group">
           @for (invite of filteredInvites(); track invite.id) {
             <app-invite-card [invite]="invite" />
           }

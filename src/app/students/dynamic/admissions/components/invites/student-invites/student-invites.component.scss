@@ -114,6 +114,101 @@
   }
 }
 
+/* Admissions Process Guidance Card */
+.admissions-process-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 14px 20px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+
+  .process-track {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+
+    @media (max-width: 860px) {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+
+      .process-divider-arrow {
+        display: none;
+      }
+    }
+
+    @media (max-width: 520px) {
+      grid-template-columns: 1fr;
+    }
+
+    .process-step {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+
+      .step-num-dot {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        font-size: 0.6875rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        background: #f3f4f6;
+        color: #6b7280;
+      }
+
+      .step-info {
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+
+        .step-name {
+          font-size: 0.75rem;
+          font-weight: 700;
+          color: #374151;
+          letter-spacing: -0.01em;
+        }
+
+        .step-hint {
+          font-size: 0.6875rem;
+          color: #6b7280;
+        }
+      }
+
+      &.step-done {
+        .step-num-dot {
+          background: #ecfdf5;
+          color: #059669;
+        }
+        .step-name {
+          color: #047857;
+        }
+      }
+
+      &.step-active {
+        .step-num-dot {
+          background: #111827;
+          color: #ffffff;
+        }
+        .step-name {
+          color: #111827;
+        }
+      }
+    }
+
+    .process-divider-arrow {
+      color: #d1d5db;
+      display: flex;
+      align-items: center;
+    }
+  }
+}
+
 /* Main Opportunities Inbox Container */
 .opportunities-inbox-container {
   background: #ffffff;
@@ -288,14 +383,18 @@
     }
   }
 
-  /* Opportunity List Content */
+  /* Opportunity List Content: Canvas holding separate cards with small gap */
   .opportunity-list-content {
     display: flex;
     flex-direction: column;
+    background: #f8fafc;
+    padding: 12px 14px;
+    border-top: 1px solid #e5e7eb;
 
-    .opportunity-rows {
+    .opportunity-cards-group {
       display: flex;
       flex-direction: column;
+      gap: 8px; /* Small clear gap between every card */
     }
   }
 }
