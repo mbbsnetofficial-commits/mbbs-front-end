@@ -1,5 +1,6 @@
 import { Pipe, PipeTransform, inject } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { Marked, Tokens } from 'marked';
 
 @Pipe({
   name: 'safeMarkdown',
@@ -7,6 +8,59 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 })
 export class SafeMarkdownPipe implements PipeTransform {
   private readonly sanitizer = inject(DomSanitizer);
+  private readonly markedInstance: Marked;
+
+  constructor() {
+    this.markedInstance = new Marked({
+      gfm: true,
+      breaks: true,
+    });
+
+    this.markedInstance.use({
+      renderer: {
+        table(this: any, token: Tokens.Table): string {
+          let headerCells = '';
+          for (const cell of token.header) {
+            const alignAttr = cell.align ? ` align="${cell.align}"` : '';
+            headerCells += `<th${alignAttr}>${this.parser.parseInline(cell.tokens)}</th>`;
+          }
+
+          let bodyRows = '';
+          for (const row of token.rows) {
+            let rowCells = '';
+            for (const cell of row) {
+              const alignAttr = cell.align ? ` align="${cell.align}"` : '';
+              rowCells += `<td${alignAttr}>${this.parser.parseInline(cell.tokens)}</td>`;
+            }
+            bodyRows += `<tr>${rowCells}</tr>`;
+          }
+
+          return `<div class="table-responsive"><table class="markdown-table"><thead><tr>${headerCells}</tr></thead><tbody>${bodyRows}</tbody></table></div>`;
+        },
+        link(this: any, token: Tokens.Link): string {
+          const href = (token.href || '').trim();
+          if (/^(javascript|data|vbscript):/i.test(href)) {
+            return `[${token.text}](${token.href})`;
+          }
+          const titleAttr = token.title ? ` title="${token.title}"` : '';
+          const text = this.parser.parseInline(token.tokens);
+          return `<a href="${href}"${titleAttr} target="_blank" rel="noopener noreferrer">${text}</a>`;
+        },
+        list(this: any, token: Tokens.List): string {
+          const tag = token.ordered ? 'ol' : 'ul';
+          let body = '';
+          for (const item of token.items) {
+            body += this.listitem(item);
+          }
+          return `<${tag}>${body}</${tag}>`;
+        },
+        listitem(this: any, item: Tokens.ListItem): string {
+          const text = this.parser.parseInline(item.tokens);
+          return `<li>${text}</li>`;
+        },
+      },
+    });
+  }
 
   transform(value: string | null | undefined): SafeHtml {
     if (!value) {
@@ -18,118 +72,20 @@ export class SafeMarkdownPipe implements PipeTransform {
   }
 
   private parseMarkdownToSafeHtml(rawText: string): string {
-    // Step 1: Escape HTML entities to prevent XSS
-    const escaped = rawText
+    // Normalize unicode bullet points (•) to standard markdown list items
+    let processed = rawText.replace(/^([ \t]*)•\s+/gm, '$1- ');
+
+    // Escape raw HTML entities to prevent XSS injection before parsing
+    processed = processed
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#39;');
 
-    const lines = escaped.split(/\r?\n/);
-    const outputBlocks: string[] = [];
-
-    let inUl = false;
-    let inOl = false;
-
-    const closeLists = () => {
-      if (inUl) {
-        outputBlocks.push('</ul>');
-        inUl = false;
-      }
-      if (inOl) {
-        outputBlocks.push('</ol>');
-        inOl = false;
-      }
-    };
-
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
-      const trimmed = line.trim();
-
-      if (!trimmed) {
-        closeLists();
-        continue;
-      }
-
-      // Check for headings
-      const h3Match = trimmed.match(/^###\s+(.+)$/);
-      if (h3Match) {
-        closeLists();
-        outputBlocks.push(`<h3>${this.parseInline(h3Match[1])}</h3>`);
-        continue;
-      }
-
-      const h2Match = trimmed.match(/^##\s+(.+)$/);
-      if (h2Match) {
-        closeLists();
-        outputBlocks.push(`<h2>${this.parseInline(h2Match[1])}</h2>`);
-        continue;
-      }
-
-      const h1Match = trimmed.match(/^#\s+(.+)$/);
-      if (h1Match) {
-        closeLists();
-        outputBlocks.push(`<h1>${this.parseInline(h1Match[1])}</h1>`);
-        continue;
-      }
-
-      // Check for bullet list (•, -, *)
-      const bulletMatch = trimmed.match(/^[•\-\*]\s+(.+)$/);
-      if (bulletMatch) {
-        if (inOl) {
-          outputBlocks.push('</ol>');
-          inOl = false;
-        }
-        if (!inUl) {
-          outputBlocks.push('<ul>');
-          inUl = true;
-        }
-        outputBlocks.push(`<li>${this.parseInline(bulletMatch[1])}</li>`);
-        continue;
-      }
-
-      // Check for numbered list (e.g. 1. , 2. )
-      const numberMatch = trimmed.match(/^\d+\.\s+(.+)$/);
-      if (numberMatch) {
-        if (inUl) {
-          outputBlocks.push('</ul>');
-          inUl = false;
-        }
-        if (!inOl) {
-          outputBlocks.push('<ol>');
-          inOl = true;
-        }
-        outputBlocks.push(`<li>${this.parseInline(numberMatch[1])}</li>`);
-        continue;
-      }
-
-      // Regular paragraph or plain line
-      closeLists();
-      outputBlocks.push(`<p>${this.parseInline(trimmed)}</p>`);
-    }
-
-    closeLists();
-    return outputBlocks.join('');
-  }
-
-  private parseInline(text: string): string {
-    return text
-      // Bold: **text** or __text__
-      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-      .replace(/__(.+?)__/g, '<strong>$1</strong>')
-      // Italic: *text* or _text_
-      .replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>')
-      .replace(/(?<!_)_(?!_)(.+?)(?<!_)_(?!_)/g, '<em>$1</em>')
-      // Markdown links: [title](url)
-      .replace(
-        /\[([^\]]+)\]\((https?:\/\/[^\s\)]+)\)/g,
-        '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>'
-      )
-      // Bare URLs: https://...
-      .replace(
-        /(?<!href="|">)(https?:\/\/[^\s<]+)/g,
-        '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>'
-      );
+    const parsed = this.markedInstance.parse(processed, { async: false });
+    return typeof parsed === 'string' ? parsed.trim() : '';
   }
 }
+
+
