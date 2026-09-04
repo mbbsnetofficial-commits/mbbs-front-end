@@ -345,16 +345,6 @@
           </div>
         } @else {
           <div class="view-grid">
-            <div class="field-item col-2">
-              <span class="field-label">Preferred Countries</span>
-              <div class="chips-display">
-                @for (c of profile().preferences.preferredCountries; track c) {
-                  <span class="badge-chip">{{ c }}</span>
-                } @empty {
-                  <span>Open to all international destinations</span>
-                }
-              </div>
-            </div>
             <div class="field-item"><span class="field-label">Target Intake</span><strong class="field-value">{{ (profile().preferences.preferredIntake && profile().preferences.preferredIntake.length > 0 && profile().preferences.preferredIntake[0]) || '—' }}</strong></div>
             <div class="field-item"><span class="field-label">Annual Budget</span><strong class="field-value">{{ profile().preferences.preferredBudgetUsd !== undefined ? (profile().preferences.preferredBudgetUsd | currency: 'USD': 'symbol': '1.0-0') : 'Flexible' }}</strong></div>
             <div class="field-item"><span class="field-label">Instruction Medium</span><strong class="field-value">{{ profile().preferences.preferredLanguage || '—' }}</strong></div>
