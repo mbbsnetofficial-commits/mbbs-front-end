@@ -531,8 +531,7 @@ export class GamsatLearningReport implements OnInit, AfterViewInit, OnDestroy {
               const duration = catCustom.duration || 79;
               best.totalQuestions = qCount;
               best.stagesCount = `${qCount} Questions`;
-              best.stageInfo = `${qCount} Questions · ${duration}m`;
-              best.test_code = `GM-TEST-${this.normalizeKey(catCustom.title || 'CUSTOM').toUpperCase()}`;
+              best.test_code = 'GM-CUSTOM';
               best.level = catCustom.difficulty || catCustom.level || best.level;
             }
 
@@ -565,15 +564,11 @@ export class GamsatLearningReport implements OnInit, AfterViewInit, OnDestroy {
             } catch {}
           }
 
-          // Format clean, professional subtitle
-          if (best.test_code && !best.test_code.startsWith('GM-TEST') && best.test_code !== 'GM-') {
-            best.formattedSubtitle = `${best.test_code} · ${best.stageInfo}`;
-          } else {
-            const displayCat = best.category && best.category !== 'GAMSAT Practice' && best.category !== 'CUSTOM TEST' && best.category !== 'Hard'
-              ? best.category
-              : 'Custom Practice Drill';
-            best.formattedSubtitle = `${displayCat} · ${best.stageInfo}`;
+          // Format clean, professional test code and subtitle
+          if (!best.test_code || best.test_code.startsWith('GM-TEST') || best.test_code === 'GM-') {
+            best.test_code = 'GM-CUSTOM';
           }
+          best.formattedSubtitle = `${best.test_code} · ${best.stageInfo}`;
 
           if (best.rawStatus === 'completed') {
             best.progressPercent = 100;
@@ -728,7 +723,7 @@ export class GamsatLearningReport implements OnInit, AfterViewInit, OnDestroy {
             ? cfg.sections.map((s: string) => this.formatSectionName(s)).join(', ')
             : 'Custom Practice Drill';
           const stageInfo = `${qCount} Questions · ${duration}m`;
-          const testCode = `GM-TEST-${this.normalizeKey(cfg.title || 'CUSTOM').toUpperCase()}`;
+          const testCode = 'GM-CUSTOM';
 
           unattemptedCustomItems.push({
             id: masterKey,
@@ -749,7 +744,7 @@ export class GamsatLearningReport implements OnInit, AfterViewInit, OnDestroy {
             answeredQuestions: 0,
             totalQuestions: qCount,
             progressDetail: `0 / ${qCount} Questions`,
-            formattedSubtitle: `${secList} · ${stageInfo}`,
+            formattedSubtitle: `${testCode} · ${stageInfo}`,
             dateRange: 'Available',
             dateModified: 'Available',
             dateModifiedTimestamp: 0,
@@ -1105,7 +1100,7 @@ export class GamsatLearningReport implements OnInit, AfterViewInit, OnDestroy {
       } else if (source === 'builtin') {
         testCode = `GM-${String(testDefId || 'BLT').toUpperCase().replace(/-/g, '_')}`;
       } else {
-        testCode = `GM-${String(testDefId || 'TEST').toUpperCase().replace(/-/g, '_')}`;
+        testCode = 'GM-CUSTOM';
       }
     }
 
@@ -1169,15 +1164,10 @@ export class GamsatLearningReport implements OnInit, AfterViewInit, OnDestroy {
       progressDetail = `${answeredCount} / ${effectiveTotalQ} Questions`;
     }
 
-    let formattedSubtitle = '';
-    if (testCode && !testCode.startsWith('GM-TEST') && testCode !== 'GM-') {
-      formattedSubtitle = `${testCode} · ${stageInfo}`;
-    } else {
-      const displayCategory = category && category !== 'GAMSAT Practice' && category !== 'CUSTOM TEST' && category !== 'Hard'
-        ? category
-        : 'Custom Practice Drill';
-      formattedSubtitle = `${displayCategory} · ${stageInfo}`;
+    if (!testCode || testCode.startsWith('GM-TEST') || testCode === 'GM-') {
+      testCode = 'GM-CUSTOM';
     }
+    const formattedSubtitle = `${testCode} · ${stageInfo}`;
 
     let learningTime = '0m';
     if (item.timeSpentFormatted) {

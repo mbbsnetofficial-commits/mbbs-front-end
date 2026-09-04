@@ -1138,8 +1138,18 @@ describe('GamsatLearningReport', () => {
     expect(testCourse.totalQuestions).toBe(40);
     expect(testCourse.progressDetail).toBe('0 / 40 Questions');
 
-    // Subtitle must NOT be raw "GM-TEST", but show clean drill information
+    // Test code must be clean GM-CUSTOM and subtitle formatted
+    expect(testCourse.test_code).toBe('GM-CUSTOM');
     expect(testCourse.formattedSubtitle).not.toBe('GM-TEST');
     expect(testCourse.formattedSubtitle).toContain('40 Questions · 79m');
+
+    // Verify DOM rendering
+    fixture.detectChanges();
+    const progressDetailEl = fixture.nativeElement.querySelector('.progress-detail-text');
+    expect(progressDetailEl).toBeNull();
+
+    const subtitleEl = fixture.nativeElement.querySelector('.course-subtitle');
+    expect(subtitleEl).toBeTruthy();
+    expect(subtitleEl.textContent.trim()).toBe('GM-CUSTOM');
   });
 });

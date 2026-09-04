@@ -260,7 +260,7 @@
                     </div>
                     <div class="course-meta">
                       <strong class="course-title">{{ course.title }}</strong>
-                      <small class="course-subtitle">{{ course.formattedSubtitle }}</small>
+                      <small class="course-subtitle">{{ course.test_code }}</small>
                     </div>
                   </div>
                 </td>
@@ -303,7 +303,6 @@
                   <div class="progress-cell">
                     <div class="progress-meta">
                       <span class="percent-text">{{ course.progressPercent }}%</span>
-                      <span class="progress-detail-text">{{ course.progressDetail }}</span>
                     </div>
                     <div class="progress-bar-track">
                       <div
@@ -351,22 +350,22 @@
                       (click)="resumeTest(course, $event)"
                     >
                       @if (startingTestId() === course.id) {
-                        <span>Resuming...</span>
+                        <span>Continuing...</span>
                       } @else {
-                        <span>Resume</span>
+                        <span>Continue</span>
                       }
                     </button>
                   } @else {
                     <button
                       type="button"
-                      class="retest-btn"
+                      class="retake-test-btn"
                       [disabled]="startingTestId() === course.id"
                       (click)="retestCourse(course, $event)"
                     >
                       @if (startingTestId() === course.id) {
                         <span>Starting...</span>
                       } @else {
-                        <span>Retest</span>
+                        <span>Retake Test</span>
                       }
                     </button>
                   }
