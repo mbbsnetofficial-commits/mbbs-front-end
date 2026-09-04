@@ -21,10 +21,10 @@
             <span class="avatar-upload-overlay" aria-hidden="true" title="Click to upload new photo">
               <app-icon name="pencil" [size]="14" />
             </span>
-            @if (profile().isDiscoverable) {
-              <span class="status-indicator-dot" title="Discoverable by verified universities"></span>
-            }
           </label>
+          @if (profile().isDiscoverable) {
+            <span class="status-indicator-dot" title="Discoverable by verified universities"></span>
+          }
         </div>
 
         <div class="identity-info">
