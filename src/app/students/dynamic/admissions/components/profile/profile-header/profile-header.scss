@@ -372,20 +372,25 @@
   }
 }
 
-/* 2. University Discovery Status & Admission Process Card */
+/* 2. University Discovery Status Card */
 .discovery-status-card {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-left: 4px solid #94a3b8;
   border-radius: 14px;
-  padding: 20px 24px;
+  padding: 18px 24px;
+  gap: 16px;
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.02);
   transition: all 0.2s ease;
 
   @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
     padding: 16px 18px;
+    gap: 14px;
   }
 
   &.is-active {
@@ -394,19 +399,6 @@
     .discovery-icon-box {
       background: #ecfdf5;
       color: #059669;
-    }
-  }
-
-  .discovery-main-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 18px;
-
-    @media (max-width: 768px) {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 14px;
     }
   }
 
@@ -517,257 +509,6 @@
         justify-content: center;
       }
     }
-  }
-
-  /* 4-Step Admission & Matching Process Pipeline */
-  .admission-process-pipeline {
-    margin-top: 18px;
-    padding-top: 18px;
-    border-top: 1px solid #f1f5f9;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-
-    .pipeline-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 8px;
-
-      .pipeline-eyebrow {
-        font-size: 0.6875rem;
-        font-weight: 800;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: #64748b;
-      }
-
-      .pipeline-status-text {
-        font-size: 0.8125rem;
-        font-weight: 600;
-        color: #334155;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-
-        .live-pulse-dot {
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-          background: #10b981;
-          display: inline-block;
-          box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
-          animation: pulseDot 2s infinite;
-        }
-
-        .paused-dot {
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-          background: #f59e0b;
-          display: inline-block;
-        }
-      }
-    }
-
-    .pipeline-steps-track {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 14px;
-
-      @media (max-width: 900px) {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 16px;
-      }
-
-      @media (max-width: 520px) {
-        grid-template-columns: 1fr;
-        gap: 12px;
-      }
-    }
-
-    .process-step {
-      display: flex;
-      gap: 12px;
-      padding: 12px 14px;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      transition: all 0.2s ease;
-
-      &:hover {
-        background: #ffffff;
-        border-color: #cbd5e1;
-        box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
-      }
-
-      &.is-complete {
-        background: #fafcfb;
-        border-color: #d1fae5;
-
-        .step-circle {
-          background: #ecfdf5;
-          color: #059669;
-          border-color: #a7f3d0;
-        }
-      }
-
-      &.is-current {
-        background: #ffffff;
-        border-color: #93c5fd;
-        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.12);
-
-        .step-circle {
-          background: #0f172a;
-          color: #ffffff;
-          border-color: #0f172a;
-
-          app-icon {
-            color: #f59e0b;
-          }
-        }
-      }
-
-      &.is-paused {
-        background: #fffbeb;
-        border-color: #fde68a;
-
-        .step-circle {
-          background: #fef3c7;
-          color: #b45309;
-          border-color: #fcd34d;
-        }
-      }
-
-      &.is-upcoming {
-        background: #f8fafc;
-        border-color: #e2e8f0;
-        opacity: 0.85;
-
-        .step-circle {
-          background: #e2e8f0;
-          color: #64748b;
-          border-color: #cbd5e1;
-        }
-      }
-
-      .step-marker-col {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        flex-shrink: 0;
-
-        .step-circle {
-          width: 28px;
-          height: 28px;
-          border-radius: 50%;
-          border: 1.5px solid #cbd5e1;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 0.75rem;
-          font-weight: 800;
-        }
-      }
-
-      .step-details {
-        display: flex;
-        flex-direction: column;
-        gap: 3px;
-        flex: 1;
-        min-width: 0;
-
-        .step-title-line {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          flex-wrap: wrap;
-
-          .step-index-tag {
-            font-size: 0.625rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            padding: 1px 5px;
-            border-radius: 4px;
-            background: #e2e8f0;
-            color: #475569;
-
-            &.tag-active {
-              background: #dbeafe;
-              color: #1d4ed8;
-            }
-          }
-
-          .step-title {
-            font-size: 0.84375rem;
-            font-weight: 700;
-            color: #0f172a;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-          }
-        }
-
-        .step-caption {
-          margin: 0;
-          font-size: 0.75rem;
-          color: #64748b;
-          line-height: 1.35;
-        }
-
-        .step-state-badge {
-          margin-top: 4px;
-          align-self: flex-start;
-          font-size: 0.6875rem;
-          font-weight: 700;
-          padding: 2px 7px;
-          border-radius: 5px;
-
-          &.state-done {
-            background: #ecfdf5;
-            color: #047857;
-          }
-
-          &.state-live {
-            background: #dbeafe;
-            color: #1e40af;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-
-            .badge-dot {
-              width: 5px;
-              height: 5px;
-              border-radius: 50%;
-              background: #2563eb;
-            }
-          }
-
-          &.state-paused {
-            background: #fef3c7;
-            color: #92400e;
-          }
-
-          &.state-next {
-            background: #f1f5f9;
-            color: #475569;
-          }
-        }
-      }
-    }
-  }
-}
-
-@keyframes pulseDot {
-  0% {
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
-  }
-  70% {
-    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
   }
 }
 
