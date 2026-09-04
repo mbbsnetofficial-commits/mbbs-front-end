@@ -154,35 +154,133 @@
     </div>
   </article>
 
-  <!-- 2. University Discovery Status Card -->
-  <section class="discovery-status-card" [class.is-active]="profile().isDiscoverable" aria-label="University Discovery Status">
-    <div class="discovery-left">
-      <div class="discovery-icon-box">
-        <app-icon [name]="profile().isDiscoverable ? 'sparkles' : 'clock'" [size]="18" />
-      </div>
-      <div class="discovery-copy">
-        <div class="discovery-title-row">
-          <h2 class="discovery-heading">University Discovery</h2>
-          <span class="discovery-badge" [class.active]="profile().isDiscoverable">
-            {{ profile().isDiscoverable ? 'Discoverable' : 'Paused' }}
-          </span>
+  <!-- 2. University Discovery Status & Admission Process Card -->
+  <section class="discovery-status-card" [class.is-active]="profile().isDiscoverable" aria-label="University Discovery & Admission Process">
+    <div class="discovery-main-row">
+      <div class="discovery-left">
+        <div class="discovery-icon-box">
+          <app-icon [name]="profile().isDiscoverable ? 'sparkles' : 'clock'" [size]="20" />
         </div>
-        <p class="discovery-desc">
-          {{ profile().discoveryStatusText || (profile().isDiscoverable ? 'Your profile is currently discoverable by verified partner medical universities.' : 'Complete key sections to allow partner medical universities to evaluate your profile.') }}
-        </p>
+        <div class="discovery-copy">
+          <div class="discovery-title-row">
+            <h2 class="discovery-heading">University Discovery & Matching Process</h2>
+            <span class="discovery-badge" [class.active]="profile().isDiscoverable">
+              {{ profile().isDiscoverable ? 'Discoverable & Active' : 'Discovery Paused' }}
+            </span>
+          </div>
+          <p class="discovery-desc">
+            {{ profile().discoveryStatusText || (profile().isDiscoverable ? 'Your profile is actively visible to accredited medical universities worldwide for direct seat allocation and admission offers.' : 'Complete key profile sections and enable discovery so verified international medical faculties can send you direct invites.') }}
+          </p>
+        </div>
+      </div>
+
+      <div class="discovery-right">
+        <button
+          type="button"
+          class="toggle-discovery-btn"
+          [class.btn-active]="profile().isDiscoverable"
+          (click)="toggleDiscoverability.emit()"
+          [title]="profile().isDiscoverable ? 'Click to pause university discovery' : 'Click to make profile discoverable'"
+        >
+          <app-icon [name]="profile().isDiscoverable ? 'check' : 'close'" [size]="14" />
+          <span>{{ profile().isDiscoverable ? 'Discoverable ✓' : 'Paused' }}</span>
+        </button>
       </div>
     </div>
 
-    <div class="discovery-right">
-      <button
-        type="button"
-        class="toggle-discovery-btn"
-        [class.btn-active]="profile().isDiscoverable"
-        (click)="toggleDiscoverability.emit()"
-      >
-        <app-icon [name]="profile().isDiscoverable ? 'check' : 'close'" [size]="14" />
-        <span>{{ profile().isDiscoverable ? 'Discoverable ✓' : 'Paused' }}</span>
-      </button>
+    <!-- 4-Step Admission & Matching Process Pipeline -->
+    <div class="admission-process-pipeline">
+      <div class="pipeline-header">
+        <span class="pipeline-eyebrow">HOW MBBS MATCHING WORKS</span>
+        <span class="pipeline-status-text">
+          @if (profile().isDiscoverable) {
+            <span class="live-pulse-dot"></span> Stage 3 of 4: Matching in real-time with verified universities
+          } @else {
+            <span class="paused-dot"></span> Stage 3 Paused: Enable discovery to match with universities
+          }
+        </span>
+      </div>
+
+      <div class="pipeline-steps-track">
+        <!-- Step 1: Profile & Academics -->
+        <div class="process-step is-complete">
+          <div class="step-marker-col">
+            <span class="step-circle" aria-label="Step 1 complete">
+              <app-icon name="check" [size]="13" />
+            </span>
+            <span class="step-connector"></span>
+          </div>
+          <div class="step-details">
+            <div class="step-title-line">
+              <span class="step-index-tag">Step 1</span>
+              <strong class="step-title">Profile & Academics</strong>
+            </div>
+            <p class="step-caption">Personal identity, 12th PCB marks & NEET score verified</p>
+            <span class="step-state-badge state-done">Completed ✓</span>
+          </div>
+        </div>
+
+        <!-- Step 2: Preferences -->
+        <div class="process-step is-complete">
+          <div class="step-marker-col">
+            <span class="step-circle" aria-label="Step 2 complete">
+              <app-icon name="check" [size]="13" />
+            </span>
+            <span class="step-connector"></span>
+          </div>
+          <div class="step-details">
+            <div class="step-title-line">
+              <span class="step-index-tag">Step 2</span>
+              <strong class="step-title">Matching Preferences</strong>
+            </div>
+            <p class="step-caption">Budget range, target countries & intake cohort defined</p>
+            <span class="step-state-badge state-done">Configured ✓</span>
+          </div>
+        </div>
+
+        <!-- Step 3: University Discovery -->
+        <div class="process-step" [class.is-current]="profile().isDiscoverable" [class.is-paused]="!profile().isDiscoverable">
+          <div class="step-marker-col">
+            <span class="step-circle" aria-label="Step 3">
+              @if (profile().isDiscoverable) {
+                <app-icon name="sparkles" [size]="13" />
+              } @else {
+                <span>3</span>
+              }
+            </span>
+            <span class="step-connector"></span>
+          </div>
+          <div class="step-details">
+            <div class="step-title-line">
+              <span class="step-index-tag" [class.tag-active]="profile().isDiscoverable">Step 3</span>
+              <strong class="step-title">University Discovery</strong>
+            </div>
+            <p class="step-caption">Live visibility to accredited NMC / WHO medical universities</p>
+            @if (profile().isDiscoverable) {
+              <span class="step-state-badge state-live">
+                <span class="badge-dot"></span> Live & Visible
+              </span>
+            } @else {
+              <span class="step-state-badge state-paused">Discovery Paused</span>
+            }
+          </div>
+        </div>
+
+        <!-- Step 4: Direct Invitations -->
+        <div class="process-step is-upcoming">
+          <div class="step-marker-col">
+            <span class="step-circle" aria-label="Step 4">4</span>
+          </div>
+          <div class="step-details">
+            <div class="step-title-line">
+              <span class="step-index-tag">Step 4</span>
+              <strong class="step-title">Direct Invitations</strong>
+            </div>
+            <p class="step-caption">Receive pre-evaluated admission offers directly in Invitations</p>
+            <span class="step-state-badge state-next">Awaiting Offers 📬</span>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 </div>

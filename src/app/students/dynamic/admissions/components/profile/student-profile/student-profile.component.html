@@ -84,8 +84,8 @@
         } @else {
           <div class="view-grid">
             <div class="field-item"><span class="field-label">Full Name</span><strong class="field-value">{{ profile().personal.fullName || '—' }}</strong></div>
-            <div class="field-item"><span class="field-label">Date of Birth</span><strong class="field-value">{{ profile().personal.dob || '—' }}</strong></div>
-            <div class="field-item"><span class="field-label">Gender</span><strong class="field-value">{{ profile().personal.gender || '—' }}</strong></div>
+            <div class="field-item"><span class="field-label">Date of Birth</span><strong class="field-value">{{ formatDate(profile().personal.dob) }}</strong></div>
+            <div class="field-item"><span class="field-label">Gender</span><strong class="field-value">{{ formatGender(profile().personal.gender) }}</strong></div>
             <div class="field-item"><span class="field-label">Nationality</span><strong class="field-value">{{ profile().personal.nationality || '—' }}</strong></div>
             <div class="field-item"><span class="field-label">Email</span><strong class="field-value">{{ profile().personal.email || '—' }}</strong></div>
             <div class="field-item"><span class="field-label">Phone</span><strong class="field-value">{{ profile().personal.phone || '—' }}</strong></div>

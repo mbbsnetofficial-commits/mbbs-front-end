@@ -103,6 +103,23 @@ export class StudentProfileComponent {
     }
   }
 
+  formatDate(val?: string | null): string {
+    if (!val) return '—';
+    try {
+      const d = new Date(val);
+      if (isNaN(d.getTime())) return val;
+      return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    } catch {
+      return val;
+    }
+  }
+
+  formatGender(val?: string | null): string {
+    if (!val) return '—';
+    const v = val.toLowerCase();
+    return v.charAt(0).toUpperCase() + v.slice(1);
+  }
+
   // Personal
   startEditPersonal(): void {
     this.personalDraft = { ...this.profile().personal };
