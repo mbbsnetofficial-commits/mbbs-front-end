@@ -461,14 +461,35 @@ export class GamsatLearningReport implements OnInit, AfterViewInit, OnDestroy {
         }
 
         // Step 3: Pick the single representative attempt per master test definition
-        // Priority: IN_PROGRESS (latest) > COMPLETED (latest) > other (latest)
+        // Priority: if there is a COMPLETED session that is newer than any IN_PROGRESS session,
+        // completed wins (the user finished the test). Otherwise in_progress wins.
         const representativeAttempts: GamsatCourseItem[] = [];
         for (const [key, group] of attemptsByMasterKey.entries()) {
+          // Find latest timestamps for each status
+          const latestCompleted = group
+            .filter(g => g.rawStatus === 'completed')
+            .reduce((max, g) => Math.max(max, g.dateModifiedTimestamp || 0), 0);
+          const latestInProgress = group
+            .filter(g => g.rawStatus === 'in_progress')
+            .reduce((max, g) => Math.max(max, g.dateModifiedTimestamp || 0), 0);
+
+          // If a completed session exists AND is newer (or same age) as any in_progress,
+          // treat completed as higher priority (the test was actually submitted)
+          const completedIsNewer = latestCompleted > 0 && latestCompleted >= latestInProgress;
+
           group.sort((a, b) => {
             const statusPriority = (s: string) => {
-              if (s === 'in_progress') return 1;
-              if (s === 'completed') return 2;
-              return 3;
+              if (completedIsNewer) {
+                // Completed wins: in_progress is stale
+                if (s === 'completed') return 1;
+                if (s === 'in_progress') return 2;
+                return 3;
+              } else {
+                // Normal: in_progress wins (test still underway)
+                if (s === 'in_progress') return 1;
+                if (s === 'completed') return 2;
+                return 3;
+              }
             };
             const prioA = statusPriority(a.rawStatus);
             const prioB = statusPriority(b.rawStatus);
