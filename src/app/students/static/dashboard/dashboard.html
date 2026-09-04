@@ -1,195 +1,379 @@
 <main class="landing-page">
-  <header class="site-header" (mouseleave)="closeMegaMenu()">
-    <a class="brand" routerLink="/" aria-label="MBBS home">
-      <span class="brand-mark">
-        <img src="/images/app-logo.png" alt="MBBS Logo" class="brand-logo-img" />
-      </span>
-      <img src="/images/mbbs-logo.png" alt="Mbbs" class="brand-name-img" />
-    </a>
-    <nav aria-label="Primary navigation">
-      <a href="#guidance">Guidance</a>
-      <button type="button" (mouseenter)="openMegaMenu('universities')" (focus)="openMegaMenu('universities')"
-        [class.active]="activeMegaMenu() === 'universities'" [attr.aria-expanded]="activeMegaMenu() === 'universities'">
-        Universities <app-icon name="chevron" [size]="13" />
-      </button>
-      <button type="button" (mouseenter)="openMegaMenu('neet')" (focus)="openMegaMenu('neet')"
-        [class.active]="activeMegaMenu() === 'neet'" [attr.aria-expanded]="activeMegaMenu() === 'neet'">
-        Exam prep <app-icon name="chevron" [size]="13" />
-      </button>
-      <a href="#contact">Contact</a>
-    </nav>
-    <div class="header-actions">
-      <a class="univ-portal-link" routerLink="/university/auth/login"><app-icon name="graduation-cap"
-          [size]="14" /><span>University Portal</span></a><a routerLink="/auth/login">Log in</a><a class="primary"
-        routerLink="/auth/register">Create account <app-icon name="arrow-right" [size]="15" /></a>
+  <section class="hero" aria-label="MBBS.NET Global Medical Education">
+    <!-- Cinematic Full-Viewport Background Video -->
+    <div class="hero-video-wrap" aria-hidden="true">
+      <video
+        #heroVideo
+        class="hero-video"
+        autoplay
+        muted
+        loop
+        playsinline
+        preload="auto"
+        tabindex="-1"
+        (canplay)="onVideoCanPlay()"
+        (loadeddata)="onVideoCanPlay()"
+      >
+        <source [src]="heroVideoUrl" type="video/mp4" />
+      </video>
+      <div class="hero-overlay"></div>
     </div>
-    @if (activeMegaMenu(); as menuKey) {
-    <section class="mega-menu">
-      <img [src]="megaMenus[menuKey].image" [alt]="megaMenus[menuKey].imageAlt" />
-      <div class="mega-intro">
-        <span>Explore MBBS.NET</span>
-        <h2>{{ megaMenus[menuKey].title }}</h2>
-        <p>{{ megaMenus[menuKey].description }}</p>
-      </div>
-      <div class="mega-links">
-        @for (item of megaMenus[menuKey].links; track item.label) {
-        @if (item.routerLink) {
-        <a [routerLink]="item.routerLink" [class.portal-entry]="item.isPortal" (click)="closeMegaMenu()"><span>{{
-            item.label }}</span><app-icon name="arrow-right" [size]="14" /></a>
-        } @else {
-        <a [href]="item.href" (click)="closeMegaMenu()"><span>{{ item.label }}</span><app-icon name="arrow-right"
-            [size]="14" /></a>
-        }
-        }
-      </div>
-    </section>
-    }
-  </header>
 
-  <section class="hero">
-    <div class="hero-copy">
-      <span class="eyebrow">A clearer path into medicine</span>
-      <h1>Prepare well.<br /><em>Choose wisely.</em></h1>
-      <p>
-        One focused platform for entrance preparation, medical university research and reliable
-        admissions guidance.
-      </p>
-      <div class="hero-actions">
-        <a class="primary" routerLink="/auth/register">Start your journey <app-icon name="arrow-right"
-            [size]="16" /></a><a href="#guidance"><span class="play-icon"><app-icon name="sparkles"
-              [size]="15" /></span>Explore the
-          platform</a>
-      </div>
-      <div class="trust-row">
-        <span>Built for medical aspirants</span><i></i><span>Data-led preparation</span><i></i><span>Global university
-          discovery</span>
-      </div>
-    </div>
-    <div class="hero-product" aria-label="MBBS.NET student workspace preview">
-      <div class="product-window">
-        <div class="product-top">
-          <span class="mini-brand"><app-icon name="activity" [size]="14" />MBBS.NET</span><span
-            class="window-pill">Student workspace</span><span class="mini-avatar">ST</span>
+    <!-- Integrated Cinematic Header (Transparent over video, compact on scroll) -->
+    <header class="site-header" [class.is-scrolled]="isScrolled()" (mouseleave)="closeMegaMenu()">
+      <div class="header-inner">
+        <a class="brand" routerLink="/" aria-label="MBBS home" (click)="closeMobileNav()">
+          <span class="brand-mark">
+            <img src="/images/app-logo.png" alt="MBBS Logo" class="brand-logo-img" />
+          </span>
+          <img src="/images/mbbs-logo.png" alt="Mbbs" class="brand-name-img" />
+        </a>
+
+        <nav class="desktop-nav" aria-label="Primary navigation">
+          <a href="#guidance">Guidance</a>
+          <button
+            type="button"
+            (mouseenter)="openMegaMenu('universities')"
+            (focus)="openMegaMenu('universities')"
+            [class.active]="activeMegaMenu() === 'universities'"
+            [attr.aria-expanded]="activeMegaMenu() === 'universities'"
+          >
+            Universities <app-icon name="chevron" [size]="13" />
+          </button>
+          <button
+            type="button"
+            (mouseenter)="openMegaMenu('neet')"
+            (focus)="openMegaMenu('neet')"
+            [class.active]="activeMegaMenu() === 'neet'"
+            [attr.aria-expanded]="activeMegaMenu() === 'neet'"
+          >
+            Exam prep <app-icon name="chevron" [size]="13" />
+          </button>
+          <a href="#destinations">Destinations</a>
+          <a href="#contact">Contact</a>
+        </nav>
+
+        <div class="header-actions">
+          <a class="univ-portal-link" routerLink="/university/auth/login" (click)="closeMobileNav()">
+            <app-icon name="graduation-cap" [size]="14" />
+            <span>University Portal</span>
+          </a>
+          <a class="login-link" routerLink="/auth/login" (click)="closeMobileNav()">Log in</a>
+          <a class="primary" routerLink="/auth/register" (click)="closeMobileNav()">
+            <span>Create account</span>
+            <app-icon name="arrow-right" [size]="14" />
+          </a>
         </div>
-        <div class="product-body">
-          <aside><i class="active"></i><i></i><i></i><i></i><i></i></aside>
-          <div class="product-content">
-            <div class="product-heading">
-              <div>
-                <small>PREPARATION OVERVIEW</small><strong>Your progress, at a glance.</strong>
+
+        <button
+          class="mobile-menu-toggle"
+          type="button"
+          [attr.aria-label]="mobileNavOpen() ? 'Close navigation menu' : 'Open navigation menu'"
+          [attr.aria-expanded]="mobileNavOpen()"
+          (click)="toggleMobileNav()"
+        >
+          <app-icon [name]="mobileNavOpen() ? 'close' : 'menu'" [size]="20" />
+        </button>
+      </div>
+
+      <!-- Mega Menu Dropdown -->
+      <!-- Mega Menu Dropdown -->
+      @if (activeMegaMenu() === 'universities') {
+      <section class="mega-menu universities-mega-menu" aria-label="Universities Directory">
+        <!-- Quick Discovery Links Sidebar -->
+        <div class="mega-sidebar">
+          <img [src]="megaMenus.universities.image" [alt]="megaMenus.universities.imageAlt" />
+          <div class="mega-intro">
+            <span>Explore MBBS.NET</span>
+            <h2>{{ megaMenus.universities.title }}</h2>
+            <p>{{ megaMenus.universities.description }}</p>
+          </div>
+          <div class="mega-links">
+            @for (item of megaMenus.universities.links; track item.label) {
+            <a [href]="item.href" (click)="closeMegaMenu()">
+              <span>{{ item.label }}</span>
+              <app-icon name="arrow-right" [size]="14" />
+            </a>
+            }
+          </div>
+        </div>
+
+        <!-- Project B Architecture: Grouped Universities API Directory -->
+        <div class="universities-directory-panel">
+          <header class="directory-panel-header">
+            <h3 class="panel-main-title">All universities at a glance</h3>
+            <p class="panel-subtitle">Explore accredited medical universities across our available destinations.</p>
+          </header>
+
+          @if (loadingUniversities()) {
+          <div class="directory-skeleton-grid">
+            <div class="skeleton-col"></div>
+            <div class="skeleton-col"></div>
+            <div class="skeleton-col"></div>
+          </div>
+          } @else if (universitiesError()) {
+          <div class="directory-state-msg error">
+            <span>{{ universitiesError() }}</span>
+            <button type="button" class="retry-btn" (click)="loadGroupedUniversities()">Retry</button>
+          </div>
+          } @else if (groupedUniversities().length === 0) {
+          <div class="directory-state-msg empty">
+            <span>No universities available at this time.</span>
+          </div>
+          } @else {
+          <div class="directory-full-grid">
+            @for (group of groupedUniversities(); track group.countryId) {
+            <div class="directory-country-block">
+              <div class="country-heading-wrap">
+                @if (group.countryCode) {
+                <img
+                  [src]="getFlagUrl(group.countryCode)"
+                  (error)="onFlagError($event)"
+                  alt=""
+                  class="country-flag-icon"
+                />
+                }
+                <h4 class="country-block-title">MBBS in {{ group.countryName }}</h4>
               </div>
-              <button type="button" tabindex="-1">New test</button>
+
+              <ul class="country-uni-list">
+                @for (uni of group.universities.slice(0, 4); track uni._id) {
+                <li>
+                  <a href="#destinations" class="uni-directory-link" (click)="closeMegaMenu()">
+                    {{ uni.short_name || uni.name }}
+                  </a>
+                </li>
+                }
+              </ul>
+
+              @if (group.universities.length > 4) {
+              <a href="#destinations" class="uni-more-link" (click)="closeMegaMenu()">
+                + {{ group.universities.length - 4 }} more &rarr;
+              </a>
+              }
             </div>
-            <div class="product-metrics">
-              <article>
-                <span>Accuracy</span><strong>82.5%</strong><small>↑ 4.2% this month</small>
-              </article>
-              <article>
-                <span>Tests complete</span><strong>12</strong><small>of 15 started</small>
-              </article>
-              <article class="dark">
-                <span>Study streak</span><strong>5 days</strong><small>Personal best: 12</small>
-              </article>
-            </div>
-            <div class="product-panels">
-              <article class="chart-preview">
-                <span>Subject performance</span>
-                <div class="bars">
-                  <i style="height: 92%"></i><i style="height: 76%"></i><i style="height: 68%"></i><i
-                    style="height: 84%"></i>
-                </div>
-              </article>
-              <article class="next-preview">
-                <span>Recommended next</span><strong>Build a focused test</strong>
-                <div class="mini-ring">82%</div>
-              </article>
-            </div>
+            }
+          </div>
+          }
+        </div>
+      </section>
+      } @else if (activeMegaMenu() === 'neet') {
+      <section class="mega-menu neet-mega-menu" aria-label="Exam Preparation Navigation">
+        <img [src]="megaMenus.neet.image" [alt]="megaMenus.neet.imageAlt" />
+        <div class="mega-intro">
+          <span>Explore MBBS.NET</span>
+          <h2>{{ megaMenus.neet.title }}</h2>
+          <p>{{ megaMenus.neet.description }}</p>
+        </div>
+        <div class="mega-links">
+          @for (item of megaMenus.neet.links; track item.label) {
+          <a [href]="item.href" (click)="closeMegaMenu()">
+            <span>{{ item.label }}</span>
+            <app-icon name="arrow-right" [size]="14" />
+          </a>
+          }
+        </div>
+      </section>
+      }
+
+      <!-- Mobile Navigation Drawer -->
+      @if (mobileNavOpen()) {
+      <div class="mobile-nav-drawer" aria-label="Mobile Navigation">
+        <nav class="mobile-nav-links">
+          <a href="#guidance" (click)="closeMobileNav()">Guidance</a>
+          <a href="#destinations" (click)="closeMobileNav()">Universities</a>
+          <a href="#guidance" (click)="closeMobileNav()">Exam prep</a>
+          <a href="#destinations" (click)="closeMobileNav()">Destinations</a>
+          <a href="#contact" (click)="closeMobileNav()">Contact</a>
+        </nav>
+
+        @if (groupedUniversities().length > 0) {
+        <div class="mobile-destinations-block">
+          <span class="mobile-group-title">EXPLORE DESTINATIONS</span>
+          <div class="mobile-destinations-grid">
+            @for (group of groupedUniversities().slice(0, 6); track group.countryId) {
+            <a href="#destinations" class="mobile-country-item" (click)="closeMobileNav()">
+              @if (group.countryCode) {
+              <img [src]="getFlagUrl(group.countryCode)" (error)="onFlagError($event)" alt="" class="country-flag-icon" />
+              }
+              <span>{{ group.countryName }}</span>
+            </a>
+            }
+          </div>
+        </div>
+        }
+
+        <div class="mobile-nav-actions">
+          <a class="mobile-portal-link" routerLink="/university/auth/login" (click)="closeMobileNav()">
+            <app-icon name="graduation-cap" [size]="15" />
+            <span>University Portal</span>
+          </a>
+          <div class="mobile-auth-row">
+            <a class="mobile-login-link" routerLink="/auth/login" (click)="closeMobileNav()">Log in</a>
+            <a class="mobile-register-link" routerLink="/auth/register" (click)="closeMobileNav()">
+              Create account <app-icon name="arrow-right" [size]="14" />
+            </a>
           </div>
         </div>
       </div>
-      <div class="floating-note">
-        <span><app-icon name="check" [size]="15" /></span>
-        <div><strong>Daily goal complete</strong><small>Your streak is protected.</small></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="signal-strip" aria-label="Platform capabilities">
-    <div>
-      <span>01</span><strong>Focused exam practice</strong>
-      <p>Build custom NEET and UCAT sessions around the areas that need your attention.</p>
-    </div>
-    <div>
-      <span>02</span><strong>Performance intelligence</strong>
-      <p>Understand accuracy, weak subjects, timing and progress without visual clutter.</p>
-    </div>
-    <div>
-      <span>03</span><strong>University matching</strong>
-      <p>Compare study destinations and discover medical programmes aligned to your goals.</p>
-    </div>
-  </section>
-
-  <section class="platform-section" id="guidance">
-    <header class="section-heading">
-      <div>
-        <span class="eyebrow">One connected workspace</span>
-        <h2>From first practice<br />to final decision.</h2>
-      </div>
-      <p>
-        MBBS.NET brings your preparation and university research into one coherent student
-        experience.
-      </p>
+      }
     </header>
-    <div class="platform-grid">
-      <article class="feature-card feature-large">
-        <div class="feature-copy">
-          <span>01 · PREPARE</span>
-          <h3>Practice that adapts to your priorities.</h3>
-          <p>
-            Choose subjects, chapters, question count and duration. Resume timed sessions and review
-            every result with clear explanations.
-          </p>
-          <a routerLink="/auth/register">Explore practice tools <app-icon name="arrow-right" [size]="15" /></a>
+
+    <!-- Cinematic Hero Content (Lower-Middle Viewport Region) -->
+    <div class="hero-content">
+      <div class="hero-inner">
+        <div class="hero-badge">
+          <span class="badge-dot"></span>
+          <span class="badge-text">GLOBAL MEDICAL EDUCATION</span>
         </div>
-        <div class="practice-visual">
-          <div class="question-meta"><span>Question 08 / 20</span><span>12:42</span></div>
-          <strong>Which principle best explains this clinical observation?</strong>
-          <div class="answer selected">
-            A <span>Selected response</span><app-icon name="check" [size]="14" />
-          </div>
-          <div class="answer">B <span>Alternative response</span></div>
-          <div class="answer">C <span>Alternative response</span></div>
-        </div>
-      </article>
-      <article class="feature-card dark">
-        <span>02 · UNDERSTAND</span>
-        <h3>Turn every attempt into a useful insight.</h3>
-        <div class="accuracy-orbit"><strong>82%</strong><span>accuracy</span></div>
-        <p>
-          Subject-level comparisons and AI-assisted review help you identify what to work on next.
+
+        <h1 class="hero-title">
+          Find your path<br />
+          <span class="hero-title-accent">to medicine.</span>
+        </h1>
+
+        <p class="hero-description">
+          Explore accredited medical universities abroad and prepare for entrance exams worldwide.
         </p>
-      </article>
-      <article class="feature-card destination">
-        <span>03 · DISCOVER</span>
-        <h3>Find a medical university that fits.</h3>
-        <p>Shortlist destinations using course, budget and student preference data.</p>
-        <div class="destination-tags">
-          <span>Hungary</span><span>Georgia</span><span>United Kingdom</span><span>+ more</span>
+
+        <div class="hero-cta-group">
+          <a class="hero-btn-primary" href="#destinations">
+            <span>Explore Universities</span>
+            <app-icon name="arrow-right" [size]="15" />
+          </a>
+          <a class="hero-btn-secondary" routerLink="/auth/register">
+            <span>Start Free Preparation</span>
+          </a>
         </div>
-        <a routerLink="/auth/register">Open the finder <app-icon name="arrow-right" [size]="15" /></a>
-      </article>
+
+        <div class="hero-trust-bar">
+          <div class="trust-item">
+            <span class="trust-value">100+ Recognized</span>
+            <span class="trust-label">Medical Universities</span>
+          </div>
+          <span class="trust-divider"></span>
+          <div class="trust-item">
+            <span class="trust-value">NEET · UCAT · GAMSAT</span>
+            <span class="trust-label">Integrated Exam Prep</span>
+          </div>
+          <span class="trust-divider"></span>
+          <div class="trust-item">
+            <span class="trust-value">Direct Invitations</span>
+            <span class="trust-label">University Admissions</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="pathways-section" id="guidance" aria-label="Your Journey on MBBS.NET" [attr.data-step]="activeJourneyStep()">
+    <div class="pathways-sticky-wrap">
+      <div class="pathways-container">
+        <header class="pathways-header">
+          <span class="journey-eyebrow">YOUR JOURNEY</span>
+          <h2 class="journey-heading">Choose your path.</h2>
+          <p class="journey-subheading">Explore. Prepare. Apply.</p>
+        </header>
+
+        <!-- Continuous Horizontal Progression Track (Desktop) -->
+        <div class="journey-desktop-track" aria-hidden="true">
+          <div class="track-col" [class.is-active]="activeJourneyStep() === 1" [class.is-passed]="activeJourneyStep() > 1">
+            <span class="track-node"></span>
+            <span class="track-connector">
+              <span class="connector-fill"></span>
+            </span>
+          </div>
+          <div class="track-col" [class.is-active]="activeJourneyStep() === 2" [class.is-passed]="activeJourneyStep() > 2">
+            <span class="track-node featured"></span>
+            <span class="track-connector">
+              <span class="connector-fill"></span>
+            </span>
+          </div>
+          <div class="track-col" [class.is-active]="activeJourneyStep() === 3">
+            <span class="track-node"></span>
+          </div>
+        </div>
+
+        <div class="pathways-grid">
+          <!-- Stage 01: EXPLORE -->
+          <article
+            class="pathway-stage"
+            [class.is-active]="activeJourneyStep() === 1"
+            [class.is-passed]="activeJourneyStep() > 1"
+            data-stage="01"
+          >
+            <div class="mobile-track-node" aria-hidden="true">
+              <span class="track-dot"></span>
+              <span class="mobile-connector"></span>
+            </div>
+            <div class="stage-meta">
+              <span class="stage-number">01</span>
+              <span class="stage-category">EXPLORE</span>
+            </div>
+            <h3 class="stage-title">Find your university</h3>
+            <p class="stage-desc">Discover and compare medical universities.</p>
+            <a href="#destinations" class="stage-cta">
+              <span>Explore</span>
+              <span class="cta-arrow" aria-hidden="true">&rarr;</span>
+            </a>
+          </article>
+
+          <!-- Stage 02: PREPARE (Featured pale-lime highlighted stage) -->
+          <article
+            class="pathway-stage featured"
+            [class.is-active]="activeJourneyStep() === 2"
+            [class.is-passed]="activeJourneyStep() > 2"
+            data-stage="02"
+          >
+            <div class="mobile-track-node" aria-hidden="true">
+              <span class="track-dot featured"></span>
+              <span class="mobile-connector"></span>
+            </div>
+            <div class="stage-meta">
+              <span class="stage-number">02</span>
+              <span class="stage-category">PREPARE</span>
+            </div>
+            <h3 class="stage-title">Get exam ready</h3>
+            <p class="stage-desc">Prepare for NEET, UCAT and GAMSAT.</p>
+            <a routerLink="/auth/register" class="stage-cta">
+              <span>Prepare</span>
+              <span class="cta-arrow" aria-hidden="true">&rarr;</span>
+            </a>
+          </article>
+
+          <!-- Stage 03: APPLY -->
+          <article
+            class="pathway-stage"
+            [class.is-active]="activeJourneyStep() === 3"
+            data-stage="03"
+          >
+            <div class="mobile-track-node" aria-hidden="true">
+              <span class="track-dot"></span>
+            </div>
+            <div class="stage-meta">
+              <span class="stage-number">03</span>
+              <span class="stage-category">APPLY</span>
+            </div>
+            <h3 class="stage-title">Plan your admission</h3>
+            <p class="stage-desc">Understand requirements and move toward admission.</p>
+            <a href="#contact" class="stage-cta">
+              <span>Start</span>
+              <span class="cta-arrow" aria-hidden="true">&rarr;</span>
+            </a>
+          </article>
+        </div>
+      </div>
     </div>
   </section>
 
   <section class="destinations-section" id="destinations">
     <header class="section-heading">
       <div>
-        <span class="eyebrow">Study medicine worldwide</span>
-        <h2>Explore your options<br />with context.</h2>
+        <span class="eyebrow">Study Medicine Abroad</span>
+        <h2>Explore destinations<br />with clarity.</h2>
       </div>
       <p>
-        Start with destination insights, then use the student finder to build a shortlist around
-        your own priorities.
+        Accredited universities with transparent admission pathways and licensing eligibility.
       </p>
     </header>
     <div class="country-grid">
@@ -226,11 +410,10 @@
       <div><strong>MBBS.NET Academic Team</strong><span>Independent student guidance</span></div>
     </div>
     <div class="guidance-copy">
-      <span class="eyebrow">Decisions that deserve clarity</span>
-      <h2>Build your medical future on verified foundations.</h2>
+      <span class="eyebrow">Independent Guidance</span>
+      <h2>Build your medical career on verified foundations.</h2>
       <p>
-        University recognition, eligibility, total cost, teaching language and clinical exposure all
-        matter. Our guidance helps you ask better questions before you commit.
+        Objective insights on university recognition, clinical training, and international licensing pathways.
       </p>
       <ul>
         <li><app-icon name="check" [size]="15" />Recognition and licensing pathway</li>
@@ -243,11 +426,10 @@
 
   <section class="contact-section" id="contact">
     <div class="contact-intro">
-      <span class="eyebrow">Admissions guidance</span>
+      <span class="eyebrow">Admissions Advisory</span>
       <h2>Let’s plan your next step.</h2>
       <p>
-        Tell us where you are in your medical journey. We’ll help you understand the clearest way
-        forward.
+        Direct guidance on university eligibility, entrance exams, and applications.
       </p>
       <div class="contact-detail">
         <span><app-icon name="activity" [size]="17" /></span>

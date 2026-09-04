@@ -73,4 +73,43 @@ describe('SafeMarkdownPipe', () => {
     expect(html).not.toContain('<a href="javascript:');
     expect(html).toContain('[Click](javascript:alert(1))');
   });
+
+  it('should format GFM markdown tables into responsive HTML tables', () => {
+    const markdown =
+      '| Country | Duration | Requirements |\n' +
+      '| --- | --- | --- |\n' +
+      '| Russia | 6 Years | NEET qualified |\n' +
+      '| Georgia | 6 Years | 50% PCB + NEET |';
+    const result = pipe.transform(markdown) as any;
+    const html = result.changingThisBreaksApplicationSecurity || result.toString();
+    expect(html).toContain('<div class="table-responsive">');
+    expect(html).toContain('<table class="markdown-table">');
+    expect(html).toContain('<thead><tr><th>Country</th><th>Duration</th><th>Requirements</th></tr></thead>');
+    expect(html).toContain('<td>Russia</td>');
+    expect(html).toContain('<td>6 Years</td>');
+    expect(html).toContain('<td>NEET qualified</td>');
+    expect(html).toContain('<td>Georgia</td>');
+  });
+
+  it('should support table alignments and rich inline markdown with links in cells', () => {
+    const markdown =
+      '| Country | Fees | Official Portal |\n' +
+      '| :--- | :---: | ---: |\n' +
+      '| **Russia** | $4,500/yr | [Apply Now](https://mbbs.net/russia) |\n' +
+      '| *Kazakhstan* | $3,800/yr | https://mbbs.net/kazakhstan |';
+    const result = pipe.transform(markdown) as any;
+    const html = result.changingThisBreaksApplicationSecurity || result.toString();
+    expect(html).toContain('<th align="left">Country</th>');
+    expect(html).toContain('<th align="center">Fees</th>');
+    expect(html).toContain('<th align="right">Official Portal</th>');
+    expect(html).toContain('<strong>Russia</strong>');
+    expect(html).toContain('<em>Kazakhstan</em>');
+    expect(html).toContain(
+      '<a href="https://mbbs.net/russia" target="_blank" rel="noopener noreferrer">Apply Now</a>'
+    );
+    expect(html).toContain(
+      '<a href="https://mbbs.net/kazakhstan" target="_blank" rel="noopener noreferrer">https://mbbs.net/kazakhstan</a>'
+    );
+  });
 });
+
