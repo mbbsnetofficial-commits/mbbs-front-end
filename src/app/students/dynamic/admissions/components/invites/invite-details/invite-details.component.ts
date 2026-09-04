@@ -6,11 +6,12 @@ import { InviteActionsComponent } from '../invite-actions/invite-actions';
 import { Icon, IconName } from '../../../../../../shared/ui/icon/icon';
 import { ImageFallbackDirective } from '../../../../../../shared/ui/media/image-fallback.directive';
 import { DeclineReason, Invite, InviteHistoryItem, InviteStatus } from '../../../models/invite.model';
+import { StudentProfileService } from '../../../services/student-profile.service';
 
 const STATUS_CONFIG: Record<InviteStatus, { label: string; badgeClass: string; icon: IconName }> = {
   NEW: { label: 'New Offer', badgeClass: 'status-new', icon: 'sparkles' },
-  PENDING: { label: 'Pending Response', badgeClass: 'status-new', icon: 'clock' },
-  VIEWED: { label: 'Reviewed', badgeClass: 'status-viewed', icon: 'sparkles' },
+  PENDING: { label: 'Under Review', badgeClass: 'status-under-review', icon: 'clock' },
+  VIEWED: { label: 'Under Review', badgeClass: 'status-under-review', icon: 'sparkles' },
   ACCEPTED: { label: 'Accepted', badgeClass: 'status-accepted', icon: 'check' },
   DECLINED: { label: 'Declined', badgeClass: 'status-declined', icon: 'close' },
   EXPIRED: { label: 'Expired', badgeClass: 'status-expired', icon: 'clock' },
@@ -36,6 +37,7 @@ const STATUS_CONFIG: Record<InviteStatus, { label: string; badgeClass: string; i
 export class InviteDetailsComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly invitesService = inject(InvitesService);
+  private readonly profileService = inject(StudentProfileService);
 
   readonly invite = signal<Invite | undefined>(undefined);
   readonly loading = signal<boolean>(true);
@@ -50,6 +52,20 @@ export class InviteDetailsComponent {
   readonly actionError = signal<string | null>(null);
   readonly actionSuccess = signal<string | null>(null);
 
+  readonly activeTab = signal<string>('overview');
+
+  readonly navTabs = [
+    { id: 'overview', label: 'Overview', icon: 'graduation-cap' as IconName },
+    { id: 'program', label: 'Program Details', icon: 'categories' as IconName },
+    { id: 'financial', label: 'Financial Information', icon: 'chart' as IconName },
+    { id: 'eligibility', label: 'Eligibility & Match', icon: 'check' as IconName },
+    { id: 'history', label: 'Activity History', icon: 'history' as IconName },
+  ];
+
+  readonly studentName = computed(() => {
+    return this.profileService.profile()?.personal?.fullName || 'Candidate';
+  });
+
   readonly statusConfig = computed(() => {
     const inv = this.invite();
     if (!inv) return null;
@@ -61,6 +77,111 @@ export class InviteDetailsComponent {
       }
     );
   });
+
+  readonly heroBgUrl = computed(() => {
+    const inv = this.invite();
+    if (!inv) return '';
+    return inv.university.coverImageUrl || inv.university.logoUrl || '';
+  });
+
+  readonly univLogoUrl = computed(() => {
+    const inv = this.invite();
+    if (!inv) return '';
+    const name = (inv.university.name || '').toLowerCase();
+    if (name.includes('tbilisi') || name.includes('tsmu')) {
+      return '/images/universities/tsmu-logo.png';
+    }
+    if (name.includes('msu') || name.includes('management and science')) {
+      return '/images/universities/msu-logo.png';
+    }
+    if (name.includes('charles')) return '/images/universities/charles.svg';
+    if (name.includes('comenius')) return '/images/universities/comenius.png';
+    if (name.includes('jessenius')) return '/images/universities/jessenius.png';
+    if (name.includes('lithuanian') || name.includes('lsmu')) return '/images/universities/lsmu.svg';
+    if (name.includes('nicosia')) return '/images/universities/nicosia.svg';
+    if (name.includes('palack')) return '/images/universities/palacky.svg';
+    if (name.includes('pecs') || name.includes('pécs')) return '/images/universities/pecs.svg';
+    if (name.includes('riga') || name.includes('stradins')) return '/images/universities/riga-stradins.svg';
+    if (name.includes('semmelweis')) return '/images/universities/semmelweis.svg';
+    return inv.university.logoUrl || '/images/universities/msu-logo.png';
+  });
+
+  readonly logoFailed = signal<boolean>(false);
+  readonly heroBgFailed = signal<boolean>(false);
+
+  selectTab(tabId: string): void {
+    this.activeTab.set(tabId);
+  }
+
+  onLogoError(): void {
+    this.logoFailed.set(true);
+  }
+
+  onHeroBgError(): void {
+    this.heroBgFailed.set(true);
+  }
+
+  getUniversityInitials(name?: string): string {
+    if (!name) return 'MED';
+    const clean = name.replace(/[-–—/()]/g, ' ');
+    const words = clean.split(/\s+/).filter((w) => w.length > 0);
+    if (words.length === 1) {
+      return words[0].slice(0, 3).toUpperCase();
+    }
+    const filtered = words.filter(
+      (w) => !['OF', 'AND', 'FOR', 'THE', 'IN', 'AT', 'TO'].includes(w.toUpperCase())
+    );
+    const initials = filtered
+      .map((w) => w[0].toUpperCase())
+      .slice(0, 3)
+      .join('');
+    return initials || name.slice(0, 3).toUpperCase();
+  }
+
+  getHistoryStepDescription(entry: InviteHistoryItem): string {
+    if (entry.description && entry.description.trim()) {
+      return entry.description;
+    }
+    const act = (entry.action || entry.title || '').toUpperCase();
+    if (act.includes('ACCEPT')) {
+      return 'You confirmed acceptance of this official offer. Your profile has been queued for admissions onboarding.';
+    }
+    if (act.includes('VIEW') || act.includes('REVIEW')) {
+      return 'Invitation details, curriculum structure, and scholarship eligibility were accessed and reviewed.';
+    }
+    if (act.includes('ISSUE') || act.includes('CREATE')) {
+      return 'University issued the official admission offer based on your academic scorecard.';
+    }
+    if (act.includes('DECLINE')) {
+      return 'Invitation declined by candidate. Record marked as closed in admissions ledger.';
+    }
+    if (act.includes('EXPIRE')) {
+      return 'The deadline for responding to this offer has passed.';
+    }
+    return 'Status updated in admissions activity record.';
+  }
+
+  getHistoryStepActor(entry: InviteHistoryItem): string {
+    const act = (entry.action || entry.title || '').toUpperCase();
+    if (act.includes('ACCEPT') || act.includes('DECLINE') || act.includes('VIEW') || act.includes('REVIEW')) {
+      return 'Candidate Action';
+    }
+    if (act.includes('ISSUE') || act.includes('CREATE')) {
+      return 'University Admissions';
+    }
+    const raw = entry.actor || '';
+    if (raw && raw !== 'SYSTEM') return raw;
+    return 'Admissions Portal';
+  }
+
+  getHistoryDotClass(entry: InviteHistoryItem): string {
+    const act = (entry.action || entry.title || '').toUpperCase();
+    if (act.includes('ACCEPT')) return 'bullet-dot-emerald';
+    if (act.includes('DECLINE')) return 'bullet-dot-rose';
+    if (act.includes('VIEW') || act.includes('REVIEW')) return 'bullet-dot-blue';
+    if (act.includes('ISSUE') || act.includes('CREATE')) return 'bullet-dot-sky';
+    return 'bullet-dot-blue';
+  }
 
   constructor() {
     this.route.paramMap.subscribe((params) => {
@@ -77,6 +198,8 @@ export class InviteDetailsComponent {
   loadInviteDetails(inviteId: string): void {
     this.loading.set(true);
     this.error.set(null);
+    this.logoFailed.set(false);
+    this.heroBgFailed.set(false);
 
     this.invitesService.getInviteById(inviteId).subscribe({
       next: (item) => {

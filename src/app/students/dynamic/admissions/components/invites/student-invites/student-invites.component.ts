@@ -8,6 +8,16 @@ import { InviteCard } from '../invite-card/invite-card';
 import { Icon } from '../../../../../../shared/ui/icon/icon';
 import { Invite } from '../../../models/invite.model';
 
+const STATUS_ORDER: Record<string, number> = {
+  VIEWED: 1,      // Under review in the top
+  PENDING: 1,     // Action needed / under review
+  NEW: 1,
+  ACCEPTED: 2,    // Accepted are next
+  DECLINED: 3,    // Declined
+  EXPIRED: 4,     // Expired at the last
+  CANCELLED: 4,
+};
+
 @Component({
   selector: 'app-student-invites',
   standalone: true,
@@ -17,7 +27,6 @@ import { Invite } from '../../../models/invite.model';
     FormsModule,
     InviteCard,
     Icon,
-    CurrencyPipe,
   ],
   templateUrl: './student-invites.component.html',
   styleUrl: './student-invites.component.scss',
@@ -35,7 +44,7 @@ export class StudentInvitesComponent {
 
   readonly activeFilter = signal<string>('ALL');
   readonly searchQuery = signal<string>('');
-  readonly sortOption = signal<string>('MATCH');
+  readonly sortOption = signal<string>('STATUS');
 
   readonly filterTabs = [
     { key: 'ALL', label: 'All Opportunities' },
@@ -76,27 +85,20 @@ export class StudentInvitesComponent {
       );
     }
 
-    const sort = this.sortOption();
     return [...list].sort((a, b) => {
-      if (sort === 'MATCH') {
-        return (b.eligibility?.matchPercentage || 0) - (a.eligibility?.matchPercentage || 0);
+      const orderA = STATUS_ORDER[a.status] ?? 99;
+      const orderB = STATUS_ORDER[b.status] ?? 99;
+      if (orderA !== orderB) {
+        return orderA - orderB;
       }
-      if (sort === 'NEWEST') {
-        return (
-          new Date(b.issuedAt || b.createdAt || 0).getTime() -
-          new Date(a.issuedAt || a.createdAt || 0).getTime()
-        );
+      const matchDiff = (b.eligibility?.matchPercentage || 0) - (a.eligibility?.matchPercentage || 0);
+      if (matchDiff !== 0) {
+        return matchDiff;
       }
-      if (sort === 'EXPIRY') {
-        return new Date(a.expiresAt || 0).getTime() - new Date(b.expiresAt || 0).getTime();
-      }
-      if (sort === 'FEE_LOW') {
-        return (a.financial?.netTuitionAnnual || 0) - (b.financial?.netTuitionAnnual || 0);
-      }
-      if (sort === 'SCHOLARSHIP') {
-        return (b.financial?.scholarshipAmount || 0) - (a.financial?.scholarshipAmount || 0);
-      }
-      return 0;
+      return (
+        new Date(b.issuedAt || b.createdAt || 0).getTime() -
+        new Date(a.issuedAt || a.createdAt || 0).getTime()
+      );
     });
   });
 

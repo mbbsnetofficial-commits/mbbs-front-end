@@ -417,8 +417,51 @@ export class InvitesService {
     const orgName = item.organizationInfo?.name || item.organizationName || 'University';
     const orgCountry = item.organizationInfo?.country || '';
     const orgCity = item.organizationInfo?.city || '';
-    const orgLogo = item.organizationInfo?.logo || '';
     const orgWebsite = item.organizationInfo?.website || '';
+    const rawBackendLogo = item.organizationInfo?.logo || (item as any)?.logo || '';
+    const rawBackendCover =
+      (item.organizationInfo as any)?.coverImage ||
+      (item.organizationInfo as any)?.coverImageUrl ||
+      (item.organizationInfo as any)?.banner ||
+      (item.organizationInfo as any)?.cover ||
+      (item as any)?.coverImage ||
+      (item as any)?.coverImageUrl ||
+      '';
+
+    // Image provided by the university side / backend:
+    const backendImage = rawBackendCover || rawBackendLogo || '';
+
+    const lowerName = orgName.toLowerCase();
+    const isMsu =
+      lowerName.includes('msu') ||
+      lowerName.includes('management and science');
+    const isTsmu =
+      lowerName.includes('tbilisi') ||
+      lowerName.includes('tsmu');
+
+    let resolvedCoverImage = backendImage;
+    let resolvedLogo = rawBackendLogo;
+
+    if (isTsmu) {
+      if (!resolvedCoverImage) {
+        resolvedCoverImage = '/images/universities/tsmu-campus.png';
+      }
+      resolvedLogo = '/images/universities/tsmu-logo.png';
+    } else if (isMsu) {
+      resolvedLogo = '/images/universities/msu-logo.png';
+    } else {
+      if (!resolvedLogo) {
+        if (lowerName.includes('charles')) resolvedLogo = '/images/universities/charles.svg';
+        else if (lowerName.includes('comenius')) resolvedLogo = '/images/universities/comenius.png';
+        else if (lowerName.includes('jessenius')) resolvedLogo = '/images/universities/jessenius.png';
+        else if (lowerName.includes('lithuanian') || lowerName.includes('lsmu')) resolvedLogo = '/images/universities/lsmu.svg';
+        else if (lowerName.includes('nicosia')) resolvedLogo = '/images/universities/nicosia.svg';
+        else if (lowerName.includes('palack')) resolvedLogo = '/images/universities/palacky.svg';
+        else if (lowerName.includes('pecs') || lowerName.includes('pécs')) resolvedLogo = '/images/universities/pecs.svg';
+        else if (lowerName.includes('riga') || lowerName.includes('stradins')) resolvedLogo = '/images/universities/riga-stradins.svg';
+        else if (lowerName.includes('semmelweis')) resolvedLogo = '/images/universities/semmelweis.svg';
+      }
+    }
 
     return {
       id: item._id,
@@ -433,8 +476,8 @@ export class InvitesService {
           .join('')
           .slice(0, 5)
           .toUpperCase(),
-        logoUrl: orgLogo,
-        coverImageUrl: '',
+        logoUrl: resolvedLogo,
+        coverImageUrl: resolvedCoverImage,
         country: orgCountry,
         countryCode: orgCountry.slice(0, 2).toUpperCase(),
         city: orgCity,

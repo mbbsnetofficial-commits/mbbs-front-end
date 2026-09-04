@@ -1,69 +1,98 @@
 <a
   [routerLink]="['/dynamic/invites', invite().id]"
   class="opportunity-card"
+  [class]="statusConfig().badgeClass"
   [class.highlighted]="isActionable()"
   title="View details for {{ invite().university.name }}"
 >
-  <!-- Left Side: Status Dot, Thumbnail, University & Subline -->
+  <!-- Left Side: University Logo & Detailed Information -->
   <div class="card-left">
-    <div class="status-dot" [class]="statusConfig().badgeClass"></div>
-
-    <div class="univ-thumb" [class.fallback-thumb]="!invite().university.logoUrl">
-      @if (invite().university.logoUrl) {
+    <div class="univ-thumb">
+      @if (!logoFailed() && invite().university.logoUrl) {
         <img
           appImageFallback
           [src]="invite().university.logoUrl"
           [alt]="invite().university.name + ' Logo'"
           loading="lazy"
+          (error)="onLogoError()"
         />
       } @else {
-        <app-icon name="graduation-cap" [size]="16" />
+        <div class="univ-thumb-fallback" aria-hidden="true">
+          <span class="fallback-monogram">{{ getInitials(invite().university.name) }}</span>
+        </div>
       }
     </div>
 
     <div class="univ-info-block">
       <div class="univ-name-line">
-        <span class="univ-name">{{ invite().university.name }}</span>
+        <h3 class="univ-name">{{ invite().university.name }}</h3>
         @if (invite().university.rankingGlobal) {
-          <span class="rank-tag">QS #{{ invite().university.rankingGlobal }}</span>
+          <span class="rank-badge">
+            <app-icon name="sparkles" [size]="11" />
+            <span>QS #{{ invite().university.rankingGlobal }}</span>
+          </span>
         }
         @if (invite().eligibility.matchPercentage >= 90) {
-          <span class="match-tag">{{ invite().eligibility.matchPercentage }}% Match</span>
+          <span class="match-badge">
+            <app-icon name="check" [size]="11" />
+            <span>{{ invite().eligibility.matchPercentage }}% Match</span>
+          </span>
         }
       </div>
 
-      <div class="univ-subline">
-        <span class="country-text">{{ invite().university.country || invite().university.city || 'International' }}</span>
-        <span class="meta-sep">·</span>
-        <span class="program-text">{{ invite().program.degree || invite().program.programName || invite().title || 'MBBS' }}</span>
+      <div class="univ-tags-line">
+        <span class="country-pill">
+          <app-icon name="globe" [size]="12" />
+          <span>{{ invite().university.country || invite().university.city || 'International' }}</span>
+        </span>
+
+        <span class="program-pill">
+          {{ invite().program.degree || invite().program.programName || invite().title || 'Doctor of Medicine (MD / MBBS)' }}
+        </span>
+
         @if (invite().program.intake) {
-          <span class="meta-sep">·</span>
-          <span class="intake-text">{{ invite().program.intake }}</span>
+          <span class="intake-pill">
+            <app-icon name="clock" [size]="12" />
+            <span>{{ invite().program.intake }}</span>
+          </span>
         }
+
         @if (invite().financial.scholarshipAmount > 0) {
-          <span class="meta-sep">·</span>
-          <span class="scholarship-text">{{ invite().financial.scholarshipAmount | currency: (invite().financial.currency || 'USD'): 'symbol': '1.0-0' }} Grant</span>
+          <span class="scholarship-pill">
+            <app-icon name="sparkles" [size]="12" />
+            <span>{{ invite().financial.scholarshipAmount | currency: (invite().financial.currency || 'USD'): 'symbol': '1.0-0' }} Grant</span>
+          </span>
         }
       </div>
     </div>
   </div>
 
-  <!-- Right Side: Status Badge, Date & View Button -->
+  <!-- Right Side: Status Badge, Date & View CTA Button -->
   <div class="card-right">
     <div class="status-indicator" [class]="statusConfig().badgeClass">
-      <span>{{ statusConfig().label }}</span>
+      <span class="badge-dot"></span>
+      <span class="badge-text">{{ statusConfig().label }}</span>
     </div>
 
-    <time class="card-date">
-      {{ (invite().issuedAt || invite().createdAt) | date: 'MMM d' }}
-    </time>
+    <div class="date-col">
+      <time class="card-date">
+        {{ (invite().issuedAt || invite().createdAt) | date: 'mediumDate' }}
+      </time>
+      @if (invite().expiresAt && isActionable()) {
+        <span class="expiry-sub">
+          <app-icon name="clock" [size]="10" />
+          <span>Expires {{ invite().expiresAt | date: 'MMM d' }}</span>
+        </span>
+      }
+    </div>
 
     <div class="action-btn-pill">
-      <span>View</span>
-      <app-icon name="arrow-right" [size]="12" />
+      <span>{{ isActionable() ? 'Review Offer' : 'View Opportunity' }}</span>
+      <app-icon name="arrow-right" [size]="13" />
     </div>
   </div>
 </a>
+
 
 
 

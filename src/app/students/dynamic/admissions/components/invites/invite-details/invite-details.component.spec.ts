@@ -84,6 +84,15 @@ describe('InviteDetailsComponent', () => {
     fixture = TestBed.createComponent(InviteDetailsComponent);
     component = fixture.componentInstance;
 
+    // Student profile service request on instantiation
+    const profileReq = httpTesting.expectOne(`${environment.admissionsApiBaseUrl}/student/profile`);
+    profileReq.flush({
+      success: true,
+      data: {
+        personal: { fullName: 'Sanjay Sivakumar' },
+      },
+    });
+
     // Component's paramMap triggers GET /student/invites/inv-kazan-2026
     const detailReq = httpTesting.expectOne(
       `${environment.admissionsApiBaseUrl}/student/invites/inv-kazan-2026`

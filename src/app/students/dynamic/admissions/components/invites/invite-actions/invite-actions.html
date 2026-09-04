@@ -1,50 +1,129 @@
-<div class="actions-panel">
-  <div class="panel-left">
-    <a routerLink="/dynamic/invites" class="btn-back">
-      <app-icon name="arrow-right" [size]="16" class="rotate-180" />
-      <span>Back to Invites</span>
+<section class="response-section" aria-label="Your Response">
+  <div class="response-header">
+    <h3 class="response-title">Your Response</h3>
+    <p class="response-sub">Review all the information above and choose how you would like to proceed.</p>
+  </div>
+
+  @if (invite().status === 'ACCEPTED') {
+    <div class="response-status-banner status-accepted-banner">
+      <div class="status-banner-icon-box">
+        <app-icon name="check" [size]="20" />
+      </div>
+      <div class="status-banner-content">
+        <strong>You have accepted this invitation</strong>
+        <p>Your response has been confirmed with {{ invite().university.name }}. The admissions team will contact you with subsequent onboarding procedures.</p>
+      </div>
+    </div>
+  } @else if (invite().status === 'DECLINED') {
+    <div class="response-status-banner status-declined-banner">
+      <div class="status-banner-icon-box">
+        <app-icon name="close" [size]="20" />
+      </div>
+      <div class="status-banner-content">
+        <strong>You have declined this opportunity</strong>
+        <p>This decision is recorded. You can still review details and explore other matching opportunities in your inbox.</p>
+      </div>
+    </div>
+  } @else if (invite().status === 'EXPIRED') {
+    <div class="response-status-banner status-expired-banner">
+      <div class="status-banner-icon-box">
+        <app-icon name="history" [size]="20" />
+      </div>
+      <div class="status-banner-content">
+        <strong>This invitation deadline has expired</strong>
+        <p>The deadline for this cohort has lapsed. Universities frequently issue new invitations for future cohorts.</p>
+      </div>
+    </div>
+  } @else {
+    <!-- Side-by-side Response Options -->
+    <div class="response-cards-grid">
+      <!-- Accept Card (Left) -->
+      <div class="decision-card accept-card">
+        <div class="card-top-row">
+          <div class="decision-icon-circle icon-circle-green">
+            <app-icon name="check" [size]="16" [strokeWidth]="2.5" />
+          </div>
+          <div class="decision-title-group">
+            <h4 class="decision-title title-green">Accept Invitation</h4>
+            <p class="decision-sub">Confirm your interest and proceed with the next steps in the admission process.</p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          class="btn-accept-cta"
+          [disabled]="accepting() || declining()"
+          (click)="openAcceptModal()"
+        >
+          @if (accepting()) {
+            <span class="btn-spinner" aria-hidden="true"></span>
+            <span>Accepting...</span>
+          } @else {
+            <span>Accept Invitation</span>
+            <app-icon name="arrow-right" [size]="16" />
+          }
+        </button>
+
+        <div class="decision-footer-note">
+          <span class="note-icon" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+          </span>
+          <span>You can still review additional details after accepting.</span>
+        </div>
+      </div>
+
+      <!-- Decline Card (Right) -->
+      <div class="decision-card decline-card">
+        <div class="card-top-row">
+          <div class="decision-icon-circle icon-circle-red">
+            <app-icon name="close" [size]="16" [strokeWidth]="2.5" />
+          </div>
+          <div class="decision-title-group">
+            <h4 class="decision-title title-red">Decline Opportunity</h4>
+            <p class="decision-sub">If you're not interested in this opportunity, you can decline the invitation.</p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          class="btn-decline-cta"
+          [disabled]="accepting() || declining()"
+          (click)="openDeclineModal()"
+        >
+          @if (declining()) {
+            <span class="btn-spinner btn-spinner-dark" aria-hidden="true"></span>
+            <span>Declining...</span>
+          } @else {
+            <span>Decline Opportunity</span>
+          }
+        </button>
+
+        <div class="decision-footer-note">
+          <span class="note-icon" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+          </span>
+          <span>You can focus on other opportunities. This action can't be undone.</span>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Back Link at bottom of page -->
+  <div class="back-link-wrap">
+    <a routerLink="/dynamic/invites" class="btn-back-pill">
+      <app-icon name="arrow-right" [size]="15" class="rotate-180" />
+      <span>Back to Invitations</span>
     </a>
   </div>
-
-  <div class="panel-right">
-    @if (invite().status === 'ACCEPTED') {
-      <span class="accepted-status-text">
-        <app-icon name="check" [size]="16" />
-        <span>You have accepted this invitation.</span>
-      </span>
-    } @else if (invite().status === 'NEW' || invite().status === 'VIEWED' || invite().status === 'PENDING') {
-      <button type="button" class="btn-decline" [disabled]="accepting() || declining()" (click)="openDeclineModal()">
-        @if (declining()) {
-          <span class="btn-spinner btn-spinner-dark" aria-hidden="true"></span>
-          <span>Declining...</span>
-        } @else {
-          <app-icon name="close" [size]="16" />
-          <span>Decline Opportunity</span>
-        }
-      </button>
-
-      <button type="button" class="btn-accept" [disabled]="accepting() || declining()" (click)="openAcceptModal()">
-        @if (accepting()) {
-          <span class="btn-spinner" aria-hidden="true"></span>
-          <span>Accepting...</span>
-        } @else {
-          <app-icon name="check" [size]="18" />
-          <span>Accept Invitation</span>
-        }
-      </button>
-    } @else if (invite().status === 'DECLINED') {
-      <span class="declined-status-text">
-        <app-icon name="close" [size]="16" />
-        <span>You have declined this invitation.</span>
-      </span>
-    } @else if (invite().status === 'EXPIRED') {
-      <span class="expired-status-text">
-        <app-icon name="history" [size]="16" />
-        <span>This invitation deadline has expired.</span>
-      </span>
-    }
-  </div>
-</div>
+</section>
 
 <!-- Accept Confirmation Modal -->
 @if (showAcceptModal()) {

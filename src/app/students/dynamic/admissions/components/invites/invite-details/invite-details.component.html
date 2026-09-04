@@ -5,306 +5,486 @@
       <p>Loading invitation details...</p>
     </div>
   } @else if (invite(); as item) {
-    <!-- Breadcrumb & Top Bar -->
-    <nav class="top-nav-bar" aria-label="Breadcrumb">
-      <div class="nav-crumbs">
-        <a routerLink="/dynamic/invites" class="crumb-link">
-          <app-icon name="heart" [size]="16" />
-          <span>University Invites</span>
-        </a>
-        <span class="crumb-sep">/</span>
-        <span class="crumb-current">{{ item.university.name }}</span>
+    <!-- Page Header & Breadcrumbs -->
+    <header class="page-top-header">
+      <div class="eyebrow">ADMISSIONS</div>
+      <h1 class="page-title">University Invitations</h1>
+
+      <div class="breadcrumb-row">
+        <nav class="breadcrumb-nav" aria-label="Breadcrumb">
+          <a routerLink="/dynamic/invites" class="crumb-link">University Invitations</a>
+          <span class="crumb-separator" aria-hidden="true">&gt;</span>
+          <span class="crumb-current">{{ item.university.name }}</span>
+        </nav>
+
+        @if (statusConfig(); as cfg) {
+          <div class="header-status-pill" [class]="cfg.badgeClass">
+            <span class="pill-dot" aria-hidden="true"></span>
+            <span class="pill-text">{{ cfg.label }}</span>
+          </div>
+        }
       </div>
+    </header>
 
-      @if (statusConfig(); as cfg) {
-        <div class="nav-status">
-          <span class="status-badge" [class]="cfg.badgeClass">
-            <span class="dot" aria-hidden="true"></span>
-            <app-icon [name]="cfg.icon" [size]="13" [strokeWidth]="2" />
-            <span>{{ cfg.label }}</span>
-          </span>
-        </div>
-      }
-    </nav>
-
-    <!-- University Overview Header Banner -->
-    <section class="univ-card">
-      <div class="cover-image">
-        @if (item.university.coverImageUrl) {
+    <!-- University Hero Card -->
+    <section class="hero-card" id="overview" aria-label="University Overview">
+      @if (heroBgUrl() && !heroBgFailed(); as bgUrl) {
+        <div class="hero-bg-overlay">
           <img
             appImageFallback
-            [src]="item.university.coverImageUrl"
+            [src]="bgUrl"
             [alt]="item.university.name + ' Campus'"
+            class="hero-bg-img"
+            (error)="onHeroBgError()"
           />
-        }
-        <div class="cover-overlay"></div>
-        @if (item.university.badge) {
-          <span class="univ-badge">
-            <app-icon name="sparkles" [size]="14" />
-            <span>{{ item.university.badge }}</span>
-          </span>
-        }
-      </div>
-
-      <div class="univ-content">
-        <div class="brand-row">
-          <div class="univ-logo">
-            <img
-              appImageFallback
-              [src]="item.university.logoUrl"
-              [alt]="item.university.name + ' Crest'"
-            />
-          </div>
-
-          <div class="univ-title-wrap">
-            <div class="meta-tags">
-              <span class="location-tag">
-                <app-icon name="globe" [size]="14" />
-                <span>{{ item.university.city ? item.university.city + ', ' : '' }}{{ item.university.country || 'International Campus' }}</span>
-              </span>
-              @if (item.university.foundedYear > 0) {
-                <span class="founded-tag">
-                  <app-icon name="history" [size]="14" />
-                  <span>Est. {{ item.university.foundedYear }}</span>
-                </span>
-              }
-              @if (item.university.rankingGlobal) {
-                <span class="rank-tag">
-                  QS World Rank #{{ item.university.rankingGlobal }}
-                </span>
-              }
-            </div>
-
-            <h1 class="name">{{ item.university.name }}</h1>
-            @if (item.university.campusType) {
-              <p class="campus-type">{{ item.university.campusType }}</p>
-            }
-          </div>
-        </div>
-
-        @if (item.university.overview) {
-          <p class="overview">{{ item.university.overview }}</p>
-        }
-
-        @if (item.university.featuredHighlights && item.university.featuredHighlights.length > 0) {
-          <div class="highlights-grid">
-            @for (hl of item.university.featuredHighlights; track hl) {
-              <div class="hl-item">
-                <app-icon name="check" [size]="16" />
-                <span>{{ hl }}</span>
-              </div>
-            }
-          </div>
-        }
-
-        @if (item.university.recognition && item.university.recognition.length > 0) {
-          <div class="recognitions-box">
-            <span class="rec-label">Accreditations & International Recognition</span>
-            <div class="rec-chips">
-              @for (rec of item.university.recognition; track rec) {
-                <span class="rec-chip">
-                  <app-icon name="sparkles" [size]="13" />
-                  <span>{{ rec }}</span>
-                </span>
-              }
-            </div>
-          </div>
-        }
-      </div>
-    </section>
-
-    <!-- Program & Curriculum Details -->
-    <section class="program-card">
-      <div class="section-heading">
-        <div class="heading-icon">
-          <app-icon name="graduation-cap" [size]="20" />
-        </div>
-        <div>
-          <h2>Academic Program Specifications</h2>
-          <p>Curriculum structure, duration, language, and clinical rotations</p>
-        </div>
-      </div>
-
-      <div class="program-grid">
-        <div class="prog-item">
-          <span class="lbl">Degree Awarded</span>
-          <strong>{{ item.program.degree || 'Doctor of Medicine (MD / MBBS)' }}</strong>
-        </div>
-        <div class="prog-item">
-          <span class="lbl">Program Title</span>
-          <strong>{{ item.title || item.program.programName }}</strong>
-        </div>
-        <div class="prog-item">
-          <span class="lbl">Course Duration</span>
-          <strong>{{ item.program.duration || '6 Years (5+1 Clinical Internship)' }}</strong>
-        </div>
-        <div class="prog-item">
-          <span class="lbl">Medium of Instruction</span>
-          <strong>{{ item.program.language || '100% English Medium' }}</strong>
-        </div>
-        <div class="prog-item">
-          <span class="lbl">Intake Period</span>
-          <strong class="highlight-blue">{{ item.program.intake || 'Upcoming Intake' }}</strong>
-        </div>
-        @if (item.expiresAt) {
-          <div class="prog-item">
-            <span class="lbl">Offer Expiry Deadline</span>
-            <strong class="highlight-amber">{{ item.expiresAt | date: 'mediumDate' }}</strong>
-          </div>
-        }
-      </div>
-
-      @if (item.program.clinicalRotations) {
-        <div class="clinical-box">
-          <app-icon name="sparkles" [size]="18" />
-          <div>
-            <strong>Clinical Rotations & Hospital Affiliation</strong>
-            <p>{{ item.program.clinicalRotations }}</p>
-          </div>
+          <div class="hero-gradient-mask"></div>
         </div>
       }
-    </section>
 
-    <!-- Financial Breakdown & Student Match Snapshot -->
-    <section class="financial-card">
-      <div class="fin-layout">
-        <!-- Left: Financials -->
-        <div class="fin-col">
-          <div class="section-heading">
-            <div class="heading-icon gold">
-              <app-icon name="sparkles" [size]="20" />
-            </div>
-            <div>
-              <h2>Financial Transparency & Grant</h2>
-              <p>Direct institutional tuition breakdown</p>
-            </div>
-          </div>
-
-          <div class="fee-breakdown">
-            @if (item.financial.tuitionAnnual > 0) {
-              <div class="fee-line">
-                <span>Standard Annual Tuition</span>
-                <strong>{{ item.financial.tuitionAnnual | currency: item.financial.currency: 'symbol': '1.0-0' }}</strong>
-              </div>
-            }
-
-            @if (item.financial.scholarshipPercentage > 0) {
-              <div class="fee-line scholarship">
-                <span>Merit Scholarship ({{ item.financial.scholarshipPercentage }}%)</span>
-                <strong>-{{ item.financial.scholarshipAmount | currency: item.financial.currency: 'symbol': '1.0-0' }}</strong>
-              </div>
-            }
-
-            <div class="fee-line total">
-              <span>Net Annual Tuition Payable</span>
-              <strong class="net-fee">{{ (item.financial.netTuitionAnnual || item.financial.tuitionAnnual) | currency: item.financial.currency: 'symbol': '1.0-0' }} / yr</strong>
-            </div>
-
-            @if (item.financial.estimatedHostelAnnual > 0) {
-              <div class="fee-line sub">
-                <span>Estimated On-Campus Hostel & Mess</span>
-                <span>{{ item.financial.estimatedHostelAnnual | currency: item.financial.currency: 'symbol': '1.0-0' }} / yr</span>
-              </div>
-            }
-          </div>
-        </div>
-
-        <!-- Right: Candidate Criteria Match -->
-        <div class="match-col">
-          <div class="section-heading">
-            <div class="heading-icon emerald">
-              <app-icon name="check" [size]="20" />
-            </div>
-            <div>
-              <h2>Academic Eligibility Verification</h2>
-              <p>Candidate credentials evaluated for admission</p>
-            </div>
-          </div>
-
-          <div class="match-box">
-            <div class="match-hero">
-              <span class="match-pct">{{ item.eligibility.matchPercentage }}%</span>
-              <div class="match-desc">
-                <strong>Profile Match Score</strong>
-                <p>Pre-evaluated based on your verified scorecard</p>
-              </div>
-            </div>
-
-            <div class="criteria-list">
-              <div class="crit-item">
-                <app-icon name="check" [size]="16" />
-                <span>Senior Secondary PCB marks satisfy international medical criteria</span>
-              </div>
-              <div class="crit-item">
-                <app-icon name="check" [size]="16" />
-                <span>NTA NEET qualifying status verified</span>
-              </div>
-              <div class="crit-item">
-                <app-icon name="check" [size]="16" />
-                <span>Passport & document eligibility verified</span>
-              </div>
-            </div>
-          </div>
+      <!-- Ambient Luminous Lighting & Translucent Collegiate Watermark -->
+      <div class="hero-ambient-lights" aria-hidden="true">
+        <div class="ambient-orb orb-primary"></div>
+        <div class="ambient-orb orb-secondary"></div>
+        <div class="ambient-pattern"></div>
+        <div class="ambient-watermark-crest">
+          <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="watermark-svg">
+            <path d="M100 16L164 44V96C164 136 136 172 100 184C64 172 36 136 36 96V44L100 16Z" stroke="currentColor" stroke-width="2.5" stroke-dasharray="6 4" opacity="0.5"/>
+            <path d="M100 30L150 52V95C150 125 129 154 100 165C71 154 50 125 50 95V52L100 30Z" stroke="currentColor" stroke-width="1.8" opacity="0.65"/>
+            <circle cx="100" cy="98" r="26" stroke="currentColor" stroke-width="2"/>
+            <path d="M100 80V116M82 98H118" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+            <path d="M85 76C85 76 92 70 100 70C108 70 115 76 115 76" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
         </div>
       </div>
-    </section>
 
-    <!-- Invitation Activity History -->
-    <section class="details-section activity-section" aria-labelledby="history-heading">
-      <div class="section-card">
-        <div class="card-head">
-          <div class="head-icon icon-history">
-            <app-icon name="clock" [size]="20" />
-          </div>
-          <div>
-            <h3 id="history-heading">Invitation Activity History</h3>
-            <p>Real-time audit log of actions and status changes for this invitation</p>
-          </div>
-        </div>
-
-        <div class="card-body">
-          @if (historyLoading()) {
-            <div class="history-loading" role="status">
-              <span class="history-spinner" aria-hidden="true"></span>
-              <span>Loading invitation activity...</span>
-            </div>
-          } @else if (historyError(); as histErr) {
-            <div class="history-error" role="alert">
-              <app-icon name="close" [size]="16" />
-              <span>{{ histErr }}</span>
-              <button type="button" class="btn-retry-hist" (click)="loadInviteHistory(item.id)">Retry</button>
-            </div>
-          } @else if (history().length === 0) {
-            <div class="history-empty">
-              <app-icon name="clock" [size]="20" />
-              <p>No activity recorded yet for this invitation.</p>
-            </div>
-          } @else {
-            <div class="history-timeline">
-              @for (entry of history(); track entry.id || $index) {
-                <div class="timeline-entry">
-                  <div class="timeline-marker" [ngClass]="'marker-' + (entry.action.toLowerCase())">
-                    <span class="marker-dot"></span>
-                  </div>
-                  <div class="timeline-content">
-                    <div class="entry-header">
-                      <strong class="entry-title">{{ entry.title || entry.action }}</strong>
-                      <time class="entry-time">{{ entry.createdAt | date:'medium' }}</time>
-                    </div>
-                    @if (entry.description) {
-                      <p class="entry-desc">{{ entry.description }}</p>
-                    }
-                    @if (entry.actor) {
-                      <span class="entry-actor">By: {{ entry.actor }}</span>
-                    }
-                  </div>
+      <div class="hero-inner">
+        <!-- Left Hero Details -->
+        <div class="hero-main-col">
+          <div class="hero-identity-row">
+            <div class="univ-logo-card">
+              @if (!logoFailed() && univLogoUrl()) {
+                <img
+                  appImageFallback
+                  [src]="univLogoUrl()"
+                  [alt]="item.university.name + ' Logo'"
+                  class="univ-logo-img"
+                  (error)="onLogoError()"
+                />
+              } @else {
+                <div class="univ-logo-fallback" aria-hidden="true">
+                  <app-icon name="graduation-cap" [size]="28" class="fallback-icon" />
+                  <span class="fallback-monogram">{{ getUniversityInitials(item.university.name) }}</span>
+                  <span class="fallback-sub">OFFICIAL</span>
                 </div>
               }
             </div>
-          }
+
+            <div class="hero-identity-meta">
+              <div class="location-row">
+                <svg class="pin-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                  <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                <span>{{ item.university.city ? item.university.city + ', ' : '' }}{{ item.university.country || 'International Campus' }}</span>
+              </div>
+
+              <h2 class="hero-univ-name">{{ item.university.name }}</h2>
+
+              <div class="hero-tag-pills">
+                <span class="hero-tag-pill">{{ item.program.degree || 'Doctor of Medicine (MD / MBBS)' }}</span>
+                <span class="hero-tag-pill">International Medical Degree</span>
+              </div>
+            </div>
+          </div>
+
+          <p class="hero-greeting-msg">
+            Dear <strong>{{ studentName() }}</strong>, {{ item.university.name }} invites you to explore our internationally accredited MBBS medical program.
+          </p>
         </div>
+
+        <!-- Right Hero Stats Container -->
+        <aside class="hero-stats-panel" aria-label="Offer Summary">
+          @if (statusConfig(); as cfg) {
+            <div class="stats-status-badge">
+              <span class="status-indicator-ring">
+                <span class="status-indicator-center"></span>
+              </span>
+              <span>{{ cfg.label }}</span>
+            </div>
+          }
+
+          <div class="stats-date-row">
+            <div class="date-icon-box">
+              <app-icon name="categories" [size]="18" />
+            </div>
+            <div class="date-meta">
+              <span class="date-label">Issued On</span>
+              <strong class="date-val">{{ (item.issuedAt || item.createdAt) | date: 'mediumDate' }}</strong>
+            </div>
+          </div>
+
+          <div class="stats-date-row">
+            <div class="date-icon-box date-icon-amber">
+              <app-icon name="clock" [size]="18" />
+            </div>
+            <div class="date-meta">
+              <span class="date-label">Offer Expires On</span>
+              <strong class="date-val date-val-amber">{{ item.expiresAt | date: 'mediumDate' }}</strong>
+            </div>
+          </div>
+
+          <blockquote class="stats-quote">
+            &ldquo;Your profile matches our admission criteria, and we look forward to receiving your response.&rdquo;
+          </blockquote>
+        </aside>
       </div>
     </section>
+
+    <!-- Navigation Tabs Ribbon -->
+    <nav class="nav-ribbon" aria-label="Section Navigation">
+      @for (tab of navTabs; track tab.id) {
+        <button
+          type="button"
+          class="ribbon-tab"
+          [class.active]="activeTab() === tab.id"
+          (click)="selectTab(tab.id)"
+        >
+          <app-icon [name]="tab.icon" [size]="16" />
+          <span>{{ tab.label }}</span>
+        </button>
+      }
+    </nav>
+
+    <!-- Info Alert Banner -->
+    <div class="info-alert-banner" role="status">
+      <div class="info-icon-circle" aria-hidden="true">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+      </div>
+      <p class="info-alert-text">
+        Your profile matches the university's key admission criteria. Review the details and respond before the offer expires.
+      </p>
+    </div>
+
+    <!-- Two-Column Information Grid with Active Tab Filtering -->
+    <div class="info-two-col-grid" [class.filtered-single-col]="activeTab() !== 'overview'">
+      <!-- Card 1: Program Snapshot -->
+      @if (activeTab() === 'overview' || activeTab() === 'program') {
+        <section class="grid-card program-snapshot-card" id="program" aria-labelledby="prog-snapshot-title">
+          <div class="grid-card-head">
+            <div class="head-icon-box icon-box-blue" aria-hidden="true">
+              <app-icon name="graduation-cap" [size]="18" />
+            </div>
+            <div>
+              <h3 id="prog-snapshot-title" class="grid-card-title">Program Snapshot</h3>
+              <p class="grid-card-sub">Key details about the offered program</p>
+            </div>
+          </div>
+
+          <div class="spec-table">
+            <div class="spec-row">
+              <span class="spec-lbl">Degree Awarded</span>
+              <strong class="spec-val">{{ item.program.degree || 'Doctor of Medicine (MD / MBBS)' }}</strong>
+            </div>
+            <div class="spec-row">
+              <span class="spec-lbl">Program Title</span>
+              <strong class="spec-val">{{ item.title || item.program.programName }}</strong>
+            </div>
+            <div class="spec-row">
+              <span class="spec-lbl">Course Duration</span>
+              <strong class="spec-val">{{ item.program.duration || 'Standard Curriculum' }}</strong>
+            </div>
+            <div class="spec-row">
+              <span class="spec-lbl">Medium of Instruction</span>
+              <strong class="spec-val">{{ item.program.language || 'English Medium' }}</strong>
+            </div>
+            <div class="spec-row">
+              <span class="spec-lbl">Intake Period</span>
+              <strong class="spec-val val-blue">{{ item.program.intake || 'Upcoming Intake' }}</strong>
+            </div>
+            <div class="spec-row">
+              <span class="spec-lbl">Application Deadline</span>
+              <strong class="spec-val val-amber">{{ item.expiresAt | date: 'mediumDate' }}</strong>
+            </div>
+          </div>
+        </section>
+      }
+
+      <!-- Card 2: Profile Match & Eligibility -->
+      @if (activeTab() === 'overview' || activeTab() === 'eligibility') {
+        <section class="grid-card match-card" id="eligibility" aria-labelledby="match-eligibility-title">
+          <div class="grid-card-head">
+            <div class="head-icon-box icon-box-green" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <circle cx="12" cy="12" r="6"></circle>
+                <circle cx="12" cy="12" r="2"></circle>
+              </svg>
+            </div>
+            <div>
+              <h3 id="match-eligibility-title" class="grid-card-title">Profile Match &amp; Eligibility</h3>
+              <p class="grid-card-sub">Evaluation based on your academic profile</p>
+            </div>
+          </div>
+
+          <div class="criteria-header-banner">
+            <span class="criteria-badge">
+              <app-icon name="check" [size]="14" [strokeWidth]="2.5" />
+              <span>Verified Candidate Credentials</span>
+            </span>
+            <p class="criteria-intro-note">
+              Your academic scorecard and candidate profile meet the prerequisite requirements for this medical offer.
+            </p>
+          </div>
+
+          <!-- Criteria Checklist -->
+          <ul class="checklist" aria-label="Eligibility criteria verified">
+            <li class="check-item">
+              <span class="check-circle" aria-hidden="true">
+                <app-icon name="check" [size]="12" [strokeWidth]="2.5" />
+              </span>
+              <span class="check-text">Senior Secondary PCB marks satisfy international medical criteria</span>
+            </li>
+            <li class="check-item">
+              <span class="check-circle" aria-hidden="true">
+                <app-icon name="check" [size]="12" [strokeWidth]="2.5" />
+              </span>
+              <span class="check-text">NTA NEET qualifying status verified</span>
+            </li>
+            <li class="check-item">
+              <span class="check-circle" aria-hidden="true">
+                <app-icon name="check" [size]="12" [strokeWidth]="2.5" />
+              </span>
+              <span class="check-text">Passport &amp; document eligibility verified</span>
+            </li>
+          </ul>
+        </section>
+      }
+
+      <!-- Card 3: Financial Information -->
+      @if (activeTab() === 'overview' || activeTab() === 'financial') {
+        <section class="grid-card financial-card" id="financial" aria-labelledby="fin-info-title">
+          <div class="grid-card-head">
+            <div class="head-icon-box icon-box-amber" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+              </svg>
+            </div>
+            <div>
+              <h3 id="fin-info-title" class="grid-card-title">Financial Information</h3>
+              <p class="grid-card-sub">Tuition and financial assistance details</p>
+            </div>
+          </div>
+
+          <div class="spec-table">
+            <div class="spec-row">
+              <span class="spec-lbl">Net Annual Tuition Payable</span>
+              <strong class="spec-val spec-val-lg">
+                @if ((item.financial.netTuitionAnnual || item.financial.tuitionAnnual || 0) > 0) {
+                  {{ (item.financial.netTuitionAnnual || item.financial.tuitionAnnual) | currency: (item.financial.currency || 'USD'): 'symbol': '1.0-0' }} / year
+                } @else {
+                  $0 / year
+                }
+              </strong>
+            </div>
+            <div class="spec-row">
+              <span class="spec-lbl">Scholarship / Grant</span>
+              <strong class="spec-val">
+                @if (item.financial.scholarshipAmount > 0) {
+                  -{{ item.financial.scholarshipAmount | currency: (item.financial.currency || 'USD'): 'symbol': '1.0-0' }}
+                } @else {
+                  Not specified
+                }
+              </strong>
+            </div>
+            <div class="spec-row">
+              <span class="spec-lbl">Other Fees</span>
+              <strong class="spec-val">
+                @if (item.financial.estimatedHostelAnnual > 0) {
+                  {{ item.financial.estimatedHostelAnnual | currency: (item.financial.currency || 'USD'): 'symbol': '1.0-0' }}
+                } @else {
+                  Not provided
+                }
+              </strong>
+            </div>
+          </div>
+
+          <div class="card-footer-note">
+            <span class="note-info-icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+            </span>
+            <p>For detailed fee structure and scholarship terms, please refer to the university information.</p>
+          </div>
+        </section>
+      }
+
+      <!-- Card 4: Activity History -->
+      @if (activeTab() === 'overview' || activeTab() === 'history') {
+        <section class="grid-card history-card" id="history" aria-labelledby="hist-title">
+          <div class="grid-card-head">
+            <div class="head-icon-box icon-box-slate" aria-hidden="true">
+              <app-icon name="clock" [size]="18" />
+            </div>
+            <div>
+              <h3 id="hist-title" class="grid-card-title">Invitation Activity History</h3>
+              <p class="grid-card-sub">Real-time log of actions and status changes</p>
+            </div>
+          </div>
+
+          <div class="history-content-wrap">
+            @if (historyLoading()) {
+              <div class="history-loading-row" role="status">
+                <span class="history-spinner" aria-hidden="true"></span>
+                <span>Loading invitation activity...</span>
+              </div>
+            } @else if (historyError(); as histErr) {
+              <div class="history-error-row" role="alert">
+                <app-icon name="close" [size]="14" />
+                <span>{{ histErr }}</span>
+                <button type="button" class="btn-retry-history" (click)="loadInviteHistory(item.id)">Retry</button>
+              </div>
+            } @else if (history().length === 0) {
+              <!-- Default verified timeline based on invitation lifecycle -->
+              <div class="activity-timeline">
+                <div class="timeline-step">
+                  <div class="timeline-bullet-col">
+                    <span class="bullet-dot bullet-dot-sky"></span>
+                    <span class="bullet-stem"></span>
+                  </div>
+                  <div class="timeline-body">
+                    <div class="timeline-header-row">
+                      <div class="timeline-title-wrap">
+                        <strong class="timeline-step-title">Invitation Issued</strong>
+                        <span class="timeline-actor-pill">University Admissions</span>
+                      </div>
+                      <time class="timeline-step-date">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        <span>{{ (item.issuedAt || item.createdAt) | date:'medium' }}</span>
+                      </time>
+                    </div>
+                    <p class="timeline-step-desc">University issued the official admission offer based on your academic scorecard.</p>
+                  </div>
+                </div>
+
+                @if (item.viewedAt || item.status === 'VIEWED' || item.status === 'ACCEPTED' || item.status === 'DECLINED') {
+                  <div class="timeline-step">
+                    <div class="timeline-bullet-col">
+                      <span class="bullet-dot bullet-dot-blue"></span>
+                      @if (item.respondedAt || item.status === 'ACCEPTED' || item.status === 'DECLINED') {
+                        <span class="bullet-stem"></span>
+                      }
+                    </div>
+                    <div class="timeline-body">
+                      <div class="timeline-header-row">
+                        <div class="timeline-title-wrap">
+                          <strong class="timeline-step-title">Invitation Reviewed</strong>
+                          <span class="timeline-actor-pill">Candidate Action</span>
+                        </div>
+                        <time class="timeline-step-date">
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                          </svg>
+                          <span>{{ (item.viewedAt || item.createdAt) | date:'medium' }}</span>
+                        </time>
+                      </div>
+                      <p class="timeline-step-desc">Invitation details, curriculum structure, and scholarship eligibility were accessed and reviewed.</p>
+                    </div>
+                  </div>
+                }
+
+                @if (item.status === 'ACCEPTED' && item.respondedAt) {
+                  <div class="timeline-step">
+                    <div class="timeline-bullet-col">
+                      <span class="bullet-dot bullet-dot-emerald"></span>
+                    </div>
+                    <div class="timeline-body">
+                      <div class="timeline-header-row">
+                        <div class="timeline-title-wrap">
+                          <strong class="timeline-step-title">Invitation Accepted</strong>
+                          <span class="timeline-actor-pill">Candidate Action</span>
+                        </div>
+                        <time class="timeline-step-date">
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                          </svg>
+                          <span>{{ item.respondedAt | date:'medium' }}</span>
+                        </time>
+                      </div>
+                      <p class="timeline-step-desc">You confirmed acceptance of this official offer. Your profile has been queued for admissions onboarding.</p>
+                    </div>
+                  </div>
+                } @else if (item.status === 'DECLINED' && item.respondedAt) {
+                  <div class="timeline-step">
+                    <div class="timeline-bullet-col">
+                      <span class="bullet-dot bullet-dot-rose"></span>
+                    </div>
+                    <div class="timeline-body">
+                      <div class="timeline-header-row">
+                        <div class="timeline-title-wrap">
+                          <strong class="timeline-step-title">Invitation Declined</strong>
+                          <span class="timeline-actor-pill">Candidate Action</span>
+                        </div>
+                        <time class="timeline-step-date">
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                          </svg>
+                          <span>{{ item.respondedAt | date:'medium' }}</span>
+                        </time>
+                      </div>
+                      <p class="timeline-step-desc">Invitation declined by candidate. Record marked as closed in admissions ledger.</p>
+                    </div>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="activity-timeline">
+                @for (entry of history(); track entry.id || $index; let isLast = $last) {
+                  <div class="timeline-step">
+                    <div class="timeline-bullet-col">
+                      <span class="bullet-dot" [ngClass]="getHistoryDotClass(entry)"></span>
+                      @if (!isLast) {
+                        <span class="bullet-stem"></span>
+                      }
+                    </div>
+                    <div class="timeline-body">
+                      <div class="timeline-header-row">
+                        <div class="timeline-title-wrap">
+                          <strong class="timeline-step-title">{{ entry.title || entry.action }}</strong>
+                          <span class="timeline-actor-pill">{{ getHistoryStepActor(entry) }}</span>
+                        </div>
+                        <time class="timeline-step-date">
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                          </svg>
+                          <span>{{ entry.createdAt | date:'medium' }}</span>
+                        </time>
+                      </div>
+                      <p class="timeline-step-desc">{{ getHistoryStepDescription(entry) }}</p>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </section>
+      }
+    </div>
 
     <!-- Action Feedback Messages -->
     @if (actionError(); as errMsg) {

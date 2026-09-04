@@ -6,253 +6,415 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 13px 18px;
+  min-height: 88px;
+  padding: 16px 22px;
   background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  border-left: 4px solid #cbd5e1;
+  border-radius: 12px;
   text-decoration: none;
   color: inherit;
   cursor: pointer;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
-  transition: all 0.15s ease;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03), 0 2px 6px rgba(15, 23, 42, 0.015);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Semantic status indicators on left border */
+  &.status-new {
+    border-left-color: #f59e0b; /* Amber for Action Needed */
+  }
+
+  &.status-viewed {
+    border-left-color: #3b82f6; /* Sapphire blue for Under Review */
+  }
+
+  &.status-accepted {
+    border-left-color: #10b981; /* Emerald green for Accepted */
+  }
+
+  &.status-declined {
+    border-left-color: #cbd5e1; /* Neutral slate for Declined */
+    opacity: 0.85;
+  }
+
+  &.status-expired {
+    border-left-color: #cbd5e1;
+    opacity: 0.8;
+  }
 
   &:hover {
     border-color: #cbd5e1;
     background-color: #ffffff;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-    transform: translateY(-1px);
-
-    .univ-name {
-      color: #2563eb;
-    }
-
-    .action-btn-pill {
-      background: #111827;
-      color: #ffffff;
-      border-color: #111827;
-
-      app-icon {
-        color: #ffffff;
-        transform: translateX(2px);
-      }
-    }
-  }
-
-  &.highlighted {
-    border-left: 3px solid #d97706;
-  }
-}
-
-/* Left Side: Dot, Thumbnail, University & Subline */
-.card-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex: 1;
-  min-width: 0;
-
-  .status-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    flex-shrink: 0;
+    box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.08), 0 4px 10px -2px rgba(15, 23, 42, 0.03);
+    transform: translateY(-2px);
 
     &.status-new {
-      background: #d97706;
+      border-left-color: #d97706;
     }
 
     &.status-viewed {
-      background: #9ca3af;
+      border-left-color: #2563eb;
     }
 
     &.status-accepted {
-      background: #10b981;
+      border-left-color: #059669;
     }
 
-    &.status-declined {
-      background: #ef4444;
+    .univ-info-block .univ-name {
+      color: #1d4ed8;
     }
 
-    &.status-expired {
-      background: #9ca3af;
+    .action-btn-pill {
+      background: #0f172a;
+      border-color: #e3fe54;
+      color: #ffffff;
+      box-shadow: 0 0 14px rgba(227, 254, 84, 0.32);
+
+      app-icon {
+        color: #e3fe54;
+        transform: translateX(4px);
+      }
     }
   }
+}
 
+/* Left Section: Logo & Information */
+.card-left {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex: 1;
+  min-width: 0;
+
+  /* University Logo Thumbnail / Fallback Monogram */
   .univ-thumb {
-    width: 36px;
-    height: 36px;
-    border-radius: 6px;
-    border: 1px solid #e5e7eb;
-    background: #fafafa;
-    padding: 2px;
+    width: 52px;
+    height: 52px;
+    min-width: 52px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    padding: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+    overflow: hidden;
 
     img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: 4px;
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: 8px;
     }
 
-    &.fallback-thumb {
-      background: #f3f4f6;
-      color: #6b7280;
+    .univ-thumb-fallback {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+      border-radius: 8px;
+      border: 1px solid #bfdbfe;
+
+      .fallback-monogram {
+        font-size: 0.8125rem;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        color: #1e40af;
+        line-height: 1;
+      }
     }
   }
 
+  /* University Info Block */
   .univ-info-block {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 8px;
     min-width: 0;
 
     .univ-name-line {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       flex-wrap: wrap;
 
       .univ-name {
-        font-size: 0.9375rem;
+        margin: 0;
+        font-size: 1.0625rem;
         font-weight: 700;
-        color: #111827;
-        letter-spacing: -0.01em;
-        line-height: 1.3;
+        color: #0f172a;
+        letter-spacing: -0.015em;
+        line-height: 1.35;
         transition: color 0.15s ease;
       }
 
-      .rank-tag {
+      /* Global Rank Badge */
+      .rank-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
         font-size: 0.6875rem;
         font-weight: 600;
-        color: #b45309;
-        background: #fef3c7;
-        padding: 1px 6px;
-        border-radius: 4px;
+        color: #854d0e;
+        background: #fefce8;
+        border: 1px solid #fef08a;
+        padding: 2px 7px;
+        border-radius: 6px;
+        line-height: 1;
+
+        app-icon {
+          color: #ca8a04;
+        }
       }
 
-      .match-tag {
+      /* Match Score Badge */
+      .match-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
         font-size: 0.6875rem;
-        font-weight: 600;
-        color: #059669;
+        font-weight: 700;
+        color: #1a2e05;
+        background: #f7fee7;
+        border: 1px solid #d9f99d;
+        padding: 2px 8px;
+        border-radius: 6px;
+        line-height: 1;
+
+        app-icon {
+          color: #4d7c0f;
+        }
       }
     }
 
-    .univ-subline {
+    /* Refined metadata tags */
+    .univ-tags-line {
       display: flex;
       align-items: center;
-      gap: 6px;
-      font-size: 0.8125rem;
-      color: #6b7280;
+      gap: 8px;
       flex-wrap: wrap;
 
-      .meta-sep {
-        color: #d1d5db;
-      }
-
-      .country-text {
-        font-weight: 500;
-      }
-
-      .program-text {
-        font-weight: 500;
-        color: #4b5563;
-      }
-
-      .intake-text {
-        color: #2563eb;
-        font-weight: 500;
-      }
-
-      .scholarship-text {
-        color: #059669;
+      /* Country Tag */
+      .country-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 3px 9px;
+        border-radius: 6px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        font-size: 0.75rem;
         font-weight: 600;
+        color: #334155;
+
+        app-icon {
+          color: #64748b;
+        }
+      }
+
+      /* Program Tag */
+      .program-pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 3px 10px;
+        border-radius: 6px;
+        background: #f1f5f9;
+        border: 1px solid #cbd5e1;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #0f172a;
+      }
+
+      /* Intake Tag */
+      .intake-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 3px 9px;
+        border-radius: 6px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: #475569;
+
+        app-icon {
+          color: #64748b;
+        }
+      }
+
+      /* Scholarship Grant Pill */
+      .scholarship-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 3px 10px;
+        border-radius: 6px;
+        background: #ecfdf5;
+        border: 1px solid #a7f3d0;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #047857;
+
+        app-icon {
+          color: #059669;
+        }
       }
     }
   }
 }
 
-/* Right Side: Status Badge, Date & View Action */
+/* Right Section: Status Indicator, Dates, & View CTA Button */
 .card-right {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 20px;
   flex-shrink: 0;
 
+  /* Status Badge with Dot */
   .status-indicator {
     display: inline-flex;
     align-items: center;
-    padding: 3px 8px;
-    border-radius: 4px;
-    font-size: 0.6875rem;
-    font-weight: 700;
-    letter-spacing: 0.03em;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
     line-height: 1;
     white-space: nowrap;
 
+    .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    /* Action Needed (Pending/New) */
     &.status-new {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
       color: #b45309;
-      background: #fef3c7;
+
+      .badge-dot {
+        background: #f59e0b;
+        box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
+      }
     }
 
+    /* Under Review (Viewed) */
     &.status-viewed {
-      color: #4b5563;
-      background: #f3f4f6;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1d4ed8;
+
+      .badge-dot {
+        background: #2563eb;
+        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+      }
     }
 
+    /* Accepted */
     &.status-accepted {
-      color: #047857;
       background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      color: #047857;
+
+      .badge-dot {
+        background: #10b981;
+        box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
+      }
     }
 
+    /* Declined */
     &.status-declined {
-      color: #b91c1c;
-      background: #fef2f2;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      color: #64748b;
+
+      .badge-dot {
+        background: #94a3b8;
+      }
     }
 
+    /* Expired */
     &.status-expired {
-      color: #6b7280;
-      background: #f3f4f6;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      color: #64748b;
+
+      .badge-dot {
+        background: #94a3b8;
+      }
     }
   }
 
-  .card-date {
-    font-size: 0.8125rem;
-    color: #6b7280;
-    font-weight: 500;
-    min-width: 48px;
-    text-align: right;
+  /* Date & Expiration info */
+  .date-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 3px;
+    min-width: 84px;
+
+    .card-date {
+      font-size: 0.8125rem;
+      color: #64748b;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .expiry-sub {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      color: #92400e;
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      padding: 2px 7px;
+      border-radius: 4px;
+      white-space: nowrap;
+
+      app-icon {
+        color: #d97706;
+      }
+    }
   }
 
+  /* Action CTA Button */
   .action-btn-pill {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    padding: 4px 10px;
-    border-radius: 6px;
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
-    font-size: 0.75rem;
+    gap: 7px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    background: #0f172a;
+    border: 1px solid #0f172a;
+    font-size: 0.8125rem;
     font-weight: 600;
-    color: #374151;
-    transition: all 0.15s ease;
+    color: #ffffff;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    white-space: nowrap;
 
     app-icon {
-      color: #6b7280;
-      transition: transform 0.15s ease, color 0.15s ease;
+      color: #e3fe54;
+      transition: transform 0.18s ease;
     }
   }
 }
 
-/* Mobile Responsive */
-@media (max-width: 640px) {
+/* Responsive adjustments */
+@media (max-width: 860px) {
   .opportunity-card {
     flex-direction: column;
     align-items: flex-start;
-    gap: 10px;
-    padding: 12px 14px;
+    gap: 14px;
+    padding: 16px 18px;
 
     .card-left {
       width: 100%;
@@ -261,7 +423,8 @@
     .card-right {
       width: 100%;
       justify-content: space-between;
-      padding-left: 20px;
+      padding-top: 10px;
+      border-top: 1px solid #f1f5f9;
     }
   }
 }

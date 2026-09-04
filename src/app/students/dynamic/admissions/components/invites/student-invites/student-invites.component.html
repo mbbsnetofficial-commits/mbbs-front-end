@@ -2,76 +2,61 @@
   <!-- Top Intro Header & Profile Component -->
   <header class="page-intro-header">
     <div class="intro-left">
-      <h1 class="page-title">University Opportunities</h1>
-      <p class="page-subtitle">Universities matching your profile</p>
+      <div class="eyebrow">ADMISSIONS PORTAL</div>
+      <h1 class="page-title">University Invitations</h1>
+      <p class="page-subtitle">Review official admission invitations, evaluate curriculum offers, and confirm your international MBBS seat.</p>
     </div>
 
-    <!-- Profile Component: Compact indicator [ Profile 100% ] -->
+    <!-- Profile Component: Clean verified indicator (no raw score clutter) -->
     <div class="profile-compact-wrapper">
       <a routerLink="/dynamic/profile" class="profile-compact-pill" title="View or edit your student profile">
-        <span class="pill-tag">Profile {{ profile().completionPercentage || 0 }}%</span>
+        <span class="pill-tag">
+          <app-icon name="check" [size]="11" />
+          <span>Profile {{ profile().completionPercentage || 0 }}%</span>
+        </span>
         @if (profile().personal.fullName) {
           <span class="pill-name">{{ profile().personal.fullName }}</span>
         }
-        @if (profile().entranceExams[0]?.score) {
-          <span class="pill-score">Score: {{ profile().entranceExams[0]?.score }}</span>
-        }
-        <span class="pill-action">Edit</span>
+        <span class="pill-action">View Profile</span>
         <app-icon name="arrow-right" [size]="12" />
       </a>
     </div>
   </header>
 
-  <!-- Clear Admissions Process Guidance Track -->
-  <div class="admissions-process-card" aria-label="Admissions process overview">
-    <div class="process-track">
-      <div class="process-step step-done">
-        <div class="step-num-dot">
-          <app-icon name="check" [size]="12" />
-        </div>
-        <div class="step-info">
-          <strong class="step-name">1. Profile Matched</strong>
-          <span class="step-hint">Universities evaluated scorecard</span>
-        </div>
-      </div>
-
-      <div class="process-divider-arrow" aria-hidden="true">
-        <app-icon name="arrow-right" [size]="12" />
-      </div>
-
-      <div class="process-step step-active">
-        <div class="step-num-dot">2</div>
-        <div class="step-info">
-          <strong class="step-name">2. Opportunity Received</strong>
-          <span class="step-hint">Review program & scholarship offer</span>
-        </div>
-      </div>
-
-      <div class="process-divider-arrow" aria-hidden="true">
-        <app-icon name="arrow-right" [size]="12" />
-      </div>
-
-      <div class="process-step">
-        <div class="step-num-dot">3</div>
-        <div class="step-info">
-          <strong class="step-name">3. Student Response</strong>
-          <span class="step-hint">Accept or decline before deadline</span>
-        </div>
-      </div>
-
-      <div class="process-divider-arrow" aria-hidden="true">
-        <app-icon name="arrow-right" [size]="12" />
-      </div>
-
-      <div class="process-step">
-        <div class="step-num-dot">4</div>
-        <div class="step-info">
-          <strong class="step-name">4. Direct Enrollment</strong>
-          <span class="step-hint">Documentation & seat allocation</span>
-        </div>
+  <!-- Admissions Process Lifecycle Banner: Makes the entire process crystal clear -->
+  <section class="process-lifecycle-banner" aria-label="Admissions Lifecycle">
+    <div class="lifecycle-step">
+      <div class="step-num">1</div>
+      <div class="step-info">
+        <strong class="step-label">Invitations Issued</strong>
+        <span class="step-hint">Universities review your verified scorecard</span>
       </div>
     </div>
-  </div>
+
+    <div class="lifecycle-arrow" aria-hidden="true">
+      <app-icon name="arrow-right" [size]="14" />
+    </div>
+
+    <div class="lifecycle-step step-active">
+      <div class="step-num">2</div>
+      <div class="step-info">
+        <strong class="step-label">Review & Evaluate</strong>
+        <span class="step-hint">Inspect curriculum, fees & hospital tie-ups</span>
+      </div>
+    </div>
+
+    <div class="lifecycle-arrow" aria-hidden="true">
+      <app-icon name="arrow-right" [size]="14" />
+    </div>
+
+    <div class="lifecycle-step step-success">
+      <div class="step-num">3</div>
+      <div class="step-info">
+        <strong class="step-label">Decision & Placement</strong>
+        <span class="step-hint">Confirm offer to start student onboarding</span>
+      </div>
+    </div>
+  </section>
 
   <!-- Main Opportunities Inbox Container -->
   <div class="opportunities-inbox-container">
@@ -79,10 +64,10 @@
     <div class="inbox-toolbar-row">
       <div class="count-left">
         <span class="opportunities-count">
-          {{ summary().total }} {{ summary().total === 1 ? 'opportunity' : 'opportunities' }}
+          {{ summary().total }} {{ summary().total === 1 ? 'Opportunity' : 'Opportunities' }} Available
         </span>
         @if (activeFilter() !== 'ALL' || searchQuery()) {
-          <span class="showing-badge">Showing {{ filteredInvites().length }}</span>
+          <span class="showing-badge">Showing {{ filteredInvites().length }} filtered</span>
         }
       </div>
 
@@ -91,7 +76,7 @@
           <app-icon name="search" [size]="14" class="search-ico" />
           <input
             type="text"
-            placeholder="Search universities..."
+            placeholder="Search universities, countries..."
             [ngModel]="searchQuery()"
             (ngModelChange)="onSearchChanged($event)"
             aria-label="Search universities"
@@ -101,16 +86,6 @@
               <app-icon name="close" [size]="12" />
             </button>
           }
-        </div>
-
-        <div class="sort-select-wrap">
-          <select [ngModel]="sortOption()" (ngModelChange)="onSortChanged($event)" aria-label="Sort opportunities">
-            <option value="MATCH">Highest Match ↓</option>
-            <option value="NEWEST">Most Recent</option>
-            <option value="SCHOLARSHIP">Top Scholarship</option>
-            <option value="FEE_LOW">Lowest Tuition</option>
-            <option value="EXPIRY">Expiring Soonest</option>
-          </select>
         </div>
       </div>
     </div>
@@ -123,18 +98,8 @@
         [class.active]="activeFilter() === 'ALL'"
         (click)="onFilterSelected('ALL')"
       >
-        <span class="btn-label">ALL</span>
+        <span class="btn-label">All Opportunities</span>
         <span class="btn-count">{{ summary().total }}</span>
-      </button>
-
-      <button
-        type="button"
-        class="filter-pill-btn"
-        [class.active]="activeFilter() === 'PENDING'"
-        (click)="onFilterSelected('PENDING')"
-      >
-        <span class="btn-label">NEEDS ACTION</span>
-        <span class="btn-count">{{ summary().pending }}</span>
       </button>
 
       <button
@@ -143,8 +108,18 @@
         [class.active]="activeFilter() === 'VIEWED'"
         (click)="onFilterSelected('VIEWED')"
       >
-        <span class="btn-label">REVIEWED</span>
+        <span class="btn-label">Under Review</span>
         <span class="btn-count">{{ summary().viewed }}</span>
+      </button>
+
+      <button
+        type="button"
+        class="filter-pill-btn"
+        [class.active]="activeFilter() === 'PENDING'"
+        (click)="onFilterSelected('PENDING')"
+      >
+        <span class="btn-label">Needs Action</span>
+        <span class="btn-count">{{ summary().pending }}</span>
       </button>
 
       <button
@@ -153,7 +128,7 @@
         [class.active]="activeFilter() === 'ACCEPTED'"
         (click)="onFilterSelected('ACCEPTED')"
       >
-        <span class="btn-label">ACCEPTED</span>
+        <span class="btn-label">Accepted</span>
         <span class="btn-count">{{ summary().accepted }}</span>
       </button>
 
@@ -163,7 +138,7 @@
         [class.active]="activeFilter() === 'DECLINED'"
         (click)="onFilterSelected('DECLINED')"
       >
-        <span class="btn-label">DECLINED</span>
+        <span class="btn-label">Declined</span>
         <span class="btn-count">{{ summary().declined }}</span>
       </button>
     </nav>
