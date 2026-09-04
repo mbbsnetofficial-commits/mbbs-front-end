@@ -904,14 +904,33 @@ export class GamsatLearningReport implements OnInit, AfterViewInit, OnDestroy {
       rawTitle.includes('practice test:');
 
     if (isBuiltin) {
-      const testId = (typeof item.id === 'string' && item.id.startsWith('gamsat-'))
-        ? item.id
-        : (rawBuiltinId && !String(rawBuiltinId).startsWith('GAMSAT-') ? String(rawBuiltinId) : null);
+      // Normalise GM-GAMSAT_* codes (stored by backend) → canonical gamsat-* IDs
+      // so session keys always match the catalogue keys.
+      const gmCodeMap: Record<string, string> = {
+        'gm-gamsat_mock_1':       'gamsat-mock-1',
+        'gm-gamsat_section1_mock':'gamsat-section1-mock',
+        'gm-gamsat_section2_mock':'gamsat-section2-mock',
+        'gm-gamsat_section3_mock':'gamsat-section3-mock',
+        'gamsat_mock_1':          'gamsat-mock-1',
+        'gamsat_section1_mock':   'gamsat-section1-mock',
+        'gamsat_section2_mock':   'gamsat-section2-mock',
+        'gamsat_section3_mock':   'gamsat-section3-mock'
+      };
 
-      if (testId) {
-        return `builtin_${this.normalizeKey(testId)}`;
+      const rawCandidateId = (typeof item.id === 'string' && item.id.startsWith('gamsat-'))
+        ? item.id
+        : rawBuiltinId ? String(rawBuiltinId) : null;
+
+      if (rawCandidateId) {
+        // Check canonical mapping first (strips GM- prefix noise)
+        const canonicalId = gmCodeMap[rawCandidateId.toLowerCase()] || rawCandidateId;
+        // Only use ID path if it's not a GAMSAT-session-id (those start with 'GAMSAT-<timestamp>')
+        if (!canonicalId.toUpperCase().startsWith('GAMSAT-')) {
+          return `builtin_${this.normalizeKey(canonicalId)}`;
+        }
       }
-      // Match stable built-in titles if ID is not direct
+
+      // Fallback: stable title-based keys (always canonical)
       if (rawTitle.includes('full mock') || rawTitle.includes('comprehensive')) return 'builtin_gamsatmock1';
       if (rawTitle.includes('section i:') || rawTitle.includes('written communication')) return 'builtin_gamsatsection1mock';
       if (rawTitle.includes('section ii:') || rawTitle.includes('humanities')) return 'builtin_gamsatsection2mock';
