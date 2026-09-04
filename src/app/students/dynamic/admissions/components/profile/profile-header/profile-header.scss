@@ -210,16 +210,46 @@
   .completion-box {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 8px 16px;
-    background: #f8fafc;
+    gap: 14px;
+    padding: 10px 18px;
+    background: #ffffff;
     border: 1px solid #e2e8f0;
-    border-radius: 12px;
+    border-radius: 14px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+    transition: all 0.15s ease;
+
+    &:hover {
+      border-color: #cbd5e1;
+      box-shadow: 0 3px 8px rgba(15, 23, 42, 0.05);
+    }
+
+    &.is-complete {
+      border-color: #a7f3d0;
+      background: #ffffff;
+
+      .gauge-ring {
+        .circle-progress {
+          stroke: #10b981;
+        }
+
+        .gauge-center {
+          background: #ecfdf5;
+
+          .check-icon {
+            color: #059669;
+          }
+        }
+      }
+    }
 
     .gauge-ring {
+      position: relative;
       width: 44px;
       height: 44px;
       flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
       .circular-chart {
         width: 100%;
@@ -229,41 +259,81 @@
 
       .circle-bg {
         fill: none;
-        stroke: #e2e8f0;
-        stroke-width: 3.8;
+        stroke: #f1f5f9;
+        stroke-width: 3.2;
       }
 
       .circle-progress {
         fill: none;
-        stroke-width: 3.8;
+        stroke-width: 3.2;
         stroke: #2563eb;
         stroke-linecap: round;
         transition: stroke-dasharray 0.5s ease;
       }
 
-      .percentage {
-        fill: #0f172a;
-        font-size: 0.6rem;
-        font-weight: 800;
-        text-anchor: middle;
+      .gauge-center {
+        position: absolute;
+        inset: 5px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f8fafc;
+        transition: all 0.2s ease;
+
+        .check-icon {
+          color: #059669;
+        }
+
+        .pct-val {
+          font-size: 0.6875rem;
+          font-weight: 800;
+          color: #0f172a;
+          letter-spacing: -0.02em;
+          line-height: 1;
+
+          small {
+            font-size: 0.5625rem;
+            font-weight: 700;
+            color: #64748b;
+          }
+        }
       }
     }
 
     .completion-info {
       display: flex;
       flex-direction: column;
-      gap: 1px;
+      gap: 3px;
 
       .completion-title {
         font-size: 0.9375rem;
         font-weight: 800;
         color: #0f172a;
+        letter-spacing: -0.01em;
+        line-height: 1.2;
       }
 
-      .completion-sub {
-        font-size: 0.8125rem;
-        color: #64748b;
-        font-weight: 600;
+      .completion-sub-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        .pulse-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: #10b981;
+          box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+          flex-shrink: 0;
+        }
+
+        .completion-sub {
+          font-size: 0.75rem;
+          color: #475569;
+          font-weight: 600;
+          line-height: 1;
+        }
       }
     }
   }

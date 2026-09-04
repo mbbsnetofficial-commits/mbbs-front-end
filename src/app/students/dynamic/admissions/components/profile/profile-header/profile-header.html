@@ -60,9 +60,9 @@
 
       <!-- Right: Completion & Edit Profile Action -->
       <div class="profile-action-col">
-        <div class="completion-box">
+        <div class="completion-box" [class.is-complete]="(profile().completionPercentage || 0) >= 100">
           <div class="gauge-ring">
-            <svg viewBox="0 0 36 36" class="circular-chart">
+            <svg viewBox="0 0 36 36" class="circular-chart" aria-hidden="true">
               <path
                 class="circle-bg"
                 d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
@@ -72,12 +72,23 @@
                 [attr.stroke-dasharray]="(profile().completionPercentage || 0) + ', 100'"
                 d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
               />
-              <text x="18" y="20.5" class="percentage">{{ profile().completionPercentage || 0 }}%</text>
             </svg>
+            <div class="gauge-center">
+              @if ((profile().completionPercentage || 0) >= 100) {
+                <app-icon name="check" [size]="15" class="check-icon" />
+              } @else {
+                <span class="pct-val">{{ profile().completionPercentage || 0 }}<small>%</small></span>
+              }
+            </div>
           </div>
           <div class="completion-info">
             <strong class="completion-title">{{ profile().completionPercentage || 0 }}% Complete</strong>
-            <span class="completion-sub">{{ profile().isDiscoverable ? 'Active Profile' : 'Profile Strength' }}</span>
+            <div class="completion-sub-row">
+              @if (profile().isDiscoverable) {
+                <span class="pulse-dot" aria-hidden="true"></span>
+              }
+              <span class="completion-sub">{{ profile().isDiscoverable ? 'Active Profile' : 'Profile Strength' }}</span>
+            </div>
           </div>
         </div>
 
