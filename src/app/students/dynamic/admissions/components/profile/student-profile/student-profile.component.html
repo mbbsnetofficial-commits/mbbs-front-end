@@ -4,74 +4,13 @@
     [profile]="profile()"
     (toggleDiscoverability)="onToggleDiscoverability()"
     (photoSelected)="onPhotoSelected($event)"
+    (editModeToggled)="startEditPersonal()"
   />
 
-  <div class="profile-layout">
-    <!-- Sticky Completion & Navigation Sidebar -->
-    <aside class="sidebar-col">
-      <div class="completion-card">
-        <div class="meter-row">
-          <div class="ring-wrap">
-            <svg class="ring-svg" viewBox="0 0 96 96">
-              <circle class="ring-bg" cx="48" cy="48" r="38" />
-              <circle
-                class="ring-progress"
-                cx="48"
-                cy="48"
-                r="38"
-                [style.strokeDashoffset]="strokeDashoffset()"
-              />
-            </svg>
-            <div class="ring-value">
-              <strong>{{ profile().completionPercentage || 0 }}%</strong>
-              <span>Profile</span>
-            </div>
-          </div>
-
-          <div class="meter-text">
-            <h3>Profile Strength</h3>
-            <p>
-              {{ profile().isDiscoverable ? 'Active and eligible for matching with partner medical universities.' : 'Complete key sections to unlock university discovery.' }}
-            </p>
-          </div>
-        </div>
-
-        <nav class="sections-nav">
-          @for (sec of profile().sections; track sec.key) {
-            <button
-              type="button"
-              class="nav-item"
-              [class.active]="activeSection() === sec.key"
-              [class.complete]="sec.isComplete"
-              (click)="onSectionSelected(sec.key)"
-            >
-              <span class="status-indicator">
-                @if (sec.isComplete) {
-                  <app-icon name="check" [size]="14" />
-                } @else {
-                  <span class="dot"></span>
-                }
-              </span>
-              <span class="title">{{ sec.title }}</span>
-            </button>
-          }
-        </nav>
-      </div>
-
-      <!-- Quick Nudge Card -->
-      <div class="tip-card">
-        <app-icon name="sparkles" [size]="20" />
-        <div class="tip-body">
-          <h4>Discovery Matching Tip</h4>
-          <p>Universities automatically evaluate candidate scorecards and PCB marks to extend merit scholarship grants.</p>
-        </div>
-      </div>
-    </aside>
-
-    <!-- Main Content Form Cards -->
-    <main class="main-col">
-      <!-- Section 1: Personal Information -->
-      <section class="section-card" id="personal-section">
+  <!-- Main Profile Dashboard Section Cards -->
+  <main class="profile-sections-container">
+    <!-- Section 1: Personal Information -->
+    <section class="section-card" id="personal-section">
         <div class="section-header">
           <div class="title-wrap">
             <div class="icon-wrap">
@@ -552,8 +491,7 @@
           </div>
         </div>
       </section>
-    </main>
-  </div>
+  </main>
 
   <!-- Toast Message -->
   @if (showSuccessToast()) {
