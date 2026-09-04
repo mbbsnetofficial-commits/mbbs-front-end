@@ -260,7 +260,7 @@
                     </div>
                     <div class="course-meta">
                       <strong class="course-title">{{ course.title }}</strong>
-                      <small class="course-subtitle">{{ course.test_code }}</small>
+                      <small class="course-subtitle">{{ course.formattedSubtitle }}</small>
                     </div>
                   </div>
                 </td>
@@ -303,6 +303,7 @@
                   <div class="progress-cell">
                     <div class="progress-meta">
                       <span class="percent-text">{{ course.progressPercent }}%</span>
+                      <span class="progress-detail-text">{{ course.progressDetail }}</span>
                     </div>
                     <div class="progress-bar-track">
                       <div

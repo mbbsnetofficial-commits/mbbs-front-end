@@ -75,6 +75,7 @@ export interface GamsatLearningReportItem {
   sections?: string[];
   units?: string[];
   topic_ids?: (number | string)[];
+  answers?: any[];
 }
 
 export interface GamsatLearningReportPagination {

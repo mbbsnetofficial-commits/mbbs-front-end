@@ -53,6 +53,10 @@ export interface GamsatCourseItem {
   stageInfo: string;
   progressPercent: number;
   progressColor: string;
+  answeredQuestions: number;
+  totalQuestions: number;
+  progressDetail: string;
+  formattedSubtitle: string;
   dateRange: string;
   dateModified: string;
   dateModifiedTimestamp: number;
@@ -413,6 +417,24 @@ export class GamsatLearningReport implements OnInit, AfterViewInit, OnDestroy {
           }
         }
 
+        let storedCustomConfigs: any[] = [];
+        try {
+          const storedRaw = localStorage.getItem('gamsat_saved_custom_tests');
+          if (storedRaw) {
+            storedCustomConfigs = JSON.parse(storedRaw);
+          }
+        } catch {
+          storedCustomConfigs = [];
+        }
+
+        const catalogueCustomByMasterKey = new Map<string, any>();
+        for (const cfg of storedCustomConfigs) {
+          const mKey = this.getMasterTestKey(cfg, 'custom');
+          if (!catalogueCustomByMasterKey.has(mKey)) {
+            catalogueCustomByMasterKey.set(mKey, cfg);
+          }
+        }
+
         // Step 1: Map all raw attempts
         const mappedAttempts = rawItems.map((item) => this.mapReportItemToCourse(item));
 
@@ -458,6 +480,25 @@ export class GamsatLearningReport implements OnInit, AfterViewInit, OnDestroy {
                 best.title = (catPaper.title || catPaper.name || 'GAMSAT Past Paper').replace(/_/g, ' ');
               }
             }
+            try {
+              const pyqRaw = sessionStorage.getItem('activeGamsatSession');
+              if (pyqRaw) {
+                const pyqData = JSON.parse(pyqRaw);
+                const matchesPyq = pyqData && (
+                  pyqData.sessionId === best.sessionId ||
+                  pyqData.sessionId === best.id ||
+                  pyqData.paperId === best.paperId
+                );
+                if (matchesPyq && Array.isArray(pyqData.questionStates) && best.rawStatus === 'in_progress') {
+                  const answeredLocal = countUniqueAnsweredQuestions(pyqData.questionStates);
+                  const totalLocal = pyqData.totalQuestions || pyqData.questions?.length || best.totalQuestions;
+                  best.answeredQuestions = answeredLocal;
+                  best.totalQuestions = totalLocal;
+                  best.progressPercent = calculateGamsatProgress(answeredLocal, totalLocal);
+                  best.progressDetail = `${answeredLocal} / ${totalLocal} Questions`;
+                }
+              }
+            } catch {}
           }
 
           // If this is a Built-in test, ensure testId and category are enriched from catalogue
@@ -473,6 +514,72 @@ export class GamsatLearningReport implements OnInit, AfterViewInit, OnDestroy {
                 best.category = catBuiltin.sections.join(', ');
               }
             }
+          }
+
+          // If this is a Custom test, enrich from registered custom configurations or active session
+          if (best.source === 'custom' || best.type === 'CUSTOM TEST') {
+            const catCustom = catalogueCustomByMasterKey.get(key);
+            if (catCustom) {
+              if (!best.title || best.title === 'GAMSAT Practice Test') {
+                best.title = catCustom.title || 'GAMSAT Custom Practice Test';
+              }
+              const secList = Array.isArray(catCustom.sections) && catCustom.sections.length > 0
+                ? catCustom.sections.map((s: string) => this.formatSectionName(s)).join(', ')
+                : best.category;
+              best.category = secList;
+              const qCount = catCustom.questionCount || best.totalQuestions || 40;
+              const duration = catCustom.duration || 79;
+              best.totalQuestions = qCount;
+              best.stagesCount = `${qCount} Questions`;
+              best.stageInfo = `${qCount} Questions · ${duration}m`;
+              best.test_code = `GM-TEST-${this.normalizeKey(catCustom.title || 'CUSTOM').toUpperCase()}`;
+              best.level = catCustom.difficulty || catCustom.level || best.level;
+            }
+
+            // Also check real-time session storage for active practice session
+            try {
+              const practiceRaw = sessionStorage.getItem('activeGamsatPracticeSession');
+              if (practiceRaw) {
+                const practiceData = JSON.parse(practiceRaw);
+                const matchesPractice = practiceData && (
+                  practiceData.sessionId === best.sessionId ||
+                  practiceData.sessionId === best.id ||
+                  practiceData.sessionId === (best.rawItem as any)?.sessionId
+                );
+                if (matchesPractice) {
+                  if (practiceData.testName && (!best.title || best.title === 'GAMSAT Practice Test')) {
+                    best.title = practiceData.testName;
+                  }
+                  if (Array.isArray(practiceData.questionStates)) {
+                    const answeredLocal = countUniqueAnsweredQuestions(practiceData.questionStates);
+                    const totalLocal = practiceData.totalQuestions || practiceData.questions?.length || best.totalQuestions;
+                    if (best.rawStatus === 'in_progress') {
+                      best.answeredQuestions = answeredLocal;
+                      best.totalQuestions = totalLocal;
+                      best.progressPercent = calculateGamsatProgress(answeredLocal, totalLocal);
+                      best.progressDetail = `${answeredLocal} / ${totalLocal} Questions`;
+                    }
+                  }
+                }
+              }
+            } catch {}
+          }
+
+          // Format clean, professional subtitle
+          if (best.test_code && !best.test_code.startsWith('GM-TEST') && best.test_code !== 'GM-') {
+            best.formattedSubtitle = `${best.test_code} · ${best.stageInfo}`;
+          } else {
+            const displayCat = best.category && best.category !== 'GAMSAT Practice' && best.category !== 'CUSTOM TEST' && best.category !== 'Hard'
+              ? best.category
+              : 'Custom Practice Drill';
+            best.formattedSubtitle = `${displayCat} · ${best.stageInfo}`;
+          }
+
+          if (best.rawStatus === 'completed') {
+            best.progressPercent = 100;
+            best.progressDetail = `${best.totalQuestions} / ${best.totalQuestions} Questions`;
+          } else {
+            best.progressDetail = `${best.answeredQuestions} / ${best.totalQuestions} Questions`;
           }
 
           representativeAttempts.push(best);
@@ -496,13 +603,15 @@ export class GamsatLearningReport implements OnInit, AfterViewInit, OnDestroy {
           const year = this.extractYearFromTitle(pTitle) || this.extractYearFromTitle(paperId);
           const qCount = p.questionCount || 137;
           const duration = p.durationMinutes || 270;
+          const stageInfo = `${qCount} Questions · ${duration}m`;
+          const testCode = `GM-PYQ-${year || numericId || 'TEST'}`;
 
           unattemptedPaperItems.push({
             id: masterKey,
             paperId: paperId,
             testDefinitionId: paperId,
             test_id: p.numericId || 0,
-            test_code: `GM-PYQ-${year || numericId || 'TEST'}`,
+            test_code: testCode,
             title: pTitle,
             type: 'PREVIOUS YEAR',
             source: 'previous_year',
@@ -510,9 +619,13 @@ export class GamsatLearningReport implements OnInit, AfterViewInit, OnDestroy {
             level: 'Advanced',
             status: 'Not Started',
             rawStatus: 'not_started',
-            stageInfo: `${qCount} Questions · ${duration}m`,
+            stageInfo,
             progressPercent: 0,
             progressColor: '#e2e8f0',
+            answeredQuestions: 0,
+            totalQuestions: qCount,
+            progressDetail: `0 / ${qCount} Questions`,
+            formattedSubtitle: `${testCode} · ${stageInfo}`,
             dateRange: 'Available',
             dateModified: 'Available',
             dateModifiedTimestamp: 0,
@@ -551,13 +664,16 @@ export class GamsatLearningReport implements OnInit, AfterViewInit, OnDestroy {
 
           const qCount = b.total_questions || 0;
           const duration = b.duration_minutes || 0;
+          const stageInfo = `${qCount} Questions · ${duration}m`;
+          const testCode = `GM-${bId.toUpperCase().replace(/[-_]+/g, '_')}`;
+          const bCategory = Array.isArray(b.sections) ? b.sections.join(', ') : 'Built-in Practice Test';
 
           unattemptedBuiltinItems.push({
             id: masterKey,
             testId: bId,
             testDefinitionId: bId,
             test_id: 0,
-            test_code: `GM-${bId.toUpperCase().replace(/[-_]+/g, '_')}`,
+            test_code: testCode,
             title: bTitle,
             type: 'BUILT-IN',
             source: 'builtin',
@@ -565,16 +681,20 @@ export class GamsatLearningReport implements OnInit, AfterViewInit, OnDestroy {
             level: b.difficulty || 'Intermediate',
             status: 'Not Started',
             rawStatus: 'not_started',
-            stageInfo: `${qCount} Questions · ${duration}m`,
+            stageInfo,
             progressPercent: 0,
             progressColor: '#e2e8f0',
+            answeredQuestions: 0,
+            totalQuestions: qCount,
+            progressDetail: `0 / ${qCount} Questions`,
+            formattedSubtitle: `${bCategory} · ${stageInfo}`,
             dateRange: 'Available',
             dateModified: 'Available',
             dateModifiedTimestamp: 0,
             learningTime: '0m',
             score: '—',
             scoreNum: 0,
-            category: Array.isArray(b.sections) ? b.sections.join(', ') : 'Built-in Practice Test',
+            category: bCategory,
             iconBg: '#3b82f6',
             iconName: 'test',
             rawItem: {
@@ -595,16 +715,6 @@ export class GamsatLearningReport implements OnInit, AfterViewInit, OnDestroy {
         const unattemptedCustomItems: GamsatCourseItem[] = [];
         const seenCustomKeys = new Set<string>();
 
-        let storedCustomConfigs: any[] = [];
-        try {
-          const storedRaw = localStorage.getItem('gamsat_saved_custom_tests');
-          if (storedRaw) {
-            storedCustomConfigs = JSON.parse(storedRaw);
-          }
-        } catch {
-          storedCustomConfigs = [];
-        }
-
         for (const cfg of storedCustomConfigs) {
           const masterKey = this.getMasterTestKey(cfg, 'custom');
           if (seenCustomKeys.has(masterKey) || attemptsByMasterKey.has(masterKey)) {
@@ -617,13 +727,15 @@ export class GamsatLearningReport implements OnInit, AfterViewInit, OnDestroy {
           const secList = Array.isArray(cfg.sections) && cfg.sections.length > 0
             ? cfg.sections.map((s: string) => this.formatSectionName(s)).join(', ')
             : 'Custom Practice Drill';
+          const stageInfo = `${qCount} Questions · ${duration}m`;
+          const testCode = `GM-TEST-${this.normalizeKey(cfg.title || 'CUSTOM').toUpperCase()}`;
 
           unattemptedCustomItems.push({
             id: masterKey,
             testId: masterKey,
             testDefinitionId: masterKey,
             test_id: 0,
-            test_code: `GM-TEST-${this.normalizeKey(cfg.title || 'CUSTOM').toUpperCase()}`,
+            test_code: testCode,
             title: cfg.title || 'GAMSAT Custom Practice Test',
             type: 'CUSTOM TEST',
             source: 'custom',
@@ -631,9 +743,13 @@ export class GamsatLearningReport implements OnInit, AfterViewInit, OnDestroy {
             level: cfg.difficulty || cfg.level || 'Hard',
             status: 'Not Started',
             rawStatus: 'not_started',
-            stageInfo: `${qCount} Questions · ${duration}m`,
+            stageInfo,
             progressPercent: 0,
             progressColor: '#e2e8f0',
+            answeredQuestions: 0,
+            totalQuestions: qCount,
+            progressDetail: `0 / ${qCount} Questions`,
+            formattedSubtitle: `${secList} · ${stageInfo}`,
             dateRange: 'Available',
             dateModified: 'Available',
             dateModifiedTimestamp: 0,
@@ -845,7 +961,71 @@ export class GamsatLearningReport implements OnInit, AfterViewInit, OnDestroy {
 
     // 4. If explicit numeric progress is provided from backend
     if (typeof item.progress === 'number' && !isNaN(item.progress)) {
+      const timeSpentNum = typeof item.timeSpent === 'number' ? item.timeSpent : (typeof (item as any).time_spent_seconds === 'number' ? (item as any).time_spent_seconds : -1);
+      const timeSpentStr = String(item.timeSpentFormatted || item.time_spent || '').trim();
+      const isZeroTime = timeSpentNum === 0 || timeSpentStr === '0m 0s' || timeSpentStr === '0m' || timeSpentStr === '0s';
+
+      // If test spent 0s and has no recorded answers, prevent stale backend placeholder 50% from showing
+      if (isZeroTime && item.progress === 50) {
+        return 0;
+      }
       return Math.max(0, Math.min(100, Math.round(item.progress)));
+    }
+
+    return 0;
+  }
+
+  private calculateAnsweredCount(
+    item: GamsatLearningReportItem,
+    totalQ: number,
+    progressPercent: number,
+    rawStatus: 'not_started' | 'in_progress' | 'completed'
+  ): number {
+    if (rawStatus === 'completed') {
+      return totalQ;
+    }
+    if (rawStatus === 'not_started') {
+      return 0;
+    }
+
+    // 1. If answers array exists
+    if (Array.isArray((item as any).answers)) {
+      return countUniqueAnsweredQuestions((item as any).answers);
+    }
+
+    // 2. If answered count field is present from backend response
+    const answeredQ =
+      (item as any).answeredQuestions ??
+      (item as any).answered_questions ??
+      (item as any).answeredCount ??
+      (item as any).answered_count ??
+      (item as any).attempted ??
+      (item as any).answered;
+
+    if (typeof answeredQ === 'number') {
+      return Math.max(0, Math.min(totalQ, answeredQ));
+    }
+
+    // 3. Real-time sync with active session storage
+    try {
+      const targetSessionId = item.sessionId || (item as any).session_id || (item as any).id;
+      if (targetSessionId) {
+        const pyqSaved = sessionStorage.getItem('activeGamsatSession');
+        const practiceSaved = sessionStorage.getItem('activeGamsatPracticeSession');
+        for (const raw of [pyqSaved, practiceSaved]) {
+          if (raw) {
+            const data = JSON.parse(raw);
+            if (data?.sessionId === targetSessionId && Array.isArray(data.questionStates)) {
+              return countUniqueAnsweredQuestions(data.questionStates);
+            }
+          }
+        }
+      }
+    } catch {}
+
+    // 4. Derive from progress percentage
+    if (progressPercent > 0 && totalQ > 0) {
+      return Math.max(0, Math.min(totalQ, Math.round((progressPercent / 100) * totalQ)));
     }
 
     return 0;
@@ -976,7 +1156,28 @@ export class GamsatLearningReport implements OnInit, AfterViewInit, OnDestroy {
 
     const qCount = item.total_questions || item.totalQuestions || 0;
     const duration = item.duration_minutes || item.durationMinutes || (typeof item.timeSpent === 'number' ? Math.round(item.timeSpent / 60) : 0);
-    const stageInfo = qCount > 0 ? `${qCount} Questions · ${duration}m` : (duration > 0 ? `${duration}m duration` : 'Standard Assessment');
+    const effectiveTotalQ = qCount > 0 ? qCount : (source === 'previous_year' ? 137 : 40);
+    const effectiveDuration = duration > 0 ? duration : (source === 'previous_year' ? 270 : 79);
+    const stageInfo = `${effectiveTotalQ} Questions · ${effectiveDuration}m`;
+
+    const answeredCount = this.calculateAnsweredCount(item, effectiveTotalQ, progressPercent, rawStatus);
+
+    let progressDetail = '';
+    if (rawStatus === 'completed') {
+      progressDetail = `${effectiveTotalQ} / ${effectiveTotalQ} Questions`;
+    } else {
+      progressDetail = `${answeredCount} / ${effectiveTotalQ} Questions`;
+    }
+
+    let formattedSubtitle = '';
+    if (testCode && !testCode.startsWith('GM-TEST') && testCode !== 'GM-') {
+      formattedSubtitle = `${testCode} · ${stageInfo}`;
+    } else {
+      const displayCategory = category && category !== 'GAMSAT Practice' && category !== 'CUSTOM TEST' && category !== 'Hard'
+        ? category
+        : 'Custom Practice Drill';
+      formattedSubtitle = `${displayCategory} · ${stageInfo}`;
+    }
 
     let learningTime = '0m';
     if (item.timeSpentFormatted) {
@@ -1002,13 +1203,17 @@ export class GamsatLearningReport implements OnInit, AfterViewInit, OnDestroy {
       title,
       type: typeStr,
       source,
-      stagesCount: `${qCount} Questions`,
+      stagesCount: `${effectiveTotalQ} Questions`,
       level: item.level || item.difficulty || 'Intermediate',
       status: statusLabel,
       rawStatus,
       stageInfo,
       progressPercent,
       progressColor,
+      answeredQuestions: answeredCount,
+      totalQuestions: effectiveTotalQ,
+      progressDetail,
+      formattedSubtitle,
       dateRange: dateDisplay,
       dateModified: dateDisplay,
       dateModifiedTimestamp,

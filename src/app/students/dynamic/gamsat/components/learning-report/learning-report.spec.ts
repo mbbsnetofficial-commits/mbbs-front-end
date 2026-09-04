@@ -302,26 +302,44 @@ describe('GamsatLearningReport', () => {
 
     // 0 / 137 answers => 0% (NOT 50%)
     expect(courses[0].progressPercent).toBe(0);
+    expect(courses[0].answeredQuestions).toBe(0);
+    expect(courses[0].totalQuestions).toBe(137);
+    expect(courses[0].progressDetail).toBe('0 / 137 Questions');
     expect(courses[0].rawStatus).toBe('in_progress');
 
     // 5 / 137 answers => 4%
     expect(courses[1].progressPercent).toBe(4);
+    expect(courses[1].answeredQuestions).toBe(5);
+    expect(courses[1].totalQuestions).toBe(137);
+    expect(courses[1].progressDetail).toBe('5 / 137 Questions');
     expect(courses[1].rawStatus).toBe('in_progress');
 
     // 68 / 137 answers => 50%
     expect(courses[2].progressPercent).toBe(50);
+    expect(courses[2].answeredQuestions).toBe(68);
+    expect(courses[2].totalQuestions).toBe(137);
+    expect(courses[2].progressDetail).toBe('68 / 137 Questions');
     expect(courses[2].rawStatus).toBe('in_progress');
 
     // Completed => 100%
     expect(courses[3].progressPercent).toBe(100);
+    expect(courses[3].answeredQuestions).toBe(137);
+    expect(courses[3].totalQuestions).toBe(137);
+    expect(courses[3].progressDetail).toBe('137 / 137 Questions');
     expect(courses[3].rawStatus).toBe('completed');
 
     // Empty answers array => 0% (NOT 50%)
     expect(courses[4].progressPercent).toBe(0);
+    expect(courses[4].answeredQuestions).toBe(0);
+    expect(courses[4].totalQuestions).toBe(137);
+    expect(courses[4].progressDetail).toBe('0 / 137 Questions');
     expect(courses[4].rawStatus).toBe('in_progress');
 
     // 2 unique answers out of 10 => 20%
     expect(courses[5].progressPercent).toBe(20);
+    expect(courses[5].answeredQuestions).toBe(2);
+    expect(courses[5].totalQuestions).toBe(10);
+    expect(courses[5].progressDetail).toBe('2 / 10 Questions');
     expect(courses[5].rawStatus).toBe('in_progress');
   });
 
@@ -1018,6 +1036,10 @@ describe('GamsatLearningReport', () => {
       stageInfo: '30 Questions · 60m',
       progressPercent: 0,
       progressColor: '#e2e8f0',
+      answeredQuestions: 0,
+      totalQuestions: 30,
+      progressDetail: '0 / 30 Questions',
+      formattedSubtitle: 'Biological & Physical Sciences · 30 Questions · 60m',
       dateRange: 'Available',
       dateModified: 'Available',
       learningTime: '0m',
@@ -1066,5 +1088,58 @@ describe('GamsatLearningReport', () => {
     expect(routerSpy).toHaveBeenCalledWith(['/dynamic/gamsat/practice'], {
       queryParams: { sessionId: 'GAMSAT-1799200000000-BIO' }
     });
+  });
+
+  it('15. should prevent arbitrary 50% progress when time spent is 0s, and show clear subtitle instead of GM-TEST', () => {
+    fixture.detectChanges();
+
+    const summaryReq = httpTesting.expectOne(`${environment.gamsatApiBaseUrl}${API.STUDENT_DASHBOARD.GAMSAT_SUMMARY}`);
+    summaryReq.flush({ success: true, data: {} });
+
+    const filtersReq = httpTesting.expectOne(`${environment.gamsatApiBaseUrl}${API.STUDENT_DASHBOARD.GAMSAT_LEARNING_REPORT_FILTERS}`);
+    filtersReq.flush({ success: true, data: { sections: [] } });
+
+    const reportReq = httpTesting.expectOne((req) => req.url.includes(API.STUDENT_DASHBOARD.GAMSAT_LEARNING_REPORT));
+    reportReq.flush({
+      success: true,
+      data: {
+        tests: [
+          {
+            id: 'sess-zero-time-stale-50',
+            sessionId: 'GAMSAT-CUSTOM-001',
+            testName: 'GAMSAT Practice Test',
+            test_code: 'GM-TEST',
+            type: 'CUSTOM TEST',
+            status: 'IN_PROGRESS',
+            progress: 50, // Backend hardcoded placeholder
+            timeSpent: 0,
+            timeSpentFormatted: '0m 0s',
+            totalQuestions: 40,
+            durationMinutes: 79,
+            difficulty: 'Hard'
+          }
+        ]
+      }
+    });
+
+    const papersReq = httpTesting.expectOne(`${environment.gamsatApiBaseUrl}${API.PREVIOUS_YEAR_TEST.PAPERS}`);
+    papersReq.flush({ success: true, data: [] });
+
+    const builtinReq = httpTesting.expectOne(`${environment.gamsatApiBaseUrl}${API.TEST.BUILTIN}`);
+    builtinReq.flush({ success: true, data: [] });
+
+    const courses = component.courses();
+    const testCourse = courses.find((c) => c.sessionId === 'GAMSAT-CUSTOM-001')!;
+    expect(testCourse).toBeDefined();
+
+    // Progress should be corrected from 50% to 0% because 0 time was spent and 0 questions were answered
+    expect(testCourse.progressPercent).toBe(0);
+    expect(testCourse.answeredQuestions).toBe(0);
+    expect(testCourse.totalQuestions).toBe(40);
+    expect(testCourse.progressDetail).toBe('0 / 40 Questions');
+
+    // Subtitle must NOT be raw "GM-TEST", but show clean drill information
+    expect(testCourse.formattedSubtitle).not.toBe('GM-TEST');
+    expect(testCourse.formattedSubtitle).toContain('40 Questions · 79m');
   });
 });
