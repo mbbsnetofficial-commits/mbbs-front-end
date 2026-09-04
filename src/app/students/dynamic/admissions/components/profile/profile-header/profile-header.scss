@@ -255,13 +255,13 @@
       gap: 1px;
 
       .completion-title {
-        font-size: 0.8125rem;
-        font-weight: 700;
+        font-size: 0.9375rem;
+        font-weight: 800;
         color: #0f172a;
       }
 
       .completion-sub {
-        font-size: 0.6875rem;
+        font-size: 0.8125rem;
         color: #64748b;
         font-weight: 600;
       }
@@ -272,12 +272,12 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 10px 20px;
+    padding: 11px 22px;
     background: #0f172a;
     color: #ffffff;
     border: none;
     border-radius: 10px;
-    font-size: 0.8125rem;
+    font-size: 0.9375rem;
     font-weight: 700;
     cursor: pointer;
     box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
@@ -433,15 +433,15 @@
 
         .discovery-heading {
           margin: 0;
-          font-size: 1rem;
-          font-weight: 700;
+          font-size: 1.1875rem;
+          font-weight: 800;
           color: #0f172a;
         }
 
         .discovery-badge {
-          font-size: 0.6875rem;
+          font-size: 0.8125rem;
           font-weight: 700;
-          padding: 2px 8px;
+          padding: 3px 10px;
           border-radius: 999px;
           background: #f1f5f9;
           color: #64748b;
@@ -457,8 +457,8 @@
 
       .discovery-desc {
         margin: 0;
-        font-size: 0.84375rem;
-        color: #64748b;
+        font-size: 0.9375rem;
+        color: #475569;
         line-height: 1.45;
       }
     }
@@ -475,9 +475,9 @@
       display: inline-flex;
       align-items: center;
       gap: 7px;
-      padding: 8px 18px;
-      border-radius: 9px;
-      font-size: 0.84375rem;
+      padding: 9px 20px;
+      border-radius: 10px;
+      font-size: 0.9375rem;
       font-weight: 700;
       background: #f8fafc;
       color: #475569;
