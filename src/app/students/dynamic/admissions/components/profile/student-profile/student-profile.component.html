@@ -235,7 +235,10 @@
             @for (exam of profile().entranceExams; track exam.id) {
               <div class="exam-card">
                 <div class="exam-top">
-                  <span class="exam-badge">{{ exam.examType }} {{ exam.year || '' }}</span>
+                  <div class="exam-title-group">
+                    <span class="exam-dot" aria-hidden="true"></span>
+                    <strong class="exam-badge">{{ exam.examType }} {{ exam.year || '' }}</strong>
+                  </div>
                   @if (exam.qualified) {
                     <span class="qual-badge">
                       <app-icon name="check" [size]="12" />
@@ -243,15 +246,22 @@
                     </span>
                   }
                 </div>
+
+                <div class="exam-divider"></div>
+
                 <div class="exam-metrics">
-                  <div class="metric">
-                    <span class="lbl">Score</span>
-                    <strong>{{ exam.score !== undefined ? exam.score : '—' }} <small>/ {{ exam.maxScore || 720 }}</small></strong>
+                  <div class="metric-block score-block">
+                    <span class="metric-label">Score</span>
+                    <div class="score-row">
+                      <strong class="score-val">{{ exam.score !== undefined ? exam.score : '—' }}</strong>
+                      <span class="score-denom">/ {{ exam.maxScore || 720 }}</span>
+                    </div>
                   </div>
+
                   @if (exam.rollNumber) {
-                    <div class="metric">
-                      <span class="lbl">Roll Number</span>
-                      <strong>{{ exam.rollNumber }}</strong>
+                    <div class="metric-block roll-block">
+                      <span class="metric-label">Roll Number</span>
+                      <span class="roll-badge">{{ exam.rollNumber }}</span>
                     </div>
                   }
                 </div>
