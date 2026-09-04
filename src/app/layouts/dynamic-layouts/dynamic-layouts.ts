@@ -19,6 +19,8 @@ import { UcatQuickTest } from '../../students/dynamic/ucat/components/quick-test
 import { UcatModalService } from '../../students/dynamic/ucat/services/ucat-modal.service';
 import { GamsatQuickTest } from '../../students/dynamic/gamsat/components/quick-test/quick-test';
 import { GamsatModalService } from '../../students/dynamic/gamsat/services/gamsat-modal.service';
+import { StudentNotificationsService } from '../../students/notifications/services/student-notifications.service';
+import { StudentNotification } from '../../students/notifications/models/student-notification.model';
 
 interface NavigationItem {
   label: string;
@@ -43,6 +45,7 @@ interface PageMeta {
 export class DynamicLayouts implements OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly tokenService = inject(TokenService);
+  private readonly notificationsService = inject(StudentNotificationsService);
   protected readonly router = inject(Router);
 
   protected readonly sidebarOpen = signal(false);
@@ -56,8 +59,9 @@ export class DynamicLayouts implements OnDestroy {
     eyebrow: 'Student workspace',
     title: 'Dashboard',
   });
-  protected readonly unreadCount = signal(0);
-  protected readonly notifications = signal<any[]>([]);
+  protected readonly unreadCount = this.notificationsService.unreadCount;
+  protected readonly notifications = this.notificationsService.notifications;
+  protected readonly loadingNotifications = this.notificationsService.loading;
 
   protected readonly user = this.safeCurrentUser();
   protected readonly displayName = this.user
@@ -151,6 +155,15 @@ export class DynamicLayouts implements OnDestroy {
         this.updatePageMeta(event.urlAfterRedirects);
         this.closeOverlays();
       });
+    this.loadUnreadCount();
+  }
+
+  private loadUnreadCount(): void {
+    if (this.tokenService.getAccessToken()) {
+      this.notificationsService.getUnreadCount().subscribe({
+        error: () => {},
+      });
+    }
   }
 
   ngOnDestroy(): void {
@@ -187,6 +200,11 @@ export class DynamicLayouts implements OnDestroy {
     this.notificationOpen.update((value) => !value);
     this.commandOpen.set(false);
     this.profileOpen.set(false);
+    if (this.notificationOpen()) {
+      this.notificationsService.getNotifications({ limit: 20 }).subscribe({
+        error: () => {},
+      });
+    }
   }
 
   protected toggleProfile(): void {
@@ -264,12 +282,77 @@ export class DynamicLayouts implements OnDestroy {
     this.searchQuery.set('');
   }
 
-  protected notificationTitle(notification: any): string {
-    return notification?.title ?? notification?.message ?? 'Preparation update';
+  protected onNotificationClick(notification: StudentNotification): void {
+    if (!notification.is_read) {
+      this.notificationsService.markAsRead(notification._id).subscribe({
+        error: () => {},
+      });
+    }
+    if (notification.action_url) {
+      this.closeOverlays();
+      if (
+        notification.action_url.startsWith('http://') ||
+        notification.action_url.startsWith('https://')
+      ) {
+        window.open(notification.action_url, '_blank');
+      } else {
+        void this.router.navigateByUrl(notification.action_url);
+      }
+    }
   }
 
-  protected notificationMeta(notification: any): string {
-    return notification?.created_at ?? notification?.timestamp ?? 'Recently';
+  protected onMarkAllAsRead(event?: MouseEvent): void {
+    if (event) event.stopPropagation();
+    this.notificationsService.markAllAsRead().subscribe({
+      error: () => {},
+    });
+  }
+
+  protected onDismissNotification(event: MouseEvent, notificationId: string): void {
+    event.stopPropagation();
+    this.notificationsService.deleteNotification(notificationId).subscribe({
+      error: () => {},
+    });
+  }
+
+  protected notificationIcon(type?: string): IconName {
+    switch (type) {
+      case 'test':
+        return 'sparkles';
+      case 'reminder':
+        return 'clock';
+      case 'chatbot':
+        return 'chat';
+      case 'account':
+        return 'profile';
+      default:
+        return 'bell';
+    }
+  }
+
+  protected notificationTitle(notification: StudentNotification): string {
+    return notification?.title || 'Notification';
+  }
+
+  protected notificationMeta(notification: StudentNotification): string {
+    if (!notification?.created_at) return 'Recently';
+    try {
+      const date = new Date(notification.created_at);
+      const now = new Date();
+      const diffMs = now.getTime() - date.getTime();
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHours = Math.floor(diffMins / 60);
+      const diffDays = Math.floor(diffHours / 24);
+
+      if (diffMins < 1) return 'Just now';
+      if (diffMins < 60) return `${diffMins}m ago`;
+      if (diffHours < 24) return `${diffHours}h ago`;
+      if (diffDays === 1) return 'Yesterday';
+      if (diffDays < 7) return `${diffDays}d ago`;
+      return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    } catch {
+      return 'Recently';
+    }
   }
 
   private finishLogout(): void {

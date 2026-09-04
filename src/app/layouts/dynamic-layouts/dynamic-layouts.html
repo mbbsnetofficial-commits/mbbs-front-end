@@ -87,27 +87,73 @@
       @if (notificationOpen()) {
         <section class="popover notification-popover" aria-label="Notifications">
           <header>
-            <div><span>Updates</span><strong>Notifications</strong></div>
-            <small>{{ unreadCount() }} unread</small>
+            <div>
+              <span>Updates</span>
+              <strong>Notifications</strong>
+            </div>
+            <div class="popover-header-actions">
+              @if (unreadCount() > 0) {
+                <button
+                  type="button"
+                  class="btn-mark-all-read"
+                  (click)="onMarkAllAsRead($event)"
+                  title="Mark all notifications as read"
+                >
+                  Mark all read
+                </button>
+              }
+              <small class="unread-pill">{{ unreadCount() }} unread</small>
+            </div>
           </header>
+
           <div class="notification-list">
-            @if (notifications().length) {
+            @if (loadingNotifications() && !notifications().length) {
+              <div class="popover-loading">
+                <app-icon name="clock" [size]="18" />
+                <span>Loading updates...</span>
+              </div>
+            } @else if (notifications().length) {
               @for (
                 notification of notifications();
-                track notification._id ?? notification.id ?? $index
+                track notification._id ?? $index
               ) {
-                <article>
-                  <span class="notification-icon"><app-icon name="bell" [size]="16" /></span>
-                  <div>
-                    <strong>{{ notificationTitle(notification) }}</strong
-                    ><small>{{ notificationMeta(notification) }}</small>
+                <article
+                  class="notification-item"
+                  [class.is-unread]="!notification.is_read"
+                  [class.is-clickable]="!!notification.action_url"
+                  (click)="onNotificationClick(notification)"
+                >
+                  <span class="notification-icon" [attr.data-type]="notification.notification_type">
+                    <app-icon [name]="notificationIcon(notification.notification_type)" [size]="16" />
+                  </span>
+                  <div class="notif-body">
+                    <div class="notif-header-line">
+                      <strong class="notif-title">{{ notificationTitle(notification) }}</strong>
+                      @if (!notification.is_read) {
+                        <span class="unread-dot" title="Unread notification"></span>
+                      }
+                    </div>
+                    @if (notification.message) {
+                      <p class="notif-msg">{{ notification.message }}</p>
+                    }
+                    <small class="notif-meta">{{ notificationMeta(notification) }}</small>
                   </div>
+                  <button
+                    type="button"
+                    class="btn-dismiss"
+                    (click)="onDismissNotification($event, notification._id)"
+                    title="Dismiss notification"
+                    aria-label="Dismiss notification"
+                  >
+                    <app-icon name="close" [size]="12" />
+                  </button>
                 </article>
               }
             } @else {
               <div class="popover-empty">
-                <app-icon name="check" [size]="20" /><strong>You’re all caught up</strong
-                ><span>No new student updates right now.</span>
+                <app-icon name="check" [size]="20" />
+                <strong>You’re all caught up</strong>
+                <span>No new student updates right now.</span>
               </div>
             }
           </div>
