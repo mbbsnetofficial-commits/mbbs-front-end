@@ -1095,6 +1095,32 @@ export class GamsatLearningReport implements OnInit, AfterViewInit, OnDestroy {
 
     let progressPercent = this.calculateProgressPercent(item, rawStatus);
 
+    // Downgrade phantom "completed" sessions: backend sometimes marks a session
+    // as completed when the user immediately quits (0 answers, 0 time). Treat
+    // these as not_started so they don't pollute the Completed tab.
+    if (rawStatus === 'completed') {
+      const timeSpentNum = typeof item.timeSpent === 'number' ? item.timeSpent
+        : (typeof (item as any).time_spent_seconds === 'number' ? (item as any).time_spent_seconds : -1);
+      const timeSpentStr = String(item.timeSpentFormatted || item.time_spent || '').trim();
+      const isZeroTime = timeSpentNum === 0 || timeSpentStr === '0m 0s' || timeSpentStr === '0m' || timeSpentStr === '0s';
+
+      const answeredQ =
+        (item as any).answeredQuestions ??
+        (item as any).answered_questions ??
+        (item as any).answeredCount ??
+        (item as any).answered_count ??
+        (item as any).attempted ??
+        (item as any).answered ??
+        -1;
+      const isZeroAnswers = answeredQ === 0 || (answeredQ === -1 && !Array.isArray((item as any).answers) && progressPercent === 0);
+
+      // Only downgrade if BOTH time AND answers are effectively zero
+      if (isZeroTime && isZeroAnswers) {
+        rawStatus = 'not_started';
+        progressPercent = 0;
+      }
+    }
+
     if (rawStatus === 'not_started' && progressPercent > 0 && progressPercent < 100) {
       rawStatus = 'in_progress';
     }
