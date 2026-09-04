@@ -229,10 +229,22 @@ export class GamsatLearningReport implements OnInit, AfterViewInit, OnDestroy {
       });
     }
 
+    // Status-priority order: In Progress → Not Started → Completed
+    const statusPriority: Record<string, number> = {
+      in_progress: 0,
+      not_started: 1,
+      completed: 2
+    };
+
     const field = this.sortField();
     const dir = this.sortDirection() === 'asc' ? 1 : -1;
 
     return [...result].sort((a, b) => {
+      // Primary: always group by status priority
+      const statusDiff = (statusPriority[a.rawStatus] ?? 1) - (statusPriority[b.rawStatus] ?? 1);
+      if (statusDiff !== 0) return statusDiff;
+
+      // Secondary: user-selected sort field (tiebreaker within each status group)
       if (field === 'date') {
         return (a.dateModifiedTimestamp - b.dateModifiedTimestamp) * dir;
       }
