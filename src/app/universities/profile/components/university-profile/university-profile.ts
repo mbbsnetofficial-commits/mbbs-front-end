@@ -86,7 +86,7 @@ export class UniversityProfileComponent implements OnInit {
     }
     const name = (prof.name || '').toLowerCase();
     if (name.includes('tbilisi') || name.includes('tsmu')) {
-      return '/images/universities/tsmu-logo.png';
+      return '/images/mbbs-icon.png';
     }
     if (name.includes('msu') || name.includes('management')) {
       return '/images/universities/msu-logo.png';

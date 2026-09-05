@@ -144,6 +144,45 @@ export class InvitesService {
   constructor() {
     this.loadSummary().subscribe({ error: () => {} });
     this.loadInvites().subscribe({ error: () => {} });
+
+    if (typeof window !== 'undefined') {
+      const handleProfileUpdate = () => {
+        this.invitesState.update((currentList) =>
+          currentList.map((inv) => {
+            const isTsmu =
+              inv.university.name.toLowerCase().includes('tbilisi') ||
+              inv.university.name.toLowerCase().includes('tsmu');
+            const stored = this.getStoredUniversityImages(
+              inv.university.id,
+              inv.university.name,
+              isTsmu
+            );
+            if (stored.logo || stored.coverImage) {
+              return {
+                ...inv,
+                university: {
+                  ...inv.university,
+                  logoUrl: stored.logo || inv.university.logoUrl,
+                  coverImageUrl:
+                    stored.coverImage || inv.university.coverImageUrl,
+                },
+              };
+            }
+            return inv;
+          })
+        );
+      };
+
+      window.addEventListener(
+        'mbbs:university:profile-updated',
+        handleProfileUpdate
+      );
+      window.addEventListener('storage', (e) => {
+        if (e.key && e.key.includes('mbbs_univ')) {
+          handleProfileUpdate();
+        }
+      });
+    }
   }
 
   loadSummary(): Observable<InviteSummaryCounts> {
@@ -413,6 +452,51 @@ export class InvitesService {
     }
   }
 
+  private getStoredUniversityImages(
+    orgId: string,
+    orgName: string,
+    isTsmu: boolean
+  ): { logo?: string | null; coverImage?: string | null } {
+    try {
+      if (typeof localStorage === 'undefined') return {};
+      const candidateKeys = [
+        `mbbs_univ_profile_custom_images_${orgId}`,
+        `mbbs_univ_profile_custom_images_${orgName.toLowerCase().replace(/\s+/g, '_')}`,
+        isTsmu ? 'mbbs_univ_profile_custom_images_tsmu' : '',
+        isTsmu ? 'mbbs_univ_profile_custom_images_ORG_TSMU_001' : '',
+        'mbbs_univ_profile_custom_images_default',
+      ].filter(Boolean);
+
+      let storedLogo: string | null = null;
+      let storedCover: string | null = null;
+
+      for (const k of candidateKeys) {
+        const raw = localStorage.getItem(k);
+        if (raw) {
+          try {
+            const parsed = JSON.parse(raw);
+            if (parsed.logo && !storedLogo) storedLogo = parsed.logo;
+            if (parsed.coverImage && !storedCover) storedCover = parsed.coverImage;
+          } catch {
+            // ignore
+          }
+          if (storedLogo) break;
+        }
+      }
+
+      if (!storedLogo) {
+        storedLogo = localStorage.getItem('mbbs_univ_custom_logo');
+      }
+      if (!storedCover) {
+        storedCover = localStorage.getItem('mbbs_univ_custom_cover');
+      }
+
+      return { logo: storedLogo, coverImage: storedCover };
+    } catch {
+      return {};
+    }
+  }
+
   private mapBackendInviteToInvite(item: BackendInviteItem): Invite {
     const orgName = item.organizationInfo?.name || item.organizationName || 'University';
     const orgCountry = item.organizationInfo?.country || '';
@@ -439,18 +523,21 @@ export class InvitesService {
       lowerName.includes('tbilisi') ||
       lowerName.includes('tsmu');
 
-    let resolvedCoverImage = backendImage;
-    let resolvedLogo = rawBackendLogo;
+    const stored = this.getStoredUniversityImages(
+      item.organizationId || item._id,
+      orgName,
+      isTsmu
+    );
 
-    if (isTsmu) {
-      if (!resolvedCoverImage) {
-        resolvedCoverImage = '/images/universities/tsmu-campus.png';
-      }
-      resolvedLogo = '/images/universities/tsmu-logo.png';
-    } else if (isMsu) {
-      resolvedLogo = '/images/universities/msu-logo.png';
-    } else {
-      if (!resolvedLogo) {
+    let resolvedLogo = stored.logo || rawBackendLogo;
+    let resolvedCoverImage = stored.coverImage || backendImage;
+
+    if (!resolvedLogo) {
+      if (isTsmu) {
+        resolvedLogo = '/images/mbbs-icon.png';
+      } else if (isMsu) {
+        resolvedLogo = '/images/universities/msu-logo.png';
+      } else {
         if (lowerName.includes('charles')) resolvedLogo = '/images/universities/charles.svg';
         else if (lowerName.includes('comenius')) resolvedLogo = '/images/universities/comenius.png';
         else if (lowerName.includes('jessenius')) resolvedLogo = '/images/universities/jessenius.png';
@@ -460,6 +547,13 @@ export class InvitesService {
         else if (lowerName.includes('pecs') || lowerName.includes('pécs')) resolvedLogo = '/images/universities/pecs.svg';
         else if (lowerName.includes('riga') || lowerName.includes('stradins')) resolvedLogo = '/images/universities/riga-stradins.svg';
         else if (lowerName.includes('semmelweis')) resolvedLogo = '/images/universities/semmelweis.svg';
+        else resolvedLogo = '/images/universities/msu-logo.png';
+      }
+    }
+
+    if (!resolvedCoverImage) {
+      if (isTsmu) {
+        resolvedCoverImage = '/images/universities/tsmu-campus.png';
       }
     }
 
