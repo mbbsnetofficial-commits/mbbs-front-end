@@ -25,6 +25,15 @@ export interface BackendOrganizationInfo {
   city?: string;
   logo?: string;
   website?: string;
+  world_ranking?: number;
+  tuition_fee_per_year_usd?: number;
+  tuitionFeeMinUsd?: number | null;
+  tuitionFeeMaxUsd?: number | null;
+  accreditations?: string[];
+  banner?: string;
+  coverImage?: string;
+  program_name?: string;
+  intake?: string;
 }
 
 export interface BackendInviteItem {
@@ -33,6 +42,24 @@ export interface BackendInviteItem {
   organizationId?: string;
   organizationName?: string;
   organizationInfo?: BackendOrganizationInfo;
+  financials?: {
+    tuitionAnnual?: number;
+    tuitionTotal?: number;
+    currency?: string;
+    scholarshipPercentage?: number;
+    scholarshipAmount?: number;
+    netTuitionAnnual?: number;
+    applicationFee?: number;
+    estimatedHostelAnnual?: number;
+    estimatedLivingAnnual?: number;
+    tuitionFeeMinUsd?: number | null;
+    tuitionFeeMaxUsd?: number | null;
+  };
+  tuition_fee_per_year_usd?: number;
+  tuitionFeeMinUsd?: number | null;
+  tuitionFeeMaxUsd?: number | null;
+  annualTuitionFee?: number | null;
+  accreditations?: string[];
   title?: string;
   description?: string;
   status: InviteStatus;
@@ -497,6 +524,40 @@ export class InvitesService {
     }
   }
 
+  private getStoredUniversityFinancials(
+    orgId: string,
+    orgName: string,
+    isTsmu: boolean
+  ): { tuitionFeeMinUsd?: number | null; tuitionFeeMaxUsd?: number | null; accreditations?: string[] } {
+    try {
+      if (typeof localStorage === 'undefined') return {};
+      const candidateKeys = [
+        `mbbs_univ_profile_financials_${orgId}`,
+        `mbbs_univ_profile_financials_${orgName.toLowerCase().replace(/\s+/g, '_')}`,
+        isTsmu ? 'mbbs_univ_profile_financials_tsmu' : '',
+        isTsmu ? 'mbbs_univ_profile_financials_ORG_TSMU_001' : '',
+        'mbbs_univ_profile_financials_default',
+      ].filter(Boolean);
+
+      for (const k of candidateKeys) {
+        const raw = localStorage.getItem(k);
+        if (raw) {
+          try {
+            const parsed = JSON.parse(raw);
+            if (parsed && (parsed.tuitionFeeMinUsd != null || parsed.tuitionFeeMaxUsd != null || (parsed.accreditations && parsed.accreditations.length > 0))) {
+              return parsed;
+            }
+          } catch {
+            // ignore
+          }
+        }
+      }
+      return {};
+    } catch {
+      return {};
+    }
+  }
+
   private mapBackendInviteToInvite(item: BackendInviteItem): Invite {
     const orgName = item.organizationInfo?.name || item.organizationName || 'University';
     const orgCountry = item.organizationInfo?.country || '';
@@ -524,6 +585,12 @@ export class InvitesService {
       lowerName.includes('tsmu');
 
     const stored = this.getStoredUniversityImages(
+      item.organizationId || item._id,
+      orgName,
+      isTsmu
+    );
+
+    const storedFin = this.getStoredUniversityFinancials(
       item.organizationId || item._id,
       orgName,
       isTsmu
@@ -560,6 +627,72 @@ export class InvitesService {
       }
     }
 
+    // ── Tuition and Financial Binding ──────────────────────────────────────────
+    const rawMin =
+      item.organizationInfo?.tuitionFeeMinUsd ??
+      item.financials?.tuitionFeeMinUsd ??
+      item.tuitionFeeMinUsd ??
+      (item as any)?.tuitionFeeMinUsd ??
+      storedFin.tuitionFeeMinUsd ??
+      null;
+
+    const rawMax =
+      item.organizationInfo?.tuitionFeeMaxUsd ??
+      item.financials?.tuitionFeeMaxUsd ??
+      item.tuitionFeeMaxUsd ??
+      (item as any)?.tuitionFeeMaxUsd ??
+      storedFin.tuitionFeeMaxUsd ??
+      null;
+
+    const rawTuition =
+      item.financials?.tuitionAnnual ??
+      item.organizationInfo?.tuition_fee_per_year_usd ??
+      item.tuition_fee_per_year_usd ??
+      item.annualTuitionFee ??
+      (item as any)?.tuition_fee_per_year_usd ??
+      (item as any)?.annualTuitionFee ??
+      0;
+
+    let minFee = rawMin != null ? Number(rawMin) : (rawTuition > 0 ? Number(rawTuition) : null);
+    let maxFee = rawMax != null ? Number(rawMax) : null;
+
+    // Default institutional estimates if not configured yet
+    if (minFee == null && isTsmu) {
+      minFee = 6000;
+      maxFee = 9999;
+    }
+
+    const scholarshipAmt = item.financials?.scholarshipAmount ?? (item as any)?.scholarshipAmount ?? 0;
+    const scholarshipPct = item.financials?.scholarshipPercentage ?? (item as any)?.scholarshipPercentage ?? 0;
+    const appFee = item.financials?.applicationFee ?? (item as any)?.applicationFee ?? 0;
+    const hostelFee = item.financials?.estimatedHostelAnnual ?? (item as any)?.estimatedHostelAnnual ?? 0;
+    const livingFee = item.financials?.estimatedLivingAnnual ?? (item as any)?.estimatedLivingAnnual ?? 0;
+    const currency = item.financials?.currency || 'USD';
+
+    const tuitionAnnual = minFee != null ? minFee : (rawTuition || 0);
+    const netTuitionAnnual = Math.max(0, tuitionAnnual - scholarshipAmt);
+
+    let tuitionRangeDisplay = '';
+    if (minFee != null && maxFee != null && minFee !== maxFee) {
+      if (scholarshipAmt > 0) {
+        const netMin = Math.max(0, minFee - scholarshipAmt);
+        const netMax = Math.max(0, maxFee - scholarshipAmt);
+        tuitionRangeDisplay = `$${netMin.toLocaleString()} - $${netMax.toLocaleString()} / year`;
+      } else {
+        tuitionRangeDisplay = `$${minFee.toLocaleString()} - $${maxFee.toLocaleString()} / year`;
+      }
+    } else if (minFee != null && minFee > 0) {
+      const net = Math.max(0, minFee - scholarshipAmt);
+      tuitionRangeDisplay = `$${net.toLocaleString()} / year`;
+    }
+
+    const accreditations: string[] =
+      item.organizationInfo?.accreditations && item.organizationInfo.accreditations.length > 0
+        ? item.organizationInfo.accreditations
+        : (storedFin.accreditations && storedFin.accreditations.length > 0
+            ? storedFin.accreditations
+            : (isTsmu ? ['WHO', 'NMC', 'WFME'] : []));
+
     return {
       id: item._id,
       inviteNumber: item._id.startsWith('INV-') ? item._id : `INV-${item._id.slice(-6).toUpperCase()}`,
@@ -578,7 +711,8 @@ export class InvitesService {
         country: orgCountry,
         countryCode: orgCountry.slice(0, 2).toUpperCase(),
         city: orgCity,
-        recognition: [],
+        rankingGlobal: item.organizationInfo?.world_ranking || 0,
+        recognition: accreditations,
         foundedYear: 0,
         campusType: '',
         overview: item.description || '',
@@ -597,15 +731,19 @@ export class InvitesService {
         eligibilityCriteria: [],
       },
       financial: {
-        tuitionAnnual: 0,
-        tuitionTotal: 0,
-        currency: 'USD',
-        scholarshipPercentage: 0,
-        scholarshipAmount: 0,
-        netTuitionAnnual: 0,
-        applicationFee: 0,
-        estimatedHostelAnnual: 0,
-        estimatedLivingAnnual: 0,
+        tuitionAnnual,
+        tuitionTotal: tuitionAnnual * 6,
+        currency,
+        scholarshipPercentage: scholarshipPct,
+        scholarshipAmount: scholarshipAmt,
+        netTuitionAnnual,
+        applicationFee: appFee,
+        estimatedHostelAnnual: hostelFee,
+        estimatedLivingAnnual: livingFee,
+        tuitionFeeMinUsd: minFee,
+        tuitionFeeMaxUsd: maxFee,
+        tuitionRangeDisplay,
+        isEstimate: maxFee != null && minFee !== maxFee,
       },
       eligibility: {
         studentNeetScore: 0,

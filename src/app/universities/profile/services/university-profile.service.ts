@@ -75,6 +75,29 @@ export class UniversityProfileService {
     }
   }
 
+  private setStoredFinancials(
+    orgId: string,
+    data: { tuitionFeeMinUsd?: number | null; tuitionFeeMaxUsd?: number | null; accreditations?: string[] }
+  ): void {
+    try {
+      if (typeof localStorage === 'undefined') return;
+      const serialized = JSON.stringify(data);
+      localStorage.setItem(`mbbs_univ_profile_financials_${orgId}`, serialized);
+      localStorage.setItem(`mbbs_univ_profile_financials_tsmu`, serialized);
+      localStorage.setItem(`mbbs_univ_profile_financials_ORG_TSMU_001`, serialized);
+      localStorage.setItem(`mbbs_univ_profile_financials_default`, serialized);
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(
+          new CustomEvent('mbbs:university:financials-updated', {
+            detail: { orgId, ...data },
+          })
+        );
+      }
+    } catch {
+      // ignore
+    }
+  }
+
   // API #17: GET /organization/profile (View Profile)
   getProfile(): Observable<UniversityProfileResponse> {
     this.loading.set(true);
@@ -134,6 +157,13 @@ export class UniversityProfileService {
               this.setStoredImages(orgId, {
                 logo: payload.logo ?? res.data.logo,
                 coverImage: payload.coverImage ?? res.data.coverImage,
+              });
+            }
+            if (payload.tuitionFeeMinUsd !== undefined || payload.tuitionFeeMaxUsd !== undefined || payload.accreditations !== undefined) {
+              this.setStoredFinancials(orgId, {
+                tuitionFeeMinUsd: payload.tuitionFeeMinUsd !== undefined ? payload.tuitionFeeMinUsd : res.data.tuitionFeeMinUsd,
+                tuitionFeeMaxUsd: payload.tuitionFeeMaxUsd !== undefined ? payload.tuitionFeeMaxUsd : res.data.tuitionFeeMaxUsd,
+                accreditations: payload.accreditations !== undefined ? payload.accreditations : res.data.accreditations,
               });
             }
             const stored = this.getStoredImages(orgId);

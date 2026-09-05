@@ -74,6 +74,9 @@
               <div class="hero-tag-pills">
                 <span class="hero-tag-pill">{{ item.program.degree || 'Doctor of Medicine (MD / MBBS)' }}</span>
                 <span class="hero-tag-pill">International Medical Degree</span>
+                @for (acc of item.university.recognition; track acc) {
+                  <span class="hero-tag-pill acc-pill">{{ acc }} Accredited</span>
+                }
               </div>
             </div>
           </div>
@@ -190,6 +193,12 @@
               <span class="spec-lbl">Application Deadline</span>
               <strong class="spec-val val-amber">{{ item.expiresAt | date: 'mediumDate' }}</strong>
             </div>
+            @if (item.university.recognition && item.university.recognition.length > 0) {
+              <div class="spec-row">
+                <span class="spec-lbl">Accreditations</span>
+                <strong class="spec-val">{{ item.university.recognition.join(', ') }}</strong>
+              </div>
+            }
           </div>
         </section>
       }
@@ -266,13 +275,23 @@
             <div class="spec-row">
               <span class="spec-lbl">Net Annual Tuition Payable</span>
               <strong class="spec-val spec-val-lg">
-                @if ((item.financial.netTuitionAnnual || item.financial.tuitionAnnual || 0) > 0) {
+                @if (item.financial.tuitionRangeDisplay) {
+                  {{ item.financial.tuitionRangeDisplay }}
+                } @else if ((item.financial.netTuitionAnnual || item.financial.tuitionAnnual || 0) > 0) {
                   {{ (item.financial.netTuitionAnnual || item.financial.tuitionAnnual) | currency: (item.financial.currency || 'USD'): 'symbol': '1.0-0' }} / year
                 } @else {
-                  $0 / year
+                  Contact University
                 }
               </strong>
             </div>
+            @if (item.financial.tuitionFeeMinUsd && item.financial.tuitionFeeMaxUsd && item.financial.scholarshipAmount > 0) {
+              <div class="spec-row">
+                <span class="spec-lbl">Standard Tuition Estimate</span>
+                <strong class="spec-val">
+                  ${{ item.financial.tuitionFeeMinUsd | number }} - ${{ item.financial.tuitionFeeMaxUsd | number }} {{ item.financial.currency || 'USD' }} / year
+                </strong>
+              </div>
+            }
             <div class="spec-row">
               <span class="spec-lbl">Scholarship / Grant</span>
               <strong class="spec-val">

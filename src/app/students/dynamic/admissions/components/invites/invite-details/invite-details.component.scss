@@ -272,6 +272,12 @@ $faint:   #9da4ae;
         color: #334155;
         font-size: 0.875rem;
         font-weight: 600;
+
+        &.acc-pill {
+          background: #f0fdf4;
+          border-color: #bbf7d0;
+          color: #166534;
+        }
       }
     }
   }

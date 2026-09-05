@@ -39,6 +39,10 @@ export interface FinancialDetails {
   applicationFee: number;
   estimatedHostelAnnual: number;
   estimatedLivingAnnual: number;
+  tuitionFeeMinUsd?: number | null;
+  tuitionFeeMaxUsd?: number | null;
+  tuitionRangeDisplay?: string;
+  isEstimate?: boolean;
 }
 
 export interface StudentEligibilityMatch {
