@@ -528,7 +528,13 @@ export class InvitesService {
     orgId: string,
     orgName: string,
     isTsmu: boolean
-  ): { tuitionFeeMinUsd?: number | null; tuitionFeeMaxUsd?: number | null; accreditations?: string[] } {
+  ): {
+    tuitionFeeMinUsd?: number | null;
+    tuitionFeeMaxUsd?: number | null;
+    accreditations?: string[];
+    scholarshipAmount?: number | null;
+    otherFees?: number | null;
+  } {
     try {
       if (typeof localStorage === 'undefined') return {};
       const candidateKeys = [
@@ -544,7 +550,14 @@ export class InvitesService {
         if (raw) {
           try {
             const parsed = JSON.parse(raw);
-            if (parsed && (parsed.tuitionFeeMinUsd != null || parsed.tuitionFeeMaxUsd != null || (parsed.accreditations && parsed.accreditations.length > 0))) {
+            if (
+              parsed &&
+              (parsed.tuitionFeeMinUsd != null ||
+                parsed.tuitionFeeMaxUsd != null ||
+                (parsed.accreditations && parsed.accreditations.length > 0) ||
+                parsed.scholarshipAmount != null ||
+                parsed.otherFees != null)
+            ) {
               return parsed;
             }
           } catch {
@@ -662,10 +675,29 @@ export class InvitesService {
       maxFee = 9999;
     }
 
-    const scholarshipAmt = item.financials?.scholarshipAmount ?? (item as any)?.scholarshipAmount ?? 0;
+    const scholarshipAmt =
+      item.financials?.scholarshipAmount != null
+        ? Number(item.financials.scholarshipAmount)
+        : ((item as any)?.scholarshipAmount != null
+            ? Number((item as any).scholarshipAmount)
+            : ((item.organizationInfo as any)?.scholarshipAmount != null
+                ? Number((item.organizationInfo as any).scholarshipAmount)
+                : (storedFin.scholarshipAmount != null ? Number(storedFin.scholarshipAmount) : 0)));
+
     const scholarshipPct = item.financials?.scholarshipPercentage ?? (item as any)?.scholarshipPercentage ?? 0;
     const appFee = item.financials?.applicationFee ?? (item as any)?.applicationFee ?? 0;
-    const hostelFee = item.financials?.estimatedHostelAnnual ?? (item as any)?.estimatedHostelAnnual ?? 0;
+
+    const hostelFee =
+      item.financials?.estimatedHostelAnnual != null
+        ? Number(item.financials.estimatedHostelAnnual)
+        : ((item as any)?.estimatedHostelAnnual != null
+            ? Number((item as any).estimatedHostelAnnual)
+            : ((item.organizationInfo as any)?.otherFees != null
+                ? Number((item.organizationInfo as any).otherFees)
+                : ((item as any)?.otherFees != null
+                    ? Number((item as any).otherFees)
+                    : (storedFin.otherFees != null ? Number(storedFin.otherFees) : 0))));
+
     const livingFee = item.financials?.estimatedLivingAnnual ?? (item as any)?.estimatedLivingAnnual ?? 0;
     const currency = item.financials?.currency || 'USD';
 

@@ -16,6 +16,8 @@ export interface UniversityProfile {
   worldRanking?: number | null;
   tuitionFeeMinUsd?: number | null;
   tuitionFeeMaxUsd?: number | null;
+  scholarshipAmount?: number | null;
+  otherFees?: number | null;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -40,6 +42,8 @@ export interface UpdateUniversityProfileRequest {
   banner?: string | null;
   tuitionFeeMinUsd?: number | null;
   tuitionFeeMaxUsd?: number | null;
+  scholarshipAmount?: number | null;
+  otherFees?: number | null;
   accreditations?: string[];
 }
 

@@ -59,6 +59,8 @@ export class UniversityProfileComponent implements OnInit {
   formCoverImage = '';
   formTuitionMin: number | null = null;
   formTuitionMax: number | null = null;
+  formScholarshipAmount: number | null = null;
+  formOtherFees: number | null = null;
   readonly formAccreditations = signal<string[]>([]);
   newAccreditationInput = '';
 
@@ -127,6 +129,10 @@ export class UniversityProfileComponent implements OnInit {
       prof.tuitionFeeMinUsd !== undefined ? prof.tuitionFeeMinUsd : null;
     this.formTuitionMax =
       prof.tuitionFeeMaxUsd !== undefined ? prof.tuitionFeeMaxUsd : null;
+    this.formScholarshipAmount =
+      prof.scholarshipAmount !== undefined ? prof.scholarshipAmount : null;
+    this.formOtherFees =
+      prof.otherFees !== undefined ? prof.otherFees : null;
     this.formAccreditations.set(
       Array.isArray(prof.accreditations) ? [...prof.accreditations] : []
     );
@@ -289,6 +295,14 @@ export class UniversityProfileComponent implements OnInit {
       tuitionFeeMaxUsd:
         this.formTuitionMax !== null && !isNaN(Number(this.formTuitionMax))
           ? Number(this.formTuitionMax)
+          : null,
+      scholarshipAmount:
+        this.formScholarshipAmount !== null && !isNaN(Number(this.formScholarshipAmount))
+          ? Number(this.formScholarshipAmount)
+          : null,
+      otherFees:
+        this.formOtherFees !== null && !isNaN(Number(this.formOtherFees))
+          ? Number(this.formOtherFees)
           : null,
       accreditations: this.formAccreditations(),
     };

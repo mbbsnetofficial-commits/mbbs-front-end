@@ -266,6 +266,32 @@
                   </div>
                 </div>
 
+                <div class="financial-sub-grid">
+                  <div class="financial-stat-box">
+                    <span class="section-label">Scholarship / Grant</span>
+                    <div class="financial-val">
+                      @if (prof.scholarshipAmount !== null && prof.scholarshipAmount !== undefined && prof.scholarshipAmount > 0) {
+                        <strong>${{ prof.scholarshipAmount | number }}</strong>
+                        <span class="currency-tag">USD / Year</span>
+                      } @else {
+                        <span class="muted-text">Not specified</span>
+                      }
+                    </div>
+                  </div>
+
+                  <div class="financial-stat-box">
+                    <span class="section-label">Other Fees</span>
+                    <div class="financial-val">
+                      @if (prof.otherFees !== null && prof.otherFees !== undefined && prof.otherFees > 0) {
+                        <strong>${{ prof.otherFees | number }}</strong>
+                        <span class="currency-tag">USD / Year</span>
+                      } @else {
+                        <span class="muted-text">Not provided</span>
+                      }
+                    </div>
+                  </div>
+                </div>
+
                 <div class="accreditations-section">
                   <span class="section-label">Recognized Accreditations</span>
                   @if (prof.accreditations && prof.accreditations.length > 0) {
@@ -616,6 +642,32 @@
                       [(ngModel)]="formTuitionMax"
                       min="0"
                       placeholder="e.g. 8000"
+                      [disabled]="updating()"
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="prof-scholarship">Scholarship / Grant (USD/year)</label>
+                    <input
+                      id="prof-scholarship"
+                      type="number"
+                      name="scholarshipAmount"
+                      [(ngModel)]="formScholarshipAmount"
+                      min="0"
+                      placeholder="e.g. 1000"
+                      [disabled]="updating()"
+                    />
+                  </div>
+
+                  <div class="form-group">
+                    <label for="prof-other-fees">Other Fees (USD/year)</label>
+                    <input
+                      id="prof-other-fees"
+                      type="number"
+                      name="otherFees"
+                      [(ngModel)]="formOtherFees"
+                      min="0"
+                      placeholder="e.g. 1200 (Hostel, admin, etc.)"
                       [disabled]="updating()"
                     />
                   </div>

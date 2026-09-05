@@ -77,7 +77,13 @@ export class UniversityProfileService {
 
   private setStoredFinancials(
     orgId: string,
-    data: { tuitionFeeMinUsd?: number | null; tuitionFeeMaxUsd?: number | null; accreditations?: string[] }
+    data: {
+      tuitionFeeMinUsd?: number | null;
+      tuitionFeeMaxUsd?: number | null;
+      accreditations?: string[];
+      scholarshipAmount?: number | null;
+      otherFees?: number | null;
+    }
   ): void {
     try {
       if (typeof localStorage === 'undefined') return;
@@ -159,11 +165,19 @@ export class UniversityProfileService {
                 coverImage: payload.coverImage ?? res.data.coverImage,
               });
             }
-            if (payload.tuitionFeeMinUsd !== undefined || payload.tuitionFeeMaxUsd !== undefined || payload.accreditations !== undefined) {
+            if (
+              payload.tuitionFeeMinUsd !== undefined ||
+              payload.tuitionFeeMaxUsd !== undefined ||
+              payload.accreditations !== undefined ||
+              payload.scholarshipAmount !== undefined ||
+              payload.otherFees !== undefined
+            ) {
               this.setStoredFinancials(orgId, {
                 tuitionFeeMinUsd: payload.tuitionFeeMinUsd !== undefined ? payload.tuitionFeeMinUsd : res.data.tuitionFeeMinUsd,
                 tuitionFeeMaxUsd: payload.tuitionFeeMaxUsd !== undefined ? payload.tuitionFeeMaxUsd : res.data.tuitionFeeMaxUsd,
                 accreditations: payload.accreditations !== undefined ? payload.accreditations : res.data.accreditations,
+                scholarshipAmount: payload.scholarshipAmount !== undefined ? payload.scholarshipAmount : res.data.scholarshipAmount,
+                otherFees: payload.otherFees !== undefined ? payload.otherFees : res.data.otherFees,
               });
             }
             const stored = this.getStoredImages(orgId);
