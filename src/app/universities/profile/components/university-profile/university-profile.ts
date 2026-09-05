@@ -69,7 +69,7 @@ export class UniversityProfileComponent implements OnInit {
   resolvedLogo(): string {
     const prof = this.profile();
     if (!prof) return '';
-    if (prof.logo && !prof.logo.includes('tsmu-campus') && !prof.logo.includes('campus')) {
+    if (prof.logo && !prof.logo.includes('tsmu-campus') && !prof.logo.includes('campus') && !prof.logo.includes('unsplash')) {
       return prof.logo;
     }
     const name = (prof.name || '').toLowerCase();
