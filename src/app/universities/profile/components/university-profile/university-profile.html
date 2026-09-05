@@ -88,60 +88,125 @@
       @if (profile(); as prof) {
         @if (!isEditMode()) {
           <div class="profile-view-layout">
-            <!-- Hero Identity Card -->
+            <!-- Hero Identity Card with Campus Cover Banner & Official Logo -->
             <article class="profile-card identity-card">
-              <div class="identity-header">
-                <div class="logo-wrap">
-                  @if (prof.logo) {
-                    <img [src]="prof.logo" [alt]="prof.name" class="univ-logo" />
-                  } @else {
-                    <div class="logo-fallback">
-                      <app-icon name="graduation-cap" [size]="36" />
-                    </div>
-                  }
-                </div>
-
-                <div class="identity-info">
-                  <div class="name-badge-row">
-                    <h2 class="univ-name">{{ prof.name }}</h2>
-                    <span class="code-badge">{{ prof.code }}</span>
-                    <span class="org-id-pill">ID: {{ prof.organizationId }}</span>
+              <!-- Second Place: Campus Cover Image Banner -->
+              <div class="campus-cover-banner" [class.has-image]="!!resolvedCoverImage()">
+                @if (resolvedCoverImage(); as coverUrl) {
+                  <img [src]="coverUrl" [alt]="prof.name + ' Campus'" class="campus-cover-img" />
+                  <div class="campus-cover-gradient"></div>
+                  <div class="campus-badge">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
+                      <path d="M9 22v-4h6v4"></path>
+                      <path d="M8 6h.01"></path>
+                      <path d="M16 6h.01"></path>
+                      <path d="M8 10h.01"></path>
+                      <path d="M16 10h.01"></path>
+                      <path d="M8 14h.01"></path>
+                      <path d="M16 14h.01"></path>
+                    </svg>
+                    <span>Campus &amp; Facilities</span>
                   </div>
-
-                  <div class="location-row">
-                    <span class="location-item">
-                      <app-icon name="globe" [size]="14" />
-                      <span>{{ prof.city }}, {{ prof.country }}</span>
-                    </span>
-
-                    @if (prof.worldRanking) {
-                      <span class="ranking-badge">
-                        <app-icon name="sparkles" [size]="14" />
-                        <span>World Rank #{{ prof.worldRanking }}</span>
-                      </span>
-                    }
-
-                    @if (prof.website) {
-                      <a
-                        [href]="prof.website"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="website-link"
-                      >
-                        <app-icon name="share" [size]="13" />
-                        <span>{{ prof.website }}</span>
-                      </a>
-                    }
+                } @else {
+                  <div class="campus-cover-placeholder">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
+                      <path d="M9 22v-4h6v4"></path>
+                      <path d="M8 6h.01"></path>
+                      <path d="M16 6h.01"></path>
+                      <path d="M8 10h.01"></path>
+                      <path d="M16 10h.01"></path>
+                      <path d="M8 14h.01"></path>
+                      <path d="M16 14h.01"></path>
+                    </svg>
+                    <span>No campus cover photo set</span>
                   </div>
-                </div>
+                }
+
+                <!-- Direct quick-action in view mode -->
+                <button
+                  type="button"
+                  class="btn-cover-action"
+                  (click)="enterEditMode('cover')"
+                  title="Upload or change campus image"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                    <circle cx="12" cy="13" r="4"></circle>
+                  </svg>
+                  <span>{{ resolvedCoverImage() ? 'Change Campus Photo' : 'Add Campus Photo' }}</span>
+                </button>
               </div>
 
-              @if (prof.description) {
-                <div class="description-box">
-                  <span class="section-label">About University</span>
-                  <p class="description-text">{{ prof.description }}</p>
+              <div class="identity-body">
+                <div class="identity-header">
+                  <!-- First Place: University Logo -->
+                  <div class="logo-wrap-container">
+                    <div class="logo-wrap">
+                      @if (resolvedLogo(); as logoUrl) {
+                        <img [src]="logoUrl" [alt]="prof.name + ' Logo'" class="univ-logo" />
+                      } @else {
+                        <div class="logo-fallback">
+                          <app-icon name="graduation-cap" [size]="36" />
+                        </div>
+                      }
+                    </div>
+                    <button
+                      type="button"
+                      class="btn-logo-quick-edit"
+                      (click)="enterEditMode('logo')"
+                      title="Change University Logo"
+                    >
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                        <circle cx="12" cy="13" r="4"></circle>
+                      </svg>
+                    </button>
+                  </div>
+
+                  <div class="identity-info">
+                    <div class="name-badge-row">
+                      <h2 class="univ-name">{{ prof.name }}</h2>
+                      <span class="code-badge">{{ prof.code }}</span>
+                      <span class="org-id-pill">ID: {{ prof.organizationId }}</span>
+                    </div>
+
+                    <div class="location-row">
+                      <span class="location-item">
+                        <app-icon name="globe" [size]="15" />
+                        <span>{{ prof.city }}, {{ prof.country }}</span>
+                      </span>
+
+                      @if (prof.worldRanking) {
+                        <span class="ranking-badge">
+                          <app-icon name="sparkles" [size]="14" />
+                          <span>World Rank #{{ prof.worldRanking }}</span>
+                        </span>
+                      }
+
+                      @if (prof.website) {
+                        <a
+                          [href]="prof.website"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          class="website-link"
+                        >
+                          <app-icon name="share" [size]="13" />
+                          <span>{{ prof.website }}</span>
+                        </a>
+                      }
+                    </div>
+                  </div>
                 </div>
-              }
+
+                @if (prof.description) {
+                  <div class="description-box">
+                    <span class="section-label">About University</span>
+                    <p class="description-text">{{ prof.description }}</p>
+                  </div>
+                }
+              </div>
             </article>
 
             <!-- Details Grid -->
@@ -259,6 +324,187 @@
               </div>
 
               <form (ngSubmit)="submitForm()" class="profile-form">
+                <!-- Institutional Imagery (Place 1: Logo, Place 2: Campus Photo) -->
+                <div class="imagery-edit-section">
+                  <div class="section-title-row">
+                    <div class="sec-icon-circle">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                        <polyline points="21 15 16 10 5 21"></polyline>
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 class="imagery-section-title">Institutional Imagery &amp; Photos</h3>
+                      <p class="imagery-section-desc">Manage both your university emblem (first place) and your campus building photo (second place).</p>
+                    </div>
+                  </div>
+
+                  <div class="imagery-dual-grid">
+                    <!-- Place 1: University Logo -->
+                    <div class="image-uploader-card" id="uploader-logo">
+                      <div class="card-head-row">
+                        <label class="uploader-label">
+                          <span class="step-num">1</span>
+                          <span>University Logo</span>
+                          <span class="badge-role">First Place • Emblem</span>
+                        </label>
+                        <span class="format-hint">Square • max 5MB</span>
+                      </div>
+
+                      <div class="uploader-body">
+                        <div class="logo-preview-box">
+                          @if (formLogo) {
+                            <img [src]="formLogo" alt="Logo Preview" class="logo-preview-img" />
+                          } @else {
+                            <div class="logo-preview-empty">
+                              <app-icon name="graduation-cap" [size]="28" />
+                              <span>No Logo</span>
+                            </div>
+                          }
+                        </div>
+
+                        <div class="uploader-controls">
+                          <input
+                            #logoFileInput
+                            type="file"
+                            accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                            class="sr-only-input"
+                            (change)="onLogoFileSelected($event)"
+                          />
+                          <div class="btn-action-row">
+                            <button
+                              type="button"
+                              class="btn-choose-file"
+                              (click)="logoFileInput.click()"
+                              [disabled]="updating()"
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                              </svg>
+                              <span>{{ formLogo ? 'Replace Logo' : 'Upload Logo' }}</span>
+                            </button>
+
+                            @if (formLogo) {
+                              <button
+                                type="button"
+                                class="btn-clear-image"
+                                (click)="removeLogo()"
+                                [disabled]="updating()"
+                                title="Remove Logo"
+                              >
+                                <app-icon name="close" [size]="12" />
+                                <span>Remove</span>
+                              </button>
+                            }
+                          </div>
+
+                          <div class="url-fallback-row">
+                            <span class="url-lbl">Or image URL:</span>
+                            <input
+                              type="url"
+                              [(ngModel)]="formLogo"
+                              name="logoUrl"
+                              placeholder="https://.../logo.png"
+                              class="input-url-field"
+                              [disabled]="updating()"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Place 2: Campus / Cover Image ("the second place") -->
+                    <div class="image-uploader-card highlight-second" id="uploader-cover">
+                      <div class="card-head-row">
+                        <label class="uploader-label">
+                          <span class="step-num step-num-second">2</span>
+                          <span>Campus Cover Photo</span>
+                          <span class="badge-role badge-role-second">Second Place • Campus Photo</span>
+                        </label>
+                        <span class="format-hint">Landscape • 1200×400</span>
+                      </div>
+
+                      <div class="uploader-body uploader-body-cover">
+                        <div class="cover-preview-box">
+                          @if (formCoverImage) {
+                            <img [src]="formCoverImage" alt="Campus Cover Preview" class="cover-preview-img" />
+                            <div class="cover-active-tag">
+                              <app-icon name="check" [size]="12" [strokeWidth]="2.5" />
+                              <span>Campus Photo Active</span>
+                            </div>
+                          } @else {
+                            <div class="cover-preview-empty">
+                              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
+                                <path d="M9 22v-4h6v4"></path>
+                                <path d="M8 6h.01"></path>
+                                <path d="M16 6h.01"></path>
+                                <path d="M8 10h.01"></path>
+                                <path d="M16 10h.01"></path>
+                              </svg>
+                              <span>No campus photo set</span>
+                              <small>Upload an exterior campus or building photo</small>
+                            </div>
+                          }
+                        </div>
+
+                        <div class="uploader-controls">
+                          <input
+                            #coverFileInput
+                            type="file"
+                            accept="image/png,image/jpeg,image/webp"
+                            class="sr-only-input"
+                            (change)="onCoverFileSelected($event)"
+                          />
+                          <div class="btn-action-row">
+                            <button
+                              type="button"
+                              class="btn-choose-file btn-choose-file-second"
+                              (click)="coverFileInput.click()"
+                              [disabled]="updating()"
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                              </svg>
+                              <span>{{ formCoverImage ? 'Replace Campus Photo' : 'Upload Campus Photo' }}</span>
+                            </button>
+
+                            @if (formCoverImage) {
+                              <button
+                                type="button"
+                                class="btn-clear-image"
+                                (click)="removeCoverImage()"
+                                [disabled]="updating()"
+                                title="Remove Campus Photo"
+                              >
+                                <app-icon name="close" [size]="12" />
+                                <span>Remove</span>
+                              </button>
+                            }
+                          </div>
+
+                          <div class="url-fallback-row">
+                            <span class="url-lbl">Or image URL:</span>
+                            <input
+                              type="url"
+                              [(ngModel)]="formCoverImage"
+                              name="coverImageUrl"
+                              placeholder="/images/universities/tsmu-campus.png"
+                              class="input-url-field"
+                              [disabled]="updating()"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 <div class="form-grid-2">
                   <div class="form-group">
                     <label for="prof-name">University Name *</label>

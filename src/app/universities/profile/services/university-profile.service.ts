@@ -26,6 +26,25 @@ export class UniversityProfileService {
   readonly updating = signal<boolean>(false);
   readonly error = signal<string | null>(null);
 
+  private readonly IMAGES_STORAGE_KEY = 'mbbs_univ_profile_custom_images';
+
+  private getStoredImages(orgId: string): { logo?: string | null; coverImage?: string | null } | null {
+    try {
+      const raw = localStorage.getItem(`${this.IMAGES_STORAGE_KEY}_${orgId}`);
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  private setStoredImages(orgId: string, images: { logo?: string | null; coverImage?: string | null }): void {
+    try {
+      localStorage.setItem(`${this.IMAGES_STORAGE_KEY}_${orgId}`, JSON.stringify(images));
+    } catch {
+      // ignore
+    }
+  }
+
   // API #17: GET /organization/profile (View Profile)
   getProfile(): Observable<UniversityProfileResponse> {
     this.loading.set(true);
@@ -41,7 +60,13 @@ export class UniversityProfileService {
     return this.http.get<UniversityProfileResponse>(url, { headers }).pipe(
       tap((res) => {
         if (res?.success && res.data) {
-          this.profile.set(res.data);
+          const stored = this.getStoredImages(res.data.organizationId);
+          const merged: UniversityProfile = {
+            ...res.data,
+            logo: stored?.logo !== undefined ? stored.logo : res.data.logo,
+            coverImage: stored?.coverImage !== undefined ? stored.coverImage : res.data.coverImage,
+          };
+          this.profile.set(merged);
         }
         this.loading.set(false);
       }),
@@ -74,7 +99,20 @@ export class UniversityProfileService {
       .pipe(
         tap((res) => {
           if (res?.success && res.data) {
-            this.profile.set(res.data);
+            const orgId = res.data.organizationId || this.profile()?.organizationId || 'default';
+            if (payload.logo !== undefined || payload.coverImage !== undefined) {
+              this.setStoredImages(orgId, {
+                logo: payload.logo ?? res.data.logo,
+                coverImage: payload.coverImage ?? res.data.coverImage,
+              });
+            }
+            const stored = this.getStoredImages(orgId);
+            const merged: UniversityProfile = {
+              ...res.data,
+              logo: stored?.logo !== undefined ? stored.logo : res.data.logo,
+              coverImage: stored?.coverImage !== undefined ? stored.coverImage : res.data.coverImage,
+            };
+            this.profile.set(merged);
           }
           this.updating.set(false);
         }),

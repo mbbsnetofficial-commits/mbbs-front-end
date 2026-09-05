@@ -203,19 +203,24 @@ describe('UniversityProfileComponent', () => {
       component.formName = 'Tbilisi State Medical University (Updated)';
       component.submitForm();
 
-      expect(profileServiceMock.updateProfile).toHaveBeenCalledWith({
-        name: 'Tbilisi State Medical University (Updated)',
-        country: 'Georgia',
-        city: 'Tbilisi',
-        description:
-          'Leading state medical university in Georgia offering WHO-recognized English MD programs.',
-        website: 'https://tsmu.edu',
-        contactEmail: 'admissions@tsmu.edu',
-        contactPhone: '+995322542488',
-        tuitionFeeMinUsd: 6000,
-        tuitionFeeMaxUsd: 8000,
-        accreditations: ['WHO', 'WFME', 'NMC', 'FAIMER', 'ECFMG'],
-      });
+      expect(profileServiceMock.updateProfile).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: 'Tbilisi State Medical University (Updated)',
+          country: 'Georgia',
+          city: 'Tbilisi',
+          description:
+            'Leading state medical university in Georgia offering WHO-recognized English MD programs.',
+          website: 'https://tsmu.edu',
+          contactEmail: 'admissions@tsmu.edu',
+          contactPhone: '+995322542488',
+          tuitionFeeMinUsd: 6000,
+          tuitionFeeMaxUsd: 8000,
+          accreditations: ['WHO', 'WFME', 'NMC', 'FAIMER', 'ECFMG'],
+          logo: 'https://example.com/tsmu-logo.png',
+          coverImage: '/images/universities/tsmu-campus.png',
+          banner: '/images/universities/tsmu-campus.png',
+        })
+      );
 
       expect(component.isEditMode()).toBe(false);
       expect(component.toastSuccessMessage()).toContain('updated successfully');

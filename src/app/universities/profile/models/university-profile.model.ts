@@ -5,6 +5,8 @@ export interface UniversityProfile {
   country: string;
   city: string;
   logo?: string | null;
+  coverImage?: string | null;
+  banner?: string | null;
   description: string;
   website?: string | null;
   contactEmail: string;
@@ -32,6 +34,10 @@ export interface UpdateUniversityProfileRequest {
   website?: string | null;
   contactEmail: string;
   contactPhone?: string | null;
+  address?: string | null;
+  logo?: string | null;
+  coverImage?: string | null;
+  banner?: string | null;
   tuitionFeeMinUsd?: number | null;
   tuitionFeeMaxUsd?: number | null;
   accreditations?: string[];

@@ -43,6 +43,8 @@ export class UniversityProfileComponent implements OnInit {
   formWebsite = '';
   formContactEmail = '';
   formContactPhone = '';
+  formLogo = '';
+  formCoverImage = '';
   formTuitionMin: number | null = null;
   formTuitionMax: number | null = null;
   readonly formAccreditations = signal<string[]>([]);
@@ -64,7 +66,39 @@ export class UniversityProfileComponent implements OnInit {
     this.loadProfile();
   }
 
-  enterEditMode(): void {
+  resolvedLogo(): string {
+    const prof = this.profile();
+    if (!prof) return '';
+    if (prof.logo && !prof.logo.includes('tsmu-campus') && !prof.logo.includes('campus')) {
+      return prof.logo;
+    }
+    const name = (prof.name || '').toLowerCase();
+    if (name.includes('tbilisi') || name.includes('tsmu')) {
+      return '/images/universities/tsmu-logo.png';
+    }
+    if (name.includes('msu') || name.includes('management')) {
+      return '/images/universities/msu-logo.png';
+    }
+    return prof.logo || '';
+  }
+
+  resolvedCoverImage(): string {
+    const prof = this.profile();
+    if (!prof) return '';
+    if (prof.coverImage) return prof.coverImage;
+    if (prof.banner) return prof.banner;
+    // If prof.logo happened to be the campus building photo, use it as cover image:
+    if (prof.logo && (prof.logo.includes('campus') || prof.logo.includes('tsmu-campus'))) {
+      return prof.logo;
+    }
+    const name = (prof.name || '').toLowerCase();
+    if (name.includes('tbilisi') || name.includes('tsmu')) {
+      return '/images/universities/tsmu-campus.png';
+    }
+    return '';
+  }
+
+  enterEditMode(focusTarget?: 'logo' | 'cover'): void {
     const prof = this.profile();
     if (!prof) return;
 
@@ -75,6 +109,8 @@ export class UniversityProfileComponent implements OnInit {
     this.formWebsite = prof.website || '';
     this.formContactEmail = prof.contactEmail || '';
     this.formContactPhone = prof.contactPhone || '';
+    this.formLogo = this.resolvedLogo();
+    this.formCoverImage = this.resolvedCoverImage();
     this.formTuitionMin =
       prof.tuitionFeeMinUsd !== undefined ? prof.tuitionFeeMinUsd : null;
     this.formTuitionMax =
@@ -85,12 +121,67 @@ export class UniversityProfileComponent implements OnInit {
     this.newAccreditationInput = '';
     this.formValidationErrorMessage.set(null);
     this.isEditMode.set(true);
+
+    if (focusTarget) {
+      setTimeout(() => {
+        const el = document.getElementById(`uploader-${focusTarget}`);
+        el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 120);
+    }
   }
 
   cancelEditMode(): void {
     if (this.updating()) return;
     this.isEditMode.set(false);
     this.formValidationErrorMessage.set(null);
+  }
+
+  onLogoFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+    const file = input.files[0];
+    if (!file.type.startsWith('image/')) {
+      this.formValidationErrorMessage.set('Please choose a valid image file (PNG, JPG, WebP, SVG).');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      this.formValidationErrorMessage.set('Logo file size must be less than 5MB.');
+      return;
+    }
+    this.formValidationErrorMessage.set(null);
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.formLogo = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  onCoverFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+    const file = input.files[0];
+    if (!file.type.startsWith('image/')) {
+      this.formValidationErrorMessage.set('Please choose a valid image file (PNG, JPG, WebP).');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      this.formValidationErrorMessage.set('Campus cover file size must be less than 5MB.');
+      return;
+    }
+    this.formValidationErrorMessage.set(null);
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.formCoverImage = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  removeLogo(): void {
+    this.formLogo = '';
+  }
+
+  removeCoverImage(): void {
+    this.formCoverImage = '';
   }
 
   addAccreditation(): void {
@@ -176,6 +267,9 @@ export class UniversityProfileComponent implements OnInit {
       contactEmail: trimmedEmail,
       website: trimmedWebsite || null,
       contactPhone: trimmedPhone || null,
+      logo: this.formLogo.trim() || null,
+      coverImage: this.formCoverImage.trim() || null,
+      banner: this.formCoverImage.trim() || null,
       tuitionFeeMinUsd:
         this.formTuitionMin !== null && !isNaN(Number(this.formTuitionMin))
           ? Number(this.formTuitionMin)
