@@ -30,20 +30,8 @@ export class UniversityProfileService {
 
   private getStoredImages(orgId: string): { logo?: string | null; coverImage?: string | null } | null {
     try {
-      if (typeof localStorage === 'undefined') return null;
       const raw = localStorage.getItem(`${this.IMAGES_STORAGE_KEY}_${orgId}`);
-      if (raw) return JSON.parse(raw);
-      const fallback =
-        localStorage.getItem(`${this.IMAGES_STORAGE_KEY}_tsmu`) ||
-        localStorage.getItem(`${this.IMAGES_STORAGE_KEY}_ORG_TSMU_001`) ||
-        localStorage.getItem(`${this.IMAGES_STORAGE_KEY}_default`);
-      if (fallback) return JSON.parse(fallback);
-      const genericLogo = localStorage.getItem('mbbs_univ_custom_logo');
-      const genericCover = localStorage.getItem('mbbs_univ_custom_cover');
-      if (genericLogo || genericCover) {
-        return { logo: genericLogo, coverImage: genericCover };
-      }
-      return null;
+      return raw ? JSON.parse(raw) : null;
     } catch {
       return null;
     }
@@ -51,25 +39,7 @@ export class UniversityProfileService {
 
   private setStoredImages(orgId: string, images: { logo?: string | null; coverImage?: string | null }): void {
     try {
-      if (typeof localStorage === 'undefined') return;
-      const serialized = JSON.stringify(images);
-      localStorage.setItem(`${this.IMAGES_STORAGE_KEY}_${orgId}`, serialized);
-      localStorage.setItem(`${this.IMAGES_STORAGE_KEY}_tsmu`, serialized);
-      localStorage.setItem(`${this.IMAGES_STORAGE_KEY}_ORG_TSMU_001`, serialized);
-      localStorage.setItem(`${this.IMAGES_STORAGE_KEY}_default`, serialized);
-      if (images.logo) {
-        localStorage.setItem('mbbs_univ_custom_logo', images.logo);
-      }
-      if (images.coverImage) {
-        localStorage.setItem('mbbs_univ_custom_cover', images.coverImage);
-      }
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(
-          new CustomEvent('mbbs:university:profile-updated', {
-            detail: { orgId, ...images },
-          })
-        );
-      }
+      localStorage.setItem(`${this.IMAGES_STORAGE_KEY}_${orgId}`, JSON.stringify(images));
     } catch {
       // ignore
     }
@@ -91,18 +61,10 @@ export class UniversityProfileService {
       tap((res) => {
         if (res?.success && res.data) {
           const stored = this.getStoredImages(res.data.organizationId);
-          const effectiveLogo = stored?.logo !== undefined ? stored.logo : res.data.logo;
-          const effectiveCover = stored?.coverImage !== undefined ? stored.coverImage : res.data.coverImage;
-          if (effectiveLogo || effectiveCover) {
-            this.setStoredImages(res.data.organizationId, {
-              logo: effectiveLogo,
-              coverImage: effectiveCover,
-            });
-          }
           const merged: UniversityProfile = {
             ...res.data,
-            logo: effectiveLogo,
-            coverImage: effectiveCover,
+            logo: stored?.logo !== undefined ? stored.logo : res.data.logo,
+            coverImage: stored?.coverImage !== undefined ? stored.coverImage : res.data.coverImage,
           };
           this.profile.set(merged);
         }

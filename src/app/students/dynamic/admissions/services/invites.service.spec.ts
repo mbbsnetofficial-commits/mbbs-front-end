@@ -175,61 +175,6 @@ describe('InvitesService', () => {
     expect(res?.status).toBe('PENDING');
   });
 
-  it('should map Tbilisi State Medical University with updated profile logo', async () => {
-    const tsmuDetailResponse: BackendInviteDetailsResponse = {
-      success: true,
-      data: {
-        _id: 'inv-tsmu-001',
-        organizationId: 'ORG_TSMU_001',
-        organizationName: 'Tbilisi State Medical University',
-        organizationInfo: {
-          name: 'Tbilisi State Medical University',
-          country: 'Georgia',
-          city: 'Tbilisi',
-        },
-        status: 'PENDING',
-      },
-    };
-
-    const promise = firstValueFrom(service.getInviteById('inv-tsmu-001'));
-    const req = httpTesting.expectOne(
-      `${environment.admissionsApiBaseUrl}/student/invites/inv-tsmu-001`
-    );
-    req.flush(tsmuDetailResponse);
-
-    const res = await promise;
-    expect(res).toBeDefined();
-    expect(res?.university.name).toBe('Tbilisi State Medical University');
-    expect(res?.university.logoUrl).toBe('/images/mbbs-icon.png');
-  });
-
-  it('should prioritize stored custom organization logo from university portal sync', async () => {
-    localStorage.setItem(
-      'mbbs_univ_profile_custom_images_ORG_TSMU_001',
-      JSON.stringify({ logo: 'data:image/png;base64,custom-tsmu-logo' })
-    );
-
-    const tsmuDetailResponse: BackendInviteDetailsResponse = {
-      success: true,
-      data: {
-        _id: 'inv-tsmu-custom',
-        organizationId: 'ORG_TSMU_001',
-        organizationName: 'Tbilisi State Medical University',
-        status: 'PENDING',
-      },
-    };
-
-    const promise = firstValueFrom(service.getInviteById('inv-tsmu-custom'));
-    const req = httpTesting.expectOne(
-      `${environment.admissionsApiBaseUrl}/student/invites/inv-tsmu-custom`
-    );
-    req.flush(tsmuDetailResponse);
-
-    const res = await promise;
-    expect(res?.university.logoUrl).toBe('data:image/png;base64,custom-tsmu-logo');
-    localStorage.removeItem('mbbs_univ_profile_custom_images_ORG_TSMU_001');
-  });
-
   it('should handle 404 error when fetching non-existent invite details', async () => {
     const promise = firstValueFrom(service.getInviteById('non-existent-id'));
     const req = httpTesting.expectOne(

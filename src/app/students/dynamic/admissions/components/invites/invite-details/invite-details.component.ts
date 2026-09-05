@@ -87,12 +87,9 @@ export class InviteDetailsComponent {
   readonly univLogoUrl = computed(() => {
     const inv = this.invite();
     if (!inv) return '';
-    if (inv.university?.logoUrl) {
-      return inv.university.logoUrl;
-    }
-    const name = (inv.university?.name || '').toLowerCase();
+    const name = (inv.university.name || '').toLowerCase();
     if (name.includes('tbilisi') || name.includes('tsmu')) {
-      return '/images/mbbs-icon.png';
+      return '/images/universities/tsmu-logo.png';
     }
     if (name.includes('msu') || name.includes('management and science')) {
       return '/images/universities/msu-logo.png';
@@ -106,7 +103,7 @@ export class InviteDetailsComponent {
     if (name.includes('pecs') || name.includes('pécs')) return '/images/universities/pecs.svg';
     if (name.includes('riga') || name.includes('stradins')) return '/images/universities/riga-stradins.svg';
     if (name.includes('semmelweis')) return '/images/universities/semmelweis.svg';
-    return '/images/universities/msu-logo.png';
+    return inv.university.logoUrl || '/images/universities/msu-logo.png';
   });
 
   readonly logoFailed = signal<boolean>(false);
