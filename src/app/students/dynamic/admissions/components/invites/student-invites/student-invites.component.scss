@@ -250,82 +250,88 @@ $danger:       #dc2626;
       box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
     }
 
-    // Specific Status Themes:
+    // Specific Status Themes (Lighter & softer aesthetic):
     &--all.active {
-      background: #0f172a;
-      border-color: #0f172a;
-      color: #ffffff;
+      background: #f8fafc;
+      border-color: #cbd5e1;
+      color: #0f172a;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
 
       .tab-dot {
-        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.35);
+        background: #64748b;
+        box-shadow: 0 0 0 3px rgba(100, 116, 139, 0.15);
       }
 
       .tab-count {
-        background: rgba(255, 255, 255, 0.2);
-        color: #ffffff;
+        background: #e2e8f0;
+        color: #334155;
       }
     }
 
     &--review.active {
-      background: #eff6ff;
-      border-color: #3b82f6;
-      color: #1d4ed8;
+      background: #f0f7ff;
+      border-color: #bfdbfe;
+      color: #2563eb;
+      box-shadow: 0 1px 3px rgba(37, 99, 235, 0.08);
 
       .tab-dot {
-        background: #2563eb;
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+        background: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
       }
 
       .tab-count {
         background: #dbeafe;
-        color: #1e40af;
+        color: #1d4ed8;
       }
     }
 
     &--action.active {
-      background: #fffbeb;
-      border-color: #f59e0b;
+      background: #fffdf5;
+      border-color: #fde68a;
       color: #b45309;
+      box-shadow: 0 1px 3px rgba(217, 119, 6, 0.08);
 
       .tab-dot {
-        background: #d97706;
-        box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.25);
+        background: #f59e0b;
+        box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
       }
 
       .tab-count {
-        background: #fde68a;
+        background: #fef3c7;
         color: #92400e;
       }
     }
 
     &--accepted.active {
-      background: #ecfdf5;
-      border-color: #10b981;
-      color: #047857;
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+      color: #15803d;
+      box-shadow: 0 1px 3px rgba(34, 197, 94, 0.08);
 
       .tab-dot {
-        background: #059669;
-        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.25);
+        background: #22c55e;
+        box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
       }
 
       .tab-count {
-        background: #a7f3d0;
-        color: #065f46;
+        background: #dcfce7;
+        color: #166534;
       }
     }
 
     &--declined.active {
-      background: #fef2f2;
-      border-color: #ef4444;
-      color: #b91c1c;
+      background: #fff5f5;
+      border-color: #fecaca;
+      color: #dc2626;
+      box-shadow: 0 1px 3px rgba(220, 38, 38, 0.08);
 
       .tab-dot {
-        background: #dc2626;
-        box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.25);
+        background: #f87171;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
       }
 
       .tab-count {
-        background: #fecaca;
+        background: #fee2e2;
         color: #991b1b;
       }
     }
