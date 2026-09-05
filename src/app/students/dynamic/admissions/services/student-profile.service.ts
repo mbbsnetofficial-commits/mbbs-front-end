@@ -219,32 +219,15 @@ export function mapBackendProfileToFrontend(data: BackendStudentProfileData | an
 
   // 3. Entrance Examination Mapping
   const entranceExams: EntranceExam[] = [];
-  const examsList = Array.isArray(e.exams)
-    ? e.exams
-    : (Array.isArray(data?.entranceExams) ? data.entranceExams : []);
-  const neetInList = examsList.find(
-    (ex: any) => !ex.examType || (ex.examType || '').toUpperCase() === 'NEET'
-  );
+  const rawCandidateExams: any[] = [];
 
-  if (neetInList) {
-    entranceExams.push({
-      id: neetInList.id || 'exam-neet',
-      examType: neetInList.examType || 'NEET',
-      year:
-        neetInList.examYear !== undefined
-          ? Number(neetInList.examYear)
-          : (neetInList.year !== undefined ? Number(neetInList.year) : undefined),
-      rollNumber: neetInList.rollNumber || '',
-      score: neetInList.score !== undefined ? Number(neetInList.score) : undefined,
-      maxScore:
-        neetInList.maxScore !== undefined
-          ? Number(neetInList.maxScore)
-          : (neetInList.maximumScore !== undefined ? Number(neetInList.maximumScore) : 720),
-      rank: neetInList.rank !== undefined ? Number(neetInList.rank) : undefined,
-      percentile: neetInList.percentile !== undefined ? Number(neetInList.percentile) : undefined,
-      qualified: neetInList.qualified ?? false,
-    });
-  } else if (
+  if (Array.isArray(e.exams)) {
+    rawCandidateExams.push(...e.exams);
+  }
+  if (Array.isArray(data?.entranceExams)) {
+    rawCandidateExams.push(...data.entranceExams);
+  }
+  if (
     e.examType ||
     e.examYear !== undefined ||
     e.rollNumber ||
@@ -252,43 +235,118 @@ export function mapBackendProfileToFrontend(data: BackendStudentProfileData | an
     e.neetScore !== undefined ||
     e.neetRollNumber
   ) {
-    const scoreVal =
-      e.score !== undefined
-        ? Number(e.score)
-        : (e.neetScore !== undefined ? Number(e.neetScore) : undefined);
-    const yearVal =
-      e.examYear !== undefined
-        ? Number(e.examYear)
-        : (e.neetYear !== undefined ? Number(e.neetYear) : undefined);
-    const rollVal = e.rollNumber || e.neetRollNumber || '';
-    const qualVal = e.qualified ?? e.neetQualified ?? false;
-    const maxScoreVal =
-      e.maximumScore !== undefined ? Number(e.maximumScore) : 720;
+    rawCandidateExams.unshift(e);
+  }
+
+  // Identify any exam entry that represents NEET
+  const isNeetExam = (ex: any): boolean => {
+    if (!ex) return false;
+    const type = (ex.examType || '').trim().toUpperCase();
+    if (type === 'NEET') return true;
+    const roll = (ex.rollNumber || ex.neetRollNumber || '').trim().toUpperCase();
+    if (roll.startsWith('NEET')) return true;
+    if (ex.neetScore !== undefined || ex.neetRollNumber !== undefined) return true;
+    if (!type || type === 'OTHER') {
+      if (roll && (roll.includes('NEET') || roll.includes('IN'))) return true;
+      if (ex.maxScore === 720 || ex.maximumScore === 720) return true;
+    }
+    return false;
+  };
+
+  const neetCandidates = rawCandidateExams.filter(isNeetExam);
+
+  if (neetCandidates.length > 0) {
+    // Merge into exactly one canonical NEET record
+    let canonicalYear: number | undefined;
+    let canonicalRoll = '';
+    let canonicalScore: number | undefined;
+    let canonicalMaxScore = 720;
+    let canonicalRank: number | undefined;
+    let canonicalPercentile: number | undefined;
+    let canonicalQualified = false;
+
+    for (const c of neetCandidates) {
+      if (canonicalYear === undefined) {
+        if (c.examYear !== undefined) canonicalYear = Number(c.examYear);
+        else if (c.year !== undefined) canonicalYear = Number(c.year);
+        else if (c.neetYear !== undefined) canonicalYear = Number(c.neetYear);
+      }
+      if (!canonicalRoll) {
+        canonicalRoll = c.rollNumber || c.neetRollNumber || '';
+      }
+      if (canonicalScore === undefined) {
+        if (c.score !== undefined) canonicalScore = Number(c.score);
+        else if (c.neetScore !== undefined) canonicalScore = Number(c.neetScore);
+      }
+      if (c.maxScore !== undefined) canonicalMaxScore = Number(c.maxScore);
+      else if (c.maximumScore !== undefined) canonicalMaxScore = Number(c.maximumScore);
+
+      if (canonicalRank === undefined && c.rank !== undefined) {
+        canonicalRank = Number(c.rank);
+      }
+      if (canonicalPercentile === undefined && c.percentile !== undefined) {
+        canonicalPercentile = Number(c.percentile);
+      }
+      if (c.qualified || c.neetQualified) {
+        canonicalQualified = true;
+      }
+    }
 
     entranceExams.push({
       id: 'exam-neet',
       examType: 'NEET',
-      year: yearVal,
-      rollNumber: rollVal,
-      score: scoreVal,
-      maxScore: maxScoreVal,
-      qualified: qualVal,
+      year: canonicalYear,
+      rollNumber: canonicalRoll,
+      score: canonicalScore,
+      maxScore: canonicalMaxScore,
+      rank: canonicalRank,
+      percentile: canonicalPercentile,
+      qualified: canonicalQualified,
     });
   }
 
-  for (const other of examsList) {
-    if ((other.examType || '').toUpperCase() !== 'NEET') {
-      entranceExams.push({
-        id: other.id || `exam-${other.examType || 'other'}`,
-        examType: other.examType || 'OTHER',
-        year: other.examYear !== undefined ? Number(other.examYear) : other.year,
-        rollNumber: other.rollNumber || '',
-        score: other.score !== undefined ? Number(other.score) : undefined,
-        maxScore:
-          other.maxScore !== undefined ? Number(other.maxScore) : other.maximumScore,
-        qualified: other.qualified ?? false,
-      });
+  // Add other distinct non-NEET entrance exams (e.g. UCAT, IMAT, MCAT)
+  const canonicalNeetRoll = entranceExams[0]?.rollNumber?.trim().toLowerCase();
+  const seenExamKeys = new Set<string>();
+  if (entranceExams.length > 0) {
+    seenExamKeys.add('NEET');
+  }
+
+  for (const other of rawCandidateExams) {
+    if (isNeetExam(other)) {
+      continue;
     }
+    const itemRoll = (other.rollNumber || '').trim().toLowerCase();
+    if (canonicalNeetRoll && itemRoll && canonicalNeetRoll === itemRoll) {
+      continue;
+    }
+    const rawType = (other.examType || '').trim().toUpperCase();
+    if (!rawType || rawType === 'OTHER') {
+      if (!itemRoll || (other.score === entranceExams[0]?.score && other.year === entranceExams[0]?.year)) {
+        continue;
+      }
+    }
+    const key = `${rawType || 'OTHER'}-${itemRoll}-${other.year ?? other.examYear ?? ''}`;
+    if (seenExamKeys.has(key)) {
+      continue;
+    }
+    seenExamKeys.add(key);
+
+    entranceExams.push({
+      id: other.id || `exam-${(rawType || 'other').toLowerCase()}`,
+      examType: rawType || 'OTHER',
+      year:
+        other.examYear !== undefined
+          ? Number(other.examYear)
+          : (other.year !== undefined ? Number(other.year) : undefined),
+      rollNumber: other.rollNumber || '',
+      score: other.score !== undefined ? Number(other.score) : undefined,
+      maxScore:
+        other.maxScore !== undefined
+          ? Number(other.maxScore)
+          : (other.maximumScore !== undefined ? Number(other.maximumScore) : undefined),
+      qualified: other.qualified ?? false,
+    });
   }
 
   if (

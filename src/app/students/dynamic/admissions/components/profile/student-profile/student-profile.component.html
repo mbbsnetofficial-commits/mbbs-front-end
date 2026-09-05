@@ -374,7 +374,7 @@
               <div class="form-group col-2">
                 <label class="check-label">
                   <input type="checkbox" [(ngModel)]="exam.qualified" />
-                  <span>Officially NEET Qualified Candidate</span>
+                  <span>Officially {{ exam.examType === 'NEET' ? 'NEET' : exam.examType }} Qualified Candidate</span>
                 </label>
               </div>
             </div>

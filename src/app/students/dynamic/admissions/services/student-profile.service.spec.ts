@@ -2,7 +2,11 @@ import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { firstValueFrom } from 'rxjs';
-import { StudentProfileService, BackendStudentProfileResponse } from './student-profile.service';
+import {
+  StudentProfileService,
+  BackendStudentProfileResponse,
+  mapBackendProfileToFrontend,
+} from './student-profile.service';
 import { environment } from '../../../../../environments/environment';
 
 describe('StudentProfileService', () => {
@@ -159,6 +163,32 @@ describe('StudentProfileService', () => {
       expect(neet.score).toBe(665);
       expect(neet.maxScore).toBe(720);
       expect(neet.qualified).toBe(true);
+    });
+
+    it('should deduplicate when backend returns both NEET and OTHER for the same exam', () => {
+      const duplicateData = {
+        entrance: {
+          examType: 'NEET',
+          examYear: 2024,
+          rollNumber: 'NEET2024IN890360',
+          score: 620,
+          qualified: true,
+        },
+        entranceExams: [
+          {
+            examType: 'OTHER',
+            examYear: 2024,
+            rollNumber: 'NEET2024IN890360',
+            score: 620,
+            qualified: true,
+          },
+        ],
+      };
+      const mapped = mapBackendProfileToFrontend(duplicateData);
+      expect(mapped.entranceExams.length).toBe(1);
+      expect(mapped.entranceExams[0].examType).toBe('NEET');
+      expect(mapped.entranceExams[0].score).toBe(620);
+      expect(mapped.entranceExams[0].rollNumber).toBe('NEET2024IN890360');
     });
 
     it('should map Preferences normalizing single intake string to array', () => {

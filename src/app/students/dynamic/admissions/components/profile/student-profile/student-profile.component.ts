@@ -333,17 +333,32 @@ export class StudentProfileComponent {
 
   // Entrance
   startEditEntrance(): void {
-    this.entranceDraft = JSON.parse(JSON.stringify(this.profile().entranceExams || []));
-    if (this.entranceDraft.length === 0) {
-      this.entranceDraft.push({
-        id: 'exam-neet',
-        examType: 'NEET',
-        year: undefined,
-        score: undefined,
-        maxScore: 720,
-        rollNumber: '',
-        qualified: false,
+    const rawExams: EntranceExam[] = JSON.parse(JSON.stringify(this.profile().entranceExams || []));
+    const neet = rawExams.find((x) => (x.examType || '').toUpperCase() === 'NEET') || rawExams[0];
+    if (neet) {
+      const canonicalRoll = (neet.rollNumber || '').trim().toLowerCase();
+      const others = rawExams.filter((x) => {
+        if (x === neet) return false;
+        if ((x.examType || '').toUpperCase() === 'NEET') return false;
+        const roll = (x.rollNumber || '').trim().toLowerCase();
+        if (canonicalRoll && roll && canonicalRoll === roll) return false;
+        if (roll.startsWith('neet')) return false;
+        if ((x.examType || '').toUpperCase() === 'OTHER' && (!roll || (x.score === neet.score && x.year === neet.year))) return false;
+        return true;
       });
+      this.entranceDraft = [{ ...neet, examType: 'NEET' }, ...others];
+    } else {
+      this.entranceDraft = [
+        {
+          id: 'exam-neet',
+          examType: 'NEET',
+          year: undefined,
+          score: undefined,
+          maxScore: 720,
+          rollNumber: '',
+          qualified: false,
+        },
+      ];
     }
     this.editingEntrance.set(true);
   }
