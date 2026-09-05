@@ -53,7 +53,7 @@
       </a>
     </nav>
 
-    <!-- Right Controls: Profile Pill & Sign Out -->
+    <!-- Right Controls: Profile Pill -->
     <div class="header-right">
       <a
         routerLink="/university/profile"
@@ -66,22 +66,6 @@
         </span>
         <span class="user-name-text">{{ currentUser()?.name || 'Partner Medical University' }}</span>
       </a>
-
-      <button
-        type="button"
-        class="btn-logout"
-        (click)="logout()"
-        [disabled]="logoutLoading()"
-        title="Sign out of university session"
-      >
-        @if (logoutLoading()) {
-          <span class="spinner-small"></span>
-          <span>Signing Out...</span>
-        } @else {
-          <app-icon name="close" [size]="15" />
-          <span>Sign Out</span>
-        }
-      </button>
     </div>
   </div>
 </header>

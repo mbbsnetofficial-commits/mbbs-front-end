@@ -439,18 +439,49 @@ export class InvitesService {
       lowerName.includes('tbilisi') ||
       lowerName.includes('tsmu');
 
-    let resolvedCoverImage = backendImage;
-    let resolvedLogo = rawBackendLogo;
+    // Check if the organization portal has set a custom logo or cover:
+    let storedOrgLogo: string | null = null;
+    let storedOrgCover: string | null = null;
+    try {
+      if (typeof localStorage !== 'undefined') {
+        const orgId = item.organizationId || item._id || '';
+        const candidateKeys = [
+          `mbbs_univ_profile_custom_images_${orgId}`,
+          `mbbs_univ_profile_custom_images_${orgName.toLowerCase()}`,
+          isTsmu ? 'mbbs_univ_profile_custom_images_tsmu' : '',
+          isTsmu ? 'mbbs_univ_profile_custom_images_ORG_TSMU_001' : '',
+          'mbbs_univ_profile_custom_images_default',
+        ].filter(Boolean);
 
-    if (isTsmu) {
-      if (!resolvedCoverImage) {
-        resolvedCoverImage = '/images/universities/tsmu-campus.png';
+        for (const k of candidateKeys) {
+          const raw = localStorage.getItem(k);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed.logo) { storedOrgLogo = parsed.logo; }
+            if (parsed.coverImage) { storedOrgCover = parsed.coverImage; }
+            if (storedOrgLogo) break;
+          }
+        }
+        if (!storedOrgLogo) {
+          storedOrgLogo = localStorage.getItem('mbbs_univ_custom_logo');
+        }
+        if (!storedOrgCover) {
+          storedOrgCover = localStorage.getItem('mbbs_univ_custom_cover');
+        }
       }
-      resolvedLogo = '/images/universities/tsmu-logo.png';
-    } else if (isMsu) {
-      resolvedLogo = '/images/universities/msu-logo.png';
-    } else {
-      if (!resolvedLogo) {
+    } catch {
+      // ignore
+    }
+
+    let resolvedLogo = storedOrgLogo || rawBackendLogo;
+    let resolvedCoverImage = storedOrgCover || backendImage;
+
+    if (!resolvedLogo) {
+      if (isTsmu) {
+        resolvedLogo = '/images/universities/tsmu-logo.png';
+      } else if (isMsu) {
+        resolvedLogo = '/images/universities/msu-logo.png';
+      } else {
         if (lowerName.includes('charles')) resolvedLogo = '/images/universities/charles.svg';
         else if (lowerName.includes('comenius')) resolvedLogo = '/images/universities/comenius.png';
         else if (lowerName.includes('jessenius')) resolvedLogo = '/images/universities/jessenius.png';
@@ -460,6 +491,12 @@ export class InvitesService {
         else if (lowerName.includes('pecs') || lowerName.includes('pécs')) resolvedLogo = '/images/universities/pecs.svg';
         else if (lowerName.includes('riga') || lowerName.includes('stradins')) resolvedLogo = '/images/universities/riga-stradins.svg';
         else if (lowerName.includes('semmelweis')) resolvedLogo = '/images/universities/semmelweis.svg';
+      }
+    }
+
+    if (!resolvedCoverImage) {
+      if (isTsmu) {
+        resolvedCoverImage = '/images/universities/tsmu-campus.png';
       }
     }
 
