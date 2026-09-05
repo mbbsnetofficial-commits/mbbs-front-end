@@ -263,4 +263,53 @@ describe('StudentProfileComponent', () => {
     expect(component.getDocumentByType('PASSPORT')).toBeUndefined();
     expect(component.showSuccessToast()).toBe('Document removed.');
   });
+
+  describe('Date of Birth Structured Process & Age Validation', () => {
+    it('should correctly parse initial dob string into day, month, year signals', () => {
+      component.initDobFromDraft('2005-04-16');
+      expect(component.dobYear()).toBe('2005');
+      expect(component.dobMonth()).toBe('04');
+      expect(component.dobDay()).toBe('16');
+      expect(component.dobAge()).toBeGreaterThanOrEqual(20);
+      expect(component.isMbbsAgeEligible()).toBe(true);
+    });
+
+    it('should format personalDraft.dob into YYYY-MM-DD on parts change', () => {
+      component.dobYear.set('2006');
+      component.dobMonth.set('08');
+      component.dobDay.set('24');
+      component.onDobPartsChanged();
+
+      expect(component.personalDraft.dob).toBe('2006-08-24');
+      expect(component.formattedDobPreview()).toContain('24 Aug 2006');
+    });
+
+    it('should calculate leap years for February dynamically', () => {
+      component.dobMonth.set('02');
+      component.dobYear.set('2004'); // Leap year
+      expect(component.daysInMonth().length).toBe(29);
+
+      component.dobYear.set('2005'); // Non-leap year
+      expect(component.daysInMonth().length).toBe(28);
+
+      component.dobMonth.set('04'); // April (30 days)
+      expect(component.daysInMonth().length).toBe(30);
+    });
+
+    it('should select popular student year with 1-click pill', () => {
+      component.dobDay.set('10');
+      component.dobMonth.set('05');
+      component.selectPopularYear(2005);
+
+      expect(component.dobYear()).toBe('2005');
+      expect(component.personalDraft.dob).toBe('2005-05-10');
+      expect(component.dobAge()).toBeGreaterThanOrEqual(20);
+    });
+
+    it('should compute age for display in view mode', () => {
+      expect(component.getAge('2005-01-15')).toBeGreaterThanOrEqual(21);
+      expect(component.getAge('')).toBeNull();
+      expect(component.getAge(null)).toBeNull();
+    });
+  });
 });

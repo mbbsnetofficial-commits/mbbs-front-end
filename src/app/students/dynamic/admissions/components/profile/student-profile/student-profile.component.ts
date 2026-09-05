@@ -89,6 +89,91 @@ export class StudentProfileComponent {
   readonly intakeOptions = INTAKE_OPTIONS;
   readonly educationBoards = EDUCATION_BOARDS;
 
+  // Date of Birth Helpers & Structured Process
+  readonly monthsList = [
+    { value: '01', name: '01 - January', short: 'Jan' },
+    { value: '02', name: '02 - February', short: 'Feb' },
+    { value: '03', name: '03 - March', short: 'Mar' },
+    { value: '04', name: '04 - April', short: 'Apr' },
+    { value: '05', name: '05 - May', short: 'May' },
+    { value: '06', name: '06 - June', short: 'Jun' },
+    { value: '07', name: '07 - July', short: 'Jul' },
+    { value: '08', name: '08 - August', short: 'Aug' },
+    { value: '09', name: '09 - September', short: 'Sep' },
+    { value: '10', name: '10 - October', short: 'Oct' },
+    { value: '11', name: '11 - November', short: 'Nov' },
+    { value: '12', name: '12 - December', short: 'Dec' },
+  ];
+
+  // Eligible birth years: 2011 down to 1960 (strictly prevents future dates like 2026)
+  readonly birthYears = Array.from({ length: 2011 - 1960 + 1 }, (_, i) => 2011 - i);
+
+  // Common student birth years for 1-click quick-selection
+  readonly popularStudentYears = [2008, 2007, 2006, 2005, 2004, 2003, 2002, 2001, 2000];
+
+  readonly dobDay = signal<string>('');
+  readonly dobMonth = signal<string>('');
+  readonly dobYear = signal<string>('');
+
+  // Dynamically calculates days in the selected month & year (supports leap years)
+  readonly daysInMonth = computed(() => {
+    const m = parseInt(this.dobMonth(), 10);
+    const y = parseInt(this.dobYear(), 10);
+    if (!m) return Array.from({ length: 31 }, (_, i) => i + 1);
+
+    if (m === 2) {
+      if (y && ((y % 4 === 0 && y % 100 !== 0) || y % 400 === 0)) {
+        return Array.from({ length: 29 }, (_, i) => i + 1);
+      }
+      return Array.from({ length: 28 }, (_, i) => i + 1);
+    }
+    if ([4, 6, 9, 11].includes(m)) {
+      return Array.from({ length: 30 }, (_, i) => i + 1);
+    }
+    return Array.from({ length: 31 }, (_, i) => i + 1);
+  });
+
+  // Computed age for live applicant guidance
+  readonly dobAge = computed<number | null>(() => {
+    const y = parseInt(this.dobYear(), 10);
+    const m = parseInt(this.dobMonth(), 10);
+    const d = parseInt(this.dobDay(), 10);
+    if (!y || !m || !d) return null;
+
+    const birthDate = new Date(y, m - 1, d);
+    if (isNaN(birthDate.getTime())) return null;
+
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    return age >= 0 && age <= 120 ? age : null;
+  });
+
+  // Verification preview for process clarity
+  readonly formattedDobPreview = computed<string | null>(() => {
+    const y = parseInt(this.dobYear(), 10);
+    const m = parseInt(this.dobMonth(), 10);
+    const d = parseInt(this.dobDay(), 10);
+    if (!y || !m || !d) return null;
+
+    const monthObj = this.monthsList.find((mo) => mo.value === this.dobMonth());
+    const monthShort = monthObj ? monthObj.short : '';
+    const dayPadded = String(d).padStart(2, '0');
+    const monthPadded = String(m).padStart(2, '0');
+
+    return `${dayPadded} ${monthShort} ${y} (Document Format: ${dayPadded}-${monthPadded}-${y})`;
+  });
+
+  // Eligibility check for MBBS admissions (typically minimum 17 years old)
+  readonly isMbbsAgeEligible = computed<boolean | null>(() => {
+    const age = this.dobAge();
+    if (age === null) return null;
+    return age >= 17;
+  });
+
   readonly strokeDashoffset = computed(() => {
     const pct = this.profile().completionPercentage;
     const circumference = 2 * Math.PI * 38;
@@ -120,9 +205,81 @@ export class StudentProfileComponent {
     return v.charAt(0).toUpperCase() + v.slice(1);
   }
 
+  getAge(dobStr?: string | null): number | null {
+    if (!dobStr) return null;
+    const parts = dobStr.split(/[-/T ]/);
+    let birth: Date;
+    if (parts.length >= 3 && parts[0].length === 4) {
+      birth = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2].slice(0, 2), 10));
+    } else if (parts.length >= 3 && parts[2].length === 4) {
+      birth = new Date(parseInt(parts[2], 10), parseInt(parts[1], 10) - 1, parseInt(parts[0], 10));
+    } else {
+      birth = new Date(dobStr);
+    }
+    if (isNaN(birth.getTime())) return null;
+
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age--;
+    }
+    return age >= 0 && age <= 120 ? age : null;
+  }
+
+  initDobFromDraft(val?: string | null): void {
+    const raw = val !== undefined ? val : this.personalDraft.dob;
+    if (!raw) {
+      this.dobDay.set('');
+      this.dobMonth.set('');
+      this.dobYear.set('');
+      return;
+    }
+
+    const parts = raw.split(/[-/T ]/);
+    if (parts.length >= 3) {
+      if (parts[0].length === 4) {
+        // YYYY-MM-DD
+        this.dobYear.set(parts[0]);
+        this.dobMonth.set(parts[1].padStart(2, '0'));
+        this.dobDay.set(parts[2].slice(0, 2).padStart(2, '0'));
+      } else if (parts[2].length === 4) {
+        // DD-MM-YYYY
+        this.dobDay.set(parts[0].padStart(2, '0'));
+        this.dobMonth.set(parts[1].padStart(2, '0'));
+        this.dobYear.set(parts[2]);
+      }
+    }
+  }
+
+  onDobPartsChanged(): void {
+    const d = this.dobDay();
+    const m = this.dobMonth();
+    const y = this.dobYear();
+
+    if (d && m) {
+      const maxDays = this.daysInMonth().length;
+      if (parseInt(d, 10) > maxDays) {
+        this.dobDay.set(String(maxDays).padStart(2, '0'));
+      }
+    }
+
+    if (this.dobDay() && this.dobMonth() && this.dobYear()) {
+      const dayPadded = String(this.dobDay()).padStart(2, '0');
+      const monthPadded = String(this.dobMonth()).padStart(2, '0');
+      this.personalDraft.dob = `${this.dobYear()}-${monthPadded}-${dayPadded}`;
+    }
+  }
+
+  selectPopularYear(year: number): void {
+    this.dobYear.set(String(year));
+    this.onDobPartsChanged();
+  }
+
   // Personal
   startEditPersonal(): void {
     this.personalDraft = { ...this.profile().personal };
+    this.initDobFromDraft(this.personalDraft.dob);
     this.editingPersonal.set(true);
   }
   cancelEditPersonal(): void {

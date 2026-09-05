@@ -44,10 +44,151 @@
               <label>Full Legal Name (as per Passport / 10th Certificate)</label>
               <input type="text" [(ngModel)]="personalDraft.fullName" required />
             </div>
-            <div class="form-group">
-              <label>Date of Birth</label>
-              <input type="date" [(ngModel)]="personalDraft.dob" required />
+            <!-- Enhanced Date of Birth Section -->
+            <div class="form-group col-2 dob-custom-card">
+              <div class="dob-card-header">
+                <div class="dob-title-meta">
+                  <label class="dob-main-label">
+                    Date of Birth <span class="required-asterisk">*</span>
+                  </label>
+                  <span class="dob-subtitle">Official candidate record • Must strictly match Class 10th Certificate or Passport</span>
+                </div>
+
+                @if (dobAge() !== null) {
+                  <div class="dob-age-badge" [class.eligible]="isMbbsAgeEligible() === true" [class.warning]="isMbbsAgeEligible() === false">
+                    @if (isMbbsAgeEligible() === true) {
+                      <app-icon name="check" [size]="14" />
+                      <span><strong>{{ dobAge() }} Years Old</strong> • MBBS Eligible</span>
+                    } @else {
+                      <app-icon name="clock" [size]="14" />
+                      <span><strong>{{ dobAge() }} Years Old</strong> • Under 17 yrs</span>
+                    }
+                  </div>
+                }
+              </div>
+
+              <!-- Process Step 1: Selectors for Day, Month, Year -->
+              <div class="dob-selectors-grid">
+                <!-- Day Select -->
+                <div class="dob-input-col">
+                  <label class="dob-part-label" for="dob-day-select">
+                    <span>Day</span>
+                    <span class="dob-part-hint">(DD)</span>
+                  </label>
+                  <div class="dob-select-wrapper">
+                    <select
+                      id="dob-day-select"
+                      class="dob-native-select"
+                      [ngModel]="dobDay()"
+                      (ngModelChange)="dobDay.set($event); onDobPartsChanged()"
+                    >
+                      <option value="">Select Day</option>
+                      @for (day of daysInMonth(); track day) {
+                        <option [value]="day < 10 ? '0' + day : '' + day">
+                          {{ day < 10 ? '0' + day : day }}
+                        </option>
+                      }
+                    </select>
+                    <app-icon name="chevron" [size]="14" class="select-arrow" />
+                  </div>
+                </div>
+
+                <!-- Month Select -->
+                <div class="dob-input-col month-col">
+                  <label class="dob-part-label" for="dob-month-select">
+                    <span>Month</span>
+                    <span class="dob-part-hint">(MM)</span>
+                  </label>
+                  <div class="dob-select-wrapper">
+                    <select
+                      id="dob-month-select"
+                      class="dob-native-select"
+                      [ngModel]="dobMonth()"
+                      (ngModelChange)="dobMonth.set($event); onDobPartsChanged()"
+                    >
+                      <option value="">Select Month</option>
+                      @for (m of monthsList; track m.value) {
+                        <option [value]="m.value">{{ m.name }}</option>
+                      }
+                    </select>
+                    <app-icon name="chevron" [size]="14" class="select-arrow" />
+                  </div>
+                </div>
+
+                <!-- Year Select -->
+                <div class="dob-input-col">
+                  <label class="dob-part-label" for="dob-year-select">
+                    <span>Year</span>
+                    <span class="dob-part-hint">(YYYY)</span>
+                  </label>
+                  <div class="dob-select-wrapper">
+                    <select
+                      id="dob-year-select"
+                      class="dob-native-select"
+                      [ngModel]="dobYear()"
+                      (ngModelChange)="dobYear.set($event); onDobPartsChanged()"
+                    >
+                      <option value="">Select Year</option>
+                      @for (year of birthYears; track year) {
+                        <option [value]="'' + year">{{ year }}</option>
+                      }
+                    </select>
+                    <app-icon name="chevron" [size]="14" class="select-arrow" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Process Step 2: Quick Student Year Selectors -->
+              <div class="dob-quick-row">
+                <span class="quick-title">Quick Student Birth Years:</span>
+                <div class="quick-buttons-wrap">
+                  @for (y of popularStudentYears; track y) {
+                    <button
+                      type="button"
+                      class="dob-quick-btn"
+                      [class.active]="dobYear() === '' + y"
+                      (click)="selectPopularYear(y)"
+                    >
+                      <span>{{ y }}</span>
+                      <small>({{ 2026 - y }}y)</small>
+                    </button>
+                  }
+                </div>
+              </div>
+
+              <!-- Process Step 3: Verification & Official Format Preview -->
+              @if (formattedDobPreview()) {
+                <div class="dob-feedback-box success">
+                  <div class="feedback-left">
+                    <div class="feedback-badge-icon">
+                      <app-icon name="check" [size]="16" />
+                    </div>
+                    <div class="feedback-details">
+                      <span class="feedback-title">Official Recorded Date of Birth</span>
+                      <strong class="feedback-value">{{ formattedDobPreview() }}</strong>
+                    </div>
+                  </div>
+                  <div class="feedback-right">
+                    <span class="verification-tag">
+                      <app-icon name="sparkles" [size]="13" /> Verified Entry
+                    </span>
+                  </div>
+                </div>
+              } @else {
+                <div class="dob-feedback-box info">
+                  <div class="feedback-badge-icon info">
+                    <app-icon name="lightbulb" [size]="16" />
+                  </div>
+                  <div class="feedback-details">
+                    <span class="feedback-title">Process Instruction</span>
+                    <p class="feedback-hint">
+                      Please pick Day, Month, and Year. Medical Council guidelines require candidates to be at least 17 years old. Future dates are strictly disabled.
+                    </p>
+                  </div>
+                </div>
+              }
             </div>
+
             <div class="form-group">
               <label>Gender</label>
               <select [(ngModel)]="personalDraft.gender">
@@ -84,7 +225,15 @@
         } @else {
           <div class="view-grid">
             <div class="field-item"><span class="field-label">Full Name</span><strong class="field-value">{{ profile().personal.fullName || '—' }}</strong></div>
-            <div class="field-item"><span class="field-label">Date of Birth</span><strong class="field-value">{{ formatDate(profile().personal.dob) }}</strong></div>
+            <div class="field-item">
+              <span class="field-label">Date of Birth</span>
+              <strong class="field-value dob-view-value">
+                <span>{{ formatDate(profile().personal.dob) }}</span>
+                @if (getAge(profile().personal.dob) !== null) {
+                  <span class="dob-view-age-pill">{{ getAge(profile().personal.dob) }} yrs</span>
+                }
+              </strong>
+            </div>
             <div class="field-item"><span class="field-label">Gender</span><strong class="field-value">{{ formatGender(profile().personal.gender) }}</strong></div>
             <div class="field-item"><span class="field-label">Nationality</span><strong class="field-value">{{ profile().personal.nationality || '—' }}</strong></div>
             <div class="field-item"><span class="field-label">Email</span><strong class="field-value">{{ profile().personal.email || '—' }}</strong></div>
