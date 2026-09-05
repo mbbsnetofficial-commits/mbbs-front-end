@@ -6,100 +6,9 @@
   flex-direction: column;
 }
 
-.univ-profile-header {
-  background: #ffffff;
-  border-bottom: 1px solid #e4e7ec;
-  padding: 1.25rem 2rem;
-  position: relative;
-  z-index: 10;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03);
-
-  .header-content {
-    max-width: 1100px;
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1.5rem;
-  }
-
-  .header-left {
-    display: flex;
-    flex-direction: column;
-
-    .title-row {
-      display: flex;
-      align-items: center;
-
-      .page-title {
-        font-size: 1.35rem;
-        font-weight: 700;
-        color: #111827;
-        margin: 0;
-        letter-spacing: -0.01em;
-      }
-
-      .page-subtitle {
-        font-size: 0.85rem;
-        color: #667085;
-        margin: 0.2rem 0 0 0;
-      }
-    }
-  }
-
-  .header-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-
-    .btn-edit-profile {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      background: #c7ff1a;
-      border: 1px solid rgba(0, 0, 0, 0.08);
-      color: #111827;
-      padding: 0.65rem 1.35rem;
-      border-radius: 8px;
-      font-size: 0.875rem;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
-      transition: all 0.2s ease;
-
-      &:hover:not(:disabled) {
-        background: #b8f000;
-        transform: translateY(-1px);
-      }
-
-      &:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-      }
-    }
-
-    .btn-cancel-top {
-      background: #ffffff;
-      border: 1px solid #d0d5dd;
-      color: #344054;
-      padding: 0.65rem 1.25rem;
-      border-radius: 8px;
-      font-size: 0.875rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s ease;
-
-      &:hover:not(:disabled) {
-        background: #f9fafb;
-        color: #111827;
-      }
-    }
-  }
-}
-
 .univ-profile-main {
   flex: 1;
-  padding: 2.5rem 1.5rem;
+  padding: 2rem 1.5rem 3.5rem;
 }
 
 .profile-container {
@@ -445,6 +354,47 @@
         }
       }
     }
+
+    .identity-actions {
+      padding-top: 14px;
+      flex-shrink: 0;
+
+      @media (max-width: 640px) {
+        padding-top: 0;
+        width: 100%;
+
+        .btn-edit-profile {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+
+      .btn-edit-profile {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: #c7ff1a;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        color: #111827;
+        padding: 0.65rem 1.35rem;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+        transition: all 0.2s ease;
+
+        &:hover:not(:disabled) {
+          background: #b8f000;
+          transform: translateY(-1px);
+        }
+
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+      }
+    }
   }
 
   .description-box {
@@ -475,11 +425,19 @@
   }
 }
 
+/* Profile View Layout */
+.profile-view-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
 /* Details Grid */
 .profile-details-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 1.5rem;
+  margin-top: 1.75rem;
 
   .card-title-row {
     display: flex;
@@ -622,7 +580,15 @@
   .edit-card-header {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 1rem;
+    flex-wrap: wrap;
+
+    .edit-header-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
 
     .edit-icon-badge {
       width: 44px;
@@ -648,6 +614,23 @@
       font-size: 0.96875rem;
       color: #64748b;
       margin: 0.25rem 0 0 0;
+    }
+
+    .btn-cancel-top {
+      background: #ffffff;
+      border: 1px solid #d0d5dd;
+      color: #344054;
+      padding: 0.65rem 1.25rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover:not(:disabled) {
+        background: #f9fafb;
+        color: #111827;
+      }
     }
   }
 

@@ -1,44 +1,7 @@
 <div class="univ-profile-page">
   <app-university-header />
 
-  <!-- Page Header -->
-  <header class="univ-profile-header">
-    <div class="header-content">
-      <div class="header-left">
-        <div class="title-row">
-          <div>
-            <h1 class="page-title">Organization Profile</h1>
-            <p class="page-subtitle">
-              Manage your university's public credentials, contact details, tuition ranges, and accreditations.
-            </p>
-          </div>
-        </div>
-      </div>
 
-      <div class="header-actions">
-        @if (!isEditMode()) {
-          <button
-            type="button"
-            class="btn-edit-profile"
-            (click)="enterEditMode()"
-            [disabled]="loading() || !profile()"
-          >
-            <app-icon name="pencil" [size]="16" />
-            <span>Edit Profile</span>
-          </button>
-        } @else {
-          <button
-            type="button"
-            class="btn-cancel-top"
-            (click)="cancelEditMode()"
-            [disabled]="updating()"
-          >
-            <span>Cancel</span>
-          </button>
-        }
-      </div>
-    </div>
-  </header>
 
   <!-- Main Content -->
   <main class="univ-profile-main">
@@ -193,6 +156,18 @@
                       }
                     </div>
                   </div>
+
+                  <div class="identity-actions">
+                    <button
+                      type="button"
+                      class="btn-edit-profile"
+                      (click)="enterEditMode()"
+                      [disabled]="loading() || !profile()"
+                    >
+                      <app-icon name="pencil" [size]="16" />
+                      <span>Edit Profile</span>
+                    </button>
+                  </div>
                 </div>
 
                 @if (prof.description) {
@@ -297,15 +272,26 @@
           <div class="profile-edit-layout">
             <article class="profile-card edit-card">
               <div class="edit-card-header">
-                <div class="edit-icon-badge">
-                  <app-icon name="pencil" [size]="20" />
+                <div class="edit-header-title-wrap">
+                  <div class="edit-icon-badge">
+                    <app-icon name="pencil" [size]="20" />
+                  </div>
+                  <div>
+                    <h2 class="edit-title">Edit Organization Details</h2>
+                    <p class="edit-subtitle">
+                      Update public institutional parameters. Changes will be visible to prospective students.
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h2 class="edit-title">Edit Organization Details</h2>
-                  <p class="edit-subtitle">
-                    Update public institutional parameters. Changes will be visible to prospective students.
-                  </p>
-                </div>
+
+                <button
+                  type="button"
+                  class="btn-cancel-top"
+                  (click)="cancelEditMode()"
+                  [disabled]="updating()"
+                >
+                  Cancel
+                </button>
               </div>
 
               <!-- Read-only metadata note -->
