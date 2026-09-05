@@ -245,7 +245,7 @@ $faint:   #9da4ae;
     }
 
     .hero-univ-name {
-      font-size: 1.4375rem;
+      font-size: 1.625rem;
       font-weight: 800;
       color: #0f172a;
       margin: 0;
@@ -253,7 +253,7 @@ $faint:   #9da4ae;
       letter-spacing: -0.02em;
       text-shadow: none;
 
-      @media (max-width: 640px) { font-size: 1.25rem; }
+      @media (max-width: 640px) { font-size: 1.375rem; }
     }
 
     .hero-tag-pills {
@@ -265,12 +265,12 @@ $faint:   #9da4ae;
       .hero-tag-pill {
         display: inline-flex;
         align-items: center;
-        padding: 4px 12px;
+        padding: 5px 13px;
         background: #f8fafc;
         border: 1px solid #e2e8f0;
         border-radius: 6px;
         color: #334155;
-        font-size: 0.78125rem;
+        font-size: 0.875rem;
         font-weight: 600;
       }
     }
@@ -279,15 +279,15 @@ $faint:   #9da4ae;
   // Official invitation communication message card
   .hero-greeting-msg {
     margin: 0;
-    padding: 12px 16px;
+    padding: 14px 18px;
     background: #f8fafc;
     border: 1px solid #e2e8f0;
     border-left: 3px solid #2563eb;
     border-radius: 8px;
     color: #334155;
-    font-size: 0.875rem;
+    font-size: 0.96875rem;
     line-height: 1.55;
-    max-width: 640px;
+    max-width: 660px;
 
     strong {
       color: #0f172a;
@@ -297,8 +297,8 @@ $faint:   #9da4ae;
 
   // ── Right: Structured stats panel ──
   .hero-stats-panel {
-    width: 270px;
-    min-width: 270px;
+    width: 280px;
+    min-width: 280px;
     background: #f8fafc;
     border: 1px solid #e2e8f0;
     border-radius: 12px;
@@ -324,9 +324,9 @@ $faint:   #9da4ae;
       display: inline-flex;
       align-items: center;
       gap: 7px;
-      padding: 5px 12px;
+      padding: 6px 14px;
       border-radius: 999px;
-      font-size: 0.8125rem;
+      font-size: 0.875rem;
       font-weight: 700;
       width: fit-content;
       background: #eff6ff;
@@ -334,8 +334,8 @@ $faint:   #9da4ae;
       color: #1d4ed8;
 
       .status-indicator-ring {
-        width: 7px;
-        height: 7px;
+        width: 8px;
+        height: 8px;
         border-radius: 50%;
         background: #2563eb;
         box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
@@ -351,8 +351,8 @@ $faint:   #9da4ae;
       gap: 11px;
 
       .date-icon-box {
-        width: 34px;
-        height: 34px;
+        width: 36px;
+        height: 36px;
         border-radius: 8px;
         background: #ffffff;
         border: 1px solid #e2e8f0;
@@ -375,7 +375,7 @@ $faint:   #9da4ae;
         gap: 1px;
 
         .date-label {
-          font-size: 0.6875rem;
+          font-size: 0.75rem;
           font-weight: 600;
           text-transform: uppercase;
           letter-spacing: 0.06em;
@@ -383,7 +383,7 @@ $faint:   #9da4ae;
         }
 
         .date-val {
-          font-size: 0.9375rem;
+          font-size: 1.0625rem;
           font-weight: 700;
           color: $text;
           letter-spacing: -0.01em;
@@ -396,13 +396,13 @@ $faint:   #9da4ae;
     // Blockquote in right panel
     .stats-quote {
       margin: 0;
-      padding: 9px 12px;
+      padding: 10px 14px;
       background: #ffffff;
       border: 1px solid #e2e8f0;
       border-left: 3px solid #2563eb;
       border-radius: 6px;
       font-style: italic;
-      font-size: 0.8125rem;
+      font-size: 0.875rem;
       color: #475569;
       line-height: 1.45;
     }
@@ -426,13 +426,13 @@ $faint:   #9da4ae;
   .ribbon-tab {
     display: inline-flex;
     align-items: center;
-    gap: 7px;
-    padding: 9px 18px;
+    gap: 8px;
+    padding: 10px 20px;
     border-radius: 7px;
     background: transparent;
     border: 1px solid transparent;
     color: $muted;
-    font-size: 0.875rem;
+    font-size: 0.9375rem;
     font-weight: 600;
     cursor: pointer;
     white-space: nowrap;
@@ -457,17 +457,17 @@ $faint:   #9da4ae;
 .info-alert-banner {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 18px;
+  gap: 14px;
+  padding: 14px 20px;
   background: #eff6ff;
   border: 1px solid #bfdbfe;
   border-radius: 10px;
   color: #1e40af;
 
   .info-icon-circle {
-    width: 22px;
-    height: 22px;
-    min-width: 22px;
+    width: 26px;
+    height: 26px;
+    min-width: 26px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -475,13 +475,18 @@ $faint:   #9da4ae;
     background: #dbeafe;
     color: $blue;
     flex-shrink: 0;
+
+    svg {
+      width: 17px;
+      height: 17px;
+    }
   }
 
   .info-alert-text {
     margin: 0;
-    font-size: 0.875rem;
+    font-size: 1rem;
     font-weight: 500;
-    line-height: 1.5;
+    line-height: 1.55;
   }
 }
 
@@ -514,15 +519,15 @@ $faint:   #9da4ae;
   .grid-card-head {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
     margin-bottom: 20px;
     padding-bottom: 16px;
     border-bottom: 1px solid $border;
 
     .head-icon-box {
-      width: 40px;
-      height: 40px;
-      min-width: 40px;
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
       border-radius: 10px;
       display: flex;
       align-items: center;
@@ -536,17 +541,17 @@ $faint:   #9da4ae;
     }
 
     .grid-card-title {
-      font-size: 1rem;
+      font-size: 1.1875rem;
       font-weight: 700;
       color: $text;
       margin: 0;
-      letter-spacing: -0.01em;
+      letter-spacing: -0.015em;
     }
 
     .grid-card-sub {
-      font-size: 0.8125rem;
+      font-size: 0.9375rem;
       color: $muted;
-      margin: 2px 0 0;
+      margin: 3px 0 0;
     }
   }
 }
@@ -560,26 +565,28 @@ $faint:   #9da4ae;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 0;
+    padding: 14px 0;
     border-bottom: 1px solid $border;
-    font-size: 0.875rem;
-    gap: 12px;
+    font-size: 0.96875rem;
+    gap: 14px;
 
     &:last-child { border-bottom: none; }
 
     .spec-lbl {
-      color: $muted;
+      color: #475569;
       font-weight: 500;
+      font-size: 0.96875rem;
       flex-shrink: 0;
     }
 
     .spec-val {
       color: $text;
+      font-size: 1.0625rem;
       font-weight: 700;
       text-align: right;
 
       &.spec-val-lg {
-        font-size: 1.125rem;
+        font-size: 1.375rem;
         font-weight: 800;
         color: $text;
       }
@@ -594,27 +601,27 @@ $faint:   #9da4ae;
 .criteria-header-banner {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   background: #f0fdf4;
   border: 1px solid #bbf7d0;
   border-radius: 10px;
-  padding: 14px 18px;
-  margin-bottom: 18px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
 
   .criteria-badge {
     display: inline-flex;
     align-items: center;
-    gap: 7px;
+    gap: 8px;
     color: #15803d;
-    font-size: 0.875rem;
+    font-size: 1.0625rem;
     font-weight: 700;
   }
 
   .criteria-intro-note {
     margin: 0;
-    font-size: 0.8125rem;
+    font-size: 0.9375rem;
     color: #166534;
-    line-height: 1.5;
+    line-height: 1.55;
   }
 }
 
@@ -624,19 +631,19 @@ $faint:   #9da4ae;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 
   .check-item {
     display: flex;
     align-items: center;
-    gap: 12px;
-    font-size: 0.875rem;
+    gap: 14px;
+    font-size: 0.96875rem;
     color: $text;
 
     .check-circle {
-      width: 22px;
-      height: 22px;
-      min-width: 22px;
+      width: 24px;
+      height: 24px;
+      min-width: 24px;
       border-radius: 50%;
       background: #dcfce7;
       color: #16a34a;
@@ -648,6 +655,7 @@ $faint:   #9da4ae;
 
     .check-text {
       font-weight: 500;
+      font-size: 0.96875rem;
       line-height: 1.5;
     }
   }
@@ -657,19 +665,19 @@ $faint:   #9da4ae;
 .card-footer-note {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
-  margin-top: 18px;
-  padding: 12px 16px;
+  gap: 12px;
+  margin-top: 20px;
+  padding: 14px 18px;
   background: $bg;
   border: 1px solid $border;
   border-radius: 8px;
-  color: $muted;
-  font-size: 0.8125rem;
+  color: #475569;
+  font-size: 0.9375rem;
   line-height: 1.55;
 
   .note-info-icon {
     color: $blue;
-    margin-top: 1px;
+    margin-top: 2px;
     min-width: 16px;
   }
 
@@ -685,7 +693,7 @@ $faint:   #9da4ae;
     align-items: center;
     gap: 10px;
     color: $muted;
-    font-size: 0.875rem;
+    font-size: 0.9375rem;
     padding: 20px 0;
 
     .history-spinner {
@@ -703,7 +711,7 @@ $faint:   #9da4ae;
     align-items: center;
     gap: 10px;
     color: $danger;
-    font-size: 0.8125rem;
+    font-size: 0.875rem;
     padding: 12px 14px;
     background: #fef2f2;
     border: 1px solid #fecaca;
@@ -715,7 +723,7 @@ $faint:   #9da4ae;
       border: 1px solid #fecaca;
       border-radius: 6px;
       color: $danger;
-      font-size: 0.8125rem;
+      font-size: 0.875rem;
       font-weight: 600;
       padding: 4px 12px;
       cursor: pointer;
@@ -741,8 +749,8 @@ $faint:   #9da4ae;
         min-width: 20px;
 
         .bullet-dot {
-          width: 10px;
-          height: 10px;
+          width: 11px;
+          height: 11px;
           border-radius: 50%;
           margin-top: 5px;
           z-index: 1;
@@ -783,7 +791,7 @@ $faint:   #9da4ae;
             flex-wrap: wrap;
 
             .timeline-step-title {
-              font-size: 0.9375rem;
+              font-size: 1.0625rem;
               font-weight: 700;
               color: $text;
               letter-spacing: -0.01em;
@@ -792,11 +800,11 @@ $faint:   #9da4ae;
             .timeline-actor-pill {
               display: inline-flex;
               align-items: center;
-              padding: 2px 9px;
+              padding: 3px 10px;
               background: $bg;
               border: 1px solid $border;
               border-radius: 999px;
-              font-size: 0.6875rem;
+              font-size: 0.78125rem;
               font-weight: 600;
               color: $muted;
               line-height: 1;
@@ -807,8 +815,8 @@ $faint:   #9da4ae;
           .timeline-step-date {
             display: inline-flex;
             align-items: center;
-            gap: 4px;
-            font-size: 0.75rem;
+            gap: 5px;
+            font-size: 0.84375rem;
             color: $faint;
             font-weight: 500;
             white-space: nowrap;
@@ -819,11 +827,11 @@ $faint:   #9da4ae;
         }
 
         .timeline-step-desc {
-          margin: 6px 0 0;
-          font-size: 0.8125rem;
+          margin: 7px 0 0;
+          font-size: 0.9375rem;
           color: $muted;
           line-height: 1.55;
-          max-width: 560px;
+          max-width: 580px;
         }
       }
     }
