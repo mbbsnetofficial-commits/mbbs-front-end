@@ -366,61 +366,93 @@
     </div>
   </section>
 
-  <section class="destinations-section" id="destinations">
-    <header class="section-heading">
-      <div>
-        <span class="eyebrow">Study Medicine Abroad</span>
-        <h2>Explore destinations<br />with clarity.</h2>
-      </div>
-      <p>
-        Accredited universities with transparent admission pathways and licensing eligibility.
-      </p>
-    </header>
-    <div class="country-grid">
-      @for (country of mbbsCountries; track country.name; let index = $index) {
-      <article class="country-card" [class.featured]="index === 0">
-        <img [src]="country.image" [alt]="country.imageAlt" loading="lazy" />
-        <div class="shade"></div>
-        <span>{{ country.tag }}</span>
-        <div>
-          <h3>{{ country.name }}</h3>
-          <p>{{ country.description }}</p>
-        </div>
-      </article>
-      }
-    </div>
-    <div class="university-row">
-      <span>Universities students research</span>
-      <div>
-        @for (destination of featuredUniversities; track destination.university) {
-        <span class="university-logo" [title]="destination.university"><img [src]="destination.logo"
-            [alt]="destination.university + ' logo'" loading="lazy" /></span>
-        }
-      </div>
-    </div>
-  </section>
+  <app-destinations-map
+    [groupedUniversities]="groupedUniversities()"
+    [loading]="loadingUniversities()"
+  />
 
-  <section class="guidance-section">
-    <div class="guidance-quote">
-      <span class="quote-icon"><app-icon name="quote" [size]="22" /></span>
-      <blockquote>
-        “The right MBBS pathway combines recognised academics, meaningful clinical exposure and a
-        clear route to medical practice.”
-      </blockquote>
-      <div><strong>MBBS.NET Academic Team</strong><span>Independent student guidance</span></div>
-    </div>
-    <div class="guidance-copy">
-      <span class="eyebrow">Independent Guidance</span>
-      <h2>Build your medical career on verified foundations.</h2>
-      <p>
-        Objective insights on university recognition, clinical training, and international licensing pathways.
-      </p>
-      <ul>
-        <li><app-icon name="check" [size]="15" />Recognition and licensing pathway</li>
-        <li><app-icon name="check" [size]="15" />Tuition and living-cost context</li>
-        <li><app-icon name="check" [size]="15" />Clinical teaching and student support</li>
-      </ul>
-      <a href="#contact">Speak with the guidance team <app-icon name="arrow-right" [size]="15" /></a>
+  <section
+    class="informed-choice-section"
+    id="informed-choice"
+    aria-labelledby="choice-heading"
+    [class.is-revealed]="choiceSectionVisible()"
+  >
+    <div class="choice-container">
+      <!-- Editorial Top Header Row: Heading on Left, Context & CTA on Right -->
+      <header class="choice-top-row">
+        <div class="choice-heading-col">
+          <div class="choice-eyebrow-wrap">
+            <span class="choice-eyebrow-accent" aria-hidden="true"></span>
+            <span class="choice-eyebrow">MAKE AN INFORMED CHOICE</span>
+          </div>
+          <h2 id="choice-heading" class="choice-heading">
+            <span>KNOW WHAT</span>
+            <span>YOU'RE CHOOSING.</span>
+          </h2>
+        </div>
+
+        <div class="choice-intro-col">
+          <p class="choice-copy">
+            Choosing where to study medicine is more than choosing a country. Understand the factors that shape your medical journey before you make your decision.
+          </p>
+
+          <a href="#guidance" class="choice-cta">
+            <span class="cta-label">EXPLORE THE MEDICAL JOURNEY</span>
+            <span class="cta-arrow" aria-hidden="true">&rarr;</span>
+          </a>
+        </div>
+      </header>
+
+      <!-- 3 Editorial Decision Cards Grid -->
+      <div class="choice-cards-grid" role="list">
+        <!-- Decision Card 01: Recognition -->
+        <a href="#guidance" class="choice-card choice-row choice-row-1" role="listitem" aria-label="Factor 01: Recognition - Understand the recognition and licensing considerations connected to your chosen medical pathway.">
+          <div class="card-header">
+            <span class="row-num card-num" aria-hidden="true">01</span>
+          </div>
+          <div class="card-body">
+            <h3 class="row-title card-title">RECOGNITION</h3>
+            <p class="row-desc card-desc">
+              Understand the recognition and licensing considerations connected to your chosen medical pathway.
+            </p>
+          </div>
+          <div class="card-footer">
+            <span class="card-arrow" aria-hidden="true">&rarr;</span>
+          </div>
+        </a>
+
+        <!-- Decision Card 02: Clinical Training -->
+        <a href="#guidance" class="choice-card choice-row choice-row-2" role="listitem" aria-label="Factor 02: Clinical Training - Understand where clinical education and practical training fit into your journey.">
+          <div class="card-header">
+            <span class="row-num card-num" aria-hidden="true">02</span>
+          </div>
+          <div class="card-body">
+            <h3 class="row-title card-title">CLINICAL TRAINING</h3>
+            <p class="row-desc card-desc">
+              Understand where clinical education and practical training fit into your journey.
+            </p>
+          </div>
+          <div class="card-footer">
+            <span class="card-arrow" aria-hidden="true">&rarr;</span>
+          </div>
+        </a>
+
+        <!-- Decision Card 03: Cost & Lifestyle -->
+        <a href="#guidance" class="choice-card choice-row choice-row-3" role="listitem" aria-label="Factor 03: Cost & Lifestyle - Look beyond tuition and understand the wider cost of studying medicine abroad.">
+          <div class="card-header">
+            <span class="row-num card-num" aria-hidden="true">03</span>
+          </div>
+          <div class="card-body">
+            <h3 class="row-title card-title">COST & LIFESTYLE</h3>
+            <p class="row-desc card-desc">
+              Look beyond tuition and understand the wider cost of studying medicine abroad.
+            </p>
+          </div>
+          <div class="card-footer">
+            <span class="card-arrow" aria-hidden="true">&rarr;</span>
+          </div>
+        </a>
+      </div>
     </div>
   </section>
 

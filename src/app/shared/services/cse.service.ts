@@ -11,24 +11,44 @@ export class CseService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = (environment as any).cseApiBaseUrl || 'https://api2.mbbs.net/api/v1';
 
+  private adminCountriesResponseCache$: Observable<{ status: string; count: number; data: AdminCountry[] }> | null = null;
   private groupedUniversitiesCache$: Observable<GroupedCountryUniversities[]> | null = null;
 
-  getAdminCountries(): Observable<AdminCountry[]> {
+  getAdminCountriesResponse(): Observable<{ status: string; count: number; data: AdminCountry[] }> {
+    if (this.adminCountriesResponseCache$) {
+      return this.adminCountriesResponseCache$;
+    }
+
     const url = `${this.baseUrl}/cse/admin/countries`;
-    return this.http.get<any>(url).pipe(
+    this.adminCountriesResponseCache$ = this.http.get<any>(url).pipe(
       map(res => {
         if (res && Array.isArray(res.data)) {
-          return res.data;
+          return {
+            status: res.status || 'success',
+            count: typeof res.count === 'number' ? res.count : res.data.length,
+            data: res.data
+          };
         } else if (Array.isArray(res)) {
-          return res;
+          return {
+            status: 'success',
+            count: res.length,
+            data: res
+          };
         }
-        return [];
+        return { status: 'empty', count: 0, data: [] };
       }),
       catchError(err => {
         console.warn('API /cse/admin/countries error, falling back:', err);
-        return of([]);
-      })
+        return of({ status: 'error', count: 0, data: [] });
+      }),
+      shareReplay(1)
     );
+
+    return this.adminCountriesResponseCache$;
+  }
+
+  getAdminCountries(): Observable<AdminCountry[]> {
+    return this.getAdminCountriesResponse().pipe(map(res => res.data));
   }
 
   getAdminUniversities(): Observable<AdminUniversity[]> {

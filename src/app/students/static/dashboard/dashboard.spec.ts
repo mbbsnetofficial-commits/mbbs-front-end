@@ -195,4 +195,48 @@ describe('Dashboard Navigation', () => {
       expect(stages[2].nativeElement.classList.contains('is-passed')).toBe(false);
     });
   });
+
+  describe('Make an Informed Choice Section', () => {
+    it('should render the informed choice section with semantic heading and eyebrow', () => {
+      const section = fixture.debugElement.query(By.css('.informed-choice-section'));
+      expect(section).toBeTruthy();
+
+      const eyebrow = section.query(By.css('.choice-eyebrow'));
+      expect(eyebrow.nativeElement.textContent?.trim()).toBe('MAKE AN INFORMED CHOICE');
+
+      const heading = section.query(By.css('.choice-heading'));
+      expect(heading.nativeElement.textContent).toContain('KNOW WHAT');
+      expect(heading.nativeElement.textContent).toContain("YOU'RE CHOOSING.");
+
+      const copy = section.query(By.css('.choice-copy'));
+      expect(copy.nativeElement.textContent).toContain('Choosing where to study medicine is more than choosing a country.');
+    });
+
+    it('should render all three editorial information rows with correct numbers and titles', () => {
+      const rows = fixture.debugElement.queryAll(By.css('.choice-row'));
+      expect(rows.length).toBe(3);
+
+      // Row 01
+      expect(rows[0].query(By.css('.row-num')).nativeElement.textContent?.trim()).toBe('01');
+      expect(rows[0].query(By.css('.row-title')).nativeElement.textContent?.trim()).toBe('RECOGNITION');
+      expect(rows[0].query(By.css('.row-desc')).nativeElement.textContent).toContain('licensing considerations');
+
+      // Row 02
+      expect(rows[1].query(By.css('.row-num')).nativeElement.textContent?.trim()).toBe('02');
+      expect(rows[1].query(By.css('.row-title')).nativeElement.textContent?.trim()).toBe('CLINICAL TRAINING');
+      expect(rows[1].query(By.css('.row-desc')).nativeElement.textContent).toContain('clinical education');
+
+      // Row 03
+      expect(rows[2].query(By.css('.row-num')).nativeElement.textContent?.trim()).toBe('03');
+      expect(rows[2].query(By.css('.row-title')).nativeElement.textContent?.trim()).toBe('COST & LIFESTYLE');
+      expect(rows[2].query(By.css('.row-desc')).nativeElement.textContent).toContain('wider cost of studying medicine abroad');
+    });
+
+    it('should render editorial CTA linking to the journey section', () => {
+      const cta = fixture.debugElement.query(By.css('.choice-cta'));
+      expect(cta).toBeTruthy();
+      expect(cta.nativeElement.textContent).toContain('EXPLORE THE MEDICAL JOURNEY');
+      expect(cta.nativeElement.getAttribute('href')).toBe('#guidance');
+    });
+  });
 });

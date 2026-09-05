@@ -1,0 +1,149 @@
+<section
+  class="destinations-section"
+  id="destinations"
+  #mapSection
+  [class.is-revealed]="isRevealed()"
+  aria-label="Study Medicine Abroad - Global Medical Atlas"
+>
+  <!-- Full-Width Panoramic Interactive Realistic World Map -->
+  <div class="atlas-viewport" role="region" aria-label="Interactive World Map of Medical Education">
+    <svg
+      class="atlas-svg"
+      xmlns="http://www.w3.org/2000/svg"
+      [attr.viewBox]="mapViewBox()"
+      preserveAspectRatio="xMidYMid slice"
+      aria-label="World Map"
+    >
+      <!-- Base Ocean Fill covering all directions -->
+      <rect class="atlas-ocean-base" x="-2000" y="-2000" width="4000" height="4000" fill="#041716" />
+
+      <!-- Robust Geographic Vector Landmass Layer -->
+      <g class="countries-fallback-layer">
+        @for (c of countries; track 'fb_' + c.code + '_' + $index) {
+        <path
+          class="country-fallback-shape"
+          [attr.d]="c.d"
+        />
+        }
+      </g>
+
+      <!-- High-Resolution Realistic Satellite Terrain Layer -->
+      <image
+        href="/images/destinations-world-realistic.jpg"
+        x="60"
+        y="45"
+        width="880"
+        height="380"
+        preserveAspectRatio="none"
+        class="atlas-raster"
+      />
+
+      <!-- Deep Medical Ocean & Atmosphere Overlay -->
+      <rect class="atlas-ocean-tint" x="-2000" y="-2000" width="4000" height="4000" />
+
+      <!-- Interactive Country Boundaries (Subtle, interactive) -->
+      <g class="countries-layer">
+        @for (c of countries; track c.code + '_' + $index) {
+        <path
+          [attr.id]="'country-' + c.code"
+          class="country-boundary"
+          [class.is-supported]="isCountrySupported(c.code)"
+          [class.is-active]="isCountryActive(c.code)"
+          [class.is-hovered]="isCountryHovered(c.code)"
+          [attr.d]="c.d"
+          (mouseenter)="onMarkerHover(c.code)"
+          (mouseleave)="onMarkerHover(null)"
+          (click)="selectDestination(c.code)"
+        />
+        }
+      </g>
+
+      <!-- Origin Hub (Dynamically loaded if present in Countries API) -->
+      @if (originCountry(); as origin) {
+      <g class="origin-node" transform="translate(703.2, 200.3)" [attr.aria-label]="origin.name + ' - Origin Hub'">
+        <circle class="origin-pulse pulse-1" r="3.6" />
+        <circle class="origin-ring" r="3.6" />
+        <circle class="origin-dot" r="1.8" />
+        <text class="origin-label" x="7" y="0">{{ origin.name | uppercase }}</text>
+        <text class="origin-sublabel" x="7" y="6.5">ORIGIN</text>
+      </g>
+      }
+
+      <!-- Medical Destination Markers (Dynamically loaded from Countries API) with Direct Country Labels -->
+      @for (dest of activeCountryMarkers(); track dest.countryCode) {
+        @if (isCountryActive(dest.countryCode)) {
+        <!-- Active Destination: Lime point + pulsing ring + uppercase label + universities sublabel -->
+        <g
+          class="destination-node is-active"
+          [attr.transform]="'translate(' + dest.x + ',' + dest.y + ')'"
+          (click)="selectDestination(dest.countryCode)"
+          tabindex="0"
+          role="button"
+          [attr.aria-label]="dest.countryName + ': ' + dest.universityCount + ' universities (Selected)'"
+        >
+          <circle class="marker-ring" r="3.8" />
+          <circle class="marker-point" r="2" />
+          <text
+            class="marker-label"
+            [attr.x]="getLabelDx(dest)"
+            [attr.y]="getLabelDy(dest)"
+            [attr.text-anchor]="getLabelAnchor(dest)"
+          >
+            {{ dest.countryName | uppercase }}
+          </text>
+          @if (dest.universityCount > 0) {
+          <text
+            class="marker-sublabel"
+            [attr.x]="getLabelDx(dest)"
+            [attr.y]="getLabelDy(dest) + 5"
+            [attr.text-anchor]="getLabelAnchor(dest)"
+          >
+            {{ dest.universityCount }} UNIVERSITIES
+          </text>
+          }
+        </g>
+        } @else {
+        <!-- Inactive Destination: Marker dot with direct uppercase label -->
+        <g
+          class="destination-node is-inactive"
+          [class.is-hovered]="isCountryHovered(dest.countryCode)"
+          [attr.transform]="'translate(' + dest.x + ',' + dest.y + ')'"
+          (mouseenter)="onMarkerHover(dest.countryCode)"
+          (mouseleave)="onMarkerHover(null)"
+          (click)="selectDestination(dest.countryCode)"
+          (keydown)="onMarkerKeydown($event, dest.countryCode)"
+          tabindex="0"
+          role="button"
+          [attr.aria-label]="dest.countryName + ': ' + dest.universityCount + ' universities'"
+        >
+          <circle class="marker-point" r="1.6" />
+          @if (dest.showLabel || isCountryHovered(dest.countryCode)) {
+          <text
+            class="marker-label"
+            [attr.x]="getLabelDx(dest)"
+            [attr.y]="getLabelDy(dest)"
+            [attr.text-anchor]="getLabelAnchor(dest)"
+          >
+            {{ dest.countryName | uppercase }}
+          </text>
+          }
+        </g>
+        }
+      }
+    </svg>
+  </div>
+
+  <!-- Screen-Reader Accessible Directory -->
+  <div class="sr-only">
+    <h3>All Medical Destinations ({{ totalDestinationsCount() }})</h3>
+    <ul>
+      @for (dest of activeCountryMarkers(); track dest.countryCode || dest.id) {
+      <li>
+        {{ dest.countryName }}: {{ dest.universityCount }} universities available.
+        <a routerLink="/auth/register" [queryParams]="{ destination: dest.countryName }">Explore {{ dest.countryName }}</a>
+      </li>
+      }
+    </ul>
+  </div>
+</section>
+

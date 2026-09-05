@@ -1,0 +1,307 @@
+@use 'sass:math';
+
+// ==========================================================================
+// MBBS.NET BRAND COLOR PALETTE & DESIGN TOKENS
+// ==========================================================================
+$teal-deep: #041716;       // Section background & deepest ocean
+$teal-dark: #062322;       // Map backdrop
+$teal-border: rgba(226, 254, 84, 0.18);
+$sage-muted: #5A716E;      // Inactive borders & geography lines
+$sage-soft: #8AA7A3;       // Secondary metadata typography
+$text-offwhite: #F7F8F4;   // Primary typography
+$mbbs-lime: #E2FE54;       // Primary MBBS accent (active marker, route)
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.destinations-section {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  height: 100svh;
+  min-height: clamp(600px, 100vh, 1080px);
+  padding: 0;
+  margin: 0;
+  background: $teal-deep;
+  color: $text-offwhite;
+  overflow: hidden;
+  box-sizing: border-box;
+  scroll-margin-top: 72px;
+
+  // Seamless subtle connection from previous section
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+// --------------------------------------------------------------------------
+// Full-Width Panoramic Realistic World Map Viewport
+// --------------------------------------------------------------------------
+.atlas-viewport {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+  line-height: 0; // Eliminates any inline whitespace gap below the SVG
+
+  .atlas-svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    overflow: hidden;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .atlas-ocean-base {
+    fill: $teal-deep;
+  }
+
+  // Realistic neutral satellite earth-tone/charcoal terrain
+  .atlas-raster {
+    opacity: 0.95;
+    filter: grayscale(0.25) saturate(0.50) brightness(0.90) contrast(1.16);
+    transition: opacity 0.4s ease;
+  }
+
+  .atlas-ocean-tint {
+    fill: transparent;
+    pointer-events: none;
+  }
+}
+
+// Geographic Vector Landmass Fallback
+.countries-fallback-layer {
+  pointer-events: none;
+
+  .country-fallback-shape {
+    fill: #141c1b;
+    stroke: rgba(138, 167, 163, 0.18);
+    stroke-width: 0.5px;
+  }
+}
+
+// Interactive Country Boundaries
+.countries-layer {
+  .country-boundary {
+    fill: transparent;
+    stroke: rgba(138, 167, 163, 0.14);
+    stroke-width: 0.4px;
+    cursor: pointer;
+    transition: fill 0.25s ease, stroke 0.25s ease;
+
+    &:hover,
+    &.is-hovered {
+      fill: rgba(226, 254, 84, 0.05);
+      stroke: rgba(226, 254, 84, 0.35);
+      stroke-width: 0.7px;
+    }
+
+    &.is-active {
+      fill: rgba(226, 254, 84, 0.08);
+      stroke: $mbbs-lime;
+      stroke-width: 0.9px;
+    }
+  }
+}
+
+
+// India Origin Hub
+.origin-node {
+  pointer-events: none;
+
+  .origin-pulse {
+    fill: none;
+    stroke: rgba(226, 254, 84, 0.4);
+    opacity: 0;
+    transform-origin: center;
+
+    &.pulse-1 {
+      animation: originPulse 3.2s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+    }
+  }
+
+  .origin-ring {
+    fill: #041716;
+    stroke: $mbbs-lime;
+    stroke-width: 1px;
+    opacity: 0.9;
+  }
+
+  .origin-dot {
+    fill: $mbbs-lime;
+  }
+
+  .origin-label {
+    font-family: 'Source Code Pro', monospace !important;
+    font-size: 6.8px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    fill: #FFFFFF;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95);
+    user-select: none;
+  }
+
+  .origin-sublabel {
+    font-family: 'Source Code Pro', monospace !important;
+    font-size: 5.2px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    fill: $mbbs-lime;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95);
+    user-select: none;
+  }
+}
+
+@keyframes originPulse {
+  0% {
+    r: 3px;
+    opacity: 0.55;
+    stroke-width: 0.8px;
+  }
+  100% {
+    r: 8.5px;
+    opacity: 0;
+    stroke-width: 0.2px;
+  }
+}
+
+// Featured Medical Destination Markers with Direct Country Labels
+.destination-node {
+  outline: none;
+  cursor: pointer;
+
+  // Inactive Featured Destination: Dot with direct uppercase label
+  &.is-inactive {
+    .marker-point {
+      fill: rgba(247, 248, 244, 0.75);
+      transition: fill 0.2s ease, r 0.2s ease;
+    }
+
+    .marker-label {
+      font-family: 'Source Code Pro', monospace !important;
+      font-size: 5.8px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      fill: rgba(247, 248, 244, 0.85);
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95);
+      pointer-events: none;
+      user-select: none;
+      transition: fill 0.2s ease, font-size 0.2s ease;
+    }
+
+    &:hover,
+    &.is-hovered,
+    &:focus-visible {
+      .marker-point {
+        fill: #FFFFFF;
+        r: 2.2px;
+      }
+
+      .marker-label {
+        fill: #FFFFFF;
+        font-weight: 700;
+      }
+    }
+  }
+
+  // Active Destination: MBBS accent lime ring + point + permanent uppercase label + universities sublabel
+  &.is-active {
+    .marker-ring {
+      fill: #041716;
+      stroke: $mbbs-lime;
+      stroke-width: 1.1px;
+      animation: markerRingPulse 2.8s ease-in-out infinite;
+    }
+
+    .marker-point {
+      fill: $mbbs-lime;
+      r: 2px;
+    }
+
+    .marker-label {
+      font-family: 'Source Code Pro', monospace !important;
+      font-size: 6.8px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      fill: $mbbs-lime;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.95);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .marker-sublabel {
+      font-family: 'Source Code Pro', monospace !important;
+      font-size: 4.8px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      fill: rgba(226, 254, 84, 0.85);
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95);
+      pointer-events: none;
+      user-select: none;
+    }
+  }
+}
+
+@keyframes markerRingPulse {
+  0%, 100% {
+    r: 3.8px;
+    opacity: 0.7;
+  }
+  50% {
+    r: 5px;
+    opacity: 1;
+  }
+}
+
+// --------------------------------------------------------------------------
+// Progressive Scroll Reveal
+// --------------------------------------------------------------------------
+.destinations-section {
+  .atlas-viewport {
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  &.is-revealed {
+    .atlas-viewport {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+// Screen Reader Utility
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+// Prefers-Reduced-Motion Compliance
+@media (prefers-reduced-motion: reduce) {
+  .destinations-section {
+    .atlas-viewport,
+    .origin-pulse,
+    .marker-ring {
+      animation: none !important;
+      transition: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+  }
+}
