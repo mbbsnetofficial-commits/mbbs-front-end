@@ -111,5 +111,20 @@ describe('SafeMarkdownPipe', () => {
       '<a href="https://mbbs.net/kazakhstan" target="_blank" rel="noopener noreferrer">https://mbbs.net/kazakhstan</a>'
     );
   });
+
+  it('should cleanly format nested bullet lists without throwing an error', () => {
+    const markdown =
+      '* Top Medical Universities in Turkey:\n' +
+      '  * [Istanbul University](https://istanbul.edu.tr)\n' +
+      '  * [Ankara University](https://ankara.edu.tr)\n' +
+      '* Admission Requirements:\n' +
+      '  * NEET qualified\n' +
+      '  * 60% in PCB';
+    const result = pipe.transform(markdown) as any;
+    const html = result.changingThisBreaksApplicationSecurity || result.toString();
+    expect(html).toContain('Top Medical Universities in Turkey:');
+    expect(html).toContain('<a href="https://istanbul.edu.tr" target="_blank" rel="noopener noreferrer">Istanbul University</a>');
+    expect(html).toContain('NEET qualified');
+  });
 });
 

@@ -99,58 +99,6 @@ $danger:       #dc2626;
     display: flex;
     align-items: center;
     gap: 10px;
-    flex-wrap: wrap;
-
-    // ── Search Input ──
-    .search-input-wrap {
-      position: relative;
-      display: flex;
-      align-items: center;
-
-      .search-ico {
-        position: absolute;
-        left: 11px;
-        color: $text-muted;
-        pointer-events: none;
-        z-index: 1;
-      }
-
-      input {
-        padding: 9px 32px 9px 34px;
-        border: 1px solid $border;
-        border-radius: 8px;
-        font-size: 0.875rem;
-        color: $text-primary;
-        background: $card;
-        width: 290px;
-        outline: none;
-        transition: all 0.15s ease;
-        font-family: inherit;
-
-        &::placeholder { color: $text-muted; }
-
-        &:focus {
-          border-color: $blue;
-          box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
-        }
-
-        @media (max-width: 600px) { width: 100%; }
-      }
-
-      .btn-clear-search {
-        position: absolute;
-        right: 8px;
-        background: none;
-        border: none;
-        color: $text-muted;
-        cursor: pointer;
-        padding: 2px;
-        display: flex;
-        align-items: center;
-        border-radius: 3px;
-        &:hover { color: $text-primary; }
-      }
-    }
 
     // ── Edit Profile Pill ──
     .profile-compact-wrapper {
@@ -219,18 +167,33 @@ $danger:       #dc2626;
 }
 
 
-// ── Status Filter Tabs ─────────────────────────────
-.status-filter-bar {
+// ── Filter and Search Row: Filters & Search in straight line ──
+.filter-and-search-row {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 0;
-  border: none;
-  background: transparent;
-  overflow-x: auto;
-  flex-wrap: nowrap;
-  scrollbar-width: none;
-  &::-webkit-scrollbar { display: none; }
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  flex-wrap: wrap;
+
+  @media (min-width: 1024px) {
+    flex-wrap: nowrap;
+  }
+
+  // ── Status Filter Tabs ──
+  .status-filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    scrollbar-width: none;
+    &::-webkit-scrollbar { display: none; }
+    flex: 1 1 auto;
+    min-width: 0;
 
   .filter-tab-btn {
     display: inline-flex;
@@ -365,6 +328,71 @@ $danger:       #dc2626;
         background: #fecaca;
         color: #991b1b;
       }
+    }
+  }
+}
+
+  // ── Search Input (straight across from filters) ──
+  .search-input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+
+    .search-ico {
+      position: absolute;
+      left: 13px;
+      color: #94a3b8;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    input {
+      padding: 9px 34px 9px 38px;
+      border: 1.5px solid #dce4ed;
+      border-radius: 10px;
+      font-size: 0.875rem;
+      color: $text-primary;
+      background: #ffffff;
+      width: 310px;
+      height: 38px;
+      outline: none;
+      transition: all 0.15s ease;
+      font-family: inherit;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.02);
+
+      &::placeholder {
+        color: #94a3b8;
+      }
+
+      &:focus {
+        border-color: $blue;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+      }
+
+      @media (max-width: 600px) {
+        width: 100%;
+      }
+    }
+
+    .btn-clear-search {
+      position: absolute;
+      right: 10px;
+      background: none;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      padding: 2px;
+      display: flex;
+      align-items: center;
+      border-radius: 3px;
+      &:hover {
+        color: $text-primary;
+      }
+    }
+
+    @media (max-width: 768px) {
+      width: 100%;
     }
   }
 }
@@ -552,10 +580,28 @@ $danger:       #dc2626;
   .inbox-toolbar-row {
     flex-direction: column;
     align-items: flex-start;
+    gap: 10px;
 
     .controls-right {
       width: 100%;
-      .search-input-wrap { flex: 1; input { width: 100%; } }
+      justify-content: flex-start;
+    }
+  }
+
+  .filter-and-search-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+
+    .status-filter-bar {
+      width: 100%;
+    }
+
+    .search-input-wrap {
+      width: 100%;
+      input {
+        width: 100%;
+      }
     }
   }
 }

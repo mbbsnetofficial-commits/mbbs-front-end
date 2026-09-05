@@ -1,6 +1,7 @@
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   ElementRef,
   ViewChild,
@@ -34,6 +35,7 @@ export class AiChat implements AfterViewInit {
   @ViewChild('scrollContainer') private scrollContainer?: ElementRef<HTMLDivElement>;
 
   private readonly aiChatService = inject(AiChatService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   readonly promptText = signal('');
   readonly loading = signal(false);
@@ -65,30 +67,45 @@ export class AiChat implements AfterViewInit {
     this.scrollToBottom();
 
     this.loading.set(true);
+    this.cdr.markForCheck();
 
     this.aiChatService
       .sendMessage(text)
       .pipe(
         finalize(() => {
           this.loading.set(false);
+          this.cdr.markForCheck();
           this.scrollToBottom();
         })
       )
       .subscribe({
         next: (res) => {
-          const responseText = res?.data?.response || DEFAULT_ERROR_MESSAGE;
+          const rawData = res?.data as any;
+          const responseText =
+            rawData?.response ||
+            rawData?.reply ||
+            rawData?.answer ||
+            rawData?.message ||
+            rawData?.formattedText ||
+            (typeof rawData === 'string' ? rawData : '') ||
+            (res as any)?.response ||
+            (res as any)?.message ||
+            DEFAULT_ERROR_MESSAGE;
+
           const assistantMsg: ChatMessage = {
             id: String(Date.now() + 1),
             sender: 'assistant',
             text: responseText,
-            groundedSourcesCount: res?.data?.groundedSourcesCount,
+            groundedSourcesCount: rawData?.groundedSourcesCount,
           };
-          if (res?.data?.groundedSourcesCount) {
-            this.lastGroundedSources.set(res.data.groundedSourcesCount);
+          if (rawData?.groundedSourcesCount) {
+            this.lastGroundedSources.set(rawData.groundedSourcesCount);
           }
           this.messages.update((list) => [...list, assistantMsg]);
+          this.cdr.markForCheck();
         },
-        error: () => {
+        error: (err) => {
+          console.error('AI Chat Error:', err);
           const errorMsg: ChatMessage = {
             id: String(Date.now() + 1),
             sender: 'assistant',
@@ -96,6 +113,7 @@ export class AiChat implements AfterViewInit {
             isError: true,
           };
           this.messages.update((list) => [...list, errorMsg]);
+          this.cdr.markForCheck();
         },
       });
   }

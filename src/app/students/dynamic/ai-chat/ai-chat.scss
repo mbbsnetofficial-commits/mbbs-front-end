@@ -88,53 +88,53 @@
   max-width: 90%;
   letter-spacing: -0.01em;
 
-  p {
-    margin: 0 0 12px;
-    &:last-child {
-      margin-bottom: 0;
-    }
-  }
-
-  h1, h2, h3 {
-    margin: 16px 0 8px;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    color: #111111;
-    &:first-child {
-      margin-top: 0;
-    }
-  }
-
-  h1 { font-size: 22px; }
-  h2 { font-size: 20px; }
-  h3 { font-size: 18px; }
-
-  ul, ol {
-    margin: 8px 0 12px;
-    padding-left: 24px;
-    li {
-      margin-bottom: 6px;
+  ::ng-deep {
+    p {
+      margin: 0 0 12px;
       &:last-child {
         margin-bottom: 0;
       }
     }
-  }
 
-  strong {
-    font-weight: 700;
-    color: #000000;
-  }
-
-  a {
-    color: #147568;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    &:hover {
-      color: #0e544b;
+    h1, h2, h3 {
+      margin: 16px 0 8px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #111111;
+      &:first-child {
+        margin-top: 0;
+      }
     }
-  }
 
-  ::ng-deep {
+    h1 { font-size: 22px; }
+    h2 { font-size: 20px; }
+    h3 { font-size: 18px; }
+
+    ul, ol {
+      margin: 8px 0 12px;
+      padding-left: 24px;
+      li {
+        margin-bottom: 6px;
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+    }
+
+    strong {
+      font-weight: 700;
+      color: #000000;
+    }
+
+    a {
+      color: #147568;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      &:hover {
+        color: #0e544b;
+      }
+    }
+
     .table-responsive {
       display: block;
       width: 100%;

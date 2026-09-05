@@ -23,26 +23,8 @@
         }
       </div>
 
-      <!-- Right: Search field + Edit Profile -->
+      <!-- Right: Edit Profile Pill -->
       <div class="controls-right">
-        <!-- Search -->
-        <div class="search-input-wrap">
-          <app-icon name="search" [size]="14" class="search-ico" />
-          <input
-            type="text"
-            placeholder="Search universities, countries, or programs..."
-            [ngModel]="searchQuery()"
-            (ngModelChange)="onSearchChanged($event)"
-            aria-label="Search universities"
-          />
-          @if (searchQuery()) {
-            <button type="button" class="btn-clear-search" (click)="onSearchChanged('')" aria-label="Clear search">
-              <app-icon name="close" [size]="12" />
-            </button>
-          }
-        </div>
-
-        <!-- Edit Profile Pill -->
         <div class="profile-compact-wrapper">
           <a routerLink="/dynamic/profile" class="profile-compact-pill" title="View or edit your student profile">
             <span class="pill-tag">
@@ -59,8 +41,11 @@
       </div>
     </div>
 
-    <!-- ── STATUS FILTER TABS ── -->
-    <nav class="status-filter-bar" aria-label="Opportunity Status Filters">
+    <!-- ── FILTER AND SEARCH ROW: Filters & Search Bar in the same straight line ── -->
+    <div class="filter-and-search-row">
+
+      <!-- Status Filter Tabs -->
+      <nav class="status-filter-bar" aria-label="Opportunity Status Filters">
 
       <button
         type="button"
@@ -118,8 +103,27 @@
       </button>
     </nav>
 
-    <!-- ── OPPORTUNITY CARDS LIST ── -->
-    <div class="opportunity-list-content">
+    <!-- Search (straight across from / in line with the filters) -->
+    <div class="search-input-wrap">
+      <app-icon name="search" [size]="14" class="search-ico" />
+      <input
+        type="text"
+        placeholder="Search universities, countries, or programs..."
+        [ngModel]="searchQuery()"
+        (ngModelChange)="onSearchChanged($event)"
+        aria-label="Search universities"
+      />
+      @if (searchQuery()) {
+        <button type="button" class="btn-clear-search" (click)="onSearchChanged('')" aria-label="Clear search">
+          <app-icon name="close" [size]="12" />
+        </button>
+      }
+    </div>
+
+  </div>
+
+  <!-- ── OPPORTUNITY CARDS LIST ── -->
+  <div class="opportunity-list-content">
 
       @if (loading() && filteredInvites().length === 0) {
         <!-- Loading state -->

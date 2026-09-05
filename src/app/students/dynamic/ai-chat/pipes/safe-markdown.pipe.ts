@@ -43,20 +43,29 @@ export class SafeMarkdownPipe implements PipeTransform {
             return `[${token.text}](${token.href})`;
           }
           const titleAttr = token.title ? ` title="${token.title}"` : '';
-          const text = this.parser.parseInline(token.tokens);
+          const text =
+            token.tokens && token.tokens.length > 0
+              ? this.parser.parseInline(token.tokens)
+              : token.text || href;
           return `<a href="${href}"${titleAttr} target="_blank" rel="noopener noreferrer">${text}</a>`;
         },
         list(this: any, token: Tokens.List): string {
           const tag = token.ordered ? 'ol' : 'ul';
+          const startAttr =
+            token.ordered && token.start && token.start !== 1
+              ? ` start="${token.start}"`
+              : '';
           let body = '';
           for (const item of token.items) {
             body += this.listitem(item);
           }
-          return `<${tag}>${body}</${tag}>`;
+          return `<${tag}${startAttr}>${body}</${tag}>`;
         },
         listitem(this: any, item: Tokens.ListItem): string {
-          const text = this.parser.parseInline(item.tokens);
-          return `<li>${text}</li>`;
+          const content = item.tokens
+            ? this.parser.parse(item.tokens)
+            : item.text;
+          return `<li>${content}</li>`;
         },
       },
     });
@@ -67,8 +76,21 @@ export class SafeMarkdownPipe implements PipeTransform {
       return '';
     }
 
-    const html = this.parseMarkdownToSafeHtml(value);
-    return this.sanitizer.bypassSecurityTrustHtml(html);
+    try {
+      const html = this.parseMarkdownToSafeHtml(value);
+      return this.sanitizer.bypassSecurityTrustHtml(html);
+    } catch (e) {
+      console.error('Markdown parsing error:', e);
+      const safeText = String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+        .replace(/\n\n+/g, '</p><p>')
+        .replace(/\n/g, '<br/>');
+      return this.sanitizer.bypassSecurityTrustHtml(`<p>${safeText}</p>`);
+    }
   }
 
   private parseMarkdownToSafeHtml(rawText: string): string {
