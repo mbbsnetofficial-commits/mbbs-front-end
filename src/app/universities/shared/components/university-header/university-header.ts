@@ -7,14 +7,13 @@ import {
   signal,
 } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { Icon } from '../../../../shared/ui/icon/icon';
 import { UniversityAuthService } from '../../../auth/services/university-auth.service';
 import { UniversityNotificationsService } from '../../../notifications/services/university-notifications.service';
 
 @Component({
   selector: 'app-university-header',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, Icon],
+  imports: [CommonModule, RouterLink, RouterLinkActive],
   templateUrl: './university-header.html',
   styleUrl: './university-header.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
