@@ -218,32 +218,31 @@
   // Second Place: Campus Cover Image Banner
   .campus-cover-banner {
     width: 100%;
-    height: 190px;
-    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    height: 220px;
+    background: #f8fafc;
     position: relative;
     overflow: hidden;
 
     @media (max-width: 640px) {
-      height: 140px;
+      height: 160px;
     }
 
     .campus-cover-img {
       width: 100%;
       height: 100%;
       object-fit: cover;
+      object-position: center 30%;
       display: block;
-      transition: transform 0.4s ease;
+      filter: none !important;
+      transition: transform 0.3s ease;
     }
 
     &:hover .campus-cover-img {
-      transform: scale(1.02);
+      transform: scale(1.01);
     }
 
     .campus-cover-gradient {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(180deg, rgba(15, 23, 42, 0.25) 0%, rgba(0, 0, 0, 0) 40%, rgba(15, 23, 42, 0.15) 100%);
-      pointer-events: none;
+      display: none;
     }
 
     .campus-badge {
@@ -254,13 +253,14 @@
       align-items: center;
       gap: 6px;
       padding: 6px 12px;
-      background: rgba(15, 23, 42, 0.82);
-      backdrop-filter: blur(8px);
+      background: #0f172a;
       color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
       border-radius: 6px;
       font-size: 0.75rem;
       font-weight: 600;
       letter-spacing: 0.02em;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
       z-index: 5;
     }
 
@@ -284,11 +284,10 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 6px 14px;
-      background: rgba(255, 255, 255, 0.94);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.6);
-      color: #1e293b;
+      padding: 7px 14px;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      color: #0f172a;
       font-size: 0.8125rem;
       font-weight: 600;
       border-radius: 8px;
@@ -298,8 +297,8 @@
       z-index: 5;
 
       &:hover {
-        background: #ffffff;
-        color: #0f172a;
+        background: #f8fafc;
+        border-color: #94a3b8;
         transform: translateY(-1px);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16);
       }
