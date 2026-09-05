@@ -1544,7 +1544,7 @@ export class GamsatLearningReport implements OnInit, AfterViewInit, OnDestroy {
           duration_minutes: duration,
           difficulty: raw?.difficulty || raw?.level || course.level,
           level: raw?.level || course.level,
-          test_type: 'CUSTOM'
+          test_type: 'CUSTOM_TEST'
         };
 
         console.log('[ GAMSAT ] Starting Custom Test from Learning Report', customStartPayload);
@@ -1645,7 +1645,7 @@ export class GamsatLearningReport implements OnInit, AfterViewInit, OnDestroy {
           duration_minutes: duration,
           difficulty: raw?.difficulty || raw?.level || course.level,
           level: raw?.level || course.level,
-          test_type: 'CUSTOM'
+          test_type: 'CUSTOM_TEST'
         };
 
         this.gamsatService.startTest(customStartPayload).subscribe({

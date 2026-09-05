@@ -1074,7 +1074,7 @@ describe('GamsatLearningReport', () => {
     expect(startReq.request.body.total_questions).toBe(30);
     expect(startReq.request.body.duration).toBe(60);
     expect(startReq.request.body.difficulty).toBe('Hard');
-    expect(startReq.request.body.test_type).toBe('CUSTOM');
+    expect(startReq.request.body.test_type).toBe('CUSTOM_TEST');
 
     startReq.flush({
       success: true,
