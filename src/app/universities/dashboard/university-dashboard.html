@@ -1,43 +1,43 @@
 <div class="univ-dashboard-page">
-  <header class="univ-dashboard-header">
+  <!-- Minimal White Portal Header (Height: 64px) -->
+  <header class="univ-portal-header">
     <div class="header-content">
-      <div class="brand-group">
-        <div class="brand-badge">
-          <app-icon name="graduation-cap" [size]="28" />
-        </div>
-        <div class="brand-meta">
-          <span class="portal-badge">Partner University Portal</span>
-          <h1 class="page-title">University Dashboard</h1>
-        </div>
+      <div class="header-left">
+        <a class="brand-link" routerLink="/university/dashboard" aria-label="MBBS.NET Portal">
+          <img src="/images/app-logo.png" alt="MBBS Logo" class="brand-logo-img" />
+          <img src="/images/mbbs-logo.png" alt="MBBS.NET" class="brand-name-img" />
+        </a>
+        <span class="portal-divider" aria-hidden="true"></span>
+        <span class="portal-badge">UNIVERSITY PORTAL</span>
       </div>
 
-      <div class="header-actions">
-        <a routerLink="/university/notifications" class="btn-nav-link">
-          <app-icon name="bookmark" [size]="16" />
+      <nav class="portal-nav" aria-label="University Navigation">
+        <a routerLink="/university/dashboard" routerLinkActive="active" class="nav-link">
+          <span>Dashboard</span>
+        </a>
+        <a routerLink="/university/students" routerLinkActive="active" class="nav-link">
+          <span>Candidates</span>
+        </a>
+        <a routerLink="/university/invites" routerLinkActive="active" class="nav-link">
+          <span>Invitations</span>
+        </a>
+        <a routerLink="/university/templates" routerLinkActive="active" class="nav-link">
+          <span>Templates</span>
+        </a>
+        <a routerLink="/university/notifications" routerLinkActive="active" class="nav-link">
           <span>Notifications</span>
           @if (unreadCount() > 0) {
             <span class="nav-unread-badge">{{ unreadCount() }}</span>
           }
         </a>
+      </nav>
 
-        <a routerLink="/university/templates" class="btn-nav-link">
-          <app-icon name="bookmark" [size]="16" />
-          <span>Templates</span>
-        </a>
-
-        <a routerLink="/university/invites" class="btn-nav-link">
-          <app-icon name="share" [size]="16" />
-          <span>Sent Offers</span>
-        </a>
-
-        <a routerLink="/university/profile" class="btn-nav-link">
-          <app-icon name="profile" [size]="16" />
-          <span>Profile</span>
-        </a>
-
-        <a routerLink="/university/students" class="btn-discover">
-          <app-icon name="search" [size]="16" />
-          <span>Discover Students</span>
+      <div class="header-right">
+        <a routerLink="/university/profile" class="user-profile-pill" title="Organization Profile">
+          <span class="user-avatar-initial">
+            {{ (currentUser()?.name || 'U').charAt(0).toUpperCase() }}
+          </span>
+          <span class="user-name-text">{{ currentUser()?.name || 'Partner Medical University' }}</span>
         </a>
 
         <button
@@ -51,7 +51,7 @@
             <span class="spinner-small"></span>
             <span>Signing Out...</span>
           } @else {
-            <app-icon name="close" [size]="18" />
+            <app-icon name="close" [size]="16" />
             <span>Sign Out</span>
           }
         </button>
@@ -61,6 +61,19 @@
 
   <main class="univ-dashboard-main">
     <div class="dashboard-container">
+      <!-- Page Title & Subtitle -->
+      <div class="page-title-row">
+        <div class="title-wrap">
+          <h1 class="page-title">University Dashboard</h1>
+          <p class="page-subtitle">Manage candidates, invitations, and admission opportunities.</p>
+        </div>
+        <div class="title-actions">
+          <a routerLink="/university/students" class="btn-primary-action">
+            <app-icon name="search" [size]="16" />
+            <span>Discover Candidates</span>
+          </a>
+        </div>
+      </div>
       <!-- University Profile & Session Card -->
       <section class="welcome-card">
         <div class="card-hero">

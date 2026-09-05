@@ -1,94 +1,103 @@
 <div class="univ-auth-page">
   <div class="univ-auth-container">
-    <a routerLink="/" class="back-link">
-      <app-icon name="arrow-right" [size]="15" class="back-icon" />
-      <span>Back to MBBS.NET</span>
-    </a>
+    <div class="top-nav-bar">
+      <a routerLink="/" class="back-link">
+        <app-icon name="arrow-right" [size]="14" class="back-icon" />
+        <span>Back to MBBS.NET</span>
+      </a>
+    </div>
 
     <div class="univ-auth-card">
-    <div class="card-header">
-      <div class="brand-badge">
-        <app-icon name="graduation-cap" [size]="24" />
-        <span class="portal-tag">University Portal</span>
+      <div class="brand-header">
+        <a class="brand-logo-link" routerLink="/" aria-label="MBBS.NET home">
+          <span class="brand-mark">
+            <img src="/images/app-logo.png" alt="MBBS Logo" class="brand-logo-img" />
+          </span>
+          <img src="/images/mbbs-logo.png" alt="MBBS" class="brand-name-img" />
+        </a>
       </div>
-      <h1 class="auth-title">Partner University Sign In</h1>
-      <p class="auth-subtitle">
-        Access the MBBS.NET admissions portal to review candidates, manage invitations, and issue admission offers.
-      </p>
-    </div>
 
-    @if (errorMessage()) {
-      <div class="alert-banner error" role="alert">
-        <app-icon name="close" [size]="18" />
-        <div class="alert-text">
-          <strong>Authentication Error</strong>
-          <p>{{ errorMessage() }}</p>
+      <div class="card-header">
+        <div class="brand-badge">
+          <span class="portal-tag">UNIVERSITY PORTAL</span>
         </div>
+        <h1 class="auth-title">Partner University Sign In</h1>
+        <p class="auth-subtitle">
+          Access the MBBS.NET admissions portal to review candidates, manage invitations, and issue admission offers.
+        </p>
       </div>
-    }
 
-    <form (ngSubmit)="onSubmit()" class="auth-form">
-      <div class="form-group">
-        <label for="univ-email">University Official Email</label>
-        <div class="input-wrap">
-          <input
-            id="univ-email"
-            type="email"
-            name="email"
-            [(ngModel)]="email"
-            placeholder="admissions@university.edu"
-            required
-            autocomplete="email"
-            [disabled]="loading()"
-          />
+      @if (errorMessage()) {
+        <div class="alert-banner error" role="alert">
+          <app-icon name="close" [size]="18" />
+          <div class="alert-text">
+            <strong>Authentication Error</strong>
+            <p>{{ errorMessage() }}</p>
+          </div>
         </div>
-      </div>
+      }
 
-      <div class="form-group">
-        <label for="univ-password">Password</label>
-        <div class="input-wrap password-wrap">
-          <input
-            id="univ-password"
-            [type]="showPassword ? 'text' : 'password'"
-            name="password"
-            [(ngModel)]="password"
-            placeholder="Enter your account password"
-            required
-            autocomplete="current-password"
-            [disabled]="loading()"
-          />
-          <button
-            type="button"
-            class="toggle-visibility-btn"
-            (click)="togglePasswordVisibility()"
-            tabindex="-1"
-            [title]="showPassword ? 'Hide password' : 'Show password'"
-          >
-            <app-icon [name]="showPassword ? 'sparkles' : 'bookmark'" [size]="18" />
-          </button>
+      <form (ngSubmit)="onSubmit()" class="auth-form">
+        <div class="form-group">
+          <label for="univ-email">University Official Email</label>
+          <div class="input-wrap">
+            <input
+              id="univ-email"
+              type="email"
+              name="email"
+              [(ngModel)]="email"
+              placeholder="admissions@university.edu"
+              required
+              autocomplete="email"
+              [disabled]="loading()"
+            />
+          </div>
         </div>
+
+        <div class="form-group">
+          <label for="univ-password">Password</label>
+          <div class="input-wrap password-wrap">
+            <input
+              id="univ-password"
+              [type]="showPassword ? 'text' : 'password'"
+              name="password"
+              [(ngModel)]="password"
+              placeholder="Enter your account password"
+              required
+              autocomplete="current-password"
+              [disabled]="loading()"
+            />
+            <button
+              type="button"
+              class="toggle-visibility-btn"
+              (click)="togglePasswordVisibility()"
+              tabindex="-1"
+              [title]="showPassword ? 'Hide password' : 'Show password'"
+            >
+              <app-icon [name]="showPassword ? 'sparkles' : 'bookmark'" [size]="18" />
+            </button>
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          class="btn-submit"
+          [disabled]="loading() || !email || !password"
+        >
+          @if (loading()) {
+            <span class="spinner"></span>
+            <span>Signing in to University Portal...</span>
+          } @else {
+            <span>Sign In to Portal</span>
+          }
+        </button>
+      </form>
+
+      <div class="card-footer">
+        <p class="footer-note">
+          Access is restricted to verified partner medical universities.
+        </p>
       </div>
-
-      <button
-        type="submit"
-        class="btn-submit"
-        [disabled]="loading() || !email || !password"
-      >
-        @if (loading()) {
-          <span class="spinner"></span>
-          <span>Signing in to University Portal...</span>
-        } @else {
-          <app-icon name="check" [size]="18" />
-          <span>Sign In to Portal</span>
-        }
-      </button>
-    </form>
-
-    <div class="card-footer">
-      <p class="footer-note">
-        Institutional access is restricted to verified partner medical universities.
-      </p>
     </div>
   </div>
- </div>
 </div>
