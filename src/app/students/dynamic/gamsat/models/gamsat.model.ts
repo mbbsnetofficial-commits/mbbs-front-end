@@ -105,6 +105,21 @@ export interface GamsatBuiltinTest {
   created_at?: string;
   description?: string;
   sections?: string[];
+  // Student-enrichment fields returned by getBuiltInTests() when called with a student ID
+  status?: string;
+  statusLabel?: string;
+  isCompleted?: boolean;
+  progress?: number;
+  score?: string | number | null;
+  rawScore?: number | null;
+  accuracy?: string | null;
+  timeSpent?: number;
+  timeSpentFormatted?: string;
+  action?: string;
+  actionLabel?: string;
+  sessionId?: string | null;
+  latestSessionId?: string | null;
+  dateModified?: string | null;
 }
 
 export interface GamsatBuiltinTestsResponse {

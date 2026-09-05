@@ -652,10 +652,15 @@ export class GamsatLearningReport implements OnInit, AfterViewInit, OnDestroy {
           const pTitle = (p.title || p.name?.replace(/_/g, ' ') || 'GAMSAT Past Paper').replace(/_/g, ' ');
           const masterKey = this.getMasterTestKey(p, 'previous_year');
 
-          if (seenCataloguePaperKeys.has(masterKey) || attemptsByMasterKey.has(masterKey)) {
+          if (seenCataloguePaperKeys.has(masterKey)) {
             continue;
           }
           seenCataloguePaperKeys.add(masterKey);
+
+          // If this paper already has a session in history, the representative is already in representativeAttempts
+          if (attemptsByMasterKey.has(masterKey)) {
+            continue;
+          }
 
           const paperId = String(p.paperId || p.id);
           const numericId = String(p.numericId || '');
@@ -665,9 +670,49 @@ export class GamsatLearningReport implements OnInit, AfterViewInit, OnDestroy {
           const stageInfo = `${qCount} Questions · ${duration}m`;
           const testCode = `GM-PYQ-${year || numericId || 'TEST'}`;
 
-          unattemptedPaperItems.push({
+          // Use the live status provided by the catalogue (getPapers enriches with session info)
+          const catalogueStatus = String(p.status || 'NOT_STARTED').toUpperCase();
+          const catalogueSessionId = p.latestSessionId || p.sessionId || null;
+          const catalogueDateModified = p.dateModified || null;
+          const catalogueDateTs = catalogueDateModified ? new Date(catalogueDateModified).getTime() : 0;
+          const catalogueScore = p.rawScore ?? p.score ?? null;
+          const catalogueTimeSpent = typeof p.timeSpent === 'number' ? p.timeSpent : 0;
+
+          let rowRawStatus: 'not_started' | 'in_progress' | 'completed' = 'not_started';
+          let rowStatus = 'Not Started';
+          let rowProgressPercent = 0;
+          let rowProgressColor = '#e2e8f0';
+          let rowProgressDetail = `0 / ${qCount} Questions`;
+          let rowDateRange = 'Available';
+          let rowDateModified = 'Available';
+          let rowScore = '—';
+          let rowScoreNum = 0;
+
+          if (catalogueStatus === 'IN_PROGRESS') {
+            rowRawStatus = 'in_progress';
+            rowStatus = 'In Progress';
+            rowProgressColor = '#3b82f6';
+            rowProgressDetail = `0 / ${qCount} Questions`;
+            rowDateRange = catalogueDateTs > 0 ? new Date(catalogueDateTs).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Available';
+            rowDateModified = rowDateRange;
+          } else if (catalogueStatus === 'COMPLETED') {
+            rowRawStatus = 'completed';
+            rowStatus = 'Completed';
+            rowProgressPercent = 100;
+            rowProgressColor = '#22c55e';
+            rowProgressDetail = `${qCount} / ${qCount} Questions`;
+            rowDateRange = catalogueDateTs > 0 ? new Date(catalogueDateTs).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Available';
+            rowDateModified = rowDateRange;
+            if (catalogueScore !== null) {
+              rowScore = `${catalogueScore} / ${qCount}`;
+              rowScoreNum = Number(catalogueScore);
+            }
+          }
+
+          const catalogueItem: GamsatCourseItem = {
             id: masterKey,
             paperId: paperId,
+            sessionId: catalogueSessionId || undefined,
             testDefinitionId: paperId,
             test_id: p.numericId || 0,
             test_code: testCode,
@@ -676,21 +721,21 @@ export class GamsatLearningReport implements OnInit, AfterViewInit, OnDestroy {
             source: 'previous_year',
             stagesCount: `${qCount} Questions`,
             level: 'Advanced',
-            status: 'Not Started',
-            rawStatus: 'not_started',
+            status: rowStatus,
+            rawStatus: rowRawStatus,
             stageInfo,
-            progressPercent: 0,
-            progressColor: '#e2e8f0',
-            answeredQuestions: 0,
+            progressPercent: rowProgressPercent,
+            progressColor: rowProgressColor,
+            answeredQuestions: rowRawStatus === 'completed' ? qCount : 0,
             totalQuestions: qCount,
-            progressDetail: `0 / ${qCount} Questions`,
+            progressDetail: rowProgressDetail,
             formattedSubtitle: `${testCode} · ${stageInfo}`,
-            dateRange: 'Available',
-            dateModified: 'Available',
-            dateModifiedTimestamp: 0,
-            learningTime: '0m',
-            score: '—',
-            scoreNum: 0,
+            dateRange: rowDateRange,
+            dateModified: rowDateModified,
+            dateModifiedTimestamp: catalogueDateTs,
+            learningTime: catalogueTimeSpent > 0 ? `${Math.floor(catalogueTimeSpent / 60)}m` : '0m',
+            score: rowScore,
+            scoreNum: rowScoreNum,
             category: 'Previous Year Paper',
             iconBg: '#f05a28',
             iconName: 'bookmark',
@@ -698,13 +743,21 @@ export class GamsatLearningReport implements OnInit, AfterViewInit, OnDestroy {
               id: paperId,
               paperId: paperId,
               testName: pTitle,
+              sessionId: catalogueSessionId,
               source: 'previous_year',
               type: 'PREVIOUS_YEAR',
-              status: 'not_started',
+              status: rowRawStatus,
               durationMinutes: duration,
               totalQuestions: qCount
             } as any
-          });
+          };
+
+          if (rowRawStatus !== 'not_started') {
+            // Treat as an attempt from the catalogue — add to representativeAttempts directly
+            representativeAttempts.push(catalogueItem);
+          } else {
+            unattemptedPaperItems.push(catalogueItem);
+          }
         }
 
         // Step 5: Unattempted Built-in Tests (Available Tests)
@@ -716,10 +769,15 @@ export class GamsatLearningReport implements OnInit, AfterViewInit, OnDestroy {
           const bTitle = (b.title || b.name || 'GAMSAT Built-in Test').replace(/_/g, ' ');
           const masterKey = this.getMasterTestKey(b, 'builtin');
 
-          if (seenCatalogueBuiltinKeys.has(masterKey) || attemptsByMasterKey.has(masterKey)) {
+          if (seenCatalogueBuiltinKeys.has(masterKey)) {
             continue;
           }
           seenCatalogueBuiltinKeys.add(masterKey);
+
+          // If there is already a session for this test in the history, skip (already in representativeAttempts)
+          if (attemptsByMasterKey.has(masterKey)) {
+            continue;
+          }
 
           const qCount = b.total_questions || 0;
           const duration = b.duration_minutes || 0;
@@ -727,9 +785,48 @@ export class GamsatLearningReport implements OnInit, AfterViewInit, OnDestroy {
           const testCode = `GM-${bId.toUpperCase().replace(/[-_]+/g, '_')}`;
           const bCategory = Array.isArray(b.sections) ? b.sections.join(', ') : 'Built-in Practice Test';
 
-          unattemptedBuiltinItems.push({
+          // Use the live status provided by getBuiltInTests() (enriched with student session info)
+          const builtinStatus = String(b.status || 'NOT_STARTED').toUpperCase();
+          const builtinSessionId = b.latestSessionId || b.sessionId || null;
+          const builtinDateModified = b.dateModified || null;
+          const builtinDateTs = builtinDateModified ? new Date(builtinDateModified).getTime() : 0;
+          const builtinScore = b.rawScore ?? b.score ?? null;
+          const builtinTimeSpent = typeof b.timeSpent === 'number' ? b.timeSpent : 0;
+
+          let bRawStatus: 'not_started' | 'in_progress' | 'completed' = 'not_started';
+          let bStatus = 'Not Started';
+          let bProgressPercent = 0;
+          let bProgressColor = '#e2e8f0';
+          let bProgressDetail = `0 / ${qCount} Questions`;
+          let bDateRange = 'Available';
+          let bDateModified = 'Available';
+          let bScore = '—';
+          let bScoreNum = 0;
+
+          if (builtinStatus === 'IN_PROGRESS') {
+            bRawStatus = 'in_progress';
+            bStatus = 'In Progress';
+            bProgressColor = '#3b82f6';
+            bDateRange = builtinDateTs > 0 ? new Date(builtinDateTs).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Available';
+            bDateModified = bDateRange;
+          } else if (builtinStatus === 'COMPLETED') {
+            bRawStatus = 'completed';
+            bStatus = 'Completed';
+            bProgressPercent = 100;
+            bProgressColor = '#22c55e';
+            bProgressDetail = `${qCount} / ${qCount} Questions`;
+            bDateRange = builtinDateTs > 0 ? new Date(builtinDateTs).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Available';
+            bDateModified = bDateRange;
+            if (builtinScore !== null) {
+              bScore = `${builtinScore} / ${qCount}`;
+              bScoreNum = Number(builtinScore);
+            }
+          }
+
+          const builtinItem: GamsatCourseItem = {
             id: masterKey,
             testId: bId,
+            sessionId: builtinSessionId || undefined,
             testDefinitionId: bId,
             test_id: 0,
             test_code: testCode,
@@ -738,36 +835,43 @@ export class GamsatLearningReport implements OnInit, AfterViewInit, OnDestroy {
             source: 'builtin',
             stagesCount: `${qCount} Questions`,
             level: b.difficulty || 'Intermediate',
-            status: 'Not Started',
-            rawStatus: 'not_started',
+            status: bStatus,
+            rawStatus: bRawStatus,
             stageInfo,
-            progressPercent: 0,
-            progressColor: '#e2e8f0',
-            answeredQuestions: 0,
+            progressPercent: bProgressPercent,
+            progressColor: bProgressColor,
+            answeredQuestions: bRawStatus === 'completed' ? qCount : 0,
             totalQuestions: qCount,
-            progressDetail: `0 / ${qCount} Questions`,
+            progressDetail: bProgressDetail,
             formattedSubtitle: `${bCategory} · ${stageInfo}`,
-            dateRange: 'Available',
-            dateModified: 'Available',
-            dateModifiedTimestamp: 0,
-            learningTime: '0m',
-            score: '—',
-            scoreNum: 0,
+            dateRange: bDateRange,
+            dateModified: bDateModified,
+            dateModifiedTimestamp: builtinDateTs,
+            learningTime: builtinTimeSpent > 0 ? `${Math.floor(builtinTimeSpent / 60)}m` : '0m',
+            score: bScore,
+            scoreNum: bScoreNum,
             category: bCategory,
             iconBg: '#3b82f6',
             iconName: 'test',
             rawItem: {
               id: bId,
               testId: bId,
+              sessionId: builtinSessionId,
               testName: bTitle,
               source: 'builtin',
               type: b.test_type || 'BUILTIN',
-              status: 'not_started',
+              status: bRawStatus,
               durationMinutes: duration,
               totalQuestions: qCount,
               sections: b.sections
             } as any
-          });
+          };
+
+          if (bRawStatus !== 'not_started') {
+            representativeAttempts.push(builtinItem);
+          } else {
+            unattemptedBuiltinItems.push(builtinItem);
+          }
         }
 
         // Step 5b: Unattempted Custom Tests (from client custom tests registry)
