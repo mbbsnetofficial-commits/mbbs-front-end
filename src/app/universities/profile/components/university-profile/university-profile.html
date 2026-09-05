@@ -167,6 +167,22 @@
                       <app-icon name="pencil" [size]="16" />
                       <span>Edit Profile</span>
                     </button>
+
+                    <button
+                      type="button"
+                      class="btn-logout"
+                      (click)="logout()"
+                      [disabled]="logoutLoading()"
+                      title="Sign out of university session"
+                    >
+                      @if (logoutLoading()) {
+                        <span class="spinner-small"></span>
+                        <span>Signing Out...</span>
+                      } @else {
+                        <app-icon name="close" [size]="15" />
+                        <span>Sign Out</span>
+                      }
+                    </button>
                   </div>
                 </div>
 

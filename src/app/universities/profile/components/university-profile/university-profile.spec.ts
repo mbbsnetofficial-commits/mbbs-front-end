@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { UniversityProfile } from '../../models/university-profile.model';
 import { UniversityProfileService } from '../../services/university-profile.service';
@@ -69,6 +69,9 @@ describe('UniversityProfileComponent', () => {
       ],
     }).compileComponents();
 
+    const router = TestBed.inject(Router);
+    vi.spyOn(router, 'navigate').mockImplementation(() => Promise.resolve(true));
+
     fixture = TestBed.createComponent(UniversityProfileComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -111,6 +114,19 @@ describe('UniversityProfileComponent', () => {
       expect(websiteLink.href).toBe('https://tsmu.edu/');
       expect(websiteLink.target).toBe('_blank');
       expect(websiteLink.rel).toContain('noopener');
+    });
+
+    it('4. should render Sign Out button in identity actions and trigger logout', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      const signOutBtn = compiled.querySelector(
+        '.identity-actions button.btn-logout'
+      ) as HTMLButtonElement;
+      expect(signOutBtn).toBeTruthy();
+      expect(signOutBtn.textContent).toContain('Sign Out');
+
+      const logoutSpy = vi.spyOn(component, 'logout');
+      signOutBtn.click();
+      expect(logoutSpy).toHaveBeenCalled();
     });
   });
 

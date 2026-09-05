@@ -3,11 +3,14 @@ import {
   ChangeDetectionStrategy,
   Component,
   OnInit,
+  computed,
   inject,
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { Icon } from '../../../../shared/ui/icon/icon';
+import { UniversityAuthService } from '../../../auth/services/university-auth.service';
 import { UniversityHeaderComponent } from '../../../shared/components/university-header/university-header';
 import {
   UniversityProfile,
@@ -25,11 +28,20 @@ import { UniversityProfileService } from '../../services/university-profile.serv
 })
 export class UniversityProfileComponent implements OnInit {
   private readonly profileService = inject(UniversityProfileService);
+  private readonly authService = inject(UniversityAuthService, { optional: true });
+  private readonly router = inject(Router, { optional: true });
 
   readonly profile = this.profileService.profile;
   readonly loading = this.profileService.loading;
   readonly updating = this.profileService.updating;
   readonly error = this.profileService.error;
+
+  readonly logoutLoading = computed(() => {
+    if (typeof this.authService?.logoutLoading === 'function') {
+      return this.authService.logoutLoading();
+    }
+    return false;
+  });
 
   readonly isEditMode = signal<boolean>(false);
   readonly formValidationErrorMessage = signal<string | null>(null);
@@ -297,6 +309,21 @@ export class UniversityProfileComponent implements OnInit {
         this.formValidationErrorMessage.set(msg);
       },
     });
+  }
+
+  logout(): void {
+    if (this.authService) {
+      this.authService.logout().subscribe({
+        next: () => {
+          this.router?.navigate(['/university/auth/login']);
+        },
+        error: () => {
+          this.router?.navigate(['/university/auth/login']);
+        },
+      });
+    } else {
+      this.router?.navigate(['/university/auth/login']);
+    }
   }
 
   private showToast(msg: string): void {
