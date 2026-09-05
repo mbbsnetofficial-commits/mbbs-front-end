@@ -1,4 +1,25 @@
 <main class="ai-chat-thread-page">
+  <!-- Active Session Bar & Clear Action -->
+  <div class="chat-top-bar">
+    <div class="session-info">
+      <span class="session-dot" [class.active]="messages().length > 1"></span>
+      <span class="session-text">
+        {{ messages().length > 1 ? 'Active Conversation • Saved for this session' : 'Ready to help with MBBS & Medical admissions' }}
+      </span>
+    </div>
+    @if (messages().length > 1) {
+      <button
+        type="button"
+        class="new-chat-btn"
+        (click)="clearChat()"
+        title="Start a fresh conversation"
+      >
+        <app-icon name="retry" [size]="14" />
+        <span>New Chat</span>
+      </button>
+    }
+  </div>
+
   <!-- Scrollable Messages Container -->
   <div class="messages-container" #scrollContainer>
     <div class="messages-list">

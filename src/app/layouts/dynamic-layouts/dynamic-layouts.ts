@@ -21,6 +21,7 @@ import { GamsatQuickTest } from '../../students/dynamic/gamsat/components/quick-
 import { GamsatModalService } from '../../students/dynamic/gamsat/services/gamsat-modal.service';
 import { StudentNotificationsService } from '../../students/notifications/services/student-notifications.service';
 import { StudentNotification } from '../../students/notifications/models/student-notification.model';
+import { AiChatService } from '../../students/dynamic/ai-chat/services/ai-chat.service';
 
 interface NavigationItem {
   label: string;
@@ -46,6 +47,7 @@ export class DynamicLayouts implements OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly tokenService = inject(TokenService);
   private readonly notificationsService = inject(StudentNotificationsService);
+  private readonly aiChatService = inject(AiChatService);
   protected readonly router = inject(Router);
 
   protected readonly sidebarOpen = signal(false);
@@ -357,6 +359,7 @@ export class DynamicLayouts implements OnDestroy {
 
   private finishLogout(): void {
     this.tokenService.clearTokens();
+    this.aiChatService.clearChat();
     void this.router.navigate(['/']);
   }
 

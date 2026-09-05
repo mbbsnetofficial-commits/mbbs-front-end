@@ -38,9 +38,9 @@ export class AiChat implements AfterViewInit {
   private readonly cdr = inject(ChangeDetectorRef);
 
   readonly promptText = signal('');
-  readonly loading = signal(false);
-  readonly lastGroundedSources = signal<GroundedSourcesCount | null>(null);
-  readonly messages = signal<ChatMessage[]>([INITIAL_WELCOME_MESSAGE]);
+  readonly loading = this.aiChatService.loading ?? signal(false);
+  readonly lastGroundedSources = this.aiChatService.lastGroundedSources ?? signal<GroundedSourcesCount | null>(null);
+  readonly messages = this.aiChatService.messages ?? signal<ChatMessage[]>([INITIAL_WELCOME_MESSAGE]);
 
   readonly canSend = computed(
     () => !this.loading() && this.promptText().trim().length > 0
@@ -48,6 +48,15 @@ export class AiChat implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this.scrollToBottom();
+  }
+
+  clearChat(): void {
+    if (typeof this.aiChatService.clearChat === 'function') {
+      this.aiChatService.clearChat();
+    } else if ('set' in this.messages) {
+      (this.messages as any).set([INITIAL_WELCOME_MESSAGE]);
+    }
+    this.cdr.markForCheck();
   }
 
   sendMessage(): void {
@@ -62,18 +71,30 @@ export class AiChat implements AfterViewInit {
       text,
     };
 
-    this.messages.update((list) => [...list, userMsg]);
+    if (typeof this.aiChatService.addMessage === 'function') {
+      this.aiChatService.addMessage(userMsg);
+    } else if ('update' in this.messages) {
+      (this.messages as any).update((list: any) => [...list, userMsg]);
+    }
     this.promptText.set('');
     this.scrollToBottom();
 
-    this.loading.set(true);
+    if (typeof this.aiChatService.setLoading === 'function') {
+      this.aiChatService.setLoading(true);
+    } else if ('set' in this.loading) {
+      (this.loading as any).set(true);
+    }
     this.cdr.markForCheck();
 
     this.aiChatService
       .sendMessage(text)
       .pipe(
         finalize(() => {
-          this.loading.set(false);
+          if (typeof this.aiChatService.setLoading === 'function') {
+            this.aiChatService.setLoading(false);
+          } else if ('set' in this.loading) {
+            (this.loading as any).set(false);
+          }
           this.cdr.markForCheck();
           this.scrollToBottom();
         })
@@ -99,9 +120,17 @@ export class AiChat implements AfterViewInit {
             groundedSourcesCount: rawData?.groundedSourcesCount,
           };
           if (rawData?.groundedSourcesCount) {
-            this.lastGroundedSources.set(rawData.groundedSourcesCount);
+            if (typeof this.aiChatService.setLastGroundedSources === 'function') {
+              this.aiChatService.setLastGroundedSources(rawData.groundedSourcesCount);
+            } else if ('set' in this.lastGroundedSources) {
+              (this.lastGroundedSources as any).set(rawData.groundedSourcesCount);
+            }
           }
-          this.messages.update((list) => [...list, assistantMsg]);
+          if (typeof this.aiChatService.addMessage === 'function') {
+            this.aiChatService.addMessage(assistantMsg);
+          } else if ('update' in this.messages) {
+            (this.messages as any).update((list: any) => [...list, assistantMsg]);
+          }
           this.cdr.markForCheck();
         },
         error: (err) => {
@@ -112,7 +141,11 @@ export class AiChat implements AfterViewInit {
             text: DEFAULT_ERROR_MESSAGE,
             isError: true,
           };
-          this.messages.update((list) => [...list, errorMsg]);
+          if (typeof this.aiChatService.addMessage === 'function') {
+            this.aiChatService.addMessage(errorMsg);
+          } else if ('update' in this.messages) {
+            (this.messages as any).update((list: any) => [...list, errorMsg]);
+          }
           this.cdr.markForCheck();
         },
       });
@@ -127,7 +160,11 @@ export class AiChat implements AfterViewInit {
         sender: 'user',
         text: `📎 Attached file: ${file.name}`,
       };
-      this.messages.update((list) => [...list, userMsg]);
+      if (typeof this.aiChatService.addMessage === 'function') {
+        this.aiChatService.addMessage(userMsg);
+      } else if ('update' in this.messages) {
+        (this.messages as any).update((list: any) => [...list, userMsg]);
+      }
       this.scrollToBottom();
       input.value = '';
     }

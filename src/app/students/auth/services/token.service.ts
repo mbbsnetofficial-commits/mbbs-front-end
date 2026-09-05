@@ -123,10 +123,20 @@ export class TokenService {
         localStorage.removeItem(this.REFRESH_TOKEN);
         localStorage.removeItem(this.STUDENT_ID);
         localStorage.removeItem(this.USER);
+        localStorage.removeItem('mbbs_knowledge_base_chat_messages');
         sessionStorage.removeItem(this.ACCESS_TOKEN);
         sessionStorage.removeItem(this.REFRESH_TOKEN);
         sessionStorage.removeItem(this.STUDENT_ID);
         sessionStorage.removeItem(this.USER);
+        sessionStorage.removeItem('mbbs_knowledge_base_chat_messages');
+
+        if (typeof window !== 'undefined') {
+            try {
+                window.dispatchEvent(new CustomEvent('mbbs:auth:logout'));
+            } catch {
+                // Ignore in non-browser environments
+            }
+        }
     }
 
     isLoggedIn(): boolean {

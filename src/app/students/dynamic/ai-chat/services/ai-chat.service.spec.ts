@@ -87,4 +87,44 @@ describe('AiChatService', () => {
     expect(errorResponse).toBeDefined();
     expect(errorResponse.status).toBe(500);
   });
+
+  describe('Message Persistence Across Tabs & Logout Reset', () => {
+    it('should initialize with the initial welcome message', () => {
+      expect(service.messages().length).toBe(1);
+      expect(service.messages()[0].sender).toBe('assistant');
+    });
+
+    it('should persist added messages to localStorage', () => {
+      const userMsg = { id: 'test-1', sender: 'user' as const, text: 'Hello AI' };
+      service.addMessage(userMsg);
+
+      expect(service.messages().length).toBe(2);
+      expect(service.messages()[1]).toEqual(userMsg);
+
+      const stored = JSON.parse(localStorage.getItem('mbbs_knowledge_base_chat_messages') || '[]');
+      expect(stored.length).toBe(2);
+      expect(stored[1].text).toBe('Hello AI');
+    });
+
+    it('should reset messages to welcome message on clearChat()', () => {
+      service.addMessage({ id: 'msg-1', sender: 'user', text: 'Questions about MBBS' });
+      expect(service.messages().length).toBeGreaterThan(1);
+
+      service.clearChat();
+
+      expect(service.messages().length).toBe(1);
+      expect(service.messages()[0].id).toBe('welcome-1');
+      expect(localStorage.getItem('mbbs_knowledge_base_chat_messages')).toBeNull();
+    });
+
+    it('should clear chat on window mbbs:auth:logout event', () => {
+      service.addMessage({ id: 'msg-logout', sender: 'user', text: 'Should be cleared on logout' });
+      expect(service.messages().length).toBeGreaterThan(1);
+
+      window.dispatchEvent(new CustomEvent('mbbs:auth:logout'));
+
+      expect(service.messages().length).toBe(1);
+      expect(service.messages()[0].id).toBe('welcome-1');
+    });
+  });
 });
