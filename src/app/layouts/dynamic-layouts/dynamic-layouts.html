@@ -208,16 +208,13 @@
             <div class="popover-user-info">
               <strong class="popover-name">{{ studentProfile().personal.fullName || displayName }}</strong>
               <span class="popover-email">{{ studentProfile().personal.email || userEmail }}</span>
-              <div class="popover-tags">
-                <span class="candidate-tag">
-                  ID: {{ studentProfile().userId || studentProfile().id || user?.student_id || 'STU-MBBS' }}
-                </span>
-                @if (studentProfile().isDiscoverable) {
+              @if (studentProfile().isDiscoverable) {
+                <div class="popover-tags">
                   <span class="verified-tag">
                     <span class="pulse-dot"></span> Active
                   </span>
-                }
-              </div>
+                </div>
+              }
             </div>
           </header>
 

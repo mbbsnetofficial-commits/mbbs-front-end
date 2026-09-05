@@ -39,7 +39,6 @@
           <span class="avatar">{{ initials(rank.student_name) }}</span>
           <div>
             <strong>{{ rank.student_name }}</strong>
-            <small>{{ rank.student_id }}</small>
           </div>
         </div>
         <div class="rank-stat">
@@ -123,7 +122,6 @@
                     <span class="avatar">{{ initials(entry.student_name) }}</span>
                     <div>
                       <strong>{{ entry.student_name }}</strong>
-                      <small>{{ entry.student_id }}</small>
                     </div>
                     @if (isCurrentStudent(entry)) {
                       <em>You</em>
