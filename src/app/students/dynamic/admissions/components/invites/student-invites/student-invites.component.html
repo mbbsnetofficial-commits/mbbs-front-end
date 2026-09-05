@@ -23,7 +23,7 @@
         }
       </div>
 
-      <!-- Right: Search field + Sort dropdown -->
+      <!-- Right: Search field + Edit Profile -->
       <div class="controls-right">
         <!-- Search -->
         <div class="search-input-wrap">
@@ -42,6 +42,20 @@
           }
         </div>
 
+        <!-- Edit Profile Pill -->
+        <div class="profile-compact-wrapper">
+          <a routerLink="/dynamic/profile" class="profile-compact-pill" title="View or edit your student profile">
+            <span class="pill-tag">
+              <app-icon name="check" [size]="11" />
+              <span>Profile {{ profile().completionPercentage || 0 }}%</span>
+            </span>
+            @if (profile().personal.fullName) {
+              <span class="pill-name">{{ profile().personal.fullName }}</span>
+            }
+            <span class="pill-action">Edit Profile</span>
+            <app-icon name="arrow-right" [size]="12" />
+          </a>
+        </div>
       </div>
     </div>
 
