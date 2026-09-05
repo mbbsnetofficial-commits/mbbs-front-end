@@ -168,10 +168,14 @@
         [attr.aria-expanded]="profileOpen()"
       >
         <span class="avatar">
-          <img
-            [src]="studentProfile().avatarUrl || '/images/profile.jpg'"
-            [alt]="studentProfile().personal.fullName || displayName"
-          />
+          @if (hasCustomAvatar()) {
+            <img
+              [src]="studentProfile().avatarUrl"
+              [alt]="studentProfile().personal.fullName || displayName"
+            />
+          } @else {
+            <span class="avatar-letter" aria-hidden="true">{{ userInitial() }}</span>
+          }
         </span>
       </button>
 
@@ -187,10 +191,14 @@
                   accept="image/png,image/jpeg,image/jpg,image/webp"
                   hidden
                 />
-                <img
-                  [src]="studentProfile().avatarUrl || '/images/profile.jpg'"
-                  [alt]="studentProfile().personal.fullName || displayName"
-                />
+                @if (hasCustomAvatar()) {
+                  <img
+                    [src]="studentProfile().avatarUrl"
+                    [alt]="studentProfile().personal.fullName || displayName"
+                  />
+                } @else {
+                  <div class="popover-initial-avatar" aria-hidden="true">{{ userInitial() }}</div>
+                }
                 <span class="upload-badge" aria-hidden="true" title="Change Photo">
                   <app-icon name="pencil" [size]="10" />
                 </span>

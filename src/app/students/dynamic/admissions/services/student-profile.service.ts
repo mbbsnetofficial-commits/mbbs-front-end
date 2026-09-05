@@ -103,7 +103,7 @@ function createEmptyProfile(): StudentProfile {
   return {
     id: '',
     userId: '',
-    avatarUrl: '/images/profile.jpg',
+    avatarUrl: '',
     aspirantTitle: 'MBBS Candidate',
     personal: {
       fullName: '',
@@ -353,7 +353,10 @@ export function mapBackendProfileToFrontend(data: BackendStudentProfileData | an
   return {
     id: data?._id || data?.id || data?.studentId || '',
     userId: data?.studentId || data?.userId || '',
-    avatarUrl: p.avatar || '/images/profile.jpg',
+    avatarUrl:
+      (data?.avatarUrl && data?.avatarUrl !== '/images/profile.jpg' ? data.avatarUrl : '') ||
+      (p.avatar && p.avatar !== '/images/profile.jpg' ? p.avatar : '') ||
+      '',
     aspirantTitle:
       entranceExams.length > 0 && entranceExams[0].year
         ? `NEET ${entranceExams[0].year} Aspirant · ${preferredCourse} Candidate`

@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   HostListener,
   inject,
   OnDestroy,
@@ -70,7 +71,7 @@ export class DynamicLayouts implements OnDestroy {
 
   protected readonly user = this.safeCurrentUser();
   protected readonly displayName = this.user
-    ? `${this.user.firstName} ${this.user.lastName}`.trim()
+    ? (this.user.fullName?.trim() || `${this.user.firstName ?? ''} ${this.user.lastName ?? ''}`.trim())
     : this.safeDisplayName();
   protected readonly userEmail = this.user?.email ?? 'Student account';
   protected readonly initials =
@@ -80,6 +81,22 @@ export class DynamicLayouts implements OnDestroy {
       .slice(0, 2)
       .map((part) => part[0]?.toUpperCase())
       .join('') || 'ST';
+
+  protected readonly userInitial = computed(() => {
+    const rawName =
+      this.studentProfile().personal?.fullName?.trim() ||
+      this.user?.fullName?.trim() ||
+      this.user?.firstName?.trim() ||
+      this.displayName?.trim() ||
+      '';
+    const clean = rawName.replace(/^[^a-zA-Z0-9]+/, '');
+    return clean ? clean.charAt(0).toUpperCase() : 'S';
+  });
+
+  protected readonly hasCustomAvatar = computed(() => {
+    const url = this.studentProfile().avatarUrl?.trim();
+    return !!url && url !== '/images/profile.jpg';
+  });
 
   protected readonly destinations: NavigationItem[] = [
     {

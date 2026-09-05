@@ -19,6 +19,17 @@ export class ProfileHeaderComponent {
   readonly editModeToggled = output<void>();
   readonly photoSelected = output<File>();
 
+  get userInitial(): string {
+    const name = this.profile().personal?.fullName?.trim() || '';
+    const clean = name.replace(/^[^a-zA-Z0-9]+/, '');
+    return clean ? clean.charAt(0).toUpperCase() : 'S';
+  }
+
+  get hasCustomAvatar(): boolean {
+    const url = this.profile().avatarUrl?.trim();
+    return !!url && url !== '/images/profile.jpg';
+  }
+
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {

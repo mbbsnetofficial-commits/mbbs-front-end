@@ -12,12 +12,18 @@
               accept="image/png,image/jpeg,image/jpg,image/webp"
               hidden
             />
-            <img
-              appImageFallback
-              [src]="profile().avatarUrl"
-              [alt]="profile().personal.fullName || 'Student Avatar'"
-              class="profile-avatar-img"
-            />
+            @if (hasCustomAvatar) {
+              <img
+                appImageFallback
+                [src]="profile().avatarUrl"
+                [alt]="profile().personal.fullName || 'Student Avatar'"
+                class="profile-avatar-img"
+              />
+            } @else {
+              <div class="profile-avatar-initial" aria-hidden="true">
+                {{ userInitial }}
+              </div>
+            }
             <span class="avatar-upload-overlay" aria-hidden="true" title="Click to upload new photo">
               <app-icon name="pencil" [size]="14" />
             </span>
