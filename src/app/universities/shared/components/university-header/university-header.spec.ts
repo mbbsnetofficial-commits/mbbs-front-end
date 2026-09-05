@@ -67,22 +67,23 @@ describe('UniversityHeaderComponent', () => {
     expect(compiled.querySelector('.portal-badge')?.textContent).toContain('UNIVERSITY PORTAL');
   });
 
-  it('should render navigation links for Dashboard, Candidates, Invitations, Templates, Notifications', () => {
+  it('should render navigation links for Dashboard, Candidates, Invitations, Templates', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const links = compiled.querySelectorAll('.portal-nav .nav-link');
-    expect(links.length).toBe(5);
+    expect(links.length).toBe(4);
 
     const texts = Array.from(links).map((l) => l.textContent?.trim());
     expect(texts[0]).toContain('Dashboard');
     expect(texts[1]).toContain('Candidates');
     expect(texts[2]).toContain('Invitations');
     expect(texts[3]).toContain('Templates');
-    expect(texts[4]).toContain('Notifications');
   });
 
-  it('should render unread badge if notifications count > 0', () => {
+  it('should render notification bell logo button with unread badge if notifications count > 0', () => {
     const compiled = fixture.nativeElement as HTMLElement;
-    const badge = compiled.querySelector('.nav-unread-badge');
+    const bellLink = compiled.querySelector('.nav-bell-link');
+    expect(bellLink).toBeTruthy();
+    const badge = compiled.querySelector('.bell-badge');
     expect(badge).toBeTruthy();
     expect(badge?.textContent?.trim()).toBe('3');
   });

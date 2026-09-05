@@ -1,21 +1,25 @@
 <div class="univ-notifications-page">
   <app-university-header />
 
-  <!-- Single Unified Header Bar -->
-  <div class="univ-notifications-header">
+  <!-- Notifications Page Header -->
+  <header class="univ-notifications-header">
     <div class="header-content">
       <div class="header-left">
-        <a routerLink="/university/dashboard" class="back-link">
-          <app-icon name="arrow-right" [size]="15" class="back-icon" />
-          <span>Back to Dashboard</span>
-        </a>
-        <span class="header-divider" aria-hidden="true"></span>
-        <div class="title-with-badge">
-          <app-icon name="bell" [size]="20" class="notif-logo" />
-          <h1 class="page-title">Notifications</h1>
-          @if (unreadCount() > 0) {
-            <span class="unread-count-pill">{{ unreadCount() }}</span>
-          }
+        <div class="title-row">
+          <div class="icon-badge">
+            <app-icon name="bell" [size]="22" />
+          </div>
+          <div>
+            <div class="title-with-badge">
+              <h1 class="page-title">Notifications</h1>
+              @if (unreadCount() > 0) {
+                <span class="unread-pill">{{ unreadCount() }} Unread</span>
+              }
+            </div>
+            <p class="page-subtitle">
+              Stay updated on candidate invitations, status changes, and admissions activity.
+            </p>
+          </div>
         </div>
       </div>
 
@@ -62,7 +66,7 @@
         }
       </div>
     </div>
-  </div>
+  </header>
 
   <!-- Main Content Area -->
   <main class="univ-notifications-main">

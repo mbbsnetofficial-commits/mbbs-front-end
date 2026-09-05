@@ -41,20 +41,23 @@
       >
         <span>Templates</span>
       </a>
+    </nav>
+
+    <!-- Right Controls: Notification Bell Logo & Profile Pill -->
+    <div class="header-right">
       <a
         routerLink="/university/notifications"
         routerLinkActive="active"
-        class="nav-link"
+        class="nav-bell-link"
+        title="Notifications"
+        aria-label="Notifications"
       >
-        <span>Notifications</span>
+        <app-icon name="bell" [size]="20" />
         @if (unreadCount() > 0) {
-          <span class="nav-unread-badge">{{ unreadCount() }}</span>
+          <span class="bell-badge">{{ unreadCount() > 99 ? '99+' : unreadCount() }}</span>
         }
       </a>
-    </nav>
 
-    <!-- Right Controls: Profile Pill -->
-    <div class="header-right">
       <a
         routerLink="/university/profile"
         routerLinkActive="active"

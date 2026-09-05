@@ -6,7 +6,6 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { Icon, IconName } from '../../../../shared/ui/icon/icon';
 import { UniversityHeaderComponent } from '../../../shared/components/university-header/university-header';
 import { UniversityNotification } from '../../models/university-notification.model';
@@ -15,7 +14,7 @@ import { UniversityNotificationsService } from '../../services/university-notifi
 @Component({
   selector: 'app-university-notifications',
   standalone: true,
-  imports: [CommonModule, RouterLink, Icon, UniversityHeaderComponent],
+  imports: [CommonModule, Icon, UniversityHeaderComponent],
   templateUrl: './university-notifications.html',
   styleUrl: './university-notifications.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
