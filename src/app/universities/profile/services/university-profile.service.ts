@@ -40,14 +40,6 @@ export class UniversityProfileService {
   private setStoredImages(orgId: string, images: { logo?: string | null; coverImage?: string | null }): void {
     try {
       localStorage.setItem(`${this.IMAGES_STORAGE_KEY}_${orgId}`, JSON.stringify(images));
-      localStorage.setItem(`${this.IMAGES_STORAGE_KEY}_tsmu`, JSON.stringify(images));
-      localStorage.setItem(`${this.IMAGES_STORAGE_KEY}_default`, JSON.stringify(images));
-      if (images.logo) {
-        localStorage.setItem('mbbs_univ_custom_logo', images.logo);
-      }
-      if (images.coverImage) {
-        localStorage.setItem('mbbs_univ_custom_cover', images.coverImage);
-      }
     } catch {
       // ignore
     }
@@ -69,18 +61,10 @@ export class UniversityProfileService {
       tap((res) => {
         if (res?.success && res.data) {
           const stored = this.getStoredImages(res.data.organizationId);
-          const effectiveLogo = stored?.logo !== undefined ? stored.logo : res.data.logo;
-          const effectiveCover = stored?.coverImage !== undefined ? stored.coverImage : res.data.coverImage;
-          if (effectiveLogo || effectiveCover) {
-            this.setStoredImages(res.data.organizationId, {
-              logo: effectiveLogo,
-              coverImage: effectiveCover,
-            });
-          }
           const merged: UniversityProfile = {
             ...res.data,
-            logo: effectiveLogo,
-            coverImage: effectiveCover,
+            logo: stored?.logo !== undefined ? stored.logo : res.data.logo,
+            coverImage: stored?.coverImage !== undefined ? stored.coverImage : res.data.coverImage,
           };
           this.profile.set(merged);
         }

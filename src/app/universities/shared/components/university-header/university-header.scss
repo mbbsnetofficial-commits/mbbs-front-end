@@ -205,6 +205,41 @@
       }
     }
   }
+
+  .btn-logout {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #ffffff;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+    padding: 6px 13px;
+    border-radius: 8px;
+    font-size: 0.84375rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s ease;
+
+    &:hover:not(:disabled) {
+      background: #fef2f2;
+      color: #e11d48;
+      border-color: #fecdd3;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .spinner-small {
+      width: 13px;
+      height: 13px;
+      border: 2px solid rgba(15, 23, 42, 0.2);
+      border-top-color: #0f172a;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+  }
 }
 
 @keyframes spin {
