@@ -1,0 +1,249 @@
+// ============================================================================
+// MBBS.NET Unified University Portal Header
+// Clean, institutional white design system matching student auth aesthetic
+// ============================================================================
+
+:host {
+  display: block;
+  width: 100%;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.univ-portal-header {
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0 1.5rem;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+
+  .header-content {
+    width: 100%;
+    max-width: 1240px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+
+  // Brand / Left Logo
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    flex-shrink: 0;
+  }
+
+  .brand-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+
+    .brand-logo-img {
+      width: 28px;
+      height: 28px;
+      border-radius: 7px;
+      object-fit: contain;
+    }
+
+    .brand-name-img {
+      height: 24px;
+      width: auto;
+      object-fit: contain;
+    }
+  }
+
+  .portal-divider {
+    width: 1px;
+    height: 20px;
+    background: #e2e8f0;
+
+    @media (max-width: 480px) {
+      display: none;
+    }
+  }
+
+  .portal-badge {
+    font-family: 'Source Code Pro', monospace, monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #475569;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    padding: 3px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+
+    @media (max-width: 480px) {
+      display: none;
+    }
+  }
+
+  // Navigation Links
+  .portal-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+
+    @media (max-width: 900px) {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      &::-webkit-scrollbar {
+        display: none;
+      }
+      padding: 4px 0;
+    }
+
+    .nav-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #64748b;
+      font-size: 0.875rem;
+      font-weight: 500;
+      text-decoration: none;
+      padding: 6px 12px;
+      border-radius: 8px;
+      white-space: nowrap;
+      transition: color 0.15s ease, background-color 0.15s ease;
+
+      &:hover {
+        color: #0f172a;
+        background: #f1f5f9;
+      }
+
+      &.active {
+        color: #0f172a;
+        background: #f1f5f9;
+        font-weight: 600;
+      }
+
+      .nav-unread-badge {
+        background: #0f172a;
+        color: #ffffff;
+        font-size: 10.5px;
+        font-weight: 700;
+        padding: 1px 6px;
+        border-radius: 9999px;
+        line-height: 1.2;
+      }
+    }
+  }
+
+  // Right Side Controls: Profile Pill & Sign Out
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    flex-shrink: 0;
+  }
+
+  .user-profile-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    padding: 4px 10px 4px 6px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+
+    &:hover {
+      background: #f8fafc;
+      border-color: #e2e8f0;
+    }
+
+    &.active {
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+
+      .user-avatar-initial {
+        background: #0f172a;
+        box-shadow: 0 0 0 2px #38bdf8;
+      }
+
+      .user-name-text {
+        color: #0f172a;
+        font-weight: 700;
+      }
+    }
+
+    .user-avatar-initial {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: #0f172a;
+      color: #ffffff;
+      display: grid;
+      place-items: center;
+      font-size: 13px;
+      font-weight: 700;
+      transition: box-shadow 0.15s ease;
+    }
+
+    .user-name-text {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #1e293b;
+      max-width: 190px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+
+      @media (max-width: 680px) {
+        display: none;
+      }
+    }
+  }
+
+  .btn-logout {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #ffffff;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+    padding: 6px 13px;
+    border-radius: 8px;
+    font-size: 0.84375rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s ease;
+
+    &:hover:not(:disabled) {
+      background: #fef2f2;
+      color: #e11d48;
+      border-color: #fecdd3;
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .spinner-small {
+      width: 13px;
+      height: 13px;
+      border: 2px solid rgba(15, 23, 42, 0.2);
+      border-top-color: #0f172a;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

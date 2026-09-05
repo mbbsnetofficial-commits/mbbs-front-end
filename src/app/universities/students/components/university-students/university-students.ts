@@ -11,6 +11,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { Subject, Subscription, debounceTime, distinctUntilChanged } from 'rxjs';
 import { Icon } from '../../../../shared/ui/icon/icon';
+import { UniversityHeaderComponent } from '../../../shared/components/university-header/university-header';
 import { UniversityAuthService } from '../../../auth/services/university-auth.service';
 import {
   StudentDiscoveryFilters,
@@ -22,7 +23,7 @@ import { UniversityStudentsService } from '../../services/university-students.se
 @Component({
   selector: 'app-university-students',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, Icon],
+  imports: [CommonModule, FormsModule, RouterLink, Icon, UniversityHeaderComponent],
   templateUrl: './university-students.html',
   styleUrl: './university-students.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

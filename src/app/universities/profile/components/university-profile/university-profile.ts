@@ -9,6 +9,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Icon } from '../../../../shared/ui/icon/icon';
+import { UniversityHeaderComponent } from '../../../shared/components/university-header/university-header';
 import {
   UniversityProfile,
   UpdateUniversityProfileRequest,
@@ -18,7 +19,7 @@ import { UniversityProfileService } from '../../services/university-profile.serv
 @Component({
   selector: 'app-university-profile',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, Icon],
+  imports: [CommonModule, RouterLink, FormsModule, Icon, UniversityHeaderComponent],
   templateUrl: './university-profile.html',
   styleUrl: './university-profile.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

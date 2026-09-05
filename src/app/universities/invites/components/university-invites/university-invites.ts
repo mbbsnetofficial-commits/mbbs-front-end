@@ -10,6 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { Icon } from '../../../../shared/ui/icon/icon';
+import { UniversityHeaderComponent } from '../../../shared/components/university-header/university-header';
 import {
   OrganizationInviteItem,
   OrganizationInvitesFilters,
@@ -19,7 +20,7 @@ import { UniversityInvitesService } from '../../services/university-invites.serv
 @Component({
   selector: 'app-university-invites',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, Icon],
+  imports: [CommonModule, RouterLink, FormsModule, Icon, UniversityHeaderComponent],
   templateUrl: './university-invites.html',
   styleUrl: './university-invites.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

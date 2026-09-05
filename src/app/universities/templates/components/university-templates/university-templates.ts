@@ -9,13 +9,14 @@ import {
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Icon } from '../../../../shared/ui/icon/icon';
+import { UniversityHeaderComponent } from '../../../shared/components/university-header/university-header';
 import { UniversityTemplate } from '../../models/university-template.model';
 import { UniversityTemplatesService } from '../../services/university-templates.service';
 
 @Component({
   selector: 'app-university-templates',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, Icon],
+  imports: [CommonModule, RouterLink, FormsModule, Icon, UniversityHeaderComponent],
   templateUrl: './university-templates.html',
   styleUrl: './university-templates.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -8,13 +8,14 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Icon, IconName } from '../../../../shared/ui/icon/icon';
+import { UniversityHeaderComponent } from '../../../shared/components/university-header/university-header';
 import { UniversityNotification } from '../../models/university-notification.model';
 import { UniversityNotificationsService } from '../../services/university-notifications.service';
 
 @Component({
   selector: 'app-university-notifications',
   standalone: true,
-  imports: [CommonModule, RouterLink, Icon],
+  imports: [CommonModule, RouterLink, Icon, UniversityHeaderComponent],
   templateUrl: './university-notifications.html',
   styleUrl: './university-notifications.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

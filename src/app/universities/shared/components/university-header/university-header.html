@@ -1,0 +1,87 @@
+<header class="univ-portal-header" role="banner">
+  <div class="header-content">
+    <!-- Brand / Logo Area -->
+    <div class="header-left">
+      <a class="brand-link" routerLink="/university/dashboard" aria-label="MBBS.NET University Portal">
+        <img src="/images/app-logo.png" alt="MBBS Logo" class="brand-logo-img" />
+        <img src="/images/mbbs-logo.png" alt="MBBS.NET" class="brand-name-img" />
+      </a>
+      <span class="portal-divider" aria-hidden="true"></span>
+      <span class="portal-badge">UNIVERSITY PORTAL</span>
+    </div>
+
+    <!-- Main Navigation Links -->
+    <nav class="portal-nav" aria-label="University Main Navigation">
+      <a
+        routerLink="/university/dashboard"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="nav-link"
+      >
+        <span>Dashboard</span>
+      </a>
+      <a
+        routerLink="/university/students"
+        routerLinkActive="active"
+        class="nav-link"
+      >
+        <span>Candidates</span>
+      </a>
+      <a
+        routerLink="/university/invites"
+        routerLinkActive="active"
+        class="nav-link"
+      >
+        <span>Invitations</span>
+      </a>
+      <a
+        routerLink="/university/templates"
+        routerLinkActive="active"
+        class="nav-link"
+      >
+        <span>Templates</span>
+      </a>
+      <a
+        routerLink="/university/notifications"
+        routerLinkActive="active"
+        class="nav-link"
+      >
+        <span>Notifications</span>
+        @if (unreadCount() > 0) {
+          <span class="nav-unread-badge">{{ unreadCount() }}</span>
+        }
+      </a>
+    </nav>
+
+    <!-- Right Controls: Profile Pill & Sign Out -->
+    <div class="header-right">
+      <a
+        routerLink="/university/profile"
+        routerLinkActive="active"
+        class="user-profile-pill"
+        title="Organization Profile"
+      >
+        <span class="user-avatar-initial">
+          {{ (currentUser()?.name || 'U').charAt(0).toUpperCase() }}
+        </span>
+        <span class="user-name-text">{{ currentUser()?.name || 'Partner Medical University' }}</span>
+      </a>
+
+      <button
+        type="button"
+        class="btn-logout"
+        (click)="logout()"
+        [disabled]="logoutLoading()"
+        title="Sign out of university session"
+      >
+        @if (logoutLoading()) {
+          <span class="spinner-small"></span>
+          <span>Signing Out...</span>
+        } @else {
+          <app-icon name="close" [size]="15" />
+          <span>Sign Out</span>
+        }
+      </button>
+    </div>
+  </div>
+</header>

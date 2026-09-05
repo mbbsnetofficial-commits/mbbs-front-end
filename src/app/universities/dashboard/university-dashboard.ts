@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { Icon } from '../../shared/ui/icon/icon';
+import { UniversityHeaderComponent } from '../shared/components/university-header/university-header';
 import { UniversityAuthService } from '../auth/services/university-auth.service';
 import { UniversityInvitesService } from '../invites/services/university-invites.service';
 import { UniversityNotificationsService } from '../notifications/services/university-notifications.service';
@@ -17,7 +18,7 @@ import { UniversityDashboardService } from './services/university-dashboard.serv
 @Component({
   selector: 'app-university-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, Icon],
+  imports: [CommonModule, RouterLink, Icon, UniversityHeaderComponent],
   templateUrl: './university-dashboard.html',
   styleUrl: './university-dashboard.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
