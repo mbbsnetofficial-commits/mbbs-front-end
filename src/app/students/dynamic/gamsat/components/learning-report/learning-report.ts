@@ -326,12 +326,24 @@ export class GamsatLearningReport implements OnInit, AfterViewInit, OnDestroy {
     this.learningReportService.getFilters().subscribe({
       next: (res) => {
         if (res?.data?.sections && Array.isArray(res.data.sections)) {
-          const sectionLabels = res.data.sections.map((s) => {
-            if (s === 'SECTION_I') return 'Section I: Reasoning in Humanities';
-            if (s === 'SECTION_II') return 'Section II: Written Communication';
-            if (s === 'SECTION_III') return 'Section III: Biological & Physical Sciences';
-            return s;
-          });
+          // Backend returns sections as objects {key, name, fullName, ...} — extract display label
+          const sectionLabels: string[] = res.data.sections
+            .map((s: any) => {
+              // If it's a plain string, map by known keys
+              if (typeof s === 'string') {
+                if (s === 'SECTION_I')   return 'Section I: Reasoning in Humanities';
+                if (s === 'SECTION_II')  return 'Section II: Written Communication';
+                if (s === 'SECTION_III') return 'Section III: Biological & Physical Sciences';
+                return s;
+              }
+              // If it's an object, use fullName or name field
+              if (s && typeof s === 'object') {
+                return s.fullName || s.name || String(s.key || '');
+              }
+              return null;
+            })
+            .filter((label: string | null): label is string => !!label);
+
           this.availableCategories.set([
             ...sectionLabels,
             'Custom Tests',
