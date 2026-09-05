@@ -100,7 +100,7 @@ export interface GamsatLearningReportResponse {
 }
 
 export interface GamsatLearningReportQueryParams {
-  status?: 'all' | 'not_started' | 'in_progress' | 'completed';
+  status?: 'all' | 'not_started' | 'in_progress' | 'completed' | null;
   source?: 'all' | 'builtin' | 'previous_year' | 'custom';
   type?: string;
   section?: string;

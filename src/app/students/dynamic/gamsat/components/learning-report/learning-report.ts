@@ -367,7 +367,8 @@ export class GamsatLearningReport implements OnInit, AfterViewInit, OnDestroy {
     this.errorMessage.set(null);
 
     const queryParams: GamsatLearningReportQueryParams = {
-      status: this.activeTab(),
+      // Send null for 'all' tab so the backend returns every session with no status filter
+      status: this.activeTab() === 'all' ? null : this.activeTab(),
       page,
       limit: this.pageSize(),
       sortBy: this.sortField(),
