@@ -1,13 +1,16 @@
 <div class="opportunities-page">
-  <!-- Top Intro Header & Profile Component -->
+
+  <!-- ═══════════════════════════════════════════
+       PAGE HEADER — Title + Profile indicator
+  ══════════════════════════════════════════════ -->
   <header class="page-intro-header">
     <div class="intro-left">
       <div class="eyebrow">ADMISSIONS PORTAL</div>
-      <h1 class="page-title">University Invitations</h1>
-      <p class="page-subtitle">Review official admission invitations, evaluate curriculum offers, and confirm your international MBBS seat.</p>
+      <h1 class="page-title">University Opportunities</h1>
+      <p class="page-subtitle">Universities matching your profile</p>
     </div>
 
-    <!-- Profile Component: Clean verified indicator (no raw score clutter) -->
+    <!-- Compact profile pill — keeps profile link functional, just visually refined -->
     <div class="profile-compact-wrapper">
       <a routerLink="/dynamic/profile" class="profile-compact-pill" title="View or edit your student profile">
         <span class="pill-tag">
@@ -24,25 +27,34 @@
   </header>
 
 
-  <!-- Main Opportunities Inbox Container -->
+  <!-- ═══════════════════════════════════════════
+       MAIN OPPORTUNITIES CONTAINER
+       (bordered white card — matches reference)
+  ══════════════════════════════════════════════ -->
   <div class="opportunities-inbox-container">
-    <!-- Top Toolbar: Count on Left, Search & Sort on Right -->
+
+    <!-- ── TOOLBAR ROW: Count + Search + Sort ── -->
     <div class="inbox-toolbar-row">
+
+      <!-- Left: Dynamic count + subtitle -->
       <div class="count-left">
         <span class="opportunities-count">
           {{ summary().total }} {{ summary().total === 1 ? 'Opportunity' : 'Opportunities' }} Available
         </span>
+        <span class="count-subtitle">Universities matching your profile</span>
         @if (activeFilter() !== 'ALL' || searchQuery()) {
-          <span class="showing-badge">Showing {{ filteredInvites().length }} filtered</span>
+          <span class="showing-badge">{{ filteredInvites().length }} shown</span>
         }
       </div>
 
+      <!-- Right: Search field + Sort dropdown -->
       <div class="controls-right">
+        <!-- Search -->
         <div class="search-input-wrap">
           <app-icon name="search" [size]="14" class="search-ico" />
           <input
             type="text"
-            placeholder="Search universities, countries..."
+            placeholder="Search universities, countries, or programs..."
             [ngModel]="searchQuery()"
             (ngModelChange)="onSearchChanged($event)"
             aria-label="Search universities"
@@ -53,70 +65,81 @@
             </button>
           }
         </div>
+
       </div>
     </div>
 
-    <!-- Horizontal Status Filter Bar -->
+    <!-- ── STATUS FILTER TABS ── -->
     <nav class="status-filter-bar" aria-label="Opportunity Status Filters">
+
       <button
         type="button"
-        class="filter-pill-btn"
+        class="filter-tab-btn"
         [class.active]="activeFilter() === 'ALL'"
         (click)="onFilterSelected('ALL')"
       >
-        <span class="btn-label">All Opportunities</span>
-        <span class="btn-count">{{ summary().total }}</span>
+        <span class="tab-dot tab-dot--all"></span>
+        <span class="tab-label">All Opportunities</span>
+        <span class="tab-count">{{ summary().total }}</span>
       </button>
 
       <button
         type="button"
-        class="filter-pill-btn"
+        class="filter-tab-btn"
         [class.active]="activeFilter() === 'VIEWED'"
         (click)="onFilterSelected('VIEWED')"
       >
-        <span class="btn-label">Under Review</span>
-        <span class="btn-count">{{ summary().viewed }}</span>
+        <span class="tab-dot tab-dot--review"></span>
+        <span class="tab-label">Under Review</span>
+        <span class="tab-count">{{ summary().viewed }}</span>
       </button>
 
       <button
         type="button"
-        class="filter-pill-btn"
+        class="filter-tab-btn"
         [class.active]="activeFilter() === 'PENDING'"
         (click)="onFilterSelected('PENDING')"
       >
-        <span class="btn-label">Needs Action</span>
-        <span class="btn-count">{{ summary().pending }}</span>
+        <span class="tab-dot tab-dot--action"></span>
+        <span class="tab-label">Needs Action</span>
+        <span class="tab-count">{{ summary().pending }}</span>
       </button>
 
       <button
         type="button"
-        class="filter-pill-btn"
+        class="filter-tab-btn"
         [class.active]="activeFilter() === 'ACCEPTED'"
         (click)="onFilterSelected('ACCEPTED')"
       >
-        <span class="btn-label">Accepted</span>
-        <span class="btn-count">{{ summary().accepted }}</span>
+        <span class="tab-dot tab-dot--accepted"></span>
+        <span class="tab-label">Accepted</span>
+        <span class="tab-count">{{ summary().accepted }}</span>
       </button>
 
       <button
         type="button"
-        class="filter-pill-btn"
+        class="filter-tab-btn"
         [class.active]="activeFilter() === 'DECLINED'"
         (click)="onFilterSelected('DECLINED')"
       >
-        <span class="btn-label">Declined</span>
-        <span class="btn-count">{{ summary().declined }}</span>
+        <span class="tab-dot tab-dot--declined"></span>
+        <span class="tab-label">Declined</span>
+        <span class="tab-count">{{ summary().declined }}</span>
       </button>
     </nav>
 
-    <!-- Opportunity Rows / List Content with Small Gap Between Cards -->
+    <!-- ── OPPORTUNITY CARDS LIST ── -->
     <div class="opportunity-list-content">
+
       @if (loading() && filteredInvites().length === 0) {
+        <!-- Loading state -->
         <div class="feed-loading-box" aria-live="polite">
           <div class="feed-spinner"></div>
           <p>Loading admission opportunities...</p>
         </div>
+
       } @else if (error() && filteredInvites().length === 0) {
+        <!-- Error state -->
         <div class="feed-error-box" role="alert">
           <div class="error-circle">
             <app-icon name="close" [size]="20" />
@@ -128,14 +151,17 @@
             <span>Try Again</span>
           </button>
         </div>
+
       } @else if (filteredInvites().length > 0) {
+        <!-- Cards list -->
         <div class="opportunity-cards-group">
           @for (invite of filteredInvites(); track invite.id) {
             <app-invite-card [invite]="invite" />
           }
         </div>
+
       } @else {
-        <!-- Minimal Empty State -->
+        <!-- Empty state -->
         <div class="feed-empty-box">
           <div class="empty-badge">
             <app-icon name="sparkles" [size]="22" />
@@ -144,7 +170,7 @@
           <p class="empty-msg">
             {{ searchQuery()
               ? 'No university opportunities matched your keywords. Try clearing your search query or selecting a different status.'
-              : 'Universities matching your profile will appear here when opportunities become available.' }}
+              : 'When universities matching your profile become available, they will appear here.' }}
           </p>
           @if (!searchQuery()) {
             <a routerLink="/dynamic/profile" class="btn-empty-action">
@@ -158,7 +184,8 @@
           }
         </div>
       }
+
     </div>
   </div>
-</div>
 
+</div>

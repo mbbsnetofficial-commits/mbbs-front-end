@@ -1,3 +1,23 @@
+/* ═══════════════════════════════════════════════════
+   University Opportunities Page — Full Redesign
+   Visual-only. All Angular logic is 100% untouched.
+═══════════════════════════════════════════════════ */
+
+// ── Design tokens ──────────────────────────────────
+$navy:         #111827;
+$navy-hover:   #1f2937;
+$blue:         #2563eb;
+$bg:           #f8fafc;
+$card:         #ffffff;
+$border:       #e2e8f0;
+$border-soft:  #f1f5f9;
+$text-primary: #111827;
+$text-secondary: #64748b;
+$text-muted:   #94a3b8;
+$success:      #16a34a;
+$warning:      #d97706;
+$danger:       #dc2626;
+
 .opportunities-page {
   display: flex;
   flex-direction: column;
@@ -12,7 +32,7 @@
   }
 }
 
-/* Top Intro Header & Profile Component */
+// ── Page Header ────────────────────────────────────
 .page-intro-header {
   display: flex;
   justify-content: space-between;
@@ -22,76 +42,65 @@
 
   @media (max-width: 768px) {
     flex-direction: column;
-    gap: 14px;
+    gap: 12px;
   }
 
   .intro-left {
     flex: 1;
-    min-width: 260px;
+    min-width: 240px;
 
     .eyebrow {
-      font-size: 0.8125rem;
+      font-size: 0.6875rem;
       font-weight: 700;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: #64748b;
-      margin-bottom: 3px;
+      color: $text-muted;
+      margin-bottom: 4px;
     }
 
     .page-title {
       margin: 0;
-      font-size: 1.75rem;
+      font-size: 1.625rem;
       font-weight: 800;
-      color: #0f172a;
+      color: $text-primary;
       letter-spacing: -0.025em;
-      line-height: 1.25;
+      line-height: 1.2;
     }
 
     .page-subtitle {
-      margin: 6px 0 0;
-      font-size: 0.9375rem;
-      font-weight: 500;
-      color: #64748b;
-      letter-spacing: -0.01em;
-      line-height: 1.5;
-      max-width: 680px;
+      margin: 5px 0 0;
+      font-size: 0.9rem;
+      font-weight: 400;
+      color: $text-secondary;
+      line-height: 1.4;
     }
   }
 
-  /* Compact Profile Indicator [ Profile Verified ] */
+  // Compact profile pill — preserved exactly, only visual polish
   .profile-compact-wrapper {
     flex-shrink: 0;
 
-    @media (max-width: 768px) {
-      width: 100%;
-    }
+    @media (max-width: 768px) { width: 100%; }
 
     .profile-compact-pill {
       display: inline-flex;
       align-items: center;
       gap: 10px;
       padding: 7px 14px;
-      background: #ffffff;
-      border: 1px solid #e2e8f0;
+      background: $card;
+      border: 1px solid $border;
       border-radius: 9999px;
       text-decoration: none;
-      color: #0f172a;
+      color: $text-primary;
       font-size: 0.8125rem;
       transition: all 0.15s ease;
       box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
 
       &:hover {
         border-color: #cbd5e1;
-        background: #f8fafc;
-        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
-
-        .pill-action {
-          color: #1d4ed8;
-        }
-
-        app-icon {
-          transform: translateX(2px);
-        }
+        background: $bg;
+        .pill-action { color: #1d4ed8; }
+        app-icon { transform: translateX(2px); }
       }
 
       .pill-tag {
@@ -106,15 +115,12 @@
         padding: 2px 8px;
         border-radius: 9999px;
         white-space: nowrap;
-
-        app-icon {
-          color: #059669;
-        }
+        app-icon { color: #059669; }
       }
 
       .pill-name {
         font-weight: 600;
-        color: #0f172a;
+        color: $text-primary;
         max-width: 160px;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -123,12 +129,12 @@
 
       .pill-action {
         font-weight: 600;
-        color: #2563eb;
+        color: $blue;
         transition: color 0.15s ease;
       }
 
       app-icon {
-        color: #2563eb;
+        color: $blue;
         transition: transform 0.15s ease;
       }
     }
@@ -136,284 +142,319 @@
 }
 
 
-/* Main Opportunities Inbox Container */
+// ── Main Opportunities Container ───────────────────
 .opportunities-inbox-container {
-  background: #ffffff;
-  border-radius: 14px;
-  border: 1px solid #e2e8f0;
-  overflow: hidden;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03), 0 4px 12px rgba(15, 23, 42, 0.015);
+  background: transparent;
+  border-radius: 0;
+  border: none;
+  overflow: visible;
+  box-shadow: none;
   display: flex;
   flex-direction: column;
+  gap: 16px;
+}
 
-  /* Top Toolbar Row */
-  .inbox-toolbar-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px 20px;
-    flex-wrap: wrap;
-    gap: 12px;
 
-    .count-left {
-      display: flex;
-      align-items: baseline;
-      gap: 8px;
+// ── Toolbar Row: Count + Search + Sort ─────────────
+.inbox-toolbar-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0;
+  flex-wrap: wrap;
+  gap: 12px;
+  border-bottom: none;
 
-      .opportunities-count {
-        font-size: 0.9375rem;
-        font-weight: 700;
-        color: #0f172a;
-        letter-spacing: -0.01em;
-      }
-
-      .showing-badge {
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: #4b5563;
-        background: #f1f5f9;
-        padding: 2px 8px;
-        border-radius: 4px;
-      }
-    }
-
-    .controls-right {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-
-      .search-input-wrap {
-        position: relative;
-        display: flex;
-        align-items: center;
-
-        .search-ico {
-          position: absolute;
-          left: 11px;
-          color: #94a3b8;
-          pointer-events: none;
-        }
-
-        input {
-          padding: 8px 30px 8px 34px;
-          border: 1px solid #e2e8f0;
-          border-radius: 8px;
-          font-size: 0.8125rem;
-          color: #0f172a;
-          background: #f8fafc;
-          width: 250px;
-          outline: none;
-          transition: all 0.15s ease;
-
-          &::placeholder {
-            color: #94a3b8;
-          }
-
-          &:focus {
-            border-color: #3b82f6;
-            background: #ffffff;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-          }
-        }
-
-        .btn-clear-search {
-          position: absolute;
-          right: 8px;
-          background: none;
-          border: none;
-          color: #94a3b8;
-          cursor: pointer;
-          padding: 2px;
-          display: flex;
-          align-items: center;
-
-          &:hover {
-            color: #0f172a;
-          }
-        }
-      }
-    }
-  }
-
-  /* Horizontal Status Filter Bar */
-  .status-filter-bar {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 20px;
-    border-top: 1px solid #f1f5f9;
-    border-bottom: 1px solid #f1f5f9;
-    background: #fafafa;
-    overflow-x: auto;
-    flex-wrap: nowrap;
-
-    .filter-pill-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 7px 16px;
-      border-radius: 8px;
-      border: 1px solid #e2e8f0;
-      background: #ffffff;
-      font-size: 0.8125rem;
-      font-weight: 600;
-      letter-spacing: -0.01em;
-      color: #475569;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      white-space: nowrap;
-      flex-shrink: 0;
-
-      .btn-label {
-        line-height: 1;
-      }
-
-      .btn-count {
-        font-size: 0.6875rem;
-        font-weight: 700;
-        color: #64748b;
-        background: #f1f5f9;
-        padding: 2px 7px;
-        border-radius: 999px;
-        line-height: 1;
-      }
-
-      &:hover {
-        border-color: #cbd5e1;
-        background: #f8fafc;
-        color: #0f172a;
-      }
-
-      &.active {
-        background: #0f172a;
-        border-color: #0f172a;
-        color: #ffffff;
-        box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15);
-
-        .btn-count {
-          background: rgba(255, 255, 255, 0.22);
-          color: #ffffff;
-        }
-      }
-    }
-  }
-
-  /* Opportunity List Content: Canvas holding separate cards with small gap */
-  .opportunity-list-content {
+  .count-left {
     display: flex;
     flex-direction: column;
-    background: #f8fafc;
-    padding: 14px;
-    border-top: 1px solid #e2e8f0;
+    gap: 2px;
 
-    .opportunity-cards-group {
+    .opportunities-count {
+      font-size: 1rem;
+      font-weight: 700;
+      color: $text-primary;
+      letter-spacing: -0.015em;
+      line-height: 1.2;
+    }
+
+    .count-subtitle {
+      font-size: 0.8125rem;
+      color: $text-secondary;
+      font-weight: 400;
+    }
+
+    .showing-badge {
+      display: inline-block;
+      margin-top: 3px;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      color: #4b5563;
+      background: $border-soft;
+      padding: 2px 8px;
+      border-radius: 4px;
+      width: fit-content;
+    }
+  }
+
+  .controls-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+
+    // ── Search Input ──
+    .search-input-wrap {
+      position: relative;
       display: flex;
-      flex-direction: column;
-      gap: 10px; /* Clean gap between every card */
+      align-items: center;
+
+      .search-ico {
+        position: absolute;
+        left: 11px;
+        color: $text-muted;
+        pointer-events: none;
+        z-index: 1;
+      }
+
+      input {
+        padding: 8px 32px 8px 34px;
+        border: 1px solid $border;
+        border-radius: 8px;
+        font-size: 0.8125rem;
+        color: $text-primary;
+        background: $card;
+        width: 280px;
+        outline: none;
+        transition: all 0.15s ease;
+        font-family: inherit;
+
+        &::placeholder { color: $text-muted; }
+
+        &:focus {
+          border-color: $blue;
+          box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        @media (max-width: 600px) { width: 100%; }
+      }
+
+      .btn-clear-search {
+        position: absolute;
+        right: 8px;
+        background: none;
+        border: none;
+        color: $text-muted;
+        cursor: pointer;
+        padding: 2px;
+        display: flex;
+        align-items: center;
+        border-radius: 3px;
+        &:hover { color: $text-primary; }
+      }
+    }
+
+  }
+}
+
+
+// ── Status Filter Tabs ─────────────────────────────
+.status-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+
+  .filter-tab-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 8px;
+    border: 1px solid $border;
+    background: $card;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+    font-family: inherit;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+
+    .tab-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+
+      &--all     { background: #94a3b8; }
+      &--review  { background: #3b82f6; }
+      &--action  { background: #f59e0b; }
+      &--accepted { background: #16a34a; }
+      &--declined { background: #dc2626; }
+    }
+
+    .tab-label { line-height: 1; }
+
+    .tab-count {
+      font-size: 0.6875rem;
+      font-weight: 700;
+      color: $text-secondary;
+      background: $border-soft;
+      padding: 2px 7px;
+      border-radius: 999px;
+      line-height: 1;
+    }
+
+    &:hover {
+      border-color: #cbd5e1;
+      background: $bg;
+      color: $text-primary;
+    }
+
+    &.active {
+      background: $navy;
+      border-color: $navy;
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(17, 24, 39, 0.18);
+
+      .tab-dot {
+        box-shadow: 0 0 0 2px rgba(255,255,255,0.35);
+      }
+
+      .tab-count {
+        background: rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+      }
     }
   }
 }
 
-/* Minimal Empty State */
+
+// ── Opportunity Cards List ─────────────────────────
+.opportunity-list-content {
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+  padding: 0;
+  border: none;
+
+  .opportunity-cards-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+
+// ── Empty State ────────────────────────────────────
 .feed-empty-box {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 60px 24px;
-  background: #ffffff;
+  padding: 64px 24px;
+  background: $card;
+  border-radius: 10px;
+  border: 1px dashed $border;
 
   .empty-badge {
-    width: 44px;
-    height: 44px;
-    border-radius: 10px;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
     background: #f0fdf4;
-    color: #16a34a;
+    color: $success;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 14px;
+    margin-bottom: 16px;
   }
 
   h2 {
-    margin: 0 0 6px;
+    margin: 0 0 8px;
     font-size: 1.0625rem;
     font-weight: 700;
-    color: #111827;
+    color: $text-primary;
   }
 
   .empty-msg {
     margin: 0 0 20px;
     font-size: 0.8125rem;
     color: #6b7280;
-    max-width: 440px;
-    line-height: 1.5;
+    max-width: 420px;
+    line-height: 1.55;
   }
 
   .btn-empty-action {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 7px 16px;
-    background: #111827;
+    padding: 8px 18px;
+    background: $navy;
     color: #ffffff;
-    border-radius: 6px;
-    font-size: 0.75rem;
+    border-radius: 7px;
+    font-size: 0.8125rem;
     font-weight: 600;
     text-decoration: none;
     transition: background 0.15s ease;
-
-    &:hover {
-      background: #1f2937;
-    }
+    &:hover { background: $navy-hover; }
   }
 
   .btn-clear-filters {
     display: inline-flex;
     align-items: center;
-    padding: 6px 14px;
+    padding: 7px 16px;
     background: #f9fafb;
-    border: 1px solid #e5e7eb;
+    border: 1px solid $border;
     color: #374151;
-    border-radius: 6px;
-    font-size: 0.75rem;
+    border-radius: 7px;
+    font-size: 0.8125rem;
     font-weight: 600;
     cursor: pointer;
-
-    &:hover {
-      background: #f3f4f6;
-    }
+    font-family: inherit;
+    &:hover { background: #f3f4f6; }
   }
 }
 
-/* Loading & Error States */
+
+// ── Loading State ──────────────────────────────────
 .feed-loading-box {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  padding: 60px 24px;
-  background: #ffffff;
+  gap: 14px;
+  padding: 64px 24px;
+  background: $card;
+  border-radius: 10px;
 
   .feed-spinner {
-    width: 26px;
-    height: 26px;
-    border: 2px solid #e5e7eb;
-    border-top-color: #111827;
+    width: 28px;
+    height: 28px;
+    border: 2.5px solid $border;
+    border-top-color: $navy;
     border-radius: 50%;
-    animation: spin 0.8s linear infinite;
+    animation: spin 0.75s linear infinite;
   }
 
   p {
     margin: 0;
     font-size: 0.8125rem;
-    color: #6b7280;
+    color: $text-secondary;
   }
 }
 
+
+// ── Error State ────────────────────────────────────
 .feed-error-box {
   display: flex;
   flex-direction: column;
@@ -421,15 +462,16 @@
   justify-content: center;
   text-align: center;
   gap: 10px;
-  padding: 48px 24px;
-  background: #ffffff;
+  padding: 52px 24px;
+  background: $card;
+  border-radius: 10px;
 
   .error-circle {
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     background: #fef2f2;
-    color: #dc2626;
+    color: $danger;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -439,7 +481,7 @@
     margin: 0;
     font-size: 0.9375rem;
     font-weight: 700;
-    color: #111827;
+    color: $text-primary;
   }
 
   p {
@@ -454,27 +496,35 @@
     align-items: center;
     gap: 6px;
     margin-top: 4px;
-    padding: 6px 14px;
+    padding: 7px 16px;
     background: #fee2e2;
     color: #b91c1c;
     border: none;
-    border-radius: 6px;
-    font-size: 0.75rem;
+    border-radius: 7px;
+    font-size: 0.8125rem;
     font-weight: 600;
     cursor: pointer;
+    font-family: inherit;
+    &:hover { background: #fecaca; }
+  }
+}
 
-    &:hover {
-      background: #fecaca;
+
+// ── Keyframes ──────────────────────────────────────
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+
+// ── Responsive ─────────────────────────────────────
+@media (max-width: 768px) {
+  .inbox-toolbar-row {
+    flex-direction: column;
+    align-items: flex-start;
+
+    .controls-right {
+      width: 100%;
+      .search-input-wrap { flex: 1; input { width: 100%; } }
     }
   }
 }
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-
-
-

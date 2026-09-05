@@ -23,7 +23,6 @@ const STATUS_CONFIG: Record<InviteStatus, { label: string; badgeClass: string; i
     RouterLink,
     Icon,
     ImageFallbackDirective,
-    CurrencyPipe,
     DatePipe,
   ],
   templateUrl: './invite-card.html',
@@ -42,6 +41,24 @@ export class InviteCard {
         icon: 'sparkles' as IconName,
       }
     );
+  });
+
+  readonly progressStep = computed<number>(() => {
+    const s = this.invite().status;
+    switch (s) {
+      case 'ACCEPTED':
+        return 3;
+      case 'DECLINED':
+        return -1;
+      case 'EXPIRED':
+      case 'CANCELLED':
+        return -2;
+      case 'VIEWED':
+      case 'PENDING':
+      case 'NEW':
+      default:
+        return 1;
+    }
   });
 
   isActionable(): boolean {

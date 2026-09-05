@@ -5,26 +5,7 @@
       <p>Loading invitation details...</p>
     </div>
   } @else if (invite(); as item) {
-    <!-- Page Header & Breadcrumbs -->
-    <header class="page-top-header">
-      <div class="eyebrow">ADMISSIONS</div>
-      <h1 class="page-title">University Invitations</h1>
 
-      <div class="breadcrumb-row">
-        <nav class="breadcrumb-nav" aria-label="Breadcrumb">
-          <a routerLink="/dynamic/invites" class="crumb-link">University Invitations</a>
-          <span class="crumb-separator" aria-hidden="true">&gt;</span>
-          <span class="crumb-current">{{ item.university.name }}</span>
-        </nav>
-
-        @if (statusConfig(); as cfg) {
-          <div class="header-status-pill" [class]="cfg.badgeClass">
-            <span class="pill-dot" aria-hidden="true"></span>
-            <span class="pill-text">{{ cfg.label }}</span>
-          </div>
-        }
-      </div>
-    </header>
 
     <!-- University Hero Card -->
     <section class="hero-card" id="overview" aria-label="University Overview">
