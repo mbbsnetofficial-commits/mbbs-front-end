@@ -1,30 +1,6 @@
 <div class="opportunities-page">
 
-  <!-- ═══════════════════════════════════════════
-       PAGE HEADER — Title + Profile indicator
-  ══════════════════════════════════════════════ -->
-  <header class="page-intro-header">
-    <div class="intro-left">
-      <div class="eyebrow">ADMISSIONS PORTAL</div>
-      <h1 class="page-title">University Opportunities</h1>
-      <p class="page-subtitle">Universities matching your profile</p>
-    </div>
 
-    <!-- Compact profile pill — keeps profile link functional, just visually refined -->
-    <div class="profile-compact-wrapper">
-      <a routerLink="/dynamic/profile" class="profile-compact-pill" title="View or edit your student profile">
-        <span class="pill-tag">
-          <app-icon name="check" [size]="11" />
-          <span>Profile {{ profile().completionPercentage || 0 }}%</span>
-        </span>
-        @if (profile().personal.fullName) {
-          <span class="pill-name">{{ profile().personal.fullName }}</span>
-        }
-        <span class="pill-action">View Profile</span>
-        <app-icon name="arrow-right" [size]="12" />
-      </a>
-    </div>
-  </header>
 
 
   <!-- ═══════════════════════════════════════════
@@ -74,7 +50,7 @@
 
       <button
         type="button"
-        class="filter-tab-btn"
+        class="filter-tab-btn filter-tab-btn--all"
         [class.active]="activeFilter() === 'ALL'"
         (click)="onFilterSelected('ALL')"
       >
@@ -85,7 +61,7 @@
 
       <button
         type="button"
-        class="filter-tab-btn"
+        class="filter-tab-btn filter-tab-btn--review"
         [class.active]="activeFilter() === 'VIEWED'"
         (click)="onFilterSelected('VIEWED')"
       >
@@ -96,7 +72,7 @@
 
       <button
         type="button"
-        class="filter-tab-btn"
+        class="filter-tab-btn filter-tab-btn--action"
         [class.active]="activeFilter() === 'PENDING'"
         (click)="onFilterSelected('PENDING')"
       >
@@ -107,7 +83,7 @@
 
       <button
         type="button"
-        class="filter-tab-btn"
+        class="filter-tab-btn filter-tab-btn--accepted"
         [class.active]="activeFilter() === 'ACCEPTED'"
         (click)="onFilterSelected('ACCEPTED')"
       >
@@ -118,7 +94,7 @@
 
       <button
         type="button"
-        class="filter-tab-btn"
+        class="filter-tab-btn filter-tab-btn--declined"
         [class.active]="activeFilter() === 'DECLINED'"
         (click)="onFilterSelected('DECLINED')"
       >

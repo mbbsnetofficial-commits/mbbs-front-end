@@ -32,114 +32,7 @@ $danger:       #dc2626;
   }
 }
 
-// ── Page Header ────────────────────────────────────
-.page-intro-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 20px;
-  flex-wrap: wrap;
 
-  @media (max-width: 768px) {
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .intro-left {
-    flex: 1;
-    min-width: 240px;
-
-    .eyebrow {
-      font-size: 0.6875rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: $text-muted;
-      margin-bottom: 4px;
-    }
-
-    .page-title {
-      margin: 0;
-      font-size: 1.625rem;
-      font-weight: 800;
-      color: $text-primary;
-      letter-spacing: -0.025em;
-      line-height: 1.2;
-    }
-
-    .page-subtitle {
-      margin: 5px 0 0;
-      font-size: 0.9rem;
-      font-weight: 400;
-      color: $text-secondary;
-      line-height: 1.4;
-    }
-  }
-
-  // Compact profile pill — preserved exactly, only visual polish
-  .profile-compact-wrapper {
-    flex-shrink: 0;
-
-    @media (max-width: 768px) { width: 100%; }
-
-    .profile-compact-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 7px 14px;
-      background: $card;
-      border: 1px solid $border;
-      border-radius: 9999px;
-      text-decoration: none;
-      color: $text-primary;
-      font-size: 0.8125rem;
-      transition: all 0.15s ease;
-      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
-
-      &:hover {
-        border-color: #cbd5e1;
-        background: $bg;
-        .pill-action { color: #1d4ed8; }
-        app-icon { transform: translateX(2px); }
-      }
-
-      .pill-tag {
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        font-size: 0.6875rem;
-        font-weight: 700;
-        color: #047857;
-        background: #ecfdf5;
-        border: 1px solid #a7f3d0;
-        padding: 2px 8px;
-        border-radius: 9999px;
-        white-space: nowrap;
-        app-icon { color: #059669; }
-      }
-
-      .pill-name {
-        font-weight: 600;
-        color: $text-primary;
-        max-width: 160px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-
-      .pill-action {
-        font-weight: 600;
-        color: $blue;
-        transition: color 0.15s ease;
-      }
-
-      app-icon {
-        color: $blue;
-        transition: transform 0.15s ease;
-      }
-    }
-  }
-}
 
 
 // ── Main Opportunities Container ───────────────────
@@ -171,22 +64,27 @@ $danger:       #dc2626;
     gap: 2px;
 
     .opportunities-count {
-      font-size: 1rem;
-      font-weight: 700;
-      color: $text-primary;
-      letter-spacing: -0.015em;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.025em;
       line-height: 1.2;
+
+      @media (max-width: 640px) {
+        font-size: 1.25rem;
+      }
     }
 
     .count-subtitle {
-      font-size: 0.8125rem;
-      color: $text-secondary;
+      font-size: 0.9375rem;
+      color: #64748b;
       font-weight: 400;
+      margin-top: 2px;
     }
 
     .showing-badge {
       display: inline-block;
-      margin-top: 3px;
+      margin-top: 4px;
       font-size: 0.6875rem;
       font-weight: 600;
       color: #4b5563;
@@ -218,13 +116,13 @@ $danger:       #dc2626;
       }
 
       input {
-        padding: 8px 32px 8px 34px;
+        padding: 9px 32px 9px 34px;
         border: 1px solid $border;
         border-radius: 8px;
-        font-size: 0.8125rem;
+        font-size: 0.875rem;
         color: $text-primary;
         background: $card;
-        width: 280px;
+        width: 290px;
         outline: none;
         transition: all 0.15s ease;
         font-family: inherit;
@@ -262,7 +160,7 @@ $danger:       #dc2626;
 .status-filter-bar {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   padding: 0;
   border: none;
   background: transparent;
@@ -274,65 +172,135 @@ $danger:       #dc2626;
   .filter-tab-btn {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 7px 14px;
-    border-radius: 8px;
-    border: 1px solid $border;
-    background: $card;
-    font-size: 0.8125rem;
+    gap: 8px;
+    padding: 8px 18px;
+    border-radius: 999px;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    font-size: 0.875rem;
     font-weight: 600;
     color: #475569;
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
     white-space: nowrap;
     flex-shrink: 0;
     font-family: inherit;
     box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
 
     .tab-dot {
-      width: 7px;
-      height: 7px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
       flex-shrink: 0;
 
-      &--all     { background: #94a3b8; }
-      &--review  { background: #3b82f6; }
-      &--action  { background: #f59e0b; }
+      &--all      { background: #94a3b8; }
+      &--review   { background: #3b82f6; }
+      &--action   { background: #f59e0b; }
       &--accepted { background: #16a34a; }
-      &--declined { background: #dc2626; }
+      &--declined { background: #ef4444; }
     }
 
     .tab-label { line-height: 1; }
 
     .tab-count {
-      font-size: 0.6875rem;
+      font-size: 0.75rem;
       font-weight: 700;
-      color: $text-secondary;
-      background: $border-soft;
-      padding: 2px 7px;
+      color: #64748b;
+      background: #f1f5f9;
+      padding: 2px 8px;
       border-radius: 999px;
       line-height: 1;
+      transition: all 0.15s ease;
     }
 
     &:hover {
       border-color: #cbd5e1;
-      background: $bg;
-      color: $text-primary;
+      background: #f8fafc;
+      color: #0f172a;
     }
 
+    // Default active fallback
     &.active {
-      background: $navy;
-      border-color: $navy;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+    }
+
+    // Specific Status Themes:
+    &--all.active {
+      background: #0f172a;
+      border-color: #0f172a;
       color: #ffffff;
-      box-shadow: 0 2px 8px rgba(17, 24, 39, 0.18);
 
       .tab-dot {
-        box-shadow: 0 0 0 2px rgba(255,255,255,0.35);
+        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.35);
       }
 
       .tab-count {
         background: rgba(255, 255, 255, 0.2);
         color: #ffffff;
+      }
+    }
+
+    &--review.active {
+      background: #eff6ff;
+      border-color: #3b82f6;
+      color: #1d4ed8;
+
+      .tab-dot {
+        background: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+      }
+
+      .tab-count {
+        background: #dbeafe;
+        color: #1e40af;
+      }
+    }
+
+    &--action.active {
+      background: #fffbeb;
+      border-color: #f59e0b;
+      color: #b45309;
+
+      .tab-dot {
+        background: #d97706;
+        box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.25);
+      }
+
+      .tab-count {
+        background: #fde68a;
+        color: #92400e;
+      }
+    }
+
+    &--accepted.active {
+      background: #ecfdf5;
+      border-color: #10b981;
+      color: #047857;
+
+      .tab-dot {
+        background: #059669;
+        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.25);
+      }
+
+      .tab-count {
+        background: #a7f3d0;
+        color: #065f46;
+      }
+    }
+
+    &--declined.active {
+      background: #fef2f2;
+      border-color: #ef4444;
+      color: #b91c1c;
+
+      .tab-dot {
+        background: #dc2626;
+        box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.25);
+      }
+
+      .tab-count {
+        background: #fecaca;
+        color: #991b1b;
       }
     }
   }
