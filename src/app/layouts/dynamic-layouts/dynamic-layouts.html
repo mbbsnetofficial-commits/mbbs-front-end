@@ -163,11 +163,124 @@
       <button
         class="sidebar-profile"
         type="button"
-        aria-label="Logout"
-        (click)="onLogout()"
+        aria-label="Student Profile"
+        (click)="toggleProfile()"
+        [attr.aria-expanded]="profileOpen()"
       >
-        <span class="avatar"><img src="/images/profile.jpg" alt="Profile" /></span>
+        <span class="avatar">
+          <img
+            [src]="studentProfile().avatarUrl || '/images/profile.jpg'"
+            [alt]="studentProfile().personal.fullName || displayName"
+          />
+        </span>
       </button>
+
+      @if (profileOpen()) {
+        <section class="popover profile-popover" aria-label="Student Profile Menu">
+          <!-- Popover Header: Student Identity -->
+          <header class="profile-popover-header">
+            <div class="popover-avatar-wrap">
+              <label class="popover-avatar-label" title="Change Profile Photo">
+                <input
+                  type="file"
+                  (change)="onPopoverPhotoSelected($event)"
+                  accept="image/png,image/jpeg,image/jpg,image/webp"
+                  hidden
+                />
+                <img
+                  [src]="studentProfile().avatarUrl || '/images/profile.jpg'"
+                  [alt]="studentProfile().personal.fullName || displayName"
+                />
+                <span class="upload-badge" aria-hidden="true" title="Change Photo">
+                  <app-icon name="pencil" [size]="10" />
+                </span>
+              </label>
+            </div>
+
+            <div class="popover-user-info">
+              <strong class="popover-name">{{ studentProfile().personal.fullName || displayName }}</strong>
+              <span class="popover-email">{{ studentProfile().personal.email || userEmail }}</span>
+              <div class="popover-tags">
+                <span class="candidate-tag">
+                  ID: {{ studentProfile().userId || studentProfile().id || user?.student_id || 'STU-MBBS' }}
+                </span>
+                @if (studentProfile().isDiscoverable) {
+                  <span class="verified-tag">
+                    <span class="pulse-dot"></span> Active
+                  </span>
+                }
+              </div>
+            </div>
+          </header>
+
+          <!-- Profile Strength Bar -->
+          <div class="profile-strength-bar">
+            <div class="strength-labels">
+              <span class="strength-title">Profile Strength</span>
+              <span class="strength-val">{{ studentProfile().completionPercentage || 0 }}%</span>
+            </div>
+            <div class="strength-track">
+              <div
+                class="strength-fill"
+                [style.width.%]="studentProfile().completionPercentage || 0"
+              ></div>
+            </div>
+          </div>
+
+          <!-- Action Items -->
+          <nav class="profile-popover-menu" aria-label="Profile options">
+            <a
+              routerLink="/dynamic/profile"
+              class="popover-menu-item primary"
+              (click)="closeOverlays()"
+            >
+              <span class="item-icon"><app-icon name="pencil" [size]="16" /></span>
+              <div class="item-text">
+                <strong>Edit Student Profile</strong>
+                <small>Personal details, DOB, scores & documents</small>
+              </div>
+              <app-icon name="arrow-right" [size]="14" class="chevron-icon" />
+            </a>
+
+            <a
+              routerLink="/dynamic/invites"
+              class="popover-menu-item"
+              (click)="closeOverlays()"
+            >
+              <span class="item-icon"><app-icon name="categories" [size]="16" /></span>
+              <div class="item-text">
+                <strong>University Invites</strong>
+                <small>View and respond to offers</small>
+              </div>
+            </a>
+
+            <a
+              routerLink="/dynamic/ai-chat"
+              class="popover-menu-item"
+              (click)="closeOverlays()"
+            >
+              <span class="item-icon"><app-icon name="chat" [size]="16" /></span>
+              <div class="item-text">
+                <strong>Knowledge Base AI</strong>
+                <small>Ask admissions questions</small>
+              </div>
+            </a>
+          </nav>
+
+          <!-- Popover Footer: Logout Action -->
+          <div class="profile-popover-footer">
+            <button
+              type="button"
+              class="btn-logout"
+              [disabled]="loggingOut()"
+              (click)="onLogout()"
+            >
+              <app-icon name="logout" [size]="16" />
+              <span>{{ loggingOut() ? 'Logging out...' : 'Log Out' }}</span>
+            </button>
+          </div>
+        </section>
+      }
     </div>
   </aside>
 

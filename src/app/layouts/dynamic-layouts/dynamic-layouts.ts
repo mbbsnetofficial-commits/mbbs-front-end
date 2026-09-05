@@ -22,6 +22,7 @@ import { GamsatModalService } from '../../students/dynamic/gamsat/services/gamsa
 import { StudentNotificationsService } from '../../students/notifications/services/student-notifications.service';
 import { StudentNotification } from '../../students/notifications/models/student-notification.model';
 import { AiChatService } from '../../students/dynamic/ai-chat/services/ai-chat.service';
+import { StudentProfileService } from '../../students/dynamic/admissions/services/student-profile.service';
 
 interface NavigationItem {
   label: string;
@@ -48,8 +49,10 @@ export class DynamicLayouts implements OnDestroy {
   private readonly tokenService = inject(TokenService);
   private readonly notificationsService = inject(StudentNotificationsService);
   private readonly aiChatService = inject(AiChatService);
+  protected readonly studentProfileService = inject(StudentProfileService);
   protected readonly router = inject(Router);
 
+  protected readonly studentProfile = this.studentProfileService.profile;
   protected readonly sidebarOpen = signal(false);
   protected readonly loggingOut = signal(false);
   protected readonly commandOpen = signal(false);
@@ -213,6 +216,36 @@ export class DynamicLayouts implements OnDestroy {
     this.profileOpen.update((value) => !value);
     this.commandOpen.set(false);
     this.notificationOpen.set(false);
+  }
+
+  @HostListener('document:click', ['$event'])
+  protected handleDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement | null;
+    if (!target) return;
+    if (!target.closest('.sidebar-footer')) {
+      if (this.profileOpen()) {
+        this.profileOpen.set(false);
+      }
+      if (this.notificationOpen()) {
+        this.notificationOpen.set(false);
+      }
+    }
+  }
+
+  protected onPopoverPhotoSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      this.studentProfileService.uploadPhoto(file).subscribe({
+        next: () => {
+          input.value = '';
+        },
+        error: (err) => {
+          console.error('Failed to upload profile photo:', err);
+          input.value = '';
+        },
+      });
+    }
   }
 
   protected navigateTo(route: string): void {
