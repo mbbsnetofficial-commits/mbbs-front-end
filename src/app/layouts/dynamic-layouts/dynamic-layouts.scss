@@ -303,6 +303,57 @@
   }
 }
 
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.topbar-icon-btn {
+  position: relative;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:hover {
+    background: #f8fafc;
+    color: #0f172a;
+    border-color: #cbd5e1;
+  }
+}
+
+.topbar-profile-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: transform 0.15s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+}
+
+.topbar-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  font-size: 13px;
+}
+
 /* Modal Popout */
 .modal-overlay {
   position: fixed;
@@ -414,17 +465,30 @@
     height: 0;
   }
 }
+.popover-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1040;
+  background: rgba(15, 23, 42, 0.28);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  animation: fadeIn 0.15s ease-out;
+}
+
 .popover {
-  position: absolute;
-  z-index: 60;
-  top: calc(100% + 8px);
-  right: 14px;
+  position: fixed;
+  z-index: 1050;
+  bottom: 14px;
+  left: 84px;
+  top: auto;
+  right: auto;
   width: min(360px, calc(100vw - 28px));
   border: 1px solid var(--line);
   border-radius: 18px;
   padding: 8px;
   background: var(--surface);
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 20px 48px rgba(15, 23, 42, 0.18), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  animation: popIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .notification-popover {
   width: min(380px, calc(100vw - 28px));
@@ -1189,6 +1253,24 @@
     border-radius: 20px;
     margin-top: 4px;
   }
+
+  .topbar-icon-btn {
+    display: flex;
+  }
+
+  .topbar-profile-btn {
+    display: flex;
+  }
+
+  .popover {
+    top: 58px;
+    right: 14px;
+    bottom: auto;
+    left: auto;
+    width: min(360px, calc(100vw - 28px));
+    max-height: calc(100vh - 74px);
+    overflow-y: auto;
+  }
 }
 
 @media (max-width: 768px) {
@@ -1416,17 +1498,6 @@
         }
       }
     }
-
-    .popover {
-      position: fixed;
-      top: auto;
-      bottom: 74px;
-      left: 12px;
-      right: 12px;
-      width: calc(100vw - 24px);
-      max-width: 340px;
-      z-index: 1001;
-    }
   }
 
   .main-shell {
@@ -1533,8 +1604,55 @@
     display: none;
   }
 
+  .topbar-icon-btn {
+    display: flex;
+  }
+
+  .topbar-profile-btn {
+    display: flex;
+  }
+
+  .popover {
+    position: fixed;
+    top: 56px;
+    right: 10px;
+    bottom: auto;
+    left: auto;
+    width: min(360px, calc(100vw - 20px));
+    max-height: calc(100vh - 70px);
+    max-height: calc(100dvh - 70px);
+    overflow-y: auto;
+    border-radius: 18px;
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.22);
+    z-index: 1050;
+  }
+
   .notification-popover {
-    width: min(350px, calc(100vw - 20px));
+    width: min(360px, calc(100vw - 20px));
+
+    .notification-list {
+      max-height: calc(100dvh - 170px);
+    }
+  }
+
+  .profile-popover {
+    width: min(360px, calc(100vw - 20px));
+  }
+
+  @media (max-width: 440px) {
+    .popover {
+      top: 54px;
+      right: 8px;
+      left: 8px;
+      width: calc(100vw - 16px);
+      max-width: none;
+    }
+
+    .notification-popover,
+    .profile-popover {
+      width: calc(100vw - 16px);
+      max-width: none;
+    }
   }
 
   .command-layer {

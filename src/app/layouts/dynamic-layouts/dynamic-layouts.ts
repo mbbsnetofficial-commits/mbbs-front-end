@@ -223,6 +223,7 @@ export class DynamicLayouts implements OnDestroy {
     this.commandOpen.set(false);
     this.profileOpen.set(false);
     if (this.notificationOpen()) {
+      this.sidebarOpen.set(false);
       this.notificationsService.getNotifications({ limit: 20 }).subscribe({
         error: () => {},
       });
@@ -233,13 +234,21 @@ export class DynamicLayouts implements OnDestroy {
     this.profileOpen.update((value) => !value);
     this.commandOpen.set(false);
     this.notificationOpen.set(false);
+    if (this.profileOpen()) {
+      this.sidebarOpen.set(false);
+    }
   }
 
   @HostListener('document:click', ['$event'])
   protected handleDocumentClick(event: MouseEvent): void {
     const target = event.target as HTMLElement | null;
     if (!target) return;
-    if (!target.closest('.sidebar-footer')) {
+    if (
+      !target.closest('.sidebar-footer') &&
+      !target.closest('.topbar-actions') &&
+      !target.closest('.popover') &&
+      !target.closest('.popover-backdrop')
+    ) {
       if (this.profileOpen()) {
         this.profileOpen.set(false);
       }

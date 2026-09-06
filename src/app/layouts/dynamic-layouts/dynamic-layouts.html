@@ -91,82 +91,6 @@
           }
         </span>
       </button>
-      
-      @if (notificationOpen()) {
-        <section class="popover notification-popover" aria-label="Notifications">
-          <header>
-            <div>
-              <span>Updates</span>
-              <strong>Notifications</strong>
-            </div>
-            <div class="popover-header-actions">
-              @if (unreadCount() > 0) {
-                <button
-                  type="button"
-                  class="btn-mark-all-read"
-                  (click)="onMarkAllAsRead($event)"
-                  title="Mark all notifications as read"
-                >
-                  Mark all read
-                </button>
-              }
-              <small class="unread-pill">{{ unreadCount() }} unread</small>
-            </div>
-          </header>
-
-          <div class="notification-list">
-            @if (loadingNotifications() && !notifications().length) {
-              <div class="popover-loading">
-                <app-icon name="clock" [size]="18" />
-                <span>Loading updates...</span>
-              </div>
-            } @else if (notifications().length) {
-              @for (
-                notification of notifications();
-                track notification._id ?? $index
-              ) {
-                <article
-                  class="notification-item"
-                  [class.is-unread]="!notification.is_read"
-                  [class.is-clickable]="!!notification.action_url"
-                  (click)="onNotificationClick(notification)"
-                >
-                  <span class="notification-icon" [attr.data-type]="notification.notification_type">
-                    <app-icon [name]="notificationIcon(notification.notification_type)" [size]="16" />
-                  </span>
-                  <div class="notif-body">
-                    <div class="notif-header-line">
-                      <strong class="notif-title">{{ notificationTitle(notification) }}</strong>
-                      @if (!notification.is_read) {
-                        <span class="unread-dot" title="Unread notification"></span>
-                      }
-                    </div>
-                    @if (notification.message) {
-                      <p class="notif-msg">{{ notification.message }}</p>
-                    }
-                    <small class="notif-meta">{{ notificationMeta(notification) }}</small>
-                  </div>
-                  <button
-                    type="button"
-                    class="btn-dismiss"
-                    (click)="onDismissNotification($event, notification._id)"
-                    title="Dismiss notification"
-                    aria-label="Dismiss notification"
-                  >
-                    <app-icon name="close" [size]="12" />
-                  </button>
-                </article>
-              }
-            } @else {
-              <div class="popover-empty">
-                <app-icon name="check" [size]="20" />
-                <strong>You’re all caught up</strong>
-                <span>No new student updates right now.</span>
-              </div>
-            }
-          </div>
-        </section>
-      }
 
       <button
         class="sidebar-profile"
@@ -186,116 +110,199 @@
           }
         </span>
       </button>
-
-      @if (profileOpen()) {
-        <section class="popover profile-popover" aria-label="Student Profile Menu">
-          <!-- Popover Header: Student Identity -->
-          <header class="profile-popover-header">
-            <div class="popover-avatar-wrap">
-              <label class="popover-avatar-label" title="Change Profile Photo">
-                <input
-                  type="file"
-                  (change)="onPopoverPhotoSelected($event)"
-                  accept="image/png,image/jpeg,image/jpg,image/webp"
-                  hidden
-                />
-                @if (hasCustomAvatar()) {
-                  <img
-                    [src]="studentProfile().avatarUrl"
-                    [alt]="studentProfile().personal.fullName || displayName"
-                  />
-                } @else {
-                  <div class="popover-initial-avatar" aria-hidden="true">{{ userInitial() }}</div>
-                }
-                <span class="upload-badge" aria-hidden="true" title="Change Photo">
-                  <app-icon name="pencil" [size]="10" />
-                </span>
-              </label>
-            </div>
-
-            <div class="popover-user-info">
-              <strong class="popover-name">{{ studentProfile().personal.fullName || displayName }}</strong>
-              <span class="popover-email">{{ studentProfile().personal.email || userEmail }}</span>
-              @if (studentProfile().isDiscoverable) {
-                <div class="popover-tags">
-                  <span class="verified-tag">
-                    <span class="pulse-dot"></span> Active
-                  </span>
-                </div>
-              }
-            </div>
-          </header>
-
-          <!-- Profile Strength Bar -->
-          <div class="profile-strength-bar">
-            <div class="strength-labels">
-              <span class="strength-title">Profile Strength</span>
-              <span class="strength-val">{{ studentProfile().completionPercentage || 0 }}%</span>
-            </div>
-            <div class="strength-track">
-              <div
-                class="strength-fill"
-                [style.width.%]="studentProfile().completionPercentage || 0"
-              ></div>
-            </div>
-          </div>
-
-          <!-- Action Items -->
-          <nav class="profile-popover-menu" aria-label="Profile options">
-            <a
-              routerLink="/dynamic/profile"
-              class="popover-menu-item primary"
-              (click)="closeOverlays()"
-            >
-              <span class="item-icon"><app-icon name="pencil" [size]="16" /></span>
-              <div class="item-text">
-                <strong>Edit Student Profile</strong>
-                <small>Personal details, DOB, scores & documents</small>
-              </div>
-              <app-icon name="arrow-right" [size]="14" class="chevron-icon" />
-            </a>
-
-            <a
-              routerLink="/dynamic/invites"
-              class="popover-menu-item"
-              (click)="closeOverlays()"
-            >
-              <span class="item-icon"><app-icon name="categories" [size]="16" /></span>
-              <div class="item-text">
-                <strong>University Invites</strong>
-                <small>View and respond to offers</small>
-              </div>
-            </a>
-
-            <a
-              routerLink="/dynamic/ai-chat"
-              class="popover-menu-item"
-              (click)="closeOverlays()"
-            >
-              <span class="item-icon"><app-icon name="chat" [size]="16" /></span>
-              <div class="item-text">
-                <strong>Knowledge Base AI</strong>
-                <small>Ask admissions questions</small>
-              </div>
-            </a>
-          </nav>
-
-          <!-- Popover Footer: Logout Action -->
-          <div class="profile-popover-footer">
-            <button
-              type="button"
-              class="btn-logout"
-              [disabled]="loggingOut()"
-              (click)="onLogout()"
-            >
-              <app-icon name="logout" [size]="16" />
-              <span>{{ loggingOut() ? 'Logging out...' : 'Log Out' }}</span>
-            </button>
-          </div>
-        </section>
-      }
     </div>
   </aside>
+
+  <!-- Global Popover Backdrop for Mobile & Desktop -->
+  @if (notificationOpen() || profileOpen()) {
+    <div class="popover-backdrop" (click)="closeOverlays()"></div>
+  }
+
+  <!-- Notifications Popover -->
+  @if (notificationOpen()) {
+    <section class="popover notification-popover" aria-label="Notifications">
+      <header>
+        <div>
+          <span>Updates</span>
+          <strong>Notifications</strong>
+        </div>
+        <div class="popover-header-actions">
+          @if (unreadCount() > 0) {
+            <button
+              type="button"
+              class="btn-mark-all-read"
+              (click)="onMarkAllAsRead($event)"
+              title="Mark all notifications as read"
+            >
+              Mark all read
+            </button>
+          }
+          <small class="unread-pill">{{ unreadCount() }} unread</small>
+        </div>
+      </header>
+
+      <div class="notification-list">
+        @if (loadingNotifications() && !notifications().length) {
+          <div class="popover-loading">
+            <app-icon name="clock" [size]="18" />
+            <span>Loading updates...</span>
+          </div>
+        } @else if (notifications().length) {
+          @for (
+            notification of notifications();
+            track notification._id ?? $index
+          ) {
+            <article
+              class="notification-item"
+              [class.is-unread]="!notification.is_read"
+              [class.is-clickable]="!!notification.action_url"
+              (click)="onNotificationClick(notification)"
+            >
+              <span class="notification-icon" [attr.data-type]="notification.notification_type">
+                <app-icon [name]="notificationIcon(notification.notification_type)" [size]="16" />
+              </span>
+              <div class="notif-body">
+                <div class="notif-header-line">
+                  <strong class="notif-title">{{ notificationTitle(notification) }}</strong>
+                  @if (!notification.is_read) {
+                    <span class="unread-dot" title="Unread notification"></span>
+                  }
+                </div>
+                @if (notification.message) {
+                  <p class="notif-msg">{{ notification.message }}</p>
+                }
+                <small class="notif-meta">{{ notificationMeta(notification) }}</small>
+              </div>
+              <button
+                type="button"
+                class="btn-dismiss"
+                (click)="onDismissNotification($event, notification._id)"
+                title="Dismiss notification"
+                aria-label="Dismiss notification"
+              >
+                <app-icon name="close" [size]="12" />
+              </button>
+            </article>
+          }
+        } @else {
+          <div class="popover-empty">
+            <app-icon name="check" [size]="20" />
+            <strong>You’re all caught up</strong>
+            <span>No new student updates right now.</span>
+          </div>
+        }
+      </div>
+    </section>
+  }
+
+  <!-- Profile Popover -->
+  @if (profileOpen()) {
+    <section class="popover profile-popover" aria-label="Student Profile Menu">
+      <!-- Popover Header: Student Identity -->
+      <header class="profile-popover-header">
+        <div class="popover-avatar-wrap">
+          <label class="popover-avatar-label" title="Change Profile Photo">
+            <input
+              type="file"
+              (change)="onPopoverPhotoSelected($event)"
+              accept="image/png,image/jpeg,image/jpg,image/webp"
+              hidden
+            />
+            @if (hasCustomAvatar()) {
+              <img
+                [src]="studentProfile().avatarUrl"
+                [alt]="studentProfile().personal.fullName || displayName"
+              />
+            } @else {
+              <div class="popover-initial-avatar" aria-hidden="true">{{ userInitial() }}</div>
+            }
+            <span class="upload-badge" aria-hidden="true" title="Change Photo">
+              <app-icon name="pencil" [size]="10" />
+            </span>
+          </label>
+        </div>
+
+        <div class="popover-user-info">
+          <strong class="popover-name">{{ studentProfile().personal.fullName || displayName }}</strong>
+          <span class="popover-email">{{ studentProfile().personal.email || userEmail }}</span>
+          @if (studentProfile().isDiscoverable) {
+            <div class="popover-tags">
+              <span class="verified-tag">
+                <span class="pulse-dot"></span> Active
+              </span>
+            </div>
+          }
+        </div>
+      </header>
+
+      <!-- Profile Strength Bar -->
+      <div class="profile-strength-bar">
+        <div class="strength-labels">
+          <span class="strength-title">Profile Strength</span>
+          <span class="strength-val">{{ studentProfile().completionPercentage || 0 }}%</span>
+        </div>
+        <div class="strength-track">
+          <div
+            class="strength-fill"
+            [style.width.%]="studentProfile().completionPercentage || 0"
+          ></div>
+        </div>
+      </div>
+
+      <!-- Action Items -->
+      <nav class="profile-popover-menu" aria-label="Profile options">
+        <a
+          routerLink="/dynamic/profile"
+          class="popover-menu-item primary"
+          (click)="closeOverlays()"
+        >
+          <span class="item-icon"><app-icon name="pencil" [size]="16" /></span>
+          <div class="item-text">
+            <strong>Edit Student Profile</strong>
+            <small>Personal details, DOB, scores & documents</small>
+          </div>
+          <app-icon name="arrow-right" [size]="14" class="chevron-icon" />
+        </a>
+
+        <a
+          routerLink="/dynamic/invites"
+          class="popover-menu-item"
+          (click)="closeOverlays()"
+        >
+          <span class="item-icon"><app-icon name="categories" [size]="16" /></span>
+          <div class="item-text">
+            <strong>University Invites</strong>
+            <small>View and respond to offers</small>
+          </div>
+        </a>
+
+        <a
+          routerLink="/dynamic/ai-chat"
+          class="popover-menu-item"
+          (click)="closeOverlays()"
+        >
+          <span class="item-icon"><app-icon name="chat" [size]="16" /></span>
+          <div class="item-text">
+            <strong>Knowledge Base AI</strong>
+            <small>Ask admissions questions</small>
+          </div>
+        </a>
+      </nav>
+
+      <!-- Popover Footer: Logout Action -->
+      <div class="profile-popover-footer">
+        <button
+          type="button"
+          class="btn-logout"
+          [disabled]="loggingOut()"
+          (click)="onLogout()"
+        >
+          <app-icon name="logout" [size]="16" />
+          <span>{{ loggingOut() ? 'Logging out...' : 'Log Out' }}</span>
+        </button>
+      </div>
+    </section>
+  }
 
   <section class="main-shell">
     <header class="topbar">
@@ -314,22 +321,56 @@
         </div>
       </div>
 
-      @if (router.url.startsWith('/dynamic/neet')) {
-        <button type="button" class="build-test-btn" (click)="triggerBuildTestModal($event)">
-          <app-icon name="sparkles" [size]="16" />
-          <span>Build your own test</span>
+      <div class="topbar-actions">
+        @if (router.url.startsWith('/dynamic/neet')) {
+          <button type="button" class="build-test-btn" (click)="triggerBuildTestModal($event)">
+            <app-icon name="sparkles" [size]="16" />
+            <span>Build test</span>
+          </button>
+        } @else if (router.url.startsWith('/dynamic/ucat')) {
+          <button type="button" class="build-test-btn" (click)="triggerUcatBuildTestModal($event)">
+            <app-icon name="sparkles" [size]="16" />
+            <span>Build test</span>
+          </button>
+        } @else if (router.url.startsWith('/dynamic/gamsat')) {
+          <button type="button" class="build-test-btn" (click)="triggerGamsatBuildTestModal($event)">
+            <app-icon name="sparkles" [size]="16" />
+            <span>Build test</span>
+          </button>
+        }
+
+        <!-- Topbar Notification Bell for Mobile/Tablet -->
+        <button
+          type="button"
+          class="topbar-icon-btn topbar-bell-btn"
+          aria-label="Notifications"
+          (click)="toggleNotifications()"
+        >
+          <app-icon name="bell" [size]="19" />
+          @if (unreadCount() > 0) {
+            <span class="badge">{{ unreadCount() > 9 ? '9+' : unreadCount() }}</span>
+          }
         </button>
-      } @else if (router.url.startsWith('/dynamic/ucat')) {
-        <button type="button" class="build-test-btn" (click)="triggerUcatBuildTestModal($event)">
-          <app-icon name="sparkles" [size]="16" />
-          <span>Build your own test</span>
+
+        <!-- Topbar Profile Avatar for Mobile/Tablet -->
+        <button
+          type="button"
+          class="topbar-profile-btn"
+          aria-label="Student Profile"
+          (click)="toggleProfile()"
+        >
+          <span class="avatar topbar-avatar">
+            @if (hasCustomAvatar()) {
+              <img
+                [src]="studentProfile().avatarUrl"
+                [alt]="studentProfile().personal.fullName || displayName"
+              />
+            } @else {
+              <span class="avatar-letter" aria-hidden="true">{{ userInitial() }}</span>
+            }
+          </span>
         </button>
-      } @else if (router.url.startsWith('/dynamic/gamsat')) {
-        <button type="button" class="build-test-btn" (click)="triggerGamsatBuildTestModal($event)">
-          <app-icon name="sparkles" [size]="16" />
-          <span>Build your own test</span>
-        </button>
-      }
+      </div>
     </header>
 
     <main class="content" tabindex="-1"><router-outlet /></main>
