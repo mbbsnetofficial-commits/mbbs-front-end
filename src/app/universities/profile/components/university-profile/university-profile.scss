@@ -1205,6 +1205,184 @@
       }
     }
 
+    /* Portal Security & Password Section */
+    .password-edit-section {
+      background: #fafbfc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      margin: 0.5rem 0;
+
+      .section-title-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+
+        .sec-icon-circle.password-icon-circle {
+          width: 40px;
+          height: 40px;
+          border-radius: 10px;
+          background: #eff6ff;
+          border: 1px solid #bfdbfe;
+          color: #2563eb;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+
+        .title-with-actions {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 1rem;
+          flex: 1;
+          flex-wrap: wrap;
+
+          .password-section-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 0.2rem 0;
+            letter-spacing: -0.01em;
+          }
+
+          .password-section-desc {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin: 0;
+            line-height: 1.45;
+          }
+
+          .btn-update-pwd-only {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            background: #0f172a;
+            border: 1px solid #0f172a;
+            color: #ffffff;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+
+            &:hover:not(:disabled) {
+              background: #1e293b;
+              transform: translateY(-1px);
+            }
+
+            &:disabled {
+              opacity: 0.6;
+              cursor: not-allowed;
+            }
+          }
+        }
+      }
+
+      .password-alert {
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+
+        p {
+          margin: 0;
+        }
+
+        &.success {
+          background: #ecfdf5;
+          border: 1px solid #a7f3d0;
+          color: #047857;
+        }
+
+        &.error {
+          background: #fef2f2;
+          border: 1px solid #fecaca;
+          color: #b91c1c;
+        }
+      }
+
+      .password-fields-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+
+        @media (max-width: 900px) {
+          grid-template-columns: 1fr;
+        }
+
+        .password-group {
+          margin-bottom: 0;
+
+          .label-with-hint {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+
+            .field-hint {
+              font-size: 0.75rem;
+              color: #64748b;
+              font-weight: 500;
+            }
+          }
+
+          .password-input-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+
+            input {
+              width: 100%;
+              padding-right: 2.75rem;
+            }
+
+            .btn-toggle-pwd {
+              position: absolute;
+              right: 0.75rem;
+              background: transparent;
+              border: none;
+              color: #64748b;
+              cursor: pointer;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              padding: 0.25rem;
+              border-radius: 4px;
+              transition: color 0.15s ease;
+
+              &:hover {
+                color: #0f172a;
+              }
+            }
+          }
+        }
+      }
+
+      .password-security-note {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.8rem;
+        color: #475569;
+        padding-top: 0.5rem;
+        border-top: 1px solid #eef2f6;
+
+        app-icon {
+          color: #10b981;
+          flex-shrink: 0;
+        }
+      }
+    }
+
     .modal-alert.error {
       background: #fef2f2;
       border: 1px solid #fecaca;

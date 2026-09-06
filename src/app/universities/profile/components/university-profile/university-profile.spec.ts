@@ -16,6 +16,7 @@ describe('UniversityProfileComponent', () => {
     error: ReturnType<typeof signal<string | null>>;
     getProfile: ReturnType<typeof vi.fn>;
     updateProfile: ReturnType<typeof vi.fn>;
+    changePassword: ReturnType<typeof vi.fn>;
   };
 
   const mockProfile: UniversityProfile = {
@@ -57,6 +58,12 @@ describe('UniversityProfileComponent', () => {
             ...mockProfile,
             name: 'Tbilisi State Medical University (Updated)',
           },
+        })
+      ),
+      changePassword: vi.fn().mockReturnValue(
+        of({
+          success: true,
+          message: 'Password updated successfully.',
         })
       ),
     };
@@ -279,6 +286,79 @@ describe('UniversityProfileComponent', () => {
 
       retryBtn.click();
       expect(profileServiceMock.getProfile).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe('Password Management in Edit Profile', () => {
+    it('should toggle password field visibilities', () => {
+      expect(component.showCurrentPassword()).toBe(false);
+      expect(component.showNewPassword()).toBe(false);
+      expect(component.showConfirmPassword()).toBe(false);
+
+      component.toggleShowCurrentPassword();
+      component.toggleShowNewPassword();
+      component.toggleShowConfirmPassword();
+
+      expect(component.showCurrentPassword()).toBe(true);
+      expect(component.showNewPassword()).toBe(true);
+      expect(component.showConfirmPassword()).toBe(true);
+    });
+
+    it('should reject password change when current password is missing', () => {
+      component.formNewPassword = 'BrandNewPassword123!';
+      component.formConfirmPassword = 'BrandNewPassword123!';
+      const err = component.validatePasswordFields();
+      expect(err).toContain('Please enter your current password');
+    });
+
+    it('should reject password change when new password is too short', () => {
+      component.formCurrentPassword = 'OldPassword123!';
+      component.formNewPassword = 'short';
+      component.formConfirmPassword = 'short';
+      const err = component.validatePasswordFields();
+      expect(err).toContain('at least 8 characters long');
+    });
+
+    it('should reject password change when confirm password does not match', () => {
+      component.formCurrentPassword = 'OldPassword123!';
+      component.formNewPassword = 'BrandNewPassword123!';
+      component.formConfirmPassword = 'DifferentPassword123!';
+      const err = component.validatePasswordFields();
+      expect(err).toContain('confirmation do not match');
+    });
+
+    it('should update password directly via updatePasswordOnly', () => {
+      component.formCurrentPassword = 'OldPassword123!';
+      component.formNewPassword = 'BrandNewPassword123!';
+      component.formConfirmPassword = 'BrandNewPassword123!';
+
+      component.updatePasswordOnly();
+
+      expect(profileServiceMock.changePassword).toHaveBeenCalledWith(
+        'OldPassword123!',
+        'BrandNewPassword123!'
+      );
+      expect(component.passwordSuccessMessage()).toContain('Password updated successfully');
+      expect(component.formCurrentPassword).toBe('');
+      expect(component.formNewPassword).toBe('');
+    });
+
+    it('should include password fields in submitForm when provided', () => {
+      component.enterEditMode();
+      component.formCurrentPassword = 'OldPassword123!';
+      component.formNewPassword = 'BrandNewPassword123!';
+      component.formConfirmPassword = 'BrandNewPassword123!';
+
+      component.submitForm();
+
+      expect(profileServiceMock.updateProfile).toHaveBeenCalledWith(
+        expect.objectContaining({
+          currentPassword: 'OldPassword123!',
+          newPassword: 'BrandNewPassword123!',
+        })
+      );
+      expect(component.isEditMode()).toBe(false);
+      expect(component.toastSuccessMessage()).toContain('and password updated successfully');
     });
   });
 });

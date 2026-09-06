@@ -199,6 +199,30 @@ export class UniversityProfileService {
       );
   }
 
+  changePassword(
+    currentPassword: string,
+    newPassword: string
+  ): Observable<{ success: boolean; message?: string }> {
+    const token = this.authService.getToken();
+    const headers = new HttpHeaders({
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      'Content-Type': 'application/json',
+    });
+
+    const url = `${this.baseUrl}/university/auth/change-password`;
+    return this.http
+      .post<{ success: boolean; message?: string }>(
+        url,
+        { currentPassword, newPassword },
+        { headers }
+      )
+      .pipe(
+        catchError((err: HttpErrorResponse) => {
+          return throwError(() => err);
+        })
+      );
+  }
+
   private extractErrorMessage(
     err: HttpErrorResponse,
     action: 'get' | 'update' = 'get'

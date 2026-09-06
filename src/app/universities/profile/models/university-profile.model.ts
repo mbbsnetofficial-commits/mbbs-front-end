@@ -45,6 +45,8 @@ export interface UpdateUniversityProfileRequest {
   scholarshipAmount?: number | null;
   otherFees?: number | null;
   accreditations?: string[];
+  currentPassword?: string;
+  newPassword?: string;
 }
 
 export interface UpdateUniversityProfileResponse {

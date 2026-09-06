@@ -718,6 +718,172 @@
                   </div>
                 </div>
 
+                <!-- Portal Security & Password Management Section -->
+                <div class="password-edit-section">
+                  <div class="section-title-row">
+                    <div class="sec-icon-circle password-icon-circle">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                      </svg>
+                    </div>
+                    <div class="title-with-actions">
+                      <div>
+                        <h3 class="password-section-title">Change Password &amp; Account Security</h3>
+                        <p class="password-section-desc">
+                          Update your institutional portal login password. Leave these fields blank if you do not wish to change your password.
+                        </p>
+                      </div>
+                      @if (formCurrentPassword || formNewPassword || formConfirmPassword) {
+                        <button
+                          type="button"
+                          class="btn-update-pwd-only"
+                          (click)="updatePasswordOnly()"
+                          [disabled]="changingPassword() || updating()"
+                        >
+                          @if (changingPassword()) {
+                            <span class="spinner-small"></span>
+                            <span>Updating...</span>
+                          } @else {
+                            <app-icon name="check" [size]="14" />
+                            <span>Update Password</span>
+                          }
+                        </button>
+                      }
+                    </div>
+                  </div>
+
+                  <!-- Password Inline Alerts -->
+                  @if (passwordSuccessMessage()) {
+                    <div class="password-alert success" role="status">
+                      <app-icon name="check" [size]="16" />
+                      <p>{{ passwordSuccessMessage() }}</p>
+                    </div>
+                  }
+
+                  @if (passwordErrorMessage()) {
+                    <div class="password-alert error" role="alert">
+                      <app-icon name="close" [size]="16" />
+                      <p>{{ passwordErrorMessage() }}</p>
+                    </div>
+                  }
+
+                  <div class="password-fields-grid">
+                    <!-- Current Password -->
+                    <div class="form-group password-group">
+                      <label for="prof-curr-password">Current Password</label>
+                      <div class="password-input-wrap">
+                        <input
+                          id="prof-curr-password"
+                          [type]="showCurrentPassword() ? 'text' : 'password'"
+                          name="currentPassword"
+                          [(ngModel)]="formCurrentPassword"
+                          placeholder="Enter current password"
+                          [disabled]="updating() || changingPassword()"
+                          autocomplete="current-password"
+                        />
+                        <button
+                          type="button"
+                          class="btn-toggle-pwd"
+                          (click)="toggleShowCurrentPassword()"
+                          [attr.aria-label]="showCurrentPassword() ? 'Hide password' : 'Show password'"
+                          [title]="showCurrentPassword() ? 'Hide password' : 'Show password'"
+                        >
+                          @if (showCurrentPassword()) {
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                              <line x1="1" y1="1" x2="23" y2="23"></line>
+                            </svg>
+                          } @else {
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                              <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                          }
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- New Password -->
+                    <div class="form-group password-group">
+                      <div class="label-with-hint">
+                        <label for="prof-new-password">New Password</label>
+                        <span class="field-hint">Min 8 characters</span>
+                      </div>
+                      <div class="password-input-wrap">
+                        <input
+                          id="prof-new-password"
+                          [type]="showNewPassword() ? 'text' : 'password'"
+                          name="newPassword"
+                          [(ngModel)]="formNewPassword"
+                          placeholder="At least 8 characters"
+                          [disabled]="updating() || changingPassword()"
+                          autocomplete="new-password"
+                        />
+                        <button
+                          type="button"
+                          class="btn-toggle-pwd"
+                          (click)="toggleShowNewPassword()"
+                          [attr.aria-label]="showNewPassword() ? 'Hide password' : 'Show password'"
+                          [title]="showNewPassword() ? 'Hide password' : 'Show password'"
+                        >
+                          @if (showNewPassword()) {
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                              <line x1="1" y1="1" x2="23" y2="23"></line>
+                            </svg>
+                          } @else {
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                              <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                          }
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- Confirm New Password -->
+                    <div class="form-group password-group">
+                      <label for="prof-confirm-password">Confirm New Password</label>
+                      <div class="password-input-wrap">
+                        <input
+                          id="prof-confirm-password"
+                          [type]="showConfirmPassword() ? 'text' : 'password'"
+                          name="confirmPassword"
+                          [(ngModel)]="formConfirmPassword"
+                          placeholder="Re-enter new password"
+                          [disabled]="updating() || changingPassword()"
+                          autocomplete="new-password"
+                        />
+                        <button
+                          type="button"
+                          class="btn-toggle-pwd"
+                          (click)="toggleShowConfirmPassword()"
+                          [attr.aria-label]="showConfirmPassword() ? 'Hide password' : 'Show password'"
+                          [title]="showConfirmPassword() ? 'Hide password' : 'Show password'"
+                        >
+                          @if (showConfirmPassword()) {
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                              <line x1="1" y1="1" x2="23" y2="23"></line>
+                            </svg>
+                          } @else {
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                              <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                          }
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="password-security-note">
+                    <app-icon name="check" [size]="13" />
+                    <span>Password changes take effect immediately across all active university portal sessions.</span>
+                  </div>
+                </div>
+
                 <!-- Validation or API Error Alert -->
                 @if (formValidationErrorMessage() || error()) {
                   <div class="modal-alert error" role="alert">

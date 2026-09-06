@@ -64,6 +64,100 @@ export class UniversityProfileComponent implements OnInit {
   readonly formAccreditations = signal<string[]>([]);
   newAccreditationInput = '';
 
+  // Password Change Form State
+  formCurrentPassword = '';
+  formNewPassword = '';
+  formConfirmPassword = '';
+  readonly showCurrentPassword = signal<boolean>(false);
+  readonly showNewPassword = signal<boolean>(false);
+  readonly showConfirmPassword = signal<boolean>(false);
+  readonly changingPassword = signal<boolean>(false);
+  readonly passwordSuccessMessage = signal<string | null>(null);
+  readonly passwordErrorMessage = signal<string | null>(null);
+
+  toggleShowCurrentPassword(): void {
+    this.showCurrentPassword.update((val) => !val);
+  }
+
+  toggleShowNewPassword(): void {
+    this.showNewPassword.update((val) => !val);
+  }
+
+  toggleShowConfirmPassword(): void {
+    this.showConfirmPassword.update((val) => !val);
+  }
+
+  validatePasswordFields(): string | null {
+    if (!this.formCurrentPassword && !this.formNewPassword && !this.formConfirmPassword) {
+      return null; // No password change attempted
+    }
+
+    if (!this.formCurrentPassword) {
+      return 'Please enter your current password.';
+    }
+
+    if (!this.formNewPassword) {
+      return 'Please enter a new password.';
+    }
+
+    if (this.formNewPassword.length < 8) {
+      return 'New password must be at least 8 characters long.';
+    }
+
+    if (this.formNewPassword !== this.formConfirmPassword) {
+      return 'New password and confirmation do not match.';
+    }
+
+    if (this.formCurrentPassword === this.formNewPassword) {
+      return 'New password must be different from current password.';
+    }
+
+    return null;
+  }
+
+  updatePasswordOnly(): void {
+    this.passwordErrorMessage.set(null);
+    this.passwordSuccessMessage.set(null);
+
+    const validationErr = this.validatePasswordFields();
+    if (validationErr) {
+      this.passwordErrorMessage.set(validationErr);
+      return;
+    }
+
+    if (!this.formCurrentPassword || !this.formNewPassword) {
+      this.passwordErrorMessage.set('Please enter your current and new password.');
+      return;
+    }
+
+    this.changingPassword.set(true);
+    this.profileService
+      .changePassword(this.formCurrentPassword, this.formNewPassword)
+      .subscribe({
+        next: (res) => {
+          this.changingPassword.set(false);
+          this.formCurrentPassword = '';
+          this.formNewPassword = '';
+          this.formConfirmPassword = '';
+          this.passwordSuccessMessage.set('Password updated successfully.');
+          this.showToast('Portal password updated successfully.');
+          setTimeout(() => {
+            this.passwordSuccessMessage.set(null);
+          }, 5000);
+        },
+        error: (err) => {
+          this.changingPassword.set(false);
+          const msg =
+            err?.error?.message ||
+            err?.error?.error?.message ||
+            err?.error?.error ||
+            err?.message ||
+            'Failed to change password. Please verify your current password.';
+          this.passwordErrorMessage.set(msg);
+        },
+      });
+  }
+
   ngOnInit(): void {
     this.loadProfile();
   }
@@ -149,7 +243,12 @@ export class UniversityProfileComponent implements OnInit {
   }
 
   cancelEditMode(): void {
-    if (this.updating()) return;
+    if (this.updating() || this.changingPassword()) return;
+    this.formCurrentPassword = '';
+    this.formNewPassword = '';
+    this.formConfirmPassword = '';
+    this.passwordErrorMessage.set(null);
+    this.passwordSuccessMessage.set(null);
     this.isEditMode.set(false);
     this.formValidationErrorMessage.set(null);
   }
@@ -275,6 +374,12 @@ export class UniversityProfileComponent implements OnInit {
       return;
     }
 
+    const pwdErr = this.validatePasswordFields();
+    if (pwdErr) {
+      this.formValidationErrorMessage.set(pwdErr);
+      return;
+    }
+
     this.formValidationErrorMessage.set(null);
 
     const payload: UpdateUniversityProfileRequest = {
@@ -305,13 +410,29 @@ export class UniversityProfileComponent implements OnInit {
           ? Number(this.formOtherFees)
           : null,
       accreditations: this.formAccreditations(),
+      ...(this.formNewPassword.trim()
+        ? {
+            currentPassword: this.formCurrentPassword,
+            newPassword: this.formNewPassword,
+          }
+        : {}),
     };
 
     this.profileService.updateProfile(payload).subscribe({
       next: (res) => {
         if (res?.success) {
+          const changedPwd = !!this.formNewPassword.trim();
+          this.formCurrentPassword = '';
+          this.formNewPassword = '';
+          this.formConfirmPassword = '';
+          this.passwordErrorMessage.set(null);
+          this.passwordSuccessMessage.set(null);
           this.isEditMode.set(false);
-          this.showToast('Organization profile updated successfully.');
+          this.showToast(
+            changedPwd
+              ? 'Organization profile and password updated successfully.'
+              : 'Organization profile updated successfully.'
+          );
         }
       },
       error: (err) => {
