@@ -32,7 +32,7 @@
       <section class="filters-card" aria-label="Search and filter candidates">
         <div class="search-row">
           <div class="search-input-wrap">
-            <app-icon name="search" [size]="18" />
+            <app-icon name="search" [size]="20" />
             <input
               type="text"
               [ngModel]="searchQuery"
@@ -43,96 +43,104 @@
           </div>
         </div>
 
-        <form (ngSubmit)="onFilterSubmit()" class="filter-controls-grid">
-          <!-- Country Filter -->
-          <div class="filter-field">
-            <label for="filter-country">Target / Preferred Country</label>
-            <input
-              id="filter-country"
-              type="text"
-              name="country"
-              [(ngModel)]="country"
-              placeholder="e.g. Georgia, Russia, India"
-            />
+        <form (ngSubmit)="onFilterSubmit()" class="filters-form">
+          <div class="filter-controls-grid">
+            <!-- Country Filter -->
+            <div class="filter-field">
+              <label for="filter-country">Target / Preferred Country</label>
+              <input
+                id="filter-country"
+                type="text"
+                name="country"
+                [(ngModel)]="country"
+                placeholder="e.g. Georgia, Russia, India"
+              />
+            </div>
+
+            <!-- Course Filter -->
+            <div class="filter-field">
+              <label for="filter-course">Course</label>
+              <input
+                id="filter-course"
+                type="text"
+                name="course"
+                [(ngModel)]="course"
+                placeholder="e.g. MBBS"
+              />
+            </div>
+
+            <!-- Min NEET Score Filter -->
+            <div class="filter-field">
+              <label for="filter-min-neet">Min NEET Score</label>
+              <input
+                id="filter-min-neet"
+                type="number"
+                name="minNeetScore"
+                [(ngModel)]="minNeetScore"
+                placeholder="e.g. 500"
+                min="0"
+                max="720"
+              />
+            </div>
+
+            <!-- Min PCB Percentage Filter -->
+            <div class="filter-field">
+              <label for="filter-min-pcb">Min PCB (%)</label>
+              <input
+                id="filter-min-pcb"
+                type="number"
+                name="minPcb"
+                [(ngModel)]="minPcb"
+                placeholder="e.g. 80"
+                min="0"
+                max="100"
+              />
+            </div>
+
+            <!-- Max Budget USD Filter -->
+            <div class="filter-field">
+              <label for="filter-max-budget">Max Budget (USD)</label>
+              <input
+                id="filter-max-budget"
+                type="number"
+                name="maxBudget"
+                [(ngModel)]="maxBudget"
+                placeholder="e.g. 30000"
+                min="0"
+              />
+            </div>
+
+            <!-- Min Profile Completion Filter -->
+            <div class="filter-field">
+              <label for="filter-profile-completion">Min Profile Completion (%)</label>
+              <input
+                id="filter-profile-completion"
+                type="number"
+                name="profileCompletion"
+                [(ngModel)]="profileCompletion"
+                placeholder="e.g. 75"
+                min="0"
+                max="100"
+              />
+            </div>
           </div>
 
-          <!-- Course Filter -->
-          <div class="filter-field">
-            <label for="filter-course">Course</label>
-            <input
-              id="filter-course"
-              type="text"
-              name="course"
-              [(ngModel)]="course"
-              placeholder="e.g. MBBS"
-            />
-          </div>
-
-          <!-- Min NEET Score Filter -->
-          <div class="filter-field">
-            <label for="filter-min-neet">Min NEET Score</label>
-            <input
-              id="filter-min-neet"
-              type="number"
-              name="minNeetScore"
-              [(ngModel)]="minNeetScore"
-              placeholder="e.g. 500"
-              min="0"
-              max="720"
-            />
-          </div>
-
-          <!-- Min PCB Percentage Filter -->
-          <div class="filter-field">
-            <label for="filter-min-pcb">Min PCB (%)</label>
-            <input
-              id="filter-min-pcb"
-              type="number"
-              name="minPcb"
-              [(ngModel)]="minPcb"
-              placeholder="e.g. 80"
-              min="0"
-              max="100"
-            />
-          </div>
-
-          <!-- Max Budget USD Filter -->
-          <div class="filter-field">
-            <label for="filter-max-budget">Max Budget (USD)</label>
-            <input
-              id="filter-max-budget"
-              type="number"
-              name="maxBudget"
-              [(ngModel)]="maxBudget"
-              placeholder="e.g. 30000"
-              min="0"
-            />
-          </div>
-
-          <!-- Min Profile Completion Filter -->
-          <div class="filter-field">
-            <label for="filter-profile-completion">Min Profile Completion (%)</label>
-            <input
-              id="filter-profile-completion"
-              type="number"
-              name="profileCompletion"
-              [(ngModel)]="profileCompletion"
-              placeholder="e.g. 75"
-              min="0"
-              max="100"
-            />
-          </div>
-
-          <!-- Filter Actions -->
-          <div class="filter-actions">
-            <button type="submit" class="btn-filter-apply">
-              <app-icon name="check" [size]="16" />
-              <span>Apply Filters</span>
-            </button>
-            <button type="button" class="btn-filter-reset" (click)="resetFilters()">
-              <app-icon name="close" [size]="16" />
-              <span>Reset</span>
-            </button>
+          <!-- Filter Actions Row -->
+          <div class="filter-actions-row">
+            <div class="filter-actions-hint">
+              <app-icon name="sparkles" [size]="16" />
+              <span>Filter candidates by academic performance, budget, and destination</span>
+            </div>
+            <div class="filter-actions-buttons">
+              <button type="button" class="btn-filter-reset" (click)="resetFilters()">
+                <app-icon name="close" [size]="16" />
+                <span>Reset</span>
+              </button>
+              <button type="submit" class="btn-filter-apply">
+                <app-icon name="check" [size]="18" />
+                <span>Apply Filters</span>
+              </button>
+            </div>
           </div>
         </form>
 
