@@ -12,6 +12,9 @@ import { Icon } from '../../../../shared/ui/icon/icon';
 import { UniversityHeaderComponent } from '../../../shared/components/university-header/university-header';
 import { UniversityInvitesService } from '../../../invites/services/university-invites.service';
 import { UniversityStudentsService } from '../../services/university-students.service';
+import { UniversityTemplatesService } from '../../../templates/services/university-templates.service';
+import { UniversityProfileService } from '../../../profile/services/university-profile.service';
+import { UniversityAuthService } from '../../../auth/services/university-auth.service';
 
 @Component({
   selector: 'app-university-student-detail',
@@ -25,6 +28,9 @@ export class UniversityStudentDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly studentsService = inject(UniversityStudentsService);
   private readonly invitesService = inject(UniversityInvitesService);
+  private readonly templatesService = inject(UniversityTemplatesService);
+  private readonly profileService = inject(UniversityProfileService);
+  private readonly authService = inject(UniversityAuthService);
 
   readonly student = this.studentsService.currentStudent;
   readonly loading = this.studentsService.loading;
@@ -42,6 +48,12 @@ export class UniversityStudentDetailComponent implements OnInit {
   readonly showDuplicateInvitePopup = signal<boolean>(false);
   readonly resendingOffer = signal<boolean>(false);
   readonly duplicateErrorMessage = signal<string | null>(null);
+
+  // University Templates Integration
+  readonly templates = this.templatesService.templates;
+  readonly templatesLoading = this.templatesService.loading;
+  readonly selectedTemplateId = signal<string>('');
+  readonly appliedTemplateName = signal<string>('');
 
   offerSubject = 'Direct MBBS Admission Offer';
   offerMessage = '';
@@ -94,7 +106,74 @@ export class UniversityStudentDetailComponent implements OnInit {
     this.offerErrorMessage.set(null);
     this.showDuplicateInvitePopup.set(false);
     this.duplicateErrorMessage.set(null);
+
+    // Fetch university's saved templates
+    this.templatesService.getTemplates(1, 50).subscribe({
+      error: () => {
+        // Handled silently; templates fallback to cached or empty
+      },
+    });
+
     this.showOfferModal.set(true);
+  }
+
+  onTemplateChange(templateId: string): void {
+    if (!templateId) {
+      this.selectedTemplateId.set('');
+      this.appliedTemplateName.set('');
+      this.offerSubject = 'Direct MBBS Admission Offer';
+      this.offerMessage = '';
+      return;
+    }
+
+    const template = this.templates().find((t) => t._id === templateId);
+    if (template) {
+      this.selectedTemplateId.set(template._id);
+      this.appliedTemplateName.set(template.name);
+      this.offerSubject = this.resolveTemplateText(template.subject);
+      this.offerMessage = this.resolveTemplateText(template.message);
+    }
+  }
+
+  resetToTemplateDefaults(): void {
+    const currentId = this.selectedTemplateId();
+    if (currentId) {
+      this.onTemplateChange(currentId);
+    }
+  }
+
+  insertPlaceholder(tag: string): void {
+    const resolved = this.resolveTemplateText(tag);
+    if (!this.offerMessage) {
+      this.offerMessage = resolved;
+    } else {
+      this.offerMessage = `${this.offerMessage} ${resolved}`;
+    }
+  }
+
+  resolveTemplateText(text: string): string {
+    if (!text) return '';
+    const s = this.student();
+    const studentName = s?.personal?.fullName || 'Candidate';
+    const studentId = this.studentId() || s?.studentId || '';
+    const univName =
+      this.profileService.profile()?.name ||
+      this.authService.currentUser()?.name ||
+      'Medical University';
+    const course = this.offerCourse || s?.preferences?.course || 'MBBS';
+    const intake = this.offerIntake || s?.preferences?.preferredIntake || 'September 2026';
+    const fee =
+      this.offerTuition !== null && !isNaN(this.offerTuition)
+        ? `$${this.offerTuition.toLocaleString()}`
+        : 'Tuition as published';
+
+    return text
+      .replace(/\{\{\s*student_name\s*\}\}/gi, studentName)
+      .replace(/\{\{\s*student_id\s*\}\}/gi, studentId)
+      .replace(/\{\{\s*university_name\s*\}\}/gi, univName)
+      .replace(/\{\{\s*course\s*\}\}/gi, course)
+      .replace(/\{\{\s*intake\s*\}\}/gi, intake)
+      .replace(/\{\{\s*tuition_fee\s*\}\}/gi, fee);
   }
 
   closeOfferModal(): void {
@@ -136,6 +215,7 @@ export class UniversityStudentDetailComponent implements OnInit {
     this.invitesService
       .sendInvitation({
         studentId: targetId,
+        templateId: this.selectedTemplateId() || undefined,
         subject: this.offerSubject.trim(),
         message: this.offerMessage.trim() || undefined,
         course: this.offerCourse.trim() || undefined,

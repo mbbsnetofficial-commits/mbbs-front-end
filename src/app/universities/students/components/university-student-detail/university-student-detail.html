@@ -275,6 +275,70 @@
             </div>
 
             <form (ngSubmit)="submitOffer()" class="offer-form">
+              <!-- Template Selection Section -->
+              <div class="template-selector-box">
+                <div class="template-header-row">
+                  <label for="offer-template-select" class="template-field-label">
+                    <app-icon name="categories" [size]="16" />
+                    <span>Select Offer Template</span>
+                  </label>
+                  <a
+                    routerLink="/university/templates"
+                    target="_blank"
+                    class="btn-manage-link"
+                    title="Open Offer Templates Manager in new tab"
+                  >
+                    <span>Manage Templates</span>
+                    <app-icon name="arrow-right" [size]="12" />
+                  </a>
+                </div>
+
+                <div class="template-input-wrap">
+                  <select
+                    id="offer-template-select"
+                    class="template-select"
+                    [ngModel]="selectedTemplateId()"
+                    (ngModelChange)="onTemplateChange($event)"
+                    name="templateSelect"
+                    [disabled]="sendingOffer() || resendingOffer()"
+                  >
+                    <option value="">-- Standard Direct Offer (No Template) --</option>
+                    @for (tmpl of templates(); track tmpl._id) {
+                      <option [value]="tmpl._id">
+                        {{ tmpl.name }} &bull; {{ tmpl.subject }}
+                      </option>
+                    }
+                  </select>
+                  @if (templatesLoading()) {
+                    <span class="templates-spinner" title="Loading templates..."></span>
+                  }
+                </div>
+
+                @if (selectedTemplateId() && appliedTemplateName()) {
+                  <div class="template-status-banner">
+                    <div class="status-left">
+                      <app-icon name="check" [size]="16" />
+                      <span>
+                        Applied: <strong>{{ appliedTemplateName() }}</strong>. Tags (name, course, fees) have been personalized.
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      class="btn-reset-text"
+                      (click)="resetToTemplateDefaults()"
+                      title="Reset text to original template"
+                    >
+                      Reset
+                    </button>
+                  </div>
+                } @else if (!templatesLoading() && templates().length === 0) {
+                  <p class="template-empty-hint">
+                    No custom templates found. You can compose a custom offer below, or
+                    <a routerLink="/university/templates" target="_blank">create reusable templates</a>.
+                  </p>
+                }
+              </div>
+
               <div class="form-group">
                 <label for="offer-subject">Offer Subject / Title *</label>
                 <input
@@ -327,15 +391,55 @@
               </div>
 
               <div class="form-group">
-                <label for="offer-message">Custom Letter / Message</label>
+                <div class="label-with-hint">
+                  <label for="offer-message">Custom Letter / Message</label>
+                  <span class="field-hint">Dynamic tags resolved automatically</span>
+                </div>
                 <textarea
                   id="offer-message"
                   name="message"
                   [(ngModel)]="offerMessage"
-                  rows="3"
+                  rows="4"
                   placeholder="Include any personalized message, scholarship terms, or instructions for the student..."
                   [disabled]="sendingOffer()"
                 ></textarea>
+                <div class="quick-tags-wrap">
+                  <span class="tags-hint">Insert dynamic tag:</span>
+                  <div class="tags-list">
+                    <button
+                      type="button"
+                      class="tag-chip"
+                      (click)="insertPlaceholder('{{student_name}}')"
+                      title="Insert candidate full name"
+                    >
+                      + Student Name
+                    </button>
+                    <button
+                      type="button"
+                      class="tag-chip"
+                      (click)="insertPlaceholder('{{student_id}}')"
+                      title="Insert candidate student ID"
+                    >
+                      + Student ID
+                    </button>
+                    <button
+                      type="button"
+                      class="tag-chip"
+                      (click)="insertPlaceholder('{{university_name}}')"
+                      title="Insert university name"
+                    >
+                      + University
+                    </button>
+                    <button
+                      type="button"
+                      class="tag-chip"
+                      (click)="insertPlaceholder('{{course}}')"
+                      title="Insert course name"
+                    >
+                      + Course
+                    </button>
+                  </div>
+                </div>
               </div>
 
               @if (offerErrorMessage()) {

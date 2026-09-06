@@ -5,6 +5,9 @@ import { of, throwError } from 'rxjs';
 import { UniversityInvitesService } from '../../../invites/services/university-invites.service';
 import { UniversityStudent } from '../../models/university-student.model';
 import { UniversityStudentsService } from '../../services/university-students.service';
+import { UniversityTemplatesService } from '../../../templates/services/university-templates.service';
+import { UniversityProfileService } from '../../../profile/services/university-profile.service';
+import { UniversityAuthService } from '../../../auth/services/university-auth.service';
 import { UniversityStudentDetailComponent } from './university-student-detail';
 
 describe('UniversityStudentDetailComponent', () => {
@@ -21,6 +24,34 @@ describe('UniversityStudentDetailComponent', () => {
     error: ReturnType<typeof signal<string | null>>;
     sendInvitation: ReturnType<typeof vi.fn>;
   };
+  let templatesServiceMock: {
+    templates: ReturnType<typeof signal<any[]>>;
+    loading: ReturnType<typeof signal<boolean>>;
+    getTemplates: ReturnType<typeof vi.fn>;
+  };
+  let profileServiceMock: {
+    profile: ReturnType<typeof signal<any>>;
+    loading: ReturnType<typeof signal<boolean>>;
+  };
+  let authServiceMock: {
+    currentUser: ReturnType<typeof signal<any>>;
+  };
+
+  const mockTemplates = [
+    {
+      _id: 'tmpl_101',
+      name: 'Direct MBBS Offer Template',
+      subject: 'Official Admission Offer: MBBS for {{student_name}}',
+      message:
+        'Dear {{student_name}} (ID: {{student_id}}), {{university_name}} offers you admission into {{course}} for the {{intake}} session at fee {{tuition_fee}}.',
+    },
+    {
+      _id: 'tmpl_102',
+      name: 'Merit Scholarship Offer',
+      subject: 'Merit Scholarship Offer for {{student_name}}',
+      message: 'Hello {{student_name}}, congratulations on your NEET score!',
+    },
+  ];
 
   const mockStudentDetail: UniversityStudent = {
     studentId: 'STU17869056359535Q01Q3',
@@ -85,6 +116,34 @@ describe('UniversityStudentDetailComponent', () => {
       ),
     };
 
+    templatesServiceMock = {
+      templates: signal(mockTemplates),
+      loading: signal(false),
+      getTemplates: vi.fn().mockReturnValue(
+        of({
+          success: true,
+          data: {
+            items: mockTemplates,
+            pagination: { page: 1, limit: 50, total: 2, totalPages: 1 },
+          },
+        })
+      ),
+    };
+
+    profileServiceMock = {
+      profile: signal({
+        name: 'Tbilisi State Medical University',
+        country: 'Georgia',
+      }),
+      loading: signal(false),
+    };
+
+    authServiceMock = {
+      currentUser: signal({
+        name: 'Tbilisi State Medical University',
+      }),
+    };
+
     await TestBed.configureTestingModule({
       imports: [UniversityStudentDetailComponent],
       providers: [
@@ -106,6 +165,9 @@ describe('UniversityStudentDetailComponent', () => {
         },
         { provide: UniversityStudentsService, useValue: studentsServiceMock },
         { provide: UniversityInvitesService, useValue: invitesServiceMock },
+        { provide: UniversityTemplatesService, useValue: templatesServiceMock },
+        { provide: UniversityProfileService, useValue: profileServiceMock },
+        { provide: UniversityAuthService, useValue: authServiceMock },
       ],
     }).compileComponents();
 
@@ -224,14 +286,16 @@ describe('UniversityStudentDetailComponent', () => {
 
       component.submitOffer();
 
-      expect(invitesServiceMock.sendInvitation).toHaveBeenCalledWith({
-        studentId: 'STU17869056359535Q01Q3',
-        subject: 'Official Direct MBBS Offer',
-        course: 'MBBS',
-        tuitionFeeUsd: 25000,
-        intake: 'September 2026',
-        message: 'Welcome to our program.',
-      });
+      expect(invitesServiceMock.sendInvitation).toHaveBeenCalledWith(
+        expect.objectContaining({
+          studentId: 'STU17869056359535Q01Q3',
+          subject: 'Official Direct MBBS Offer',
+          course: 'MBBS',
+          tuitionFeeUsd: 25000,
+          intake: 'September 2026',
+          message: 'Welcome to our program.',
+        })
+      );
 
       expect(component.showOfferModal()).toBe(false);
       expect(component.offerSuccessMessage()).toContain('successfully dispatched');
@@ -340,6 +404,83 @@ describe('UniversityStudentDetailComponent', () => {
 
       expect(component.showOfferModal()).toBe(false);
       expect(invitesServiceMock.sendInvitation).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('University Templates Selection and Tag Replacement', () => {
+    it('should call templatesService.getTemplates when opening offer modal', () => {
+      component.openOfferModal();
+      expect(templatesServiceMock.getTemplates).toHaveBeenCalledWith(1, 50);
+      expect(component.showOfferModal()).toBe(true);
+    });
+
+    it('should populate subject and message with resolved dynamic tags when template is selected', () => {
+      component.openOfferModal();
+      component.onTemplateChange('tmpl_101');
+      fixture.detectChanges();
+
+      expect(component.selectedTemplateId()).toBe('tmpl_101');
+      expect(component.appliedTemplateName()).toBe('Direct MBBS Offer Template');
+      expect(component.offerSubject).toBe(
+        'Official Admission Offer: MBBS for Ananya Sharma'
+      );
+      expect(component.offerMessage).toContain(
+        'Dear Ananya Sharma (ID: STU17869056359535Q01Q3)'
+      );
+      expect(component.offerMessage).toContain('Tbilisi State Medical University');
+      expect(component.offerMessage).toContain('MBBS');
+      expect(component.offerMessage).toContain('September');
+      expect(component.offerMessage).toContain('$25,000');
+    });
+
+    it('should reset to default subject and message when selecting empty template option', () => {
+      component.openOfferModal();
+      component.onTemplateChange('tmpl_101');
+      expect(component.selectedTemplateId()).toBe('tmpl_101');
+
+      component.onTemplateChange('');
+      expect(component.selectedTemplateId()).toBe('');
+      expect(component.appliedTemplateName()).toBe('');
+      expect(component.offerSubject).toBe('Direct MBBS Admission Offer');
+      expect(component.offerMessage).toBe('');
+    });
+
+    it('should reset to original template text when clicking resetToTemplateDefaults', () => {
+      component.openOfferModal();
+      component.onTemplateChange('tmpl_102');
+      component.offerSubject = 'Edited Subject by staff';
+      component.offerMessage = 'Edited message body';
+
+      component.resetToTemplateDefaults();
+
+      expect(component.offerSubject).toBe(
+        'Merit Scholarship Offer for Ananya Sharma'
+      );
+      expect(component.offerMessage).toBe(
+        'Hello Ananya Sharma, congratulations on your NEET score!'
+      );
+    });
+
+    it('should insert dynamic tag when calling insertPlaceholder', () => {
+      component.openOfferModal();
+      component.offerMessage = 'Welcome to campus';
+      component.insertPlaceholder('{{student_name}}');
+
+      expect(component.offerMessage).toBe('Welcome to campus Ananya Sharma');
+    });
+
+    it('should dispatch invitation with templateId when template is selected', () => {
+      component.openOfferModal();
+      component.onTemplateChange('tmpl_101');
+      component.submitOffer();
+
+      expect(invitesServiceMock.sendInvitation).toHaveBeenCalledWith(
+        expect.objectContaining({
+          studentId: 'STU17869056359535Q01Q3',
+          templateId: 'tmpl_101',
+          subject: 'Official Admission Offer: MBBS for Ananya Sharma',
+        })
+      );
     });
   });
 });

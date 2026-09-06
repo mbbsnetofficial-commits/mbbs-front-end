@@ -13,6 +13,7 @@ export interface CancelInvitationResponse {
 // API #8: Create / Send Invitation
 export interface CreateInvitePayload {
   studentId: string;
+  templateId?: string;
   subject: string;
   message?: string;
   course?: string;
