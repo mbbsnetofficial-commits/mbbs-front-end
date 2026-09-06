@@ -76,6 +76,28 @@
           </div>
 
           <div class="hero-badges">
+            @if (data.hasActiveInvite || data.inviteStatus) {
+              <span
+                class="invite-status-badge"
+                [class.pending]="data.inviteStatus === 'PENDING' || data.hasActiveInvite"
+                [class.accepted]="data.inviteStatus === 'ACCEPTED'"
+                [class.viewed]="data.inviteStatus === 'VIEWED'"
+                [class.declined]="data.inviteStatus === 'DECLINED'"
+              >
+                <app-icon name="check" [size]="14" />
+                <span>
+                  @if (data.inviteStatus === 'ACCEPTED') {
+                    Offer Accepted
+                  } @else if (data.inviteStatus === 'VIEWED') {
+                    Offer Viewed
+                  } @else if (data.inviteStatus === 'DECLINED') {
+                    Offer Declined
+                  } @else {
+                    Invitation Sent
+                  }
+                </span>
+              </span>
+            }
             @if (data.profileCompletion !== null && data.profileCompletion !== undefined) {
               <div class="completion-pill">
                 <span class="completion-value">{{ data.profileCompletion }}%</span>

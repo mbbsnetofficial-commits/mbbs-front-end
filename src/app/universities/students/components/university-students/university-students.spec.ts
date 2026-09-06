@@ -228,4 +228,27 @@ describe('UniversityStudentsComponent', () => {
     retryBtn.click();
     expect(studentsServiceMock.getStudents).toHaveBeenCalled();
   });
+
+  it('should render invitation sent badges on student card when student has active invite while keeping card viewable', () => {
+    const invitedStudent: UniversityStudent = {
+      ...mockStudents[0],
+      hasActiveInvite: true,
+      inviteStatus: 'PENDING',
+    };
+
+    studentsServiceMock.students.set([invitedStudent]);
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const inviteBadge = compiled.querySelector('.invite-status-badge');
+    const invitedPill = compiled.querySelector('.invited-pill');
+    const viewProfileBtn = compiled.querySelector('.btn-view-profile');
+
+    expect(inviteBadge).toBeTruthy();
+    expect(inviteBadge?.textContent).toContain('Invitation Sent');
+    expect(invitedPill).toBeTruthy();
+    expect(invitedPill?.textContent).toContain('Invitation Already Sent');
+    expect(viewProfileBtn).toBeTruthy();
+    expect(viewProfileBtn?.getAttribute('href')).toBe('/university/students/STU17869056359535Q01Q3');
+  });
 });

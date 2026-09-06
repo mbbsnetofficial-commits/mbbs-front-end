@@ -217,6 +217,43 @@
     gap: 0.75rem;
     flex-wrap: wrap;
 
+    .invite-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 0.45rem 0.85rem;
+      border-radius: 8px;
+      background: #eff8ff;
+      border: 1px solid #b2ddff;
+      color: #175cd3;
+
+      &.pending {
+        background: #eff8ff;
+        border-color: #b2ddff;
+        color: #175cd3;
+      }
+
+      &.accepted {
+        background: #ecfdf3;
+        border-color: #a6f4c5;
+        color: #027a48;
+      }
+
+      &.viewed {
+        background: #fdf2fa;
+        border-color: #fcceee;
+        color: #c11574;
+      }
+
+      &.declined {
+        background: #fef3f2;
+        border-color: #fecdca;
+        color: #b42318;
+      }
+    }
+
     .completion-pill {
       background: #ecfdf3;
       border: 1px solid #a6f4c5;

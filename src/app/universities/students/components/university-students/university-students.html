@@ -241,6 +241,28 @@
                 </div>
 
                 <div class="badge-group">
+                  @if (student.hasActiveInvite || student.inviteStatus) {
+                    <span
+                      class="invite-status-badge"
+                      [class.pending]="student.inviteStatus === 'PENDING' || student.hasActiveInvite"
+                      [class.accepted]="student.inviteStatus === 'ACCEPTED'"
+                      [class.viewed]="student.inviteStatus === 'VIEWED'"
+                      [class.declined]="student.inviteStatus === 'DECLINED'"
+                    >
+                      <app-icon name="check" [size]="13" />
+                      <span>
+                        @if (student.inviteStatus === 'ACCEPTED') {
+                          Offer Accepted
+                        } @else if (student.inviteStatus === 'VIEWED') {
+                          Offer Viewed
+                        } @else if (student.inviteStatus === 'DECLINED') {
+                          Offer Declined
+                        } @else {
+                          Invitation Sent
+                        }
+                      </span>
+                    </span>
+                  }
                   @if (student.profileCompletion !== null && student.profileCompletion !== undefined) {
                     <span class="profile-score-badge">
                       {{ student.profileCompletion }}% Profile Complete
@@ -342,9 +364,17 @@
 
               <!-- Card Footer -->
               <div class="card-bottom">
-                <span class="date-registered">
-                  Added on {{ student.createdAt | date:'mediumDate' }}
-                </span>
+                <div class="card-meta-left">
+                  <span class="date-registered">
+                    Added on {{ student.createdAt | date:'mediumDate' }}
+                  </span>
+                  @if (student.hasActiveInvite || student.inviteStatus) {
+                    <span class="invited-pill">
+                      <span class="invited-dot"></span>
+                      <span>Invitation Already Sent</span>
+                    </span>
+                  }
+                </div>
                 <a [routerLink]="['/university/students', student.studentId]" class="btn-view-profile">
                   <span>View Profile</span>
                   <app-icon name="arrow-right" [size]="14" />

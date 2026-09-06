@@ -36,6 +36,15 @@ export interface UniversityStudent {
   preferences?: StudentPreferences | null;
   profileCompletion?: number | null;
   createdAt?: string | null;
+  hasActiveInvite?: boolean | null;
+  inviteStatus?: 'PENDING' | 'VIEWED' | 'ACCEPTED' | 'DECLINED' | 'CANCELLED' | 'EXPIRED' | string | null;
+  invitation?: {
+    id?: string;
+    status?: string;
+    subject?: string;
+    createdAt?: string;
+    isActive?: boolean;
+  } | null;
 }
 
 export interface StudentPagination {
