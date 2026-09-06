@@ -1,22 +1,11 @@
 :host {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 84px);
-  height: calc(100dvh - 84px);
-  max-height: calc(100vh - 84px);
-  max-height: calc(100dvh - 84px);
+  height: 100%;
+  max-height: 100%;
   width: 100%;
   overflow: hidden;
   position: relative;
-}
-
-@media (max-width: 768px) {
-  :host {
-    height: calc(100vh - 78px);
-    height: calc(100dvh - 78px);
-    max-height: calc(100vh - 78px);
-    max-height: calc(100dvh - 78px);
-  }
 }
 
 .ai-chat-thread-page {
@@ -461,5 +450,79 @@
     cursor: not-allowed;
     transform: none !important;
     background: #000000 !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .messages-container {
+    padding: 14px 12px 10px;
+  }
+
+  .messages-list {
+    gap: 16px;
+  }
+
+  .assistant-msg {
+    font-size: 15px;
+    line-height: 1.55;
+    max-width: 100%;
+
+    ::ng-deep {
+      h1 { font-size: 18px; }
+      h2 { font-size: 17px; }
+      h3 { font-size: 16px; }
+    }
+  }
+
+  .user-msg {
+    font-size: 14px;
+    max-width: 88%;
+    padding: 8px 14px;
+    border-radius: 16px;
+  }
+
+  .chat-footer-dock {
+    padding: 6px 10px 8px;
+  }
+
+  .prompt-box {
+    min-height: 48px;
+    padding: 4px 6px 4px 14px;
+    gap: 8px;
+  }
+
+  .chat-input {
+    font-size: 14.5px;
+  }
+
+  .icon-btn {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
+    flex: 0 0 32px;
+  }
+
+  .send-btn {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+    flex: 0 0 36px;
+  }
+
+  .disclaimer-text {
+    font-size: 10.5px;
+    margin-top: 4px;
+    padding: 0 4px;
+  }
+
+  .scroll-bottom-btn {
+    bottom: 72px;
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
+    flex: 0 0 32px;
   }
 }
