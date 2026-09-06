@@ -1,6 +1,6 @@
 <main class="ai-chat-thread-page">
   <!-- Scrollable Messages Container -->
-  <div class="messages-container" #scrollContainer>
+  <div class="messages-container" #scrollContainer (scroll)="onScroll($event)">
     <div class="messages-list">
       @for (msg of messages(); track msg.id) {
         @if (msg.sender === 'assistant') {
@@ -33,14 +33,16 @@
   </div>
 
   <!-- Floating Scroll-to-bottom Button -->
-  <button
-    type="button"
-    class="scroll-bottom-btn"
-    aria-label="Scroll to bottom"
-    (click)="scrollToBottom()"
-  >
-    <app-icon name="arrow-down" [size]="16" />
-  </button>
+  @if (showScrollBottom()) {
+    <button
+      type="button"
+      class="scroll-bottom-btn"
+      aria-label="Scroll to bottom"
+      (click)="scrollToBottom()"
+    >
+      <app-icon name="arrow-down" [size]="16" />
+    </button>
+  }
 
   <!-- Fixed Bottom Input Section -->
   <div class="chat-footer-dock">

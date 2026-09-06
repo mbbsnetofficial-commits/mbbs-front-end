@@ -41,6 +41,7 @@ export class AiChat implements AfterViewInit {
   readonly loading = this.aiChatService.loading ?? signal(false);
   readonly lastGroundedSources = this.aiChatService.lastGroundedSources ?? signal<GroundedSourcesCount | null>(null);
   readonly messages = this.aiChatService.messages ?? signal<ChatMessage[]>([INITIAL_WELCOME_MESSAGE]);
+  readonly showScrollBottom = signal(false);
 
   readonly canSend = computed(
     () => !this.loading() && this.promptText().trim().length > 0
@@ -170,6 +171,13 @@ export class AiChat implements AfterViewInit {
     }
   }
 
+  onScroll(event: Event): void {
+    const el = event.target as HTMLElement;
+    if (!el) return;
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    this.showScrollBottom.set(distanceFromBottom > 80);
+  }
+
   scrollToBottom(): void {
     setTimeout(() => {
       const container = this.scrollContainer?.nativeElement;
@@ -183,6 +191,7 @@ export class AiChat implements AfterViewInit {
           container.scrollTop = container.scrollHeight;
         }
       }
+      this.showScrollBottom.set(false);
     }, 50);
   }
 }
