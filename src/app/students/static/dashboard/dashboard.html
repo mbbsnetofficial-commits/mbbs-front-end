@@ -378,80 +378,188 @@
     [class.is-revealed]="choiceSectionVisible()"
   >
     <div class="choice-container">
-      <!-- Editorial Top Header Row: Heading on Left, Context & CTA on Right -->
-      <header class="choice-top-row">
-        <div class="choice-heading-col">
+      <div class="choice-editorial-grid">
+        <!-- LEFT COLUMN: ~40-45% width -->
+        <div class="choice-left-column">
           <div class="choice-eyebrow-wrap">
             <span class="choice-eyebrow-accent" aria-hidden="true"></span>
             <span class="choice-eyebrow">MAKE AN INFORMED CHOICE</span>
           </div>
-          <h2 id="choice-heading" class="choice-heading">
-            <span>KNOW WHAT</span>
-            <span>YOU'RE CHOOSING.</span>
-          </h2>
-        </div>
 
-        <div class="choice-intro-col">
+          <h2 id="choice-heading" class="choice-heading">
+            <span class="heading-line">KNOW WHAT</span>
+            <span class="heading-line">YOU'RE CHOOSING.</span>
+          </h2>
+
           <p class="choice-copy">
             Choosing where to study medicine is more than choosing a country. Understand the factors that shape your medical journey before you make your decision.
           </p>
 
-          <a href="#guidance" class="choice-cta">
-            <span class="cta-label">EXPLORE THE MEDICAL JOURNEY</span>
-            <span class="cta-arrow" aria-hidden="true">&rarr;</span>
-          </a>
+          <!-- Minimal Vertical Progress Indicator -->
+          <nav class="choice-progress-rail" aria-label="Decision topics progress">
+            <div class="progress-node" [class.is-active]="isRowActive(1)">
+              <span class="progress-num">01</span>
+              <span class="progress-dot" aria-hidden="true"></span>
+            </div>
+            <span class="progress-line" aria-hidden="true"></span>
+            <div class="progress-node" [class.is-active]="isRowActive(2)">
+              <span class="progress-num">02</span>
+              <span class="progress-dot" aria-hidden="true"></span>
+            </div>
+            <span class="progress-line" aria-hidden="true"></span>
+            <div class="progress-node" [class.is-active]="isRowActive(3)">
+              <span class="progress-num">03</span>
+              <span class="progress-dot" aria-hidden="true"></span>
+            </div>
+          </nav>
         </div>
-      </header>
 
-      <!-- 3 Editorial Decision Cards Grid -->
-      <div class="choice-cards-grid" role="list">
-        <!-- Decision Card 01: Recognition -->
-        <a href="#guidance" class="choice-card choice-row choice-row-1" role="listitem" aria-label="Factor 01: Recognition - Understand the recognition and licensing considerations connected to your chosen medical pathway.">
-          <div class="card-header">
-            <span class="row-num card-num" aria-hidden="true">01</span>
-          </div>
-          <div class="card-body">
-            <h3 class="row-title card-title">RECOGNITION</h3>
-            <p class="row-desc card-desc">
-              Understand the recognition and licensing considerations connected to your chosen medical pathway.
-            </p>
-          </div>
-          <div class="card-footer">
-            <span class="card-arrow" aria-hidden="true">&rarr;</span>
-          </div>
-        </a>
+        <!-- RIGHT COLUMN: ~55-60% width -->
+        <div class="choice-right-column">
+          <!-- Editorial Decision Rows (no cards, thin dividing lines) -->
+          <div class="choice-rows-stack" role="list">
+            <!-- Row 01: Recognition -->
+            <a
+              href="#guidance"
+              class="choice-row choice-row-1"
+              data-row-index="1"
+              role="listitem"
+              [class.is-active]="isRowActive(1)"
+              (mouseenter)="onChoiceRowMouseEnter(1)"
+              (mouseleave)="onChoiceRowMouseLeave()"
+              (focus)="onChoiceRowFocus(1)"
+              (blur)="onChoiceRowBlur()"
+              (click)="selectChoiceRow(1)"
+              aria-label="Factor 01: Recognition - Understand the recognition and licensing considerations connected to your chosen medical pathway."
+            >
+              <!-- Subtle decorative SVG watermark: Medical credential / certificate seal -->
+              <div class="row-visual-backdrop row-visual-recognition" aria-hidden="true">
+                <svg viewBox="0 0 180 180" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="90" cy="90" r="78" stroke-width="1" stroke-dasharray="3 3"/>
+                  <circle cx="90" cy="90" r="60" stroke-width="1"/>
+                  <polygon points="90,42 103,73 137,76 110,99 119,132 90,113 61,132 70,99 43,76 77,73" stroke-width="0.85"/>
+                  <line x1="50" y1="90" x2="130" y2="90" stroke-width="0.75"/>
+                  <line x1="90" y1="50" x2="90" y2="130" stroke-width="0.75"/>
+                </svg>
+              </div>
 
-        <!-- Decision Card 02: Clinical Training -->
-        <a href="#guidance" class="choice-card choice-row choice-row-2" role="listitem" aria-label="Factor 02: Clinical Training - Understand where clinical education and practical training fit into your journey.">
-          <div class="card-header">
-            <span class="row-num card-num" aria-hidden="true">02</span>
-          </div>
-          <div class="card-body">
-            <h3 class="row-title card-title">CLINICAL TRAINING</h3>
-            <p class="row-desc card-desc">
-              Understand where clinical education and practical training fit into your journey.
-            </p>
-          </div>
-          <div class="card-footer">
-            <span class="card-arrow" aria-hidden="true">&rarr;</span>
-          </div>
-        </a>
+              <div class="row-indicator-bar" aria-hidden="true"></div>
 
-        <!-- Decision Card 03: Cost & Lifestyle -->
-        <a href="#guidance" class="choice-card choice-row choice-row-3" role="listitem" aria-label="Factor 03: Cost & Lifestyle - Look beyond tuition and understand the wider cost of studying medicine abroad.">
-          <div class="card-header">
-            <span class="row-num card-num" aria-hidden="true">03</span>
+              <div class="row-content-wrap">
+                <div class="row-index-col">
+                  <span class="row-num">01</span>
+                </div>
+
+                <div class="row-body-col">
+                  <div class="row-title-row">
+                    <h3 class="row-title">RECOGNITION</h3>
+                    <span class="row-arrow" aria-hidden="true">&rarr;</span>
+                  </div>
+                  <p class="row-desc">
+                    Understand the recognition and licensing considerations connected to your chosen medical pathway.
+                  </p>
+                </div>
+              </div>
+            </a>
+
+            <!-- Row 02: Clinical Training -->
+            <a
+              href="#guidance"
+              class="choice-row choice-row-2"
+              data-row-index="2"
+              role="listitem"
+              [class.is-active]="isRowActive(2)"
+              (mouseenter)="onChoiceRowMouseEnter(2)"
+              (mouseleave)="onChoiceRowMouseLeave()"
+              (focus)="onChoiceRowFocus(2)"
+              (blur)="onChoiceRowBlur()"
+              (click)="selectChoiceRow(2)"
+              aria-label="Factor 02: Clinical Training - Understand where clinical education and practical training fit into your journey."
+            >
+              <!-- Subtle decorative SVG watermark: Clinical ECG / vital geometry -->
+              <div class="row-visual-backdrop row-visual-clinical" aria-hidden="true">
+                <svg viewBox="0 0 240 120" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M0,60 L50,60 L62,56 L70,64 L80,24 L90,96 L100,48 L108,62 L118,60 L160,60 L172,56 L180,64 L190,30 L200,90 L210,52 L218,60 L240,60" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <line x1="0" y1="24" x2="240" y2="24" stroke-width="0.5" stroke-dasharray="2 4"/>
+                  <line x1="0" y1="96" x2="240" y2="96" stroke-width="0.5" stroke-dasharray="2 4"/>
+                </svg>
+              </div>
+
+              <div class="row-indicator-bar" aria-hidden="true"></div>
+
+              <div class="row-content-wrap">
+                <div class="row-index-col">
+                  <span class="row-num">02</span>
+                </div>
+
+                <div class="row-body-col">
+                  <div class="row-title-row">
+                    <h3 class="row-title">CLINICAL TRAINING</h3>
+                    <span class="row-arrow" aria-hidden="true">&rarr;</span>
+                  </div>
+                  <p class="row-desc">
+                    Understand where clinical education and practical training fit into your journey.
+                  </p>
+                </div>
+              </div>
+            </a>
+
+            <!-- Row 03: Cost & Lifestyle -->
+            <a
+              href="#guidance"
+              class="choice-row choice-row-3"
+              data-row-index="3"
+              role="listitem"
+              [class.is-active]="isRowActive(3)"
+              (mouseenter)="onChoiceRowMouseEnter(3)"
+              (mouseleave)="onChoiceRowMouseLeave()"
+              (focus)="onChoiceRowFocus(3)"
+              (blur)="onChoiceRowBlur()"
+              (click)="selectChoiceRow(3)"
+              aria-label="Factor 03: Cost & Lifestyle - Look beyond tuition and understand the wider cost of studying medicine abroad."
+            >
+              <!-- Subtle decorative SVG watermark: Financial graph / lifestyle data structure -->
+              <div class="row-visual-backdrop row-visual-cost" aria-hidden="true">
+                <svg viewBox="0 0 200 140" fill="none" stroke="currentColor" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="50" cy="70" r="38" stroke-width="0.75" stroke-dasharray="2 2"/>
+                  <circle cx="50" cy="70" r="24" stroke-width="1"/>
+                  <path d="M50,70 L74,58" stroke-width="1"/>
+                  <path d="M90,110 L115,80 L140,92 L180,40" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="90" cy="110" r="3" fill="currentColor"/>
+                  <circle cx="115" cy="80" r="3" fill="currentColor"/>
+                  <circle cx="140" cy="92" r="3" fill="currentColor"/>
+                  <circle cx="180" cy="40" r="3" fill="currentColor"/>
+                </svg>
+              </div>
+
+              <div class="row-indicator-bar" aria-hidden="true"></div>
+
+              <div class="row-content-wrap">
+                <div class="row-index-col">
+                  <span class="row-num">03</span>
+                </div>
+
+                <div class="row-body-col">
+                  <div class="row-title-row">
+                    <h3 class="row-title">COST & LIFESTYLE</h3>
+                    <span class="row-arrow" aria-hidden="true">&rarr;</span>
+                  </div>
+                  <p class="row-desc">
+                    Look beyond tuition and understand the wider cost of studying medicine abroad.
+                  </p>
+                </div>
+              </div>
+            </a>
           </div>
-          <div class="card-body">
-            <h3 class="row-title card-title">COST & LIFESTYLE</h3>
-            <p class="row-desc card-desc">
-              Look beyond tuition and understand the wider cost of studying medicine abroad.
-            </p>
+
+          <!-- Section Concluding CTA below rows -->
+          <div class="choice-cta-wrap">
+            <a href="#guidance" class="choice-cta">
+              <span class="cta-label">EXPLORE THE MEDICAL JOURNEY</span>
+              <span class="cta-arrow" aria-hidden="true">&rarr;</span>
+            </a>
           </div>
-          <div class="card-footer">
-            <span class="card-arrow" aria-hidden="true">&rarr;</span>
-          </div>
-        </a>
+        </div>
       </div>
     </div>
   </section>

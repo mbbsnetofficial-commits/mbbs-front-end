@@ -62,8 +62,38 @@ export class Dashboard {
   // Scroll-driven Journey Section (Section 2)
   protected readonly activeJourneyStep = signal<number>(1);
 
-  // Informed Choice Section Reveal
+  // Informed Choice Section State & Reveal
   protected readonly choiceSectionVisible = signal(false);
+  protected readonly activeChoiceRow = signal<number>(1);
+  protected readonly hoveredChoiceRow = signal<number | null>(null);
+
+  protected isRowActive(index: number): boolean {
+    const hovered = this.hoveredChoiceRow();
+    if (hovered !== null) {
+      return hovered === index;
+    }
+    return this.activeChoiceRow() === index;
+  }
+
+  protected onChoiceRowMouseEnter(index: number): void {
+    this.hoveredChoiceRow.set(index);
+  }
+
+  protected onChoiceRowMouseLeave(): void {
+    this.hoveredChoiceRow.set(null);
+  }
+
+  protected onChoiceRowFocus(index: number): void {
+    this.hoveredChoiceRow.set(index);
+  }
+
+  protected onChoiceRowBlur(): void {
+    this.hoveredChoiceRow.set(null);
+  }
+
+  protected selectChoiceRow(index: number): void {
+    this.activeChoiceRow.set(index);
+  }
 
   constructor() {
     if (isPlatformBrowser(this.platformId)) {
@@ -322,7 +352,7 @@ export class Dashboard {
       return;
     }
 
-    const observer = new IntersectionObserver(
+    const sectionObserver = new IntersectionObserver(
       (entries, obs) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
@@ -337,6 +367,29 @@ export class Dashboard {
       }
     );
 
-    observer.observe(section);
+    sectionObserver.observe(section);
+
+    // Scroll-driven row activation
+    const rowElements = section.querySelectorAll<HTMLElement>('.choice-row');
+    if (rowElements.length > 0) {
+      const rowObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const rowIdx = Number(entry.target.getAttribute('data-row-index'));
+              if (rowIdx) {
+                this.activeChoiceRow.set(rowIdx);
+              }
+            }
+          });
+        },
+        {
+          threshold: 0.4,
+          rootMargin: '-10% 0px -25% 0px',
+        }
+      );
+
+      rowElements.forEach((el) => rowObserver.observe(el));
+    }
   }
 }

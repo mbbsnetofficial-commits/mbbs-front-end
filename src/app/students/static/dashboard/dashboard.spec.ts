@@ -238,5 +238,49 @@ describe('Dashboard Navigation', () => {
       expect(cta.nativeElement.textContent).toContain('EXPLORE THE MEDICAL JOURNEY');
       expect(cta.nativeElement.getAttribute('href')).toBe('#guidance');
     });
+
+    it('should render two-column editorial layout with progress rail and subtle SVG watermarks', () => {
+      const grid = fixture.debugElement.query(By.css('.choice-editorial-grid'));
+      expect(grid).toBeTruthy();
+
+      const leftCol = fixture.debugElement.query(By.css('.choice-left-column'));
+      const rightCol = fixture.debugElement.query(By.css('.choice-right-column'));
+      expect(leftCol).toBeTruthy();
+      expect(rightCol).toBeTruthy();
+
+      const accent = fixture.debugElement.query(By.css('.choice-eyebrow-accent'));
+      expect(accent).toBeTruthy();
+
+      const progressNodes = fixture.debugElement.queryAll(By.css('.progress-node'));
+      expect(progressNodes.length).toBe(3);
+
+      expect(fixture.debugElement.query(By.css('.row-visual-recognition'))).toBeTruthy();
+      expect(fixture.debugElement.query(By.css('.row-visual-clinical'))).toBeTruthy();
+      expect(fixture.debugElement.query(By.css('.row-visual-cost'))).toBeTruthy();
+    });
+
+    it('should support hover and selection interaction on decision rows', () => {
+      const rows = fixture.debugElement.queryAll(By.css('.choice-row'));
+      expect(rows.length).toBe(3);
+
+      // Initially step 1 is active
+      expect(rows[0].nativeElement.classList.contains('is-active')).toBe(true);
+
+      // Hover row 2
+      rows[1].triggerEventHandler('mouseenter', null);
+      fixture.detectChanges();
+      expect(rows[1].nativeElement.classList.contains('is-active')).toBe(true);
+      expect(rows[0].nativeElement.classList.contains('is-active')).toBe(false);
+
+      // Mouse leave reverts to active row
+      rows[1].triggerEventHandler('mouseleave', null);
+      fixture.detectChanges();
+      expect(rows[0].nativeElement.classList.contains('is-active')).toBe(true);
+
+      // Click row 3 to select
+      rows[2].triggerEventHandler('click', null);
+      fixture.detectChanges();
+      expect(rows[2].nativeElement.classList.contains('is-active')).toBe(true);
+    });
   });
 });
