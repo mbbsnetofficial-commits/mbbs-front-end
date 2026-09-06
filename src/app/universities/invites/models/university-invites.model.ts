@@ -19,6 +19,8 @@ export interface CreateInvitePayload {
   tuitionFeeUsd?: number;
   intake?: string;
   validUntil?: string;
+  resend?: boolean;
+  override?: boolean;
 }
 
 export interface CreatedInviteData {

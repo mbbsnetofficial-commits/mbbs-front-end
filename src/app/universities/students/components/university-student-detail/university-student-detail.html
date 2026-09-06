@@ -351,6 +351,72 @@
         </div>
       }
 
+      <!-- Duplicate Active Invitation Pop-up Dialog -->
+      @if (showDuplicateInvitePopup()) {
+        <div class="modal-backdrop duplicate-popup-backdrop" (click)="closeDuplicatePopup()">
+          <div
+            class="modal-card duplicate-popup-card"
+            (click)="$event.stopPropagation()"
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="dup-popup-title"
+          >
+            <div class="duplicate-popup-header">
+              <div class="duplicate-icon-badge">
+                <app-icon name="bell" [size]="24" />
+              </div>
+              <div>
+                <h3 id="dup-popup-title" class="popup-title">Active Invitation Already Exists</h3>
+                <p class="popup-subtitle">Candidate: {{ studentId() }}</p>
+              </div>
+            </div>
+
+            <div class="duplicate-popup-body">
+              <div class="duplicate-notice-box">
+                <p class="notice-main-text">
+                  An active admission offer has already been issued to this candidate by your university.
+                </p>
+                <p class="notice-help-text">
+                  You cannot send duplicate active invitations. Would you like to supersede the previous invitation and send this updated offer, or keep the existing one?
+                </p>
+              </div>
+
+              @if (duplicateErrorMessage()) {
+                <div class="modal-alert error" role="alert">
+                  <app-icon name="close" [size]="16" />
+                  <p>{{ duplicateErrorMessage() }}</p>
+                </div>
+              }
+            </div>
+
+            <div class="duplicate-popup-actions">
+              <button
+                type="button"
+                class="btn-popup-cancel"
+                (click)="closeDuplicatePopup()"
+                [disabled]="resendingOffer()"
+              >
+                Keep Existing
+              </button>
+              <button
+                type="button"
+                class="btn-popup-resend"
+                (click)="confirmResendOffer()"
+                [disabled]="resendingOffer()"
+              >
+                @if (resendingOffer()) {
+                  <span class="spinner-small"></span>
+                  <span>Resending Offer...</span>
+                } @else {
+                  <app-icon name="check" [size]="16" />
+                  <span>Resend & Replace Offer</span>
+                }
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+
       <!-- Empty State -->
       @if (!loading() && !student() && !error()) {
         <section class="empty-state">

@@ -38,6 +38,11 @@ export class UniversityStudentDetailComponent implements OnInit {
   readonly offerSuccessMessage = signal<string | null>(null);
   readonly offerErrorMessage = signal<string | null>(null);
 
+  // Duplicate Active Invitation Pop-up state
+  readonly showDuplicateInvitePopup = signal<boolean>(false);
+  readonly resendingOffer = signal<boolean>(false);
+  readonly duplicateErrorMessage = signal<string | null>(null);
+
   offerSubject = 'Direct MBBS Admission Offer';
   offerMessage = '';
   offerCourse = 'MBBS';
@@ -87,20 +92,46 @@ export class UniversityStudentDetailComponent implements OnInit {
       this.offerIntake = current.preferences.preferredIntake;
     }
     this.offerErrorMessage.set(null);
+    this.showDuplicateInvitePopup.set(false);
+    this.duplicateErrorMessage.set(null);
     this.showOfferModal.set(true);
   }
 
   closeOfferModal(): void {
-    if (this.sendingOffer()) return;
+    if (this.sendingOffer() || this.resendingOffer()) return;
     this.showOfferModal.set(false);
+    this.showDuplicateInvitePopup.set(false);
     this.offerErrorMessage.set(null);
+    this.duplicateErrorMessage.set(null);
   }
 
-  submitOffer(): void {
-    const targetId = this.studentId();
-    if (!targetId || !this.offerSubject.trim() || this.sendingOffer()) return;
+  closeDuplicatePopup(): void {
+    if (this.resendingOffer()) return;
+    this.showDuplicateInvitePopup.set(false);
+    this.duplicateErrorMessage.set(null);
+  }
 
-    this.offerErrorMessage.set(null);
+  confirmResendOffer(): void {
+    this.submitOffer(true);
+  }
+
+  submitOffer(resend = false): void {
+    const targetId = this.studentId();
+    if (
+      !targetId ||
+      !this.offerSubject.trim() ||
+      this.sendingOffer() ||
+      this.resendingOffer()
+    ) {
+      return;
+    }
+
+    if (resend) {
+      this.resendingOffer.set(true);
+      this.duplicateErrorMessage.set(null);
+    } else {
+      this.offerErrorMessage.set(null);
+    }
 
     this.invitesService
       .sendInvitation({
@@ -108,30 +139,56 @@ export class UniversityStudentDetailComponent implements OnInit {
         subject: this.offerSubject.trim(),
         message: this.offerMessage.trim() || undefined,
         course: this.offerCourse.trim() || undefined,
-        tuitionFeeUsd: this.offerTuition !== null && !isNaN(this.offerTuition)
-          ? this.offerTuition
-          : undefined,
+        tuitionFeeUsd:
+          this.offerTuition !== null && !isNaN(this.offerTuition)
+            ? this.offerTuition
+            : undefined,
         intake: this.offerIntake.trim() || undefined,
+        resend: resend ? true : undefined,
       })
       .subscribe({
         next: (res) => {
+          this.resendingOffer.set(false);
           if (res?.success) {
-            this.offerSuccessMessage.set(
-              `Admission offer successfully dispatched to candidate ${targetId}.`
-            );
+            this.showDuplicateInvitePopup.set(false);
             this.showOfferModal.set(false);
+            this.offerSuccessMessage.set(
+              resend
+                ? `Admission offer successfully updated and resent to candidate ${targetId}.`
+                : `Admission offer successfully dispatched to candidate ${targetId}.`
+            );
             setTimeout(() => {
               this.offerSuccessMessage.set(null);
             }, 5000);
           }
         },
         error: (err) => {
-          const msg =
+          this.resendingOffer.set(false);
+          const errorCode = err?.error?.error?.code || err?.error?.code;
+          const rawMsg =
             err?.error?.message ||
+            err?.error?.error?.message ||
             err?.error?.error ||
             err?.message ||
             'Failed to dispatch admission offer. Please try again.';
-          this.offerErrorMessage.set(msg);
+
+          const isDuplicate =
+            !resend &&
+            (err.status === 409 ||
+              errorCode === 'ACTIVE_INVITE_EXISTS' ||
+              (typeof rawMsg === 'string' &&
+                rawMsg.toLowerCase().includes('active invitation already exists')));
+
+          if (isDuplicate) {
+            // Do NOT display error in modal form; open dedicated pop-up modal
+            this.offerErrorMessage.set(null);
+            this.duplicateErrorMessage.set(null);
+            this.showDuplicateInvitePopup.set(true);
+          } else if (resend) {
+            this.duplicateErrorMessage.set(rawMsg);
+          } else {
+            this.offerErrorMessage.set(rawMsg);
+          }
         },
       });
   }

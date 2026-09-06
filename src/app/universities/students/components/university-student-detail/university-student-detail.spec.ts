@@ -237,11 +237,11 @@ describe('UniversityStudentDetailComponent', () => {
       expect(component.offerSuccessMessage()).toContain('successfully dispatched');
     });
 
-    it('should display error message and keep modal open if sendInvitation fails', () => {
+    it('should display error message and keep modal open if sendInvitation fails with generic error', () => {
       invitesServiceMock.sendInvitation.mockReturnValue(
         throwError(() => ({
-          error: { message: 'Conflict: Candidate already has an active offer.' },
-          status: 409,
+          error: { message: 'Internal server error processing request.' },
+          status: 500,
         }))
       );
 
@@ -253,8 +253,82 @@ describe('UniversityStudentDetailComponent', () => {
       expect(invitesServiceMock.sendInvitation).toHaveBeenCalled();
       expect(component.showOfferModal()).toBe(true);
       expect(component.offerErrorMessage()).toBe(
-        'Conflict: Candidate already has an active offer.'
+        'Internal server error processing request.'
       );
+      expect(component.showDuplicateInvitePopup()).toBe(false);
+    });
+
+    it('should open duplicate invite pop-up dialog and NOT show inline modal error when active invitation exists', () => {
+      invitesServiceMock.sendInvitation.mockReturnValue(
+        throwError(() => ({
+          error: {
+            message:
+              "An active invitation already exists for this student. You cannot send duplicate active invitations. Pass 'resend: true' to supersede the existing invite.",
+            error: { code: 'ACTIVE_INVITE_EXISTS' },
+          },
+          status: 409,
+        }))
+      );
+
+      component.openOfferModal();
+      fixture.detectChanges();
+
+      component.submitOffer();
+      fixture.detectChanges();
+
+      expect(invitesServiceMock.sendInvitation).toHaveBeenCalled();
+      expect(component.offerErrorMessage()).toBeNull();
+      expect(component.showDuplicateInvitePopup()).toBe(true);
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      const popup = compiled.querySelector('.duplicate-popup-card');
+      expect(popup).toBeTruthy();
+      expect(popup?.textContent).toContain('Active Invitation Already Exists');
+      expect(popup?.textContent).toContain('You cannot send duplicate active invitations');
+    });
+
+    it('should close duplicate pop-up when clicking Keep Existing button', () => {
+      component.openOfferModal();
+      component.showDuplicateInvitePopup.set(true);
+      fixture.detectChanges();
+
+      component.closeDuplicatePopup();
+      fixture.detectChanges();
+
+      expect(component.showDuplicateInvitePopup()).toBe(false);
+    });
+
+    it('should call sendInvitation with resend: true and show success when clicking Resend & Replace Offer', () => {
+      invitesServiceMock.sendInvitation.mockReturnValue(
+        of({
+          success: true,
+          message: 'Invitation sent successfully',
+          data: {
+            _id: 'INV_RESENT_123',
+            studentId: 'STU17869056359535Q01Q3',
+            subject: 'Official Direct MBBS Offer',
+            status: 'PENDING',
+            createdAt: '2026-08-21T08:00:00.000Z',
+          },
+        })
+      );
+
+      component.openOfferModal();
+      component.showDuplicateInvitePopup.set(true);
+      fixture.detectChanges();
+
+      component.confirmResendOffer();
+      fixture.detectChanges();
+
+      expect(invitesServiceMock.sendInvitation).toHaveBeenCalledWith(
+        expect.objectContaining({
+          studentId: 'STU17869056359535Q01Q3',
+          resend: true,
+        })
+      );
+      expect(component.showDuplicateInvitePopup()).toBe(false);
+      expect(component.showOfferModal()).toBe(false);
+      expect(component.offerSuccessMessage()).toContain('successfully updated and resent');
     });
 
     it('should close modal when clicking Cancel button without submitting', () => {
