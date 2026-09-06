@@ -1,43 +1,62 @@
 <div class="univ-templates-page">
   <app-university-header />
 
-  <!-- Subheader -->
-  <header class="univ-templates-header">
-    <div class="header-content">
-      <div class="header-left">
-        <a routerLink="/university/dashboard" class="back-link">
-          <app-icon name="arrow-right" [size]="15" class="back-icon" />
-          <span>Back to Dashboard</span>
-        </a>
-        <div class="title-row">
-          <div class="icon-badge">
-            <app-icon name="bookmark" [size]="24" />
-          </div>
-          <div>
-            <h1 class="page-title">Admission Offer Templates</h1>
-            <p class="page-subtitle">
-              Create and manage reusable admission offer templates for prospective candidates.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div class="header-actions">
-        <button
-          type="button"
-          class="btn-create-template"
-          (click)="openCreateModal()"
-        >
-          <app-icon name="plus" [size]="16" />
-          <span>Create Template</span>
-        </button>
-      </div>
-    </div>
-  </header>
-
   <!-- Main Content -->
   <main class="univ-templates-main">
     <div class="templates-container">
+      <!-- Unique Unified Master Templates Header Panel -->
+      <section class="templates-header-panel" aria-label="Admission offer templates header">
+        <div class="header-main-row">
+          <div class="header-title-block">
+            <div class="title-with-badge">
+              <div class="icon-badge">
+                <app-icon name="bookmark" [size]="22" />
+              </div>
+              <h1 class="page-title">Admission Offer Templates</h1>
+              <span class="templates-tag">Standardized Letters</span>
+            </div>
+            <p class="page-subtitle">
+              Create, customize, and manage reusable admission offer templates to quickly dispatch standardized offers to prospective candidates.
+            </p>
+          </div>
+
+          <div class="header-actions">
+            <button
+              type="button"
+              class="btn-create-template"
+              (click)="openCreateModal()"
+            >
+              <app-icon name="plus" [size]="16" />
+              <span>Create Template</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Information & Highlights Strip -->
+        <div class="header-highlights-strip">
+          <div class="highlight-item">
+            <app-icon name="sparkles" [size]="14" />
+            <span>Dynamic Candidate Tags</span>
+          </div>
+          <div class="highlight-item">
+            <app-icon name="check" [size]="14" />
+            <span>Instant Dispatch Ready</span>
+          </div>
+          <div class="highlight-item">
+            <app-icon name="globe" [size]="14" />
+            <span>Snapshot Protected</span>
+          </div>
+
+          @if (pagination(); as pag) {
+            <div class="template-counter-pill">
+              <span class="counter-dot"></span>
+              <span class="counter-text">
+                <strong>{{ pag.total }}</strong> {{ pag.total === 1 ? 'Template Saved' : 'Templates Saved' }}
+              </span>
+            </div>
+          }
+        </div>
+      </section>
       <!-- Error State -->
       @if (error() && !loading()) {
         <section class="alert-card error" role="alert">
@@ -308,16 +327,56 @@
               </div>
 
               <div class="form-group">
-                <label for="template-message">Message Body *</label>
+                <div class="label-with-hint">
+                  <label for="template-message">Message Body *</label>
+                  <span class="field-hint">Dynamic tags will be replaced per candidate</span>
+                </div>
                 <textarea
                   id="template-message"
                   name="message"
                   [(ngModel)]="formMessage"
                   required
-                  rows="4"
-                  placeholder="Enter the invitation or offer letter body..."
+                  rows="5"
+                  placeholder="Enter the invitation or offer letter body (e.g. Dear Candidate, we are delighted to offer you admission...)"
                   [disabled]="isSubmitting"
                 ></textarea>
+                <div class="placeholder-helper">
+                  <span class="helper-title">Insert dynamic candidate tags:</span>
+                  <div class="placeholder-chips">
+                    <button
+                      type="button"
+                      class="chip-btn"
+                      (click)="insertPlaceholder('{{student_name}}')"
+                      title="Insert candidate full name"
+                    >
+                      + {{ '{{student_name}}' }}
+                    </button>
+                    <button
+                      type="button"
+                      class="chip-btn"
+                      (click)="insertPlaceholder('{{student_id}}')"
+                      title="Insert candidate student ID"
+                    >
+                      + {{ '{{student_id}}' }}
+                    </button>
+                    <button
+                      type="button"
+                      class="chip-btn"
+                      (click)="insertPlaceholder('{{university_name}}')"
+                      title="Insert university name"
+                    >
+                      + {{ '{{university_name}}' }}
+                    </button>
+                    <button
+                      type="button"
+                      class="chip-btn"
+                      (click)="insertPlaceholder('{{course}}')"
+                      title="Insert course name"
+                    >
+                      + {{ '{{course}}' }}
+                    </button>
+                  </div>
+                </div>
               </div>
 
               @if (modalErrorMessage()) {

@@ -16,7 +16,7 @@ import { UniversityTemplatesService } from '../../services/university-templates.
 @Component({
   selector: 'app-university-templates',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, Icon, UniversityHeaderComponent],
+  imports: [CommonModule, FormsModule, Icon, UniversityHeaderComponent],
   templateUrl: './university-templates.html',
   styleUrl: './university-templates.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -143,6 +143,14 @@ export class UniversityTemplatesComponent implements OnInit {
     if (this.isSubmitting) return;
     this.isModalOpen.set(false);
     this.modalErrorMessage.set(null);
+  }
+
+  insertPlaceholder(placeholder: string): void {
+    if (!this.formMessage) {
+      this.formMessage = placeholder;
+    } else {
+      this.formMessage += ' ' + placeholder;
+    }
   }
 
   submitForm(): void {
