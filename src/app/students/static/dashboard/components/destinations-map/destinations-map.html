@@ -14,10 +14,19 @@
       preserveAspectRatio="xMidYMid slice"
       aria-label="World Map"
     >
-      <!-- Base Ocean Fill covering all directions -->
-      <rect class="atlas-ocean-base" x="-2000" y="-2000" width="4000" height="4000" fill="#041716" />
+      <!-- Base Ocean Fill covering all directions (clicking returns to world view when zoomed) -->
+      <rect
+        class="atlas-ocean-base"
+        x="-2000"
+        y="-2000"
+        width="4000"
+        height="4000"
+        fill="#041716"
+        (click)="isCountryView() && resetToWorldView()"
+      />
 
-      <!-- Robust Geographic Vector Landmass Layer -->
+      <!-- Robust Geographic Vector Landmass Layer (World View backdrop) -->
+      @if (isWorldView()) {
       <g class="countries-fallback-layer">
         @for (c of countries; track 'fb_' + c.code + '_' + $index) {
         <path
@@ -26,8 +35,9 @@
         />
         }
       </g>
+      }
 
-      <!-- High-Resolution Realistic Satellite Terrain Layer -->
+      <!-- Base Global Realistic Satellite Terrain Layer -->
       <image
         href="/images/destinations-world-realistic.jpg"
         x="60"
@@ -38,10 +48,34 @@
         class="atlas-raster"
       />
 
+      <!-- Dynamic High-Resolution Targeted Satellite Imagery Layer -->
+      @if (isCountryView() && activeCountryCode(); as currentCode) {
+        @for (code of [currentCode]; track code) {
+          @if (highResImageUrl(); as highResUrl) {
+            @if (highResImageBounds(); as b) {
+            <image
+              [attr.id]="'highres-raster-' + code"
+              [attr.href]="highResUrl"
+              [attr.xlink:href]="highResUrl"
+              [attr.x]="b.x"
+              [attr.y]="b.y"
+              [attr.width]="b.width"
+              [attr.height]="b.height"
+              preserveAspectRatio="none"
+              class="country-highres-raster"
+              [class.is-loaded]="highResImageLoaded()"
+              (load)="onSatelliteImageLoaded(code, highResUrl)"
+            />
+            }
+          }
+        }
+      }
+
       <!-- Deep Medical Ocean & Atmosphere Overlay -->
       <rect class="atlas-ocean-tint" x="-2000" y="-2000" width="4000" height="4000" />
 
-      <!-- Interactive Country Boundaries (Subtle, interactive) -->
+      <!-- Interactive Country Boundaries (Rendered only in World View for selection; country view has ZERO boundary overlay) -->
+      @if (isWorldView()) {
       <g class="countries-layer">
         @for (c of countries; track c.code + '_' + $index) {
         <path
@@ -57,9 +91,10 @@
         />
         }
       </g>
+      }
 
-      <!-- Origin Hub (Dynamically loaded if present in Countries API) -->
-      @if (originCountry(); as origin) {
+      <!-- Origin Hub (Dynamically loaded if present in Countries API and in World View) -->
+      @if (isWorldView() && originCountry(); as origin) {
       <g class="origin-node" transform="translate(703.2, 200.3)" [attr.aria-label]="origin.name + ' - Origin Hub'">
         <circle class="origin-pulse pulse-1" r="3.6" />
         <circle class="origin-ring" r="3.6" />
@@ -81,12 +116,13 @@
           role="button"
           [attr.aria-label]="dest.countryName + ': ' + dest.universityCount + ' universities (Selected)'"
         >
-          <circle class="marker-ring" r="3.8" />
-          <circle class="marker-point" r="2" />
+          <circle class="marker-ring" [attr.r]="markerRingRadius()" />
+          <circle class="marker-point" [attr.r]="markerPointRadius()" />
           <text
             class="marker-label"
-            [attr.x]="getLabelDx(dest)"
-            [attr.y]="getLabelDy(dest)"
+            [style.font-size.px]="markerLabelFontSize()"
+            [attr.x]="getLabelDx(dest) * markerScaleFactor()"
+            [attr.y]="getLabelDy(dest) * markerScaleFactor()"
             [attr.text-anchor]="getLabelAnchor(dest)"
           >
             {{ dest.countryName | uppercase }}
@@ -94,16 +130,17 @@
           @if (dest.universityCount > 0) {
           <text
             class="marker-sublabel"
-            [attr.x]="getLabelDx(dest)"
-            [attr.y]="getLabelDy(dest) + 5"
+            [style.font-size.px]="markerSublabelFontSize()"
+            [attr.x]="getLabelDx(dest) * markerScaleFactor()"
+            [attr.y]="(getLabelDy(dest) + 5) * markerScaleFactor()"
             [attr.text-anchor]="getLabelAnchor(dest)"
           >
             {{ dest.universityCount }} UNIVERSITIES
           </text>
           }
         </g>
-        } @else {
-        <!-- Inactive Destination: Marker dot with direct uppercase label -->
+        } @else if (isWorldView()) {
+        <!-- Inactive Destination: Marker dot with direct uppercase label (World View) -->
         <g
           class="destination-node is-inactive"
           [class.is-hovered]="isCountryHovered(dest.countryCode)"
@@ -130,7 +167,131 @@
         </g>
         }
       }
+      <!-- Authentic API-Driven University Markers Layer (Country View) -->
+      @if (isCountryView() && activeCountryUniversities().length > 0) {
+      <g class="universities-layer" aria-label="Medical Universities in Selected Country">
+        @for (uni of activeCountryUniversities(); track uni.id) {
+        <g
+          class="university-node"
+          [class.is-hovered]="hoveredUniversity()?.id === uni.id"
+          [class.is-selected]="selectedUniversity()?.id === uni.id"
+          [attr.transform]="'translate(' + uni.x + ',' + uni.y + ')'"
+          (mouseenter)="onUniversityHover(uni)"
+          (mouseleave)="onUniversityHover(null)"
+          (click)="onUniversityClick(uni, $event)"
+          tabindex="0"
+          role="button"
+          [attr.aria-label]="uni.name + ', ' + uni.countryName"
+        >
+          <!-- Invisible generous hit circle for effortless hover and touch -->
+          <circle class="uni-hitbox" [attr.r]="uniDotHitRadius()" fill="transparent" />
+
+          <!-- Interactive outer pulse halo on hover/select -->
+          @if (hoveredUniversity()?.id === uni.id || selectedUniversity()?.id === uni.id) {
+          <circle class="uni-halo" [attr.r]="uniDotRadius() * 2.6" />
+          }
+
+          <!-- Core University Dot -->
+          <circle class="uni-dot" [attr.r]="uniDotRadius()" />
+        </g>
+        }
+
+        <!-- Lightweight Floating Tooltip above Hovered/Active University Dot -->
+        @if (activeUniversityPopup(); as popup) {
+        <g
+          class="uni-tooltip-group"
+          [attr.transform]="'translate(' + popup.x + ',' + (popup.y - (uniDotRadius() + 3.2) * markerScaleFactor()) + ')'"
+          pointer-events="none"
+        >
+          <!-- Pill Backdrop -->
+          <rect
+            class="uni-tooltip-pill"
+            [attr.x]="-getUniTooltipWidth(popup.name) / 2"
+            [attr.y]="-11 * markerScaleFactor()"
+            [attr.width]="getUniTooltipWidth(popup.name)"
+            [attr.height]="10 * markerScaleFactor()"
+            [attr.rx]="2 * markerScaleFactor()"
+          />
+          <!-- University Name with Accent Glyph -->
+          <text
+            class="uni-tooltip-label"
+            text-anchor="middle"
+            [attr.y]="-4.8 * markerScaleFactor()"
+            [style.font-size.px]="Math.max(1.0, 3.8 * markerScaleFactor())"
+          >
+            <tspan class="uni-tooltip-star">✦ </tspan>{{ popup.name }}
+          </text>
+        </g>
+        }
+      </g>
+      }
     </svg>
+
+    <!-- Floating Return to World View Navigation Control -->
+    @if (isCountryView()) {
+    <div class="map-controls-overlay">
+      <button
+        type="button"
+        class="btn-back-to-world"
+        (click)="resetToWorldView()"
+        aria-label="Return to World Map"
+      >
+        <svg class="back-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        <span class="back-text">WORLD MAP</span>
+      </button>
+    </div>
+
+    <!-- Dedicated Floating University Details Card on Click -->
+    @if (selectedUniversity(); as selUni) {
+    <div class="university-detail-card" role="dialog" aria-label="Selected University Information">
+      <button
+        type="button"
+        class="card-close-btn"
+        (click)="clearUniversitySelection()"
+        aria-label="Close University Card"
+      >
+        ✕
+      </button>
+      <div class="card-badge">
+        <span class="badge-star">✦</span>
+        <span class="badge-text">MEDICAL UNIVERSITY</span>
+      </div>
+      <h4 class="card-uni-name">{{ selUni.name }}</h4>
+      <div class="card-country-name">{{ selUni.countryName }}</div>
+      @if (selUni.city || selUni.type) {
+      <div class="card-uni-meta">
+        @if (selUni.city) {
+        <span class="meta-item">{{ selUni.city }}</span>
+        }
+        @if (selUni.city && selUni.type) {
+        <span class="meta-sep">•</span>
+        }
+        @if (selUni.type) {
+        <span class="meta-item">{{ selUni.type }}</span>
+        }
+      </div>
+      }
+      @if (selUni.website) {
+      <a
+        [href]="selUni.website"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="card-website-btn"
+      >
+        <span>Official Website</span>
+        <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+          <polyline points="15 3 21 3 21 9"></polyline>
+          <line x1="10" y1="14" x2="21" y2="3"></line>
+        </svg>
+      </a>
+      }
+    </div>
+    }
+    }
   </div>
 
   <!-- Screen-Reader Accessible Directory -->

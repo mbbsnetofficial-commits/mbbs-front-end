@@ -1,4 +1,4 @@
-﻿export interface AdminCountry {
+export interface AdminCountry {
   _id: string;
   name: string;
   slug: string;
@@ -21,6 +21,11 @@ export interface AdminUniversity {
   }>;
   official_website?: string;
   description?: string;
+  city?: string;
+  latitude?: number;
+  longitude?: number;
+  lat?: number;
+  lng?: number;
 }
 
 export interface GroupedCountryUniversities {
