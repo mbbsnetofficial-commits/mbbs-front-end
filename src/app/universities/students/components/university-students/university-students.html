@@ -1,35 +1,33 @@
 <div class="univ-students-page">
   <app-university-header />
 
-  <!-- Subheader -->
-  <header class="univ-students-header">
-    <div class="header-content">
-      <div class="header-left">
-        <a routerLink="/university/dashboard" class="back-link">
-          <app-icon name="arrow-right" [size]="16" class="back-icon" />
-          <span>Dashboard</span>
-        </a>
-        <div class="title-wrap">
-          <h1 class="page-title">Candidate Student Discovery</h1>
-          <span class="pool-tag">MBBS.NET Global Talent Pool</span>
-        </div>
-      </div>
-
-      <div class="header-right">
-        @if (pagination(); as pag) {
-          <div class="candidate-counter">
-            <span class="counter-number">{{ pag.total }}</span>
-            <span class="counter-label">Verified Candidates Found</span>
-          </div>
-        }
-      </div>
-    </div>
-  </header>
-
   <main class="univ-students-main">
     <div class="students-container">
-      <!-- Search & Filters Panel -->
+      <!-- Unified Discovery & Search Panel (Single Master Box) -->
       <section class="filters-card" aria-label="Search and filter candidates">
+        <!-- Card Header with Title and Verified Candidates Counter -->
+        <div class="card-header-row">
+          <div class="header-title-block">
+            <div class="title-with-badge">
+              <h1 class="page-title">Candidate Student Discovery</h1>
+              <span class="pool-tag">MBBS.NET Global Talent Pool</span>
+            </div>
+            <p class="page-subtitle">
+              Discover, filter, and review verified prospective medical students eligible for admission offers.
+            </p>
+          </div>
+
+          @if (pagination(); as pag) {
+            <div class="candidate-counter-pill">
+              <span class="counter-pulse"></span>
+              <div class="counter-text-wrap">
+                <span class="counter-number">{{ pag.total }}</span>
+                <span class="counter-label">Verified Candidates</span>
+              </div>
+            </div>
+          }
+        </div>
+
         <div class="search-row">
           <div class="search-input-wrap">
             <app-icon name="search" [size]="20" />
