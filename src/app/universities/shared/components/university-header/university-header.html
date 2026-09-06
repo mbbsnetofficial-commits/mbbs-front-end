@@ -52,7 +52,7 @@
         title="Notifications"
         aria-label="Notifications"
       >
-        <app-icon name="bell" [size]="20" />
+        <app-icon name="bell" [size]="21" [strokeWidth]="2" />
         @if (unreadCount() > 0) {
           <span class="bell-badge">{{ unreadCount() > 99 ? '99+' : unreadCount() }}</span>
         }
