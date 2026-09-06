@@ -22,14 +22,27 @@
   width: 100%;
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
 
+  @media (max-width: 640px) {
+    padding: 0 0.85rem;
+    height: 58px;
+  }
+
   .header-content {
     width: 100%;
-    max-width: 1240px;
+    max-width: 1280px;
     margin: 0 auto;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 1.5rem;
+
+    @media (max-width: 1180px) {
+      gap: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      gap: 0.75rem;
+    }
   }
 
   // Brand / Left Logo
@@ -38,6 +51,10 @@
     align-items: center;
     gap: 0.85rem;
     flex-shrink: 0;
+
+    @media (max-width: 480px) {
+      gap: 0.4rem;
+    }
   }
 
   .brand-link {
@@ -51,12 +68,21 @@
       height: 28px;
       border-radius: 7px;
       object-fit: contain;
+
+      @media (max-width: 480px) {
+        width: 24px;
+        height: 24px;
+      }
     }
 
     .brand-name-img {
       height: 24px;
       width: auto;
       object-fit: contain;
+
+      @media (max-width: 460px) {
+        display: none;
+      }
     }
   }
 
@@ -93,6 +119,7 @@
     display: flex;
     align-items: center;
     gap: 0.35rem;
+    min-width: 0;
 
     @media (max-width: 900px) {
       overflow-x: auto;
@@ -102,6 +129,10 @@
         display: none;
       }
       padding: 4px 0;
+    }
+
+    @media (max-width: 600px) {
+      gap: 0.2rem;
     }
 
     .nav-link {
@@ -116,6 +147,18 @@
       border-radius: 8px;
       white-space: nowrap;
       transition: color 0.15s ease, background-color 0.15s ease;
+
+      @media (max-width: 1180px) {
+        padding: 6px 9px;
+        font-size: 0.84rem;
+        gap: 5px;
+      }
+
+      @media (max-width: 600px) {
+        padding: 5px 8px;
+        font-size: 0.8rem;
+        gap: 4px;
+      }
 
       &:hover {
         color: #0f172a;
@@ -146,6 +189,10 @@
     align-items: center;
     gap: 0.85rem;
     flex-shrink: 0;
+
+    @media (max-width: 520px) {
+      gap: 0.4rem;
+    }
 
     .nav-bell-link {
       position: relative;
@@ -245,6 +292,10 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+
+      @media (max-width: 1180px) {
+        max-width: 130px;
+      }
 
       @media (max-width: 680px) {
         display: none;

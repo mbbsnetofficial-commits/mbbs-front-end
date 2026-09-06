@@ -154,7 +154,9 @@
       display: flex;
       align-items: center;
       position: relative;
-      min-width: 280px;
+      flex: 1;
+      max-width: 360px;
+      min-width: 240px;
 
       .search-icon {
         position: absolute;
@@ -207,14 +209,22 @@
 .univ-invites-main {
   flex: 1;
   padding: 2rem 1.5rem;
+
+  @media (max-width: 640px) {
+    padding: 1.25rem 0.85rem 2.5rem;
+  }
 }
 
 .invites-container {
-  max-width: 1200px;
+  max-width: 1280px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+
+  @media (max-width: 640px) {
+    gap: 1.15rem;
+  }
 }
 
 /* Alert Error */
@@ -288,6 +298,12 @@
   box-shadow: 0 1px 3px rgba(16, 24, 40, 0.04);
   transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 
+  @media (max-width: 640px) {
+    padding: 1.15rem 1rem;
+    border-radius: 12px;
+    gap: 0.75rem;
+  }
+
   &:hover {
     border-color: #d0d5dd;
     box-shadow: 0 4px 12px rgba(16, 24, 40, 0.06);
@@ -305,11 +321,21 @@
     justify-content: space-between;
     gap: 1rem;
 
+    @media (max-width: 540px) {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+
     .candidate-meta {
       display: flex;
       align-items: center;
       gap: 0.85rem;
       flex-wrap: wrap;
+
+      @media (max-width: 480px) {
+        gap: 0.65rem;
+      }
 
       .candidate-avatar {
         width: 36px;
@@ -340,6 +366,10 @@
             color: #101828;
             font-size: 1.05rem;
             letter-spacing: -0.01em;
+
+            @media (max-width: 480px) {
+              font-size: 0.95rem;
+            }
           }
 
           .student-id-link {
@@ -409,6 +439,10 @@
       font-weight: 700;
       color: #111827;
       margin: 0;
+
+      @media (max-width: 480px) {
+        font-size: 0.95rem;
+      }
     }
 
     .offer-snippet {
@@ -416,6 +450,10 @@
       color: #667085;
       margin: 0.35rem 0 0 0;
       line-height: 1.4;
+
+      @media (max-width: 480px) {
+        font-size: 0.8rem;
+      }
     }
   }
 
@@ -425,6 +463,11 @@
     gap: 1.5rem;
     flex-wrap: wrap;
     font-size: 0.825rem;
+
+    @media (max-width: 540px) {
+      gap: 0.65rem 1.15rem;
+      font-size: 0.8rem;
+    }
 
     .detail-badge {
       display: flex;
@@ -454,6 +497,12 @@
     padding-top: 0.75rem;
     border-top: 1px solid #f2f4f7;
 
+    @media (max-width: 480px) {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.5rem;
+    }
+
     .btn-view-profile {
       display: inline-flex;
       align-items: center;
@@ -467,6 +516,13 @@
       font-weight: 600;
       text-decoration: none;
       transition: all 0.2s ease;
+
+      @media (max-width: 480px) {
+        width: 100%;
+        justify-content: center;
+        padding: 0.55rem 1rem;
+        box-sizing: border-box;
+      }
 
       &:hover {
         background: #1f2937;
@@ -486,6 +542,13 @@
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s ease;
+
+      @media (max-width: 480px) {
+        width: 100%;
+        justify-content: center;
+        padding: 0.55rem 1rem;
+        box-sizing: border-box;
+      }
 
       &:hover:not(:disabled) {
         background: #fee4e2;
@@ -507,6 +570,12 @@
   gap: 1.5rem;
   padding: 1.5rem 0;
 
+  @media (max-width: 480px) {
+    gap: 0.75rem;
+    width: 100%;
+    justify-content: space-between;
+  }
+
   .btn-page {
     display: inline-flex;
     align-items: center;
@@ -518,6 +587,11 @@
     border-radius: 8px;
     font-size: 0.85rem;
     font-weight: 600;
+
+    @media (max-width: 480px) {
+      padding: 0.45rem 0.85rem;
+      font-size: 0.8rem;
+    }
     cursor: pointer;
     transition: all 0.2s ease;
 
@@ -724,6 +798,8 @@
 .modal-card {
   width: 100%;
   max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
   background: #ffffff;
   border: 1px solid #e4e7ec;
   border-radius: 16px;
@@ -733,6 +809,12 @@
   flex-direction: column;
   gap: 1.25rem;
   color: #111827;
+
+  @media (max-width: 520px) {
+    padding: 1.25rem 1rem;
+    border-radius: 14px;
+    gap: 1rem;
+  }
 
   .modal-header {
     display: flex;
@@ -801,6 +883,12 @@
     gap: 0.75rem;
     margin-top: 0.5rem;
 
+    @media (max-width: 480px) {
+      flex-direction: column-reverse;
+      align-items: stretch;
+      gap: 0.6rem;
+    }
+
     .btn-modal-cancel {
       background: #ffffff;
       border: 1px solid #d0d5dd;
@@ -811,6 +899,12 @@
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s ease;
+
+      @media (max-width: 480px) {
+        width: 100%;
+        text-align: center;
+        padding: 10px 16px;
+      }
 
       &:hover:not(:disabled) {
         background: #f9fafb;
@@ -831,6 +925,12 @@
       align-items: center;
       gap: 0.4rem;
       transition: background 0.2s ease;
+
+      @media (max-width: 480px) {
+        width: 100%;
+        justify-content: center;
+        padding: 10px 16px;
+      }
 
       &:hover:not(:disabled) {
         background: #912018;
@@ -859,9 +959,19 @@
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 860px) {
   .invites-header-panel {
     padding: 1.25rem;
+
+    @media (max-width: 640px) {
+      padding: 1.25rem 1rem;
+      border-radius: 12px;
+      gap: 1.15rem;
+
+      .header-top-row .header-title-block .title-with-badge .page-title {
+        font-size: 1.35rem;
+      }
+    }
 
     .header-top-row {
       flex-direction: column;
@@ -884,6 +994,10 @@
       .status-tabs {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        &::-webkit-scrollbar {
+          display: none;
+        }
       }
 
       .search-wrap {

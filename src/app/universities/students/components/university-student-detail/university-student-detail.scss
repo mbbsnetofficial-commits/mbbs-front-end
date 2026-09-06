@@ -14,8 +14,12 @@
   z-index: 10;
   box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03);
 
+  @media (max-width: 640px) {
+    padding: 0.85rem 1rem;
+  }
+
   .header-content {
-    max-width: 1100px;
+    max-width: 1240px;
     margin: 0 auto;
     display: flex;
     align-items: center;
@@ -54,6 +58,11 @@
       font-size: 0.8rem;
       color: #667085;
 
+      @media (max-width: 480px) {
+        flex-wrap: wrap;
+        font-size: 0.75rem;
+      }
+
       .crumb.active {
         color: #111827;
         font-family: monospace;
@@ -70,10 +79,14 @@
 .univ-student-main {
   flex: 1;
   padding: 2.5rem 1.5rem;
+
+  @media (max-width: 640px) {
+    padding: 1.25rem 0.85rem 2.5rem;
+  }
 }
 
 .profile-container {
-  max-width: 1100px;
+  max-width: 1240px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -150,10 +163,23 @@
     align-items: flex-start;
   }
 
+  @media (max-width: 640px) {
+    padding: 1.25rem 1rem;
+    border-radius: 12px;
+    gap: 1.15rem;
+  }
+
   .hero-main {
     display: flex;
     align-items: center;
     gap: 1.5rem;
+
+    @media (max-width: 540px) {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.85rem;
+      width: 100%;
+    }
 
     .avatar-large {
       width: 60px;
@@ -166,6 +192,11 @@
       justify-content: center;
       color: #344054;
       flex-shrink: 0;
+
+      @media (max-width: 480px) {
+        width: 48px;
+        height: 48px;
+      }
     }
 
     .hero-info {
@@ -185,6 +216,10 @@
           color: #111827;
           margin: 0;
           letter-spacing: -0.02em;
+
+          @media (max-width: 480px) {
+            font-size: 1.25rem;
+          }
         }
 
         .student-id-pill {
@@ -216,6 +251,11 @@
     align-items: center;
     gap: 0.75rem;
     flex-wrap: wrap;
+
+    @media (max-width: 640px) {
+      width: 100%;
+      gap: 0.5rem;
+    }
 
     .invite-status-badge {
       display: inline-flex;
@@ -294,8 +334,18 @@
 /* Detail Cards Grid */
 .info-sections-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
   gap: 1.5rem;
+
+  @media (max-width: 1180px) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
 }
 
 .detail-card {
@@ -305,6 +355,11 @@
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
+
+  @media (max-width: 640px) {
+    padding: 1.15rem 1rem;
+    border-radius: 12px;
+  }
   gap: 1.25rem;
   box-shadow: 0 1px 3px rgba(16, 24, 40, 0.04);
 
@@ -647,6 +702,12 @@
   gap: 1.25rem;
   color: #111827;
 
+  @media (max-width: 600px) {
+    padding: 1.25rem 1rem;
+    border-radius: 14px;
+    gap: 1rem;
+  }
+
   .modal-header {
     display: flex;
     align-items: center;
@@ -927,6 +988,11 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 1rem;
+
+      @media (max-width: 520px) {
+        grid-template-columns: 1fr;
+        gap: 0.85rem;
+      }
     }
   }
 
@@ -953,6 +1019,12 @@
     gap: 0.75rem;
     margin-top: 0.5rem;
 
+    @media (max-width: 480px) {
+      flex-direction: column-reverse;
+      align-items: stretch;
+      gap: 0.6rem;
+    }
+
     .btn-modal-cancel {
       background: #ffffff;
       border: 1px solid #d0d5dd;
@@ -963,6 +1035,12 @@
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s ease;
+
+      @media (max-width: 480px) {
+        width: 100%;
+        text-align: center;
+        padding: 10px 16px;
+      }
 
       &:hover:not(:disabled) {
         background: #f9fafb;
@@ -983,6 +1061,12 @@
       align-items: center;
       gap: 0.4rem;
       transition: background 0.2s ease;
+
+      @media (max-width: 480px) {
+        width: 100%;
+        justify-content: center;
+        padding: 10px 16px;
+      }
 
       &:hover:not(:disabled) {
         background: #b8f000;
@@ -1008,6 +1092,12 @@
   border: 1px solid #e2e8f0;
   box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
   animation: popupScaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+  @media (max-width: 520px) {
+    padding: 1.25rem 1rem;
+    border-radius: 14px;
+    gap: 1rem;
+  }
 
   .duplicate-popup-header {
     display: flex;
@@ -1081,6 +1171,12 @@
     gap: 0.75rem;
     margin-top: 0.5rem;
 
+    @media (max-width: 480px) {
+      flex-direction: column-reverse;
+      align-items: stretch;
+      gap: 0.6rem;
+    }
+
     .btn-popup-cancel {
       background: #ffffff;
       border: 1px solid #d0d5dd;
@@ -1091,6 +1187,12 @@
       font-weight: 600;
       cursor: pointer;
       transition: all 0.15s ease;
+
+      @media (max-width: 480px) {
+        width: 100%;
+        text-align: center;
+        padding: 10px 16px;
+      }
 
       &:hover:not(:disabled) {
         background: #f8fafc;
@@ -1116,6 +1218,12 @@
       align-items: center;
       gap: 0.45rem;
       transition: background 0.15s ease, transform 0.15s ease;
+
+      @media (max-width: 480px) {
+        width: 100%;
+        justify-content: center;
+        padding: 10px 16px;
+      }
 
       &:hover:not(:disabled) {
         background: #b8f000;

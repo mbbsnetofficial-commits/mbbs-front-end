@@ -9,14 +9,22 @@
 .univ-students-main {
   flex: 1;
   padding: 2rem 1.5rem;
+
+  @media (max-width: 640px) {
+    padding: 1.25rem 0.85rem 2.5rem;
+  }
 }
 
 .students-container {
-  max-width: 1200px;
+  max-width: 1280px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+
+  @media (max-width: 640px) {
+    gap: 1.15rem;
+  }
 }
 
 /* Filters Card (Unified Single Master Box) */
@@ -30,6 +38,12 @@
   gap: 1.5rem;
   box-shadow: 0 2px 8px -2px rgba(16, 24, 40, 0.05), 0 1px 3px rgba(16, 24, 40, 0.03);
 
+  @media (max-width: 640px) {
+    padding: 1.25rem 1rem;
+    border-radius: 12px;
+    gap: 1.15rem;
+  }
+
   .card-header-row {
     display: flex;
     align-items: center;
@@ -38,6 +52,13 @@
     padding-bottom: 1.5rem;
     border-bottom: 1px solid #f2f4f7;
     flex-wrap: wrap;
+
+    @media (max-width: 640px) {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 1rem;
+      padding-bottom: 1.15rem;
+    }
 
     .header-title-block {
       display: flex;
@@ -56,6 +77,10 @@
           color: #101828;
           margin: 0;
           letter-spacing: -0.02em;
+
+          @media (max-width: 640px) {
+            font-size: 1.35rem;
+          }
         }
 
         .pool-tag {
@@ -76,6 +101,10 @@
         color: #667085;
         margin: 0.25rem 0 0 0;
         line-height: 1.4;
+
+        @media (max-width: 640px) {
+          font-size: 0.85rem;
+        }
       }
     }
 
@@ -89,6 +118,12 @@
       padding: 0.65rem 1.15rem;
       box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
       flex-shrink: 0;
+
+      @media (max-width: 640px) {
+        width: 100%;
+        justify-content: space-between;
+        box-sizing: border-box;
+      }
 
       .counter-pulse {
         width: 8px;
@@ -169,12 +204,12 @@
     gap: 1.25rem 1.5rem;
     align-items: flex-start;
 
-    @media (max-width: 960px) {
+    @media (max-width: 1100px) {
       grid-template-columns: repeat(2, 1fr);
       gap: 1rem 1.25rem;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 640px) {
       grid-template-columns: 1fr;
       gap: 1rem;
     }
@@ -434,6 +469,12 @@
   box-shadow: 0 1px 3px rgba(16, 24, 40, 0.04);
   transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 
+  @media (max-width: 640px) {
+    padding: 1.15rem 1rem;
+    border-radius: 12px;
+    gap: 1rem;
+  }
+
   &:hover {
     border-color: #d0d5dd;
     box-shadow: 0 4px 12px rgba(16, 24, 40, 0.06);
@@ -448,10 +489,20 @@
     padding-bottom: 1rem;
     border-bottom: 1px solid #f2f4f7;
 
+    @media (max-width: 640px) {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.85rem;
+    }
+
     .student-identity {
       display: flex;
       align-items: center;
       gap: 1rem;
+
+      @media (max-width: 480px) {
+        gap: 0.75rem;
+      }
 
       .avatar-wrap {
         width: 44px;
@@ -463,6 +514,7 @@
         align-items: center;
         justify-content: center;
         color: #344054;
+        flex-shrink: 0;
       }
 
       .name-id-wrap {
@@ -475,6 +527,10 @@
           font-weight: 700;
           color: #101828;
           margin: 0;
+
+          @media (max-width: 480px) {
+            font-size: 1.1rem;
+          }
         }
 
         .student-id-badge {
@@ -495,6 +551,10 @@
       align-items: center;
       gap: 0.5rem;
       flex-wrap: wrap;
+
+      @media (max-width: 640px) {
+        width: 100%;
+      }
 
       .profile-score-badge {
         font-size: 0.825rem;
@@ -560,6 +620,11 @@
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 1.25rem;
 
+    @media (max-width: 560px) {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+
     .detail-block {
       background: #f8fafc;
       border: 1px solid #e4e7ec;
@@ -568,6 +633,10 @@
       display: flex;
       flex-direction: column;
       gap: 0.5rem;
+
+      @media (max-width: 480px) {
+        padding: 0.85rem 0.95rem;
+      }
 
       .block-title {
         font-size: 0.825rem;
@@ -587,12 +656,14 @@
 
         .label {
           color: #667085;
+          flex-shrink: 0;
         }
 
         .value {
           color: #111827;
           font-weight: 600;
           text-align: right;
+          word-break: break-word;
 
           &.highlight-score {
             color: #111827;
@@ -632,11 +703,22 @@
     padding-top: 1rem;
     border-top: 1px solid #f2f4f7;
 
+    @media (max-width: 640px) {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.85rem;
+    }
+
     .card-meta-left {
       display: flex;
       align-items: center;
       gap: 0.75rem;
       flex-wrap: wrap;
+
+      @media (max-width: 640px) {
+        width: 100%;
+        justify-content: space-between;
+      }
 
       .date-registered {
         font-size: 0.85rem;
@@ -679,6 +761,13 @@
       text-decoration: none;
       transition: all 0.2s ease;
 
+      @media (max-width: 640px) {
+        width: 100%;
+        justify-content: center;
+        padding: 0.65rem 1rem;
+        box-sizing: border-box;
+      }
+
       &:hover {
         background: #1f2937;
         border-color: #1f2937;
@@ -695,6 +784,12 @@
   gap: 1.5rem;
   padding: 1rem 0;
 
+  @media (max-width: 480px) {
+    gap: 0.75rem;
+    width: 100%;
+    justify-content: space-between;
+  }
+
   .btn-page {
     display: inline-flex;
     align-items: center;
@@ -708,6 +803,11 @@
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
+
+    @media (max-width: 480px) {
+      padding: 0.5rem 0.85rem;
+      font-size: 0.8rem;
+    }
 
     .icon-prev {
       transform: rotate(90deg);
@@ -731,6 +831,10 @@
   .page-status {
     font-size: 0.875rem;
     color: #667085;
+
+    @media (max-width: 480px) {
+      font-size: 0.8rem;
+    }
 
     strong {
       color: #111827;
