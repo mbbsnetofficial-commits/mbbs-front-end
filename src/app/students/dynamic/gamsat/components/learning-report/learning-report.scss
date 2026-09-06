@@ -744,28 +744,117 @@
 
 @media (max-width: 768px) {
   .stats-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .stat-card {
+    padding: 12px 14px;
+    border-radius: 12px;
+  }
+
+  .stat-icon-box {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+  }
+
+  .stat-title {
+    font-size: 12px;
+  }
+
+  .stat-value {
+    font-size: 20px;
+    margin-top: 8px;
+    margin-bottom: 2px;
+  }
+
+  .stat-subtext {
+    font-size: 10.5px;
+  }
+
+  .table-card {
+    padding: 14px 10px;
+    border-radius: 14px;
   }
 
   .filter-controls-row {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
   }
 
   .tabs-group {
-    width: 100%;
-    justify-content: center;
+    flex: 1;
+    min-width: 200px;
+    padding: 3px;
+    gap: 2px;
+
+    .tab-btn {
+      flex: 1;
+      padding: 5px 8px;
+      font-size: 12px;
+      text-align: center;
+    }
   }
 
   .filters-group {
-    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 6px;
     flex-wrap: wrap;
-    justify-content: space-between;
+    justify-content: flex-end;
   }
 
   .search-input-wrap {
-    flex: 1;
-    min-width: 160px;
+    width: 140px;
+  }
+
+  .filter-btn {
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 640px) {
+  .col-date {
+    display: none;
+  }
+
+  .report-table {
+    min-width: 650px;
+  }
+
+  th.col-action,
+  td.col-action {
+    position: sticky;
+    right: 0;
+    z-index: 5;
+    box-shadow: -4px 0 8px rgba(0, 0, 0, 0.06);
+  }
+
+  th.col-action {
+    background: #f8fafc;
+  }
+
+  td.col-action {
+    background: #ffffff;
+  }
+
+  tr:hover td.col-action {
+    background: #f8fafc;
+  }
+
+  .start-test-btn,
+  .continue-test-btn,
+  .review-test-btn,
+  .retake-test-btn {
+    padding: 5px 10px;
+    font-size: 12px;
+    border-radius: 6px;
   }
 }
