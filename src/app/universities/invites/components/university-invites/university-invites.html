@@ -133,16 +133,23 @@
             <article class="invite-card" [class.cancelled]="inv.status.toUpperCase() === 'CANCELLED'">
               <div class="card-top">
                 <div class="candidate-meta">
-                  <a [routerLink]="['/university/students', inv.studentId]" class="student-id-link">
-                    <span class="id-tag">{{ inv.studentId }}</span>
-                    <app-icon name="arrow-right" [size]="12" />
-                  </a>
-                  @if (inv.student?.fullName) {
-                    <span class="candidate-name">{{ inv.student?.fullName }}</span>
-                  }
-                  @if (inv.student?.country) {
-                    <span class="candidate-loc">• {{ inv.student?.country }}</span>
-                  }
+                  <div class="candidate-avatar">
+                    <app-icon name="profile" [size]="18" />
+                  </div>
+                  <div class="candidate-info">
+                    <div class="candidate-name-row">
+                      <span class="candidate-name">{{ inv.student?.fullName || 'Candidate Student' }}</span>
+                      <a [routerLink]="['/university/students', inv.studentId]" class="student-id-link" title="View candidate profile">
+                        <span class="id-tag">{{ inv.studentId }}</span>
+                        <app-icon name="arrow-right" [size]="11" />
+                      </a>
+                    </div>
+                    @if (inv.student?.country || inv.student?.city) {
+                      <span class="candidate-loc">
+                        {{ inv.student?.city ? inv.student?.city + ', ' + inv.student?.country : inv.student?.country }}
+                      </span>
+                    }
+                  </div>
                 </div>
 
                 <span
