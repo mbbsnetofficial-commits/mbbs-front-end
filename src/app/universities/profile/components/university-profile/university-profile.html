@@ -716,9 +716,7 @@
                       </div>
                     }
                   </div>
-                </div>
-
-                <!-- Portal Security & Password Management Section -->
+                       <!-- Portal Security & Password Management Section -->
                 <div class="password-edit-section">
                   <div class="section-title-row">
                     <div class="sec-icon-circle password-icon-circle">
@@ -734,22 +732,6 @@
                           Update your institutional portal login password. Leave these fields blank if you do not wish to change your password.
                         </p>
                       </div>
-                      @if (formCurrentPassword || formNewPassword || formConfirmPassword) {
-                        <button
-                          type="button"
-                          class="btn-update-pwd-only"
-                          (click)="updatePasswordOnly()"
-                          [disabled]="changingPassword() || updating()"
-                        >
-                          @if (changingPassword()) {
-                            <span class="spinner-small"></span>
-                            <span>Updating...</span>
-                          } @else {
-                            <app-icon name="check" [size]="14" />
-                            <span>Update Password</span>
-                          }
-                        </button>
-                      }
                     </div>
                   </div>
 
@@ -878,11 +860,33 @@
                     </div>
                   </div>
 
-                  <div class="password-security-note">
-                    <app-icon name="check" [size]="13" />
-                    <span>Password changes take effect immediately across all active university portal sessions.</span>
+                  <!-- Password Action Row with Note & Dedicated Button -->
+                  <div class="password-action-row">
+                    <div class="password-security-note">
+                      <app-icon name="check" [size]="14" />
+                      <span>Password changes take effect immediately across all active university portal sessions.</span>
+                    </div>
+
+                    @if (formCurrentPassword || formNewPassword || formConfirmPassword) {
+                      <button
+                        type="button"
+                        class="btn-update-pwd-action"
+                        (click)="updatePasswordOnly()"
+                        [disabled]="changingPassword() || updating() || !formCurrentPassword.trim() || !formNewPassword.trim() || !formConfirmPassword.trim()"
+                        title="Update institutional login password"
+                      >
+                        @if (changingPassword()) {
+                          <span class="spinner-small"></span>
+                          <span>Updating Password...</span>
+                        } @else {
+                          <app-icon name="check" [size]="14" />
+                          <span>Update Password</span>
+                        }
+                      </button>
+                    }
                   </div>
                 </div>
+              </div>
 
                 <!-- Validation or API Error Alert -->
                 @if (formValidationErrorMessage() || error()) {

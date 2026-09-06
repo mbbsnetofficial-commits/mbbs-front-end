@@ -1367,18 +1367,76 @@
         }
       }
 
-      .password-security-note {
+      .password-action-row {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
-        font-size: 0.8rem;
-        color: #475569;
-        padding-top: 0.5rem;
+        justify-content: space-between;
+        gap: 1rem;
+        padding-top: 0.85rem;
         border-top: 1px solid #eef2f6;
+        flex-wrap: wrap;
 
-        app-icon {
-          color: #10b981;
-          flex-shrink: 0;
+        @media (max-width: 768px) {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .password-security-note {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-size: 0.8125rem;
+          color: #475569;
+          margin: 0;
+          padding: 0;
+          border: none;
+
+          app-icon {
+            color: #10b981;
+            flex-shrink: 0;
+          }
+        }
+
+        .btn-update-pwd-action {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+          background: #1e3a8a;
+          color: #ffffff;
+          border: 1px solid #1e3a8a;
+          border-radius: 8px;
+          padding: 0.625rem 1.25rem;
+          font-size: 0.875rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          box-shadow: 0 1px 3px rgba(30, 58, 138, 0.15);
+          white-space: nowrap;
+
+          &:hover:not(:disabled) {
+            background: #1d4ed8;
+            border-color: #1d4ed8;
+            box-shadow: 0 2px 6px rgba(29, 78, 216, 0.25);
+            transform: translateY(-1px);
+          }
+
+          &:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+          }
+
+          .spinner-small {
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.35);
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: inline-block;
+          }
         }
       }
     }

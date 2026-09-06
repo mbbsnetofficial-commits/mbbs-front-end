@@ -147,12 +147,25 @@ export class UniversityProfileComponent implements OnInit {
         },
         error: (err) => {
           this.changingPassword.set(false);
-          const msg =
+          const rawCode = err?.error?.error?.code || err?.error?.code;
+          let msg =
             err?.error?.message ||
             err?.error?.error?.message ||
             err?.error?.error ||
-            err?.message ||
-            'Failed to change password. Please verify your current password.';
+            err?.message;
+
+          if (rawCode === 'INVALID_CURRENT_PASSWORD' || msg?.toLowerCase().includes('current password is incorrect')) {
+            msg = 'The current password you entered is incorrect. Please check and try again.';
+          } else if (rawCode === 'CREDENTIAL_NOT_FOUND' || msg?.toLowerCase().includes('credential record not found')) {
+            msg = 'Institutional account credential record could not be found. Please contact portal administration.';
+          } else if (rawCode === 'SAME_PASSWORD' || msg?.toLowerCase().includes('different from')) {
+            msg = 'New password must be different from your current password.';
+          } else if (rawCode === 'WEAK_PASSWORD' || msg?.toLowerCase().includes('password must')) {
+            msg = 'New password must be at least 8 characters with uppercase, lowercase, number, and special character.';
+          } else if (!msg || typeof msg !== 'string') {
+            msg = 'Failed to change password. Please check your credentials and try again.';
+          }
+
           this.passwordErrorMessage.set(msg);
         },
       });
@@ -436,11 +449,25 @@ export class UniversityProfileComponent implements OnInit {
         }
       },
       error: (err) => {
-        const msg =
+        const rawCode = err?.error?.error?.code || err?.error?.code;
+        let msg =
           err?.error?.message ||
+          err?.error?.error?.message ||
           err?.error?.error ||
-          err?.message ||
-          'Failed to update organization profile. Please try again.';
+          err?.message;
+
+        if (rawCode === 'INVALID_CURRENT_PASSWORD' || msg?.toLowerCase().includes('current password is incorrect')) {
+          msg = 'The current password you entered is incorrect. Please check and try again.';
+        } else if (rawCode === 'CREDENTIAL_NOT_FOUND' || msg?.toLowerCase().includes('credential record not found')) {
+          msg = 'Institutional account credential record could not be found. Please contact portal administration.';
+        } else if (rawCode === 'SAME_PASSWORD' || msg?.toLowerCase().includes('different from')) {
+          msg = 'New password must be different from your current password.';
+        } else if (rawCode === 'WEAK_PASSWORD' || msg?.toLowerCase().includes('password must')) {
+          msg = 'New password must be at least 8 characters with uppercase, lowercase, number, and special character.';
+        } else if (!msg || typeof msg !== 'string') {
+          msg = 'Failed to update organization profile. Please try again.';
+        }
+
         this.formValidationErrorMessage.set(msg);
       },
     });
