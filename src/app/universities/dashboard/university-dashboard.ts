@@ -7,7 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { Icon } from '../../shared/ui/icon/icon';
+import { Icon, IconName } from '../../shared/ui/icon/icon';
 import { UniversityHeaderComponent } from '../shared/components/university-header/university-header';
 import { UniversityAuthService } from '../auth/services/university-auth.service';
 import { UniversityInvitesService } from '../invites/services/university-invites.service';
@@ -67,6 +67,39 @@ export class UniversityDashboardComponent implements OnInit {
 
   retry(): void {
     this.loadSummary();
+  }
+
+  getActivityIcon(type: string): IconName {
+    const t = (type || '').toUpperCase();
+    if (t.includes('SENT') || t.includes('INVITE_SENT')) return 'share';
+    if (t.includes('ACCEPTED')) return 'check';
+    if (t.includes('DECLINED') || t.includes('CANCEL')) return 'close';
+    return 'activity';
+  }
+
+  getActivityBadge(type: string): string {
+    const t = (type || '').toUpperCase();
+    switch (t) {
+      case 'INVITE_SENT':
+        return 'Offer Sent';
+      case 'INVITE_ACCEPTED':
+        return 'Offer Accepted';
+      case 'INVITE_DECLINED':
+        return 'Offer Declined';
+      case 'INVITE_CANCELLED':
+        return 'Offer Cancelled';
+      default:
+        return type ? type.replace(/_/g, ' ') : 'Activity Log';
+    }
+  }
+
+  getActivityBadgeClass(type: string): string {
+    const t = (type || '').toUpperCase();
+    if (t.includes('ACCEPTED')) return 'badge-success';
+    if (t.includes('DECLINED')) return 'badge-danger';
+    if (t.includes('CANCEL')) return 'badge-cancelled';
+    if (t.includes('SENT')) return 'badge-info';
+    return 'badge-neutral';
   }
 
   promptCancelInvite(invite: RecentInvite): void {

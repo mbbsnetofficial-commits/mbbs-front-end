@@ -1,102 +1,97 @@
 <div class="univ-invites-page">
   <app-university-header />
 
-  <!-- Subheader -->
-  <header class="univ-invites-header">
-    <div class="header-content">
-      <div class="header-left">
-        <a routerLink="/university/dashboard" class="back-link">
-          <app-icon name="arrow-right" [size]="15" class="back-icon" />
-          <span>Back to Dashboard</span>
-        </a>
-        <div class="title-row">
-          <div class="icon-badge">
-            <app-icon name="share" [size]="24" />
-          </div>
-          <div>
-            <h1 class="page-title">Sent Admission Offers</h1>
+  <main class="univ-invites-main">
+    <div class="invites-container">
+      <!-- Unique Unified Master Header & Controls Panel -->
+      <section class="invites-header-panel" aria-label="Sent admission offers overview and controls">
+        <div class="header-top-row">
+          <div class="header-title-block">
+            <div class="title-with-badge">
+              <div class="icon-badge">
+                <app-icon name="share" [size]="22" />
+              </div>
+              <h1 class="page-title">Sent Admission Offers</h1>
+              <span class="invites-tag">Direct Admissions</span>
+            </div>
             <p class="page-subtitle">
               Manage direct MBBS admission letters and invitations issued to prospective candidates.
             </p>
           </div>
-        </div>
-      </div>
 
-      <div class="header-actions">
-        <a routerLink="/university/students" class="btn-discover">
-          <app-icon name="sparkles" [size]="16" />
-          <span>Discover Candidates</span>
-        </a>
-      </div>
-    </div>
-  </header>
-
-  <main class="univ-invites-main">
-    <div class="invites-container">
-      <!-- Filter Bar & Search Controls -->
-      <section class="controls-card">
-        <!-- Status Tabs -->
-        <div class="status-tabs" role="tablist">
-          <button
-            type="button"
-            class="tab-btn"
-            [class.active]="currentStatus() === 'ALL'"
-            (click)="filterByStatus('ALL')"
-          >
-            All Offers
-          </button>
-          <button
-            type="button"
-            class="tab-btn"
-            [class.active]="currentStatus() === 'PENDING'"
-            (click)="filterByStatus('PENDING')"
-          >
-            Pending
-          </button>
-          <button
-            type="button"
-            class="tab-btn"
-            [class.active]="currentStatus() === 'ACCEPTED'"
-            (click)="filterByStatus('ACCEPTED')"
-          >
-            Accepted
-          </button>
-          <button
-            type="button"
-            class="tab-btn"
-            [class.active]="currentStatus() === 'DECLINED'"
-            (click)="filterByStatus('DECLINED')"
-          >
-            Declined
-          </button>
-          <button
-            type="button"
-            class="tab-btn"
-            [class.active]="currentStatus() === 'CANCELLED'"
-            (click)="filterByStatus('CANCELLED')"
-          >
-            Cancelled
-          </button>
+          <div class="header-actions">
+            <a routerLink="/university/students" class="btn-discover">
+              <app-icon name="sparkles" [size]="16" />
+              <span>Discover Candidates</span>
+            </a>
+          </div>
         </div>
 
-        <!-- Search Input -->
-        <div class="search-wrap">
-          <app-icon name="search" [size]="16" class="search-icon" />
-          <input
-            type="text"
-            placeholder="Search by Student ID or subject..."
-            [ngModel]="searchQuery()"
-            (ngModelChange)="onSearchInput($event)"
-          />
-          @if (searchQuery()) {
+        <!-- Filter Bar & Search Controls Inside Unified Panel (No Divider Line) -->
+        <div class="header-controls-row">
+          <!-- Status Tabs -->
+          <div class="status-tabs" role="tablist">
             <button
               type="button"
-              class="btn-clear-search"
-              (click)="onSearchInput('')"
+              class="tab-btn"
+              [class.active]="currentStatus() === 'ALL'"
+              (click)="filterByStatus('ALL')"
             >
-              <app-icon name="close" [size]="14" />
+              All Offers
             </button>
-          }
+            <button
+              type="button"
+              class="tab-btn"
+              [class.active]="currentStatus() === 'PENDING'"
+              (click)="filterByStatus('PENDING')"
+            >
+              Pending
+            </button>
+            <button
+              type="button"
+              class="tab-btn"
+              [class.active]="currentStatus() === 'ACCEPTED'"
+              (click)="filterByStatus('ACCEPTED')"
+            >
+              Accepted
+            </button>
+            <button
+              type="button"
+              class="tab-btn"
+              [class.active]="currentStatus() === 'DECLINED'"
+              (click)="filterByStatus('DECLINED')"
+            >
+              Declined
+            </button>
+            <button
+              type="button"
+              class="tab-btn"
+              [class.active]="currentStatus() === 'CANCELLED'"
+              (click)="filterByStatus('CANCELLED')"
+            >
+              Cancelled
+            </button>
+          </div>
+
+          <!-- Search Input -->
+          <div class="search-wrap">
+            <app-icon name="search" [size]="16" class="search-icon" />
+            <input
+              type="text"
+              placeholder="Search by Student ID or subject..."
+              [ngModel]="searchQuery()"
+              (ngModelChange)="onSearchInput($event)"
+            />
+            @if (searchQuery()) {
+              <button
+                type="button"
+                class="btn-clear-search"
+                (click)="onSearchInput('')"
+              >
+                <app-icon name="close" [size]="14" />
+              </button>
+            }
+          </div>
         </div>
       </section>
 

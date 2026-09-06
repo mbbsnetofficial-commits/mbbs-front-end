@@ -1,76 +1,73 @@
 <div class="univ-notifications-page">
   <app-university-header />
 
-  <!-- Notifications Page Header -->
-  <header class="univ-notifications-header">
-    <div class="header-content">
-      <div class="header-left">
-        <div class="title-row">
-          <div class="icon-badge">
-            <app-icon name="bell" [size]="22" />
-          </div>
-          <div>
+  <!-- Main Content Area -->
+  <main class="univ-notifications-main">
+    <div class="notifications-container">
+      <!-- Unique Unified Master Notifications Header Panel -->
+      <section class="notifications-header-panel" aria-label="Notifications overview and filters">
+        <div class="header-main-row">
+          <div class="header-title-block">
             <div class="title-with-badge">
+              <div class="icon-badge">
+                <app-icon name="bell" [size]="22" />
+              </div>
               <h1 class="page-title">Notifications</h1>
               @if (unreadCount() > 0) {
                 <span class="unread-pill">{{ unreadCount() }} Unread</span>
+              } @else {
+                <span class="all-read-pill">All Caught Up</span>
               }
             </div>
             <p class="page-subtitle">
               Stay updated on candidate invitations, status changes, and admissions activity.
             </p>
           </div>
-        </div>
-      </div>
 
-      <!-- Header Controls: Filters & Mark All as Read -->
-      <div class="header-controls">
-        <div class="header-filters">
-          <button
-            type="button"
-            class="filter-tab"
-            [class.active]="!unreadOnlyFilter()"
-            (click)="setFilter(false)"
-          >
-            <span>All</span>
-          </button>
-          <button
-            type="button"
-            class="filter-tab"
-            [class.active]="unreadOnlyFilter()"
-            (click)="setFilter(true)"
-          >
-            <span>Unread Only</span>
+          <!-- Header Controls: Filters & Mark All as Read -->
+          <div class="header-controls">
+            <div class="header-filters">
+              <button
+                type="button"
+                class="filter-tab"
+                [class.active]="!unreadOnlyFilter()"
+                (click)="setFilter(false)"
+              >
+                <span>All</span>
+              </button>
+              <button
+                type="button"
+                class="filter-tab"
+                [class.active]="unreadOnlyFilter()"
+                (click)="setFilter(true)"
+              >
+                <span>Unread Only</span>
+                @if (unreadCount() > 0) {
+                  <span class="filter-count-badge">{{ unreadCount() }}</span>
+                }
+              </button>
+            </div>
+
             @if (unreadCount() > 0) {
-              <span class="filter-count-badge">{{ unreadCount() }}</span>
+              <button
+                type="button"
+                class="btn-mark-all-read"
+                (click)="onMarkAllAsRead()"
+                [disabled]="markingAllRead()"
+                title="Mark all notifications as read"
+              >
+                @if (markingAllRead()) {
+                  <span class="spinner-small"></span>
+                  <span>Marking all read...</span>
+                } @else {
+                  <app-icon name="check" [size]="15" />
+                  <span>Mark all as read</span>
+                }
+              </button>
             }
-          </button>
+          </div>
         </div>
-
-        @if (unreadCount() > 0) {
-          <button
-            type="button"
-            class="btn-mark-all-read"
-            (click)="onMarkAllAsRead()"
-            [disabled]="markingAllRead()"
-            title="Mark all notifications as read"
-          >
-            @if (markingAllRead()) {
-              <span class="spinner-small"></span>
-              <span>Marking all read...</span>
-            } @else {
-              <app-icon name="check" [size]="15" />
-              <span>Mark all as read</span>
-            }
-          </button>
-        }
-      </div>
-    </div>
-  </header>
-
-  <!-- Main Content Area -->
-  <main class="univ-notifications-main">
-    <div class="notifications-container">
+      </section>
       <!-- Error State -->
       @if (error() && !loading()) {
         <section class="alert-card error" role="alert">

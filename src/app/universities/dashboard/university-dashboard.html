@@ -171,37 +171,63 @@
           <!-- Recent Invitations -->
           <section class="dashboard-card" aria-label="Recent Invitations">
             <div class="card-section-header">
-              <div class="section-title-wrap">
-                <app-icon name="share" [size]="20" />
-                <h3>Recent Invitations</h3>
+              <div class="header-title-group">
+                <div class="header-icon-box icon-box-blue">
+                  <app-icon name="share" [size]="18" />
+                </div>
+                <div class="header-text-block">
+                  <div class="title-with-badge">
+                    <h3>Recent Invitations</h3>
+                    <span class="count-pill">{{ data.recentInvites.slice(0, 10).length }}</span>
+                  </div>
+                  <p class="section-subtitle">Candidate admission offers and status</p>
+                </div>
               </div>
               <div class="header-right-meta">
-                <span class="count-badge">{{ data.recentInvites.length }}</span>
-                <a routerLink="/university/invites" class="link-view-all">View All →</a>
+                <a routerLink="/university/invites" class="link-view-all">
+                  <span>View All</span>
+                  <app-icon name="arrow-right" [size]="14" />
+                </a>
               </div>
             </div>
 
             @if (data.recentInvites.length > 0) {
               <div class="invites-list">
-                @for (invite of data.recentInvites; track invite._id) {
-                  <div class="invite-item">
-                    <div class="invite-main">
-                      <div class="invite-top">
-                        <span class="student-id-tag">{{ invite.studentId }}</span>
-                        <span
-                          class="status-pill"
-                          [class.status-pending]="invite.status.toUpperCase() === 'PENDING'"
-                          [class.status-accepted]="invite.status.toUpperCase() === 'ACCEPTED'"
-                          [class.status-declined]="invite.status.toUpperCase() === 'DECLINED'"
-                          [class.status-cancelled]="invite.status.toUpperCase() === 'CANCELLED'"
-                        >
-                          {{ invite.status }}
-                        </span>
+                @for (invite of data.recentInvites.slice(0, 10); track invite._id) {
+                  <div
+                    class="invite-card"
+                    [class.border-pending]="invite.status.toUpperCase() === 'PENDING'"
+                    [class.border-accepted]="invite.status.toUpperCase() === 'ACCEPTED'"
+                    [class.border-declined]="invite.status.toUpperCase() === 'DECLINED'"
+                    [class.border-cancelled]="invite.status.toUpperCase() === 'CANCELLED'"
+                  >
+                    <div class="invite-card-header">
+                      <div class="candidate-tag-wrap">
+                        <app-icon name="graduation-cap" [size]="15" />
+                        <span class="candidate-label">Candidate:</span>
+                        <span class="candidate-id">{{ invite.studentId }}</span>
                       </div>
-                      <h4 class="invite-subject">{{ invite.subject }}</h4>
+                      <span
+                        class="status-pill"
+                        [class.status-pending]="invite.status.toUpperCase() === 'PENDING'"
+                        [class.status-accepted]="invite.status.toUpperCase() === 'ACCEPTED'"
+                        [class.status-declined]="invite.status.toUpperCase() === 'DECLINED'"
+                        [class.status-cancelled]="invite.status.toUpperCase() === 'CANCELLED'"
+                      >
+                        <span class="status-indicator-dot"></span>
+                        {{ invite.status }}
+                      </span>
                     </div>
-                    <div class="invite-meta">
-                      <span class="invite-date">{{ invite.createdAt | date:'mediumDate' }}</span>
+
+                    <div class="invite-card-body">
+                      <h4 class="invite-subject" [title]="invite.subject">{{ invite.subject }}</h4>
+                    </div>
+
+                    <div class="invite-card-footer">
+                      <div class="invite-date-wrap">
+                        <app-icon name="clock" [size]="13" />
+                        <span>Sent {{ invite.createdAt | date:'mediumDate' }}</span>
+                      </div>
                       @if (invite.status.toUpperCase() === 'PENDING') {
                         <button
                           type="button"
@@ -209,13 +235,23 @@
                           (click)="promptCancelInvite(invite)"
                           title="Cancel active invitation"
                         >
-                          Cancel
+                          <app-icon name="close" [size]="12" />
+                          <span>Cancel Offer</span>
                         </button>
                       }
                     </div>
                   </div>
                 }
               </div>
+
+              @if (data.recentInvites.length > 10) {
+                <div class="card-footer-action">
+                  <a routerLink="/university/invites" class="btn-more-link">
+                    <span>View all {{ data.recentInvites.length }} invitations</span>
+                    <app-icon name="arrow-right" [size]="13" />
+                  </a>
+                </div>
+              }
             } @else {
               <div class="empty-state">
                 <div class="empty-icon-wrap">
@@ -230,29 +266,48 @@
           <!-- Recent Activity -->
           <section class="dashboard-card" aria-label="Recent Activity">
             <div class="card-section-header">
-              <div class="section-title-wrap">
-                <app-icon name="activity" [size]="20" />
-                <h3>Recent Activity</h3>
+              <div class="header-title-group">
+                <div class="header-icon-box icon-box-purple">
+                  <app-icon name="activity" [size]="18" />
+                </div>
+                <div class="header-text-block">
+                  <div class="title-with-badge">
+                    <h3>Recent Activity</h3>
+                    <span class="count-pill">{{ data.recentActivity.slice(0, 10).length }}</span>
+                  </div>
+                  <p class="section-subtitle">Real-time admissions updates and logs</p>
+                </div>
               </div>
-              <span class="count-badge">{{ data.recentActivity.length }}</span>
             </div>
 
             @if (data.recentActivity.length > 0) {
               <div class="activity-timeline">
-                @for (activity of data.recentActivity; track activity._id) {
-                  <div class="activity-item" [class.unread]="!activity.read">
-                    <div class="activity-dot"></div>
-                    <div class="activity-body">
-                      <div class="activity-top">
-                        <span class="activity-type-badge">{{ activity.type }}</span>
-                        <span class="activity-time">{{ activity.createdAt | date:'short' }}</span>
+                @for (activity of data.recentActivity.slice(0, 10); track activity._id) {
+                  <div
+                    class="activity-item"
+                    [class.unread]="!activity.read"
+                    [class]="getActivityBadgeClass(activity.type)"
+                  >
+                    <div class="activity-node-icon">
+                      <app-icon [name]="getActivityIcon(activity.type)" [size]="13" />
+                    </div>
+                    <div class="activity-body-card">
+                      <div class="activity-card-top">
+                        <span class="activity-type-pill">{{ getActivityBadge(activity.type) }}</span>
+                        <span class="activity-time">{{ activity.createdAt | date:'MMM d, y • h:mm a' }}</span>
                       </div>
-                      <h4 class="activity-title">{{ activity.title }}</h4>
-                      <p class="activity-message">{{ activity.message }}</p>
+                      <h4 class="activity-card-title">{{ activity.title }}</h4>
+                      <p class="activity-card-message">{{ activity.message }}</p>
                     </div>
                   </div>
                 }
               </div>
+
+              @if (data.recentActivity.length > 10) {
+                <div class="card-footer-action">
+                  <span class="text-muted-summary">Showing latest 10 of {{ data.recentActivity.length }} logged events</span>
+                </div>
+              }
             } @else {
               <div class="empty-state">
                 <div class="empty-icon-wrap">
