@@ -2,309 +2,195 @@
   class="destinations-section"
   id="destinations"
   #mapSection
-  [class.is-revealed]="isRevealed()"
-  aria-label="Study Medicine Abroad - Global Medical Atlas"
+  aria-label="Explore global medical destinations"
+  (keydown.escape)="clearUniversitySelection()"
 >
-  <!-- Full-Width Panoramic Interactive Realistic World Map -->
-  <div class="atlas-viewport" role="region" aria-label="Interactive World Map of Medical Education">
-    <svg
-      class="atlas-svg"
-      xmlns="http://www.w3.org/2000/svg"
-      [attr.viewBox]="mapViewBox()"
-      preserveAspectRatio="xMidYMid slice"
-      aria-label="World Map"
-    >
-      <!-- Base Ocean Fill covering all directions (clicking returns to world view when zoomed) -->
-      <rect
-        class="atlas-ocean-base"
-        x="-2000"
-        y="-2000"
-        width="4000"
-        height="4000"
-        fill="#041716"
-        (click)="isCountryView() && resetToWorldView()"
-      />
-
-      <!-- Robust Geographic Vector Landmass Layer (World View backdrop) -->
-      @if (isWorldView()) {
-      <g class="countries-fallback-layer">
-        @for (c of countries; track 'fb_' + c.code + '_' + $index) {
-        <path
-          class="country-fallback-shape"
-          [attr.d]="c.d"
-        />
-        }
-      </g>
-      }
-
-      <!-- Base Global Realistic Satellite Terrain Layer -->
-      <image
-        href="/images/destinations-world-realistic.jpg"
-        x="60"
-        y="45"
-        width="880"
-        height="380"
-        preserveAspectRatio="none"
-        class="atlas-raster"
-      />
-
-      <!-- Dynamic High-Resolution Targeted Satellite Imagery Layer -->
-      @if (isCountryView() && activeCountryCode(); as currentCode) {
-        @for (code of [currentCode]; track code) {
-          @if (highResImageUrl(); as highResUrl) {
-            @if (highResImageBounds(); as b) {
-            <image
-              [attr.id]="'highres-raster-' + code"
-              [attr.href]="highResUrl"
-              [attr.xlink:href]="highResUrl"
-              [attr.x]="b.x"
-              [attr.y]="b.y"
-              [attr.width]="b.width"
-              [attr.height]="b.height"
-              preserveAspectRatio="none"
-              class="country-highres-raster"
-              [class.is-loaded]="highResImageLoaded()"
-              (load)="onSatelliteImageLoaded(code, highResUrl)"
-            />
+  <div
+    class="globe-stage"
+    [class.is-ready]="renderState() === 'ready'"
+    [class.is-country]="isCountryView()"
+  >
+    <div
+      class="globe-host"
+      #globeHost
+      role="group"
+      tabindex="0"
+      aria-label="Interactive Earth. Drag to rotate. Use the zoom buttons. Keyboard: left and right arrows rotate, plus and minus zoom."
+      (keydown.arrowLeft)="$event.preventDefault(); rotate(-1)"
+      (keydown.arrowRight)="$event.preventDefault(); rotate(1)"
+      (keydown.+)="zoom(1)"
+      (keydown.-)="zoom(-1)"
+    ></div>
+    @if (renderState() === 'ready') {
+      <div class="geographic-labels" aria-label="Destinations on Earth">
+        @for (anchor of visibleAnchors(); track anchor.kind + anchor.id) {
+          <button
+            type="button"
+            class="geo-marker"
+            [attr.aria-pressed]="
+              anchor.kind === 'university' ? selectedUniversityId() === anchor.id : null
+            "
+            [style.left.px]="anchor.x"
+            [style.top.px]="anchor.y"
+            [attr.aria-label]="anchor.kind === 'country' ? 'Explore ' + anchor.label : anchor.label"
+            (click)="onAnchorClick(anchor)"
+            (mouseenter)="anchor.kind === 'university' && hoveredUniversityId.set(anchor.id)"
+            (mouseleave)="hoveredUniversityId.set('')"
+            (focus)="anchor.kind === 'university' && hoveredUniversityId.set(anchor.id)"
+            (blur)="hoveredUniversityId.set('')"
+          >
+            <!-- Visible points are rendered in the WebGL scene; this is an accessible hit target. -->
+            @if (anchor.kind === 'country' && anchor.showLabel) {
+              <span class="marker-label">{{ anchor.label }}</span>
             }
-          }
+          </button>
         }
-      }
+      </div>
+    }
+  </div>
 
-      <!-- Deep Medical Ocean & Atmosphere Overlay -->
-      <rect class="atlas-ocean-tint" x="-2000" y="-2000" width="4000" height="4000" />
-
-      <!-- Interactive Country Boundaries (Rendered only in World View for selection; country view has ZERO boundary overlay) -->
-      @if (isWorldView()) {
-      <g class="countries-layer">
-        @for (c of countries; track c.code + '_' + $index) {
-        <path
-          [attr.id]="'country-' + c.code"
-          class="country-boundary"
-          [class.is-supported]="isCountrySupported(c.code)"
-          [class.is-active]="isCountryActive(c.code)"
-          [class.is-hovered]="isCountryHovered(c.code)"
-          [attr.d]="c.d"
-          (mouseenter)="onMarkerHover(c.code)"
-          (mouseleave)="onMarkerHover(null)"
-          (click)="selectDestination(c.code)"
-        />
-        }
-      </g>
-      }
-
-      <!-- Origin Hub (Dynamically loaded if present in Countries API and in World View) -->
-      @if (isWorldView() && originCountry(); as origin) {
-      <g class="origin-node" transform="translate(703.2, 200.3)" [attr.aria-label]="origin.name + ' - Origin Hub'">
-        <circle class="origin-pulse pulse-1" r="3.6" />
-        <circle class="origin-ring" r="3.6" />
-        <circle class="origin-dot" r="1.8" />
-        <text class="origin-label" x="7" y="0">{{ origin.name | uppercase }}</text>
-        <text class="origin-sublabel" x="7" y="6.5">ORIGIN</text>
-      </g>
-      }
-
-      <!-- Medical Destination Markers (Dynamically loaded from Countries API) with Direct Country Labels -->
-      @for (dest of activeCountryMarkers(); track dest.countryCode) {
-        @if (isCountryActive(dest.countryCode)) {
-        <!-- Active Destination: Lime point + pulsing ring + uppercase label + universities sublabel -->
-        <g
-          class="destination-node is-active"
-          [attr.transform]="'translate(' + dest.x + ',' + dest.y + ')'"
-          (click)="selectDestination(dest.countryCode)"
-          tabindex="0"
-          role="button"
-          [attr.aria-label]="dest.countryName + ': ' + dest.universityCount + ' universities (Selected)'"
-        >
-          <circle class="marker-ring" [attr.r]="markerRingRadius()" />
-          <circle class="marker-point" [attr.r]="markerPointRadius()" />
-          <text
-            class="marker-label"
-            [style.font-size.px]="markerLabelFontSize()"
-            [attr.x]="getLabelDx(dest) * markerScaleFactor()"
-            [attr.y]="getLabelDy(dest) * markerScaleFactor()"
-            [attr.text-anchor]="getLabelAnchor(dest)"
-          >
-            {{ dest.countryName | uppercase }}
-          </text>
-          @if (dest.universityCount > 0) {
-          <text
-            class="marker-sublabel"
-            [style.font-size.px]="markerSublabelFontSize()"
-            [attr.x]="getLabelDx(dest) * markerScaleFactor()"
-            [attr.y]="(getLabelDy(dest) + 5) * markerScaleFactor()"
-            [attr.text-anchor]="getLabelAnchor(dest)"
-          >
-            {{ dest.universityCount }} UNIVERSITIES
-          </text>
-          }
-        </g>
-        } @else if (isWorldView()) {
-        <!-- Inactive Destination: Marker dot with direct uppercase label (World View) -->
-        <g
-          class="destination-node is-inactive"
-          [class.is-hovered]="isCountryHovered(dest.countryCode)"
-          [attr.transform]="'translate(' + dest.x + ',' + dest.y + ')'"
-          (mouseenter)="onMarkerHover(dest.countryCode)"
-          (mouseleave)="onMarkerHover(null)"
-          (click)="selectDestination(dest.countryCode)"
-          (keydown)="onMarkerKeydown($event, dest.countryCode)"
-          tabindex="0"
-          role="button"
-          [attr.aria-label]="dest.countryName + ': ' + dest.universityCount + ' universities'"
-        >
-          <circle class="marker-point" r="1.6" />
-          @if (dest.showLabel || isCountryHovered(dest.countryCode)) {
-          <text
-            class="marker-label"
-            [attr.x]="getLabelDx(dest)"
-            [attr.y]="getLabelDy(dest)"
-            [attr.text-anchor]="getLabelAnchor(dest)"
-          >
-            {{ dest.countryName | uppercase }}
-          </text>
-          }
-        </g>
-        }
-      }
-      <!-- Authentic API-Driven University Markers Layer (Country View) -->
-      @if (isCountryView() && activeCountryUniversities().length > 0) {
-      <g class="universities-layer" aria-label="Medical Universities in Selected Country">
-        @for (uni of activeCountryUniversities(); track uni.id) {
-        <g
-          class="university-node"
-          [class.is-hovered]="hoveredUniversity()?.id === uni.id"
-          [class.is-selected]="selectedUniversity()?.id === uni.id"
-          [attr.transform]="'translate(' + uni.x + ',' + uni.y + ')'"
-          (mouseenter)="onUniversityHover(uni)"
-          (mouseleave)="onUniversityHover(null)"
-          (click)="onUniversityClick(uni, $event)"
-          tabindex="0"
-          role="button"
-          [attr.aria-label]="uni.name + ', ' + uni.countryName"
-        >
-          <!-- Invisible generous hit circle for effortless hover and touch -->
-          <circle class="uni-hitbox" [attr.r]="uniDotHitRadius()" fill="transparent" />
-
-          <!-- Interactive outer pulse halo on hover/select -->
-          @if (hoveredUniversity()?.id === uni.id || selectedUniversity()?.id === uni.id) {
-          <circle class="uni-halo" [attr.r]="uniDotRadius() * 2.6" />
-          }
-
-          <!-- Core University Dot -->
-          <circle class="uni-dot" [attr.r]="uniDotRadius()" />
-        </g>
-        }
-
-        <!-- Lightweight Floating Tooltip above Hovered/Active University Dot -->
-        @if (activeUniversityPopup(); as popup) {
-        <g
-          class="uni-tooltip-group"
-          [attr.transform]="'translate(' + popup.x + ',' + (popup.y - (uniDotRadius() + 3.2) * markerScaleFactor()) + ')'"
-          pointer-events="none"
-        >
-          <!-- Pill Backdrop -->
-          <rect
-            class="uni-tooltip-pill"
-            [attr.x]="-getUniTooltipWidth(popup.name) / 2"
-            [attr.y]="-11 * markerScaleFactor()"
-            [attr.width]="getUniTooltipWidth(popup.name)"
-            [attr.height]="10 * markerScaleFactor()"
-            [attr.rx]="2 * markerScaleFactor()"
-          />
-          <!-- University Name with Accent Glyph -->
-          <text
-            class="uni-tooltip-label"
-            text-anchor="middle"
-            [attr.y]="-4.8 * markerScaleFactor()"
-            [style.font-size.px]="Math.max(1.0, 3.8 * markerScaleFactor())"
-          >
-            <tspan class="uni-tooltip-star">✦ </tspan>{{ popup.name }}
-          </text>
-        </g>
-        }
-      </g>
-      }
-    </svg>
-
-    <!-- Floating Return to World View Navigation Control -->
-    @if (isCountryView()) {
-    <div class="map-controls-overlay">
-      <button
-        type="button"
-        class="btn-back-to-world"
-        (click)="resetToWorldView()"
-        aria-label="Return to World Map"
+  <div class="country-control">
+    <label for="destination-picker">SELECT A COUNTRY</label>
+    <div class="picker-wrap">
+      <svg aria-hidden="true" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="9" />
+        <ellipse cx="12" cy="12" rx="4" ry="9" />
+        <path d="M3 12h18M5 6.5h14M5 17.5h14" />
+      </svg>
+      <select
+        id="destination-picker"
+        [value]="activeCountryCode()"
+        (change)="
+          $any($event.target).value
+            ? selectDestination($any($event.target).value)
+            : resetToWorldView()
+        "
+        [disabled]="!activeCountryMarkers().length"
       >
-        <svg class="back-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="19" y1="12" x2="5" y2="12"></line>
-          <polyline points="12 19 5 12 12 5"></polyline>
-        </svg>
-        <span class="back-text">WORLD MAP</span>
-      </button>
+        <option value="" [selected]="!activeCountryCode()">
+          {{ countriesLoading() ? 'Loading destinations…' : 'Explore a country' }}
+        </option>
+        @for (dest of activeCountryMarkers(); track dest.id) {
+          <option [value]="dest.countryCode" [selected]="activeCountryCode() === dest.countryCode">
+            {{ dest.countryName }}
+          </option>
+        }
+      </select>
     </div>
+    @if (!countriesLoading() && !activeCountryMarkers().length) {
+      <p class="location-note">Destinations are temporarily unavailable.</p>
+    }
+  </div>
 
-    <!-- Dedicated Floating University Details Card on Click -->
-    @if (selectedUniversity(); as selUni) {
-    <div class="university-detail-card" role="dialog" aria-label="Selected University Information">
-      <button
-        type="button"
-        class="card-close-btn"
-        (click)="clearUniversitySelection()"
-        aria-label="Close University Card"
-      >
-        ✕
-      </button>
-      <div class="card-badge">
-        <span class="badge-star">✦</span>
-        <span class="badge-text">MEDICAL UNIVERSITY</span>
-      </div>
-      <h4 class="card-uni-name">{{ selUni.name }}</h4>
-      <div class="card-country-name">{{ selUni.countryName }}</div>
-      @if (selUni.city || selUni.type) {
-      <div class="card-uni-meta">
-        @if (selUni.city) {
-        <span class="meta-item">{{ selUni.city }}</span>
-        }
-        @if (selUni.city && selUni.type) {
-        <span class="meta-sep">•</span>
-        }
-        @if (selUni.type) {
-        <span class="meta-item">{{ selUni.type }}</span>
-        }
-      </div>
+  @if (renderState() === 'loading') {
+    <div class="world-loading" role="status">
+      <span class="loading-orbit" aria-hidden="true"></span><span class="eyebrow">DESTINATIONS</span
+      ><span>Loading the world…</span>
+    </div>
+  } @else if (renderState() === 'unavailable') {
+    <div class="world-loading unavailable-message" role="status">
+      <span class="eyebrow">EXPLORE DESTINATIONS</span>
+      <p>
+        The 3D view is unavailable on this device.<br />Choose a country to explore its
+        universities.
+      </p>
+      <button type="button" class="text-button" (click)="retryGlobe()">Try 3D again</button>
+    </div>
+  }
+
+  @if (selectedCountry(); as country) {
+    <div class="country-caption">
+      <button type="button" class="btn-back-to-world" (click)="resetToWorldView()">← WORLD</button>
+      <h2 class="explorer-country-title">{{ country.countryName }}</h2>
+      <p class="country-count" aria-live="polite">
+        {{ universitiesLoading() || loading() ? '—' : country.universityCount }}
+        {{ country.universityCount === 1 ? 'UNIVERSITY' : 'UNIVERSITIES' }}
+      </p>
+      @if (country.universities.length) {
+        <label class="sr-only" for="university-picker">University directory</label>
+        <select
+          id="university-picker"
+          class="university-picker"
+          [value]="selectedUniversityId()"
+          (change)="selectUniversity($any($event.target).value)"
+        >
+          <option value="" [selected]="!selectedUniversityId()">Browse universities</option>
+          @for (uni of country.universities; track uni._id) {
+            <option [value]="uni._id" [selected]="selectedUniversityId() === uni._id">
+              {{ uni.name }}
+            </option>
+          }
+        </select>
       }
-      @if (selUni.website) {
+      @if (unmappedCount() > 0) {
+        <p class="location-note">
+          {{
+            activeCountryUniversities().length
+              ? 'Some campus locations are not available yet.'
+              : 'Campus coordinates not yet available.'
+          }}
+        </p>
+      }
       <a
-        [href]="selUni.website"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="card-website-btn"
+        class="explore-link sr-only"
+        routerLink="/auth/register"
+        [queryParams]="{ destination: country.countryName }"
+        >Explore {{ country.countryName }}</a
       >
-        <span>Official Website</span>
-        <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-          <polyline points="15 3 21 3 21 9"></polyline>
-          <line x1="10" y1="14" x2="21" y2="3"></line>
-        </svg>
-      </a>
-      }
     </div>
-    }
-    }
-  </div>
+  }
 
-  <!-- Screen-Reader Accessible Directory -->
-  <div class="sr-only">
-    <h3>All Medical Destinations ({{ totalDestinationsCount() }})</h3>
-    <ul>
-      @for (dest of activeCountryMarkers(); track dest.countryCode || dest.id) {
-      <li>
-        {{ dest.countryName }}: {{ dest.universityCount }} universities available.
-        <a routerLink="/auth/register" [queryParams]="{ destination: dest.countryName }">Explore {{ dest.countryName }}</a>
-      </li>
+  @if (activeUniversity(); as university) {
+    <aside class="university-detail-card" aria-label="University information">
+      <button
+        type="button"
+        class="card-close"
+        (click)="clearUniversitySelection()"
+        aria-label="Close university information"
+      >
+        ×
+      </button>
+      <h3>{{ university.name }}</h3>
+      <p>{{ activeUniversitySubtitle() }}</p>
+      @if (university.type) {
+        <span class="university-type">{{ university.type }}</span>
       }
-    </ul>
-  </div>
-</section>
+      <div class="university-links">
+        @if (officialWebsite(university.official_website); as website) {
+          <a [href]="website" target="_blank" rel="noopener noreferrer">Official website ↗</a>
+        }
+        <a
+          routerLink="/auth/register"
+          [queryParams]="{ destination: selectedCountry()?.countryName }"
+          >Explore destination ↗</a
+        >
+      </div>
+    </aside>
+  }
 
+  <div class="map-status" role="status">
+    @if (terrainState() === 'loading' && isCountryView()) {
+      <span>Preparing satellite terrain…</span>
+    } @else if (terrainState() === 'unavailable' && renderState() === 'ready') {
+      <span>Showing global satellite imagery</span>
+    } @else if (isZooming()) {
+      <span>Travelling to {{ selectedCountry()?.countryName || 'the world' }}…</span>
+    } @else if (renderState() === 'ready') {
+      <span class="desktop-hint">Drag to rotate · Use + / − to zoom</span
+      ><span class="mobile-hint">Two fingers to rotate · + / − to zoom</span>
+    }
+  </div>
+  @if (renderState() === 'ready') {
+    <div class="globe-controls" aria-label="Globe controls">
+      <button type="button" (click)="zoom(1)" aria-label="Zoom in">+</button>
+      <button type="button" (click)="zoom(-1)" aria-label="Zoom out">−</button>
+      <button type="button" (click)="resetToWorldView()" aria-label="Reset to world view">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="6" />
+          <circle cx="12" cy="12" r="2" />
+          <path d="M12 2v4m0 12v4M2 12h4m12 0h4" />
+        </svg>
+      </button>
+    </div>
+  }
+</section>

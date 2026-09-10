@@ -1622,6 +1622,19 @@ $mbbs-deep-80: rgba(9, 43, 42, 0.82);
     }
   }
 }
+
+// ==========================================================================
+// FULL-BLEED DESTINATIONS WORLD MAP HOST
+// ==========================================================================
+app-destinations-map {
+  display: block;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 // ==========================================================================
 // MAKE AN INFORMED CHOICE SECTION (REFINED CHARCOAL EDITORIAL)
 // ==========================================================================
