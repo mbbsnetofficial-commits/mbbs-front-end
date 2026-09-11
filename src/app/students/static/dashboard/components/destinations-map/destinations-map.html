@@ -154,7 +154,7 @@
         <div class="university-media">
           <img
             [src]="mediaUrl"
-            [alt]="university.name + ' campus image'"
+            [alt]="university.name"
             (error)="onUniversityMediaError(mediaUrl)"
           />
         </div>
@@ -171,7 +171,7 @@
         <p class="campus-location">Exact campus coordinates are not available yet.</p>
       }
       @if (university.type) {
-        <span class="university-type">{{ university.type }}</span>
+        <span class="university-type">{{ university.type.replaceAll('_', ' ') }}</span>
       }
       @if (activeUniversityMarker()?.sourceLabel; as sourceLabel) {
         <p class="coordinate-source">

@@ -344,7 +344,7 @@ export class DestinationGlobe {
     try {
       let texture = this.textures.get(code);
       if (!texture) {
-        texture = await this.loadCountryTexture(code, frame);
+        texture = await this.loadCountryTexture(code, frame, this.terrainRequest.signal);
         if (this.disposed || token !== this.generation) {
           this.releaseTexture(texture);
           return;
@@ -418,25 +418,25 @@ export class DestinationGlobe {
   private async loadCountryTexture(
     code: string,
     frame: ReturnType<typeof countryFrame>,
+    signal: AbortSignal,
   ): Promise<THREE.Texture> {
     const manifest = await this.getCountryTextureManifest();
+    signal.throwIfAborted();
     const localUrl = manifest[code]?.url;
     if (localUrl) {
       try {
-        return await this.loadTexture(localUrl, this.terrainRequest?.signal);
+        return await this.loadTexture(localUrl, signal);
       } catch {
+        signal.throwIfAborted();
         // Fall through to live imagery if a cached file is missing or corrupt.
       }
     }
-    return this.loadTexture(
-      satelliteUrl(frame.bounds, this.width < 700 ? 1536 : 2048),
-      this.terrainRequest?.signal,
-    );
+    return this.loadTexture(satelliteUrl(frame.bounds, this.width < 700 ? 1536 : 2048), signal);
   }
 
   private getCountryTextureManifest(): Promise<CountryTextureManifest> {
     this.countryTextureManifest ??= fetch('/images/earth/countries/manifest.json', {
-      signal: this.requests.signal,
+      signal: AbortSignal.any([this.requests.signal, AbortSignal.timeout(12000)]),
     })
       .then((res) => (res.ok ? res.json() : {}))
       .catch(() => ({}));

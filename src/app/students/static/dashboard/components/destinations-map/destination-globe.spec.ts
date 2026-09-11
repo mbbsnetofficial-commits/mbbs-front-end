@@ -155,6 +155,65 @@ describe('Destination globe interaction and scene geography', () => {
     );
     expect(terrain).toHaveBeenLastCalledWith('ready');
   });
+  it('downloads only the latest country when selection changes during manifest loading', async () => {
+    let resolveManifest!: (response: Response) => void;
+    const manifest = new Promise<Response>((resolve) => (resolveManifest = resolve));
+    const fetch = vi.fn((url: string) =>
+      url.endsWith('/manifest.json')
+        ? manifest
+        : Promise.resolve(new Response(new Blob(['terrain'], { type: 'image/jpeg' }))),
+    );
+    vi.stubGlobal('fetch', fetch);
+    const turkey = globe.focus('TR');
+    const georgia = globe.focus('GE');
+    resolveManifest(
+      new Response(
+        JSON.stringify({
+          TR: { url: '/images/earth/countries/TR.jpg' },
+          GE: { url: '/images/earth/countries/GE.jpg' },
+        }),
+      ),
+    );
+    await Promise.all([turkey, georgia]);
+    expect(fetch.mock.calls.map(([url]) => url)).toEqual([
+      '/images/earth/countries/manifest.json',
+      '/images/earth/countries/GE.jpg',
+    ]);
+    expect(terrain).toHaveBeenLastCalledWith('ready');
+    await globe.focus('GE');
+    expect(fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it('does not start a live fallback when a country download was cancelled', async () => {
+    let rejectTurkey!: (reason: Error) => void;
+    let startedTurkey!: () => void;
+    const started = new Promise<void>((resolve) => (startedTurkey = resolve));
+    const fetch = vi.fn((url: string) => {
+      if (url.endsWith('/manifest.json'))
+        return Promise.resolve(
+          new Response(
+            JSON.stringify({
+              TR: { url: '/images/earth/countries/TR.jpg' },
+              GE: { url: '/images/earth/countries/GE.jpg' },
+            }),
+          ),
+        );
+      if (url.endsWith('/TR.jpg')) {
+        startedTurkey();
+        return new Promise<Response>((_, reject) => (rejectTurkey = reject));
+      }
+      return Promise.resolve(new Response(new Blob(['terrain'], { type: 'image/jpeg' })));
+    });
+    vi.stubGlobal('fetch', fetch);
+    const turkey = globe.focus('TR');
+    await started;
+    const georgia = globe.focus('GE');
+    rejectTurkey(new DOMException('Aborted', 'AbortError'));
+    await Promise.all([turkey, georgia]);
+    expect(fetch.mock.calls.some(([url]) => url.includes('arcgisonline'))).toBe(false);
+    expect(terrain).toHaveBeenLastCalledWith('ready');
+  });
+
   it('keeps sunlight fixed during manual rotation and restores world framing', () => {
     const sun = state.uniforms.sun.value.clone();
     const distance = state.camera.position.length();

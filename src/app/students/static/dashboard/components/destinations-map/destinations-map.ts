@@ -281,7 +281,14 @@ export class DestinationsMap {
       if (this.destroyRef.destroyed || initialization !== this.initialization) return;
       this.renderState.set('ready');
       this.syncAnchors();
-      if (this.activeCountryCode()) void this.globe.focus(this.activeCountryCode());
+      if (this.activeCountryCode()) {
+        void this.globe.focus(this.activeCountryCode());
+        // A directory selection made while Earth loads remains the camera target.
+        const campus = this.activeCountryUniversities().find(
+          (u) => u.id === this.selectedUniversityId(),
+        );
+        if (campus) this.globe.focusLocation(campus);
+      }
     } catch {
       if (!this.destroyRef.destroyed && initialization === this.initialization)
         this.showUnavailable();
