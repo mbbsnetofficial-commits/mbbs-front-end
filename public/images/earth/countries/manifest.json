@@ -1,0 +1,502 @@
+{
+  "AU": {
+    "bounds": [
+      93.23463,
+      -59.04937,
+      173.54787,
+      9.223670000000002
+    ],
+    "url": "/images/earth/countries/AU.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=93.23463,-59.04937,173.54787,9.223670000000002&bboxSR=4326&imageSR=4326&size=1536,1306&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "AT": {
+    "bounds": [
+      -2.4635999999999996,
+      34.3884,
+      29.1286,
+      61.0095
+    ],
+    "url": "/images/earth/countries/AT.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=-2.4635999999999996,34.3884,29.1286,61.0095&bboxSR=4326&imageSR=4326&size=1536,1294&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "BE": {
+    "bounds": [
+      -9.496500000000001,
+      37.5081,
+      18.3638,
+      63.5054
+    ],
+    "url": "/images/earth/countries/BE.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=-9.496500000000001,37.5081,18.3638,63.5054&bboxSR=4326&imageSR=4326&size=1536,1433&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "BG": {
+    "bounds": [
+      10.3503,
+      29.2389,
+      40.5656,
+      56.2384
+    ],
+    "url": "/images/earth/countries/BG.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=10.3503,29.2389,40.5656,56.2384&bboxSR=4326&imageSR=4326&size=1536,1373&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "HR": {
+    "bounds": [
+      1.5123999999999995,
+      30.9514,
+      31.4197,
+      58.554
+    ],
+    "url": "/images/earth/countries/HR.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=1.5123999999999995,30.9514,31.4197,58.554&bboxSR=4326&imageSR=4326&size=1536,1418&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "BA": {
+    "bounds": [
+      3.7101000000000006,
+      30.5559,
+      31.639,
+      57.2961
+    ],
+    "url": "/images/earth/countries/BA.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=3.7101000000000006,30.5559,31.639,57.2961&bboxSR=4326&imageSR=4326&size=1536,1471&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "CZ": {
+    "bounds": [
+      0.0730000000000004,
+      36.5444,
+      30.8151,
+      63.039
+    ],
+    "url": "/images/earth/countries/CZ.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=0.0730000000000004,36.5444,30.8151,63.039&bboxSR=4326&imageSR=4326&size=1536,1324&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "CY": {
+    "bounds": [
+      20.285899999999998,
+      22.6207,
+      45.7082,
+      47.1758
+    ],
+    "url": "/images/earth/countries/CY.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=20.285899999999998,22.6207,45.7082,47.1758&bboxSR=4326&imageSR=4326&size=1536,1484&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "DK": {
+    "bounds": [
+      -3.9102999999999994,
+      42.809,
+      22.9573,
+      69.751
+    ],
+    "url": "/images/earth/countries/DK.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=-3.9102999999999994,42.809,22.9573,69.751&bboxSR=4326&imageSR=4326&size=1536,1536&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "EE": {
+    "bounds": [
+      11.395,
+      45.5169,
+      40.173100000000005,
+      71.6575
+    ],
+    "url": "/images/earth/countries/EE.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=11.395,45.5169,40.173100000000005,71.6575&bboxSR=4326&imageSR=4326&size=1536,1395&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "FI": {
+    "bounds": [
+      8.630199999999999,
+      47.8247,
+      43.556799999999996,
+      82.0903
+    ],
+    "url": "/images/earth/countries/FI.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=8.630199999999999,47.8247,43.556799999999996,82.0903&bboxSR=4326&imageSR=4326&size=1536,1507&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "FR": {
+    "bounds": [
+      -9.79,
+      34.22,
+      14.21,
+      58.22
+    ],
+    "url": "/images/earth/countries/FR.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=-9.79,34.22,14.21,58.22&bboxSR=4326&imageSR=4326&size=1536,1536&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "GE": {
+    "bounds": [
+      27.979100000000003,
+      29.0415,
+      58.6484,
+      55.5452
+    ],
+    "url": "/images/earth/countries/GE.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=27.979100000000003,29.0415,58.6484,55.5452&bboxSR=4326&imageSR=4326&size=1536,1327&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "GR": {
+    "bounds": [
+      7.981200000000001,
+      24.384999999999998,
+      38.6485,
+      53.7654
+    ],
+    "url": "/images/earth/countries/GR.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=7.981200000000001,24.384999999999998,38.6485,53.7654&bboxSR=4326&imageSR=4326&size=1536,1472&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "DE": {
+    "bounds": [
+      -6.1333,
+      35.2832,
+      27.0396,
+      66.9092
+    ],
+    "url": "/images/earth/countries/DE.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=-6.1333,35.2832,27.0396,66.9092&bboxSR=4326&imageSR=4326&size=1536,1464&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "HU": {
+    "bounds": [
+      4.0929,
+      33.7262,
+      34.8862,
+      60.5776
+    ],
+    "url": "/images/earth/countries/HU.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=4.0929,33.7262,34.8862,60.5776&bboxSR=4326&imageSR=4326&size=1536,1339&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "IE": {
+    "bounds": [
+      -22.4697,
+      39.4388,
+      6.0152,
+      67.3771
+    ],
+    "url": "/images/earth/countries/IE.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=-22.4697,39.4388,6.0152,67.3771&bboxSR=4326&imageSR=4326&size=1536,1507&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "IT": {
+    "bounds": [
+      -5.4048,
+      25.923299999999998,
+      30.5123,
+      59.0843
+    ],
+    "url": "/images/earth/countries/IT.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=-5.4048,25.923299999999998,30.5123,59.0843&bboxSR=4326&imageSR=4326&size=1536,1418&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "LV": {
+    "bounds": [
+      8.950299999999999,
+      43.6779,
+      40.2382,
+      70.0855
+    ],
+    "url": "/images/earth/countries/LV.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=8.950299999999999,43.6779,40.2382,70.0855&bboxSR=4326&imageSR=4326&size=1536,1296&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "LT": {
+    "bounds": [
+      9.053899999999999,
+      41.8738,
+      38.7907,
+      68.4468
+    ],
+    "url": "/images/earth/countries/LT.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=9.053899999999999,41.8738,38.7907,68.4468&bboxSR=4326&imageSR=4326&size=1536,1373&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "MT": {
+    "bounds": [
+      2.3103,
+      23.7965,
+      26.5472,
+      47.9927
+    ],
+    "url": "/images/earth/countries/MT.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=2.3103,23.7965,26.5472,47.9927&bboxSR=4326&imageSR=4326&size=1536,1533&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "LU": {
+    "bounds": [
+      -6.2993,
+      37.4416,
+      18.5112,
+      62.1734
+    ],
+    "url": "/images/earth/countries/LU.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=-6.2993,37.4416,18.5112,62.1734&bboxSR=4326&imageSR=4326&size=1536,1531&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "NL": {
+    "bounds": [
+      -8.5376,
+      38.7393,
+      19.2095,
+      65.47319999999999
+    ],
+    "url": "/images/earth/countries/NL.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=-8.5376,38.7393,19.2095,65.47319999999999&bboxSR=4326&imageSR=4326&size=1536,1480&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "NZ": {
+    "bounds": [
+      160.667,
+      -53.6337,
+      180,
+      -22.392200000000003
+    ],
+    "url": "/images/earth/countries/NZ.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=160.667,-53.6337,180,-22.392200000000003&bboxSR=4326&imageSR=4326&size=1536,1536&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "NO": {
+    "bounds": [
+      -3.539999999999999,
+      48.47,
+      20.46,
+      72.47
+    ],
+    "url": "/images/earth/countries/NO.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=-3.539999999999999,48.47,20.46,72.47&bboxSR=4326&imageSR=4326&size=1536,1536&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "PL": {
+    "bounds": [
+      2.1416000000000004,
+      37.0095,
+      36.142399999999995,
+      66.8424
+    ],
+    "url": "/images/earth/countries/PL.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=2.1416000000000004,37.0095,36.142399999999995,66.8424&bboxSR=4326&imageSR=4326&size=1536,1348&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "PT": {
+    "bounds": [
+      -21.4882,
+      24.973799999999997,
+      5.8038,
+      54.1605
+    ],
+    "url": "/images/earth/countries/PT.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=-21.4882,24.973799999999997,5.8038,54.1605&bboxSR=4326&imageSR=4326&size=1536,1536&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "RO": {
+    "bounds": [
+      8.2269,
+      31.644199999999998,
+      41.6667,
+      60.2787
+    ],
+    "url": "/images/earth/countries/RO.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=8.2269,31.644199999999998,41.6667,60.2787&bboxSR=4326&imageSR=4326&size=1536,1315&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "RU": {
+    "bounds": [
+      -33.748540000000006,
+      -19.871240000000007,
+      180,
+      85
+    ],
+    "url": "/images/earth/countries/RU.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=-33.748540000000006,-19.871240000000007,180,85&bboxSR=4326&imageSR=4326&size=1536,754&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "SK": {
+    "bounds": [
+      4.863299999999999,
+      35.7808,
+      34.5215,
+      61.6079
+    ],
+    "url": "/images/earth/countries/SK.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=4.863299999999999,35.7808,34.5215,61.6079&bboxSR=4326&imageSR=4326&size=1536,1338&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "ES": {
+    "bounds": [
+      -21.2971,
+      23.9927,
+      15.3355,
+      55.8092
+    ],
+    "url": "/images/earth/countries/ES.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=-21.2971,23.9927,15.3355,55.8092&bboxSR=4326&imageSR=4326&size=1536,1334&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "CH": {
+    "bounds": [
+      -6.041,
+      33.8255,
+      22.473100000000002,
+      59.814
+    ],
+    "url": "/images/earth/countries/CH.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=-6.041,33.8255,22.473100000000002,59.814&bboxSR=4326&imageSR=4326&size=1536,1400&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "SE": {
+    "bounds": [
+      -0.8782999999999994,
+      43.3436,
+      36.184200000000004,
+      81.0286
+    ],
+    "url": "/images/earth/countries/SE.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=-0.8782999999999994,43.3436,36.184200000000004,81.0286&bboxSR=4326&imageSR=4326&size=1536,1536&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "TR": {
+    "bounds": [
+      14.0597,
+      23.8292,
+      56.807,
+      54.0947
+    ],
+    "url": "/images/earth/countries/TR.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=14.0597,23.8292,56.807,54.0947&bboxSR=4326&imageSR=4326&size=1536,1088&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "GB": {
+    "bounds": [
+      -18.2301,
+      37.9738,
+      13.7853,
+      70.6875
+    ],
+    "url": "/images/earth/countries/GB.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=-18.2301,37.9738,13.7853,70.6875&bboxSR=4326&imageSR=4326&size=1536,1536&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "CN": {
+    "bounds": [
+      49.14278,
+      -4.245920000000002,
+      159.26642,
+      78.04522
+    ],
+    "url": "/images/earth/countries/CN.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=49.14278,-4.245920000000002,159.26642,78.04522&bboxSR=4326&imageSR=4326&size=1536,1148&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "KZ": {
+    "bounds": [
+      30.156360000000003,
+      24.250560000000004,
+      103.64424,
+      71.77454
+    ],
+    "url": "/images/earth/countries/KZ.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=30.156360000000003,24.250560000000004,103.64424,71.77454&bboxSR=4326&imageSR=4326&size=1536,993&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "BB": {
+    "bounds": [
+      -71.6422,
+      1.0586000000000002,
+      -47.4382,
+      25.3506
+    ],
+    "url": "/images/earth/countries/BB.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=-71.6422,1.0586000000000002,-47.4382,25.3506&bboxSR=4326&imageSR=4326&size=1536,1536&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "TT": {
+    "bounds": [
+      -73.9195,
+      -1.9600000000000009,
+      -48.9099,
+      22.851599999999998
+    ],
+    "url": "/images/earth/countries/TT.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=-73.9195,-1.9600000000000009,-48.9099,22.851599999999998&bboxSR=4326&imageSR=4326&size=1536,1524&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "GD": {
+    "bounds": [
+      -73.7411,
+      -0.012299999999999756,
+      -49.5965,
+      24.2473
+    ],
+    "url": "/images/earth/countries/GD.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=-73.7411,-0.012299999999999756,-49.5965,24.2473&bboxSR=4326&imageSR=4326&size=1536,1536&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "JM": {
+    "bounds": [
+      -90.3822,
+      5.696899999999999,
+      -64.1918,
+      30.54
+    ],
+    "url": "/images/earth/countries/JM.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=-90.3822,5.696899999999999,-64.1918,30.54&bboxSR=4326&imageSR=4326&size=1536,1457&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "GY": {
+    "bounds": [
+      -73.3913,
+      -10.8298,
+      -44.4888,
+      20.546300000000002
+    ],
+    "url": "/images/earth/countries/GY.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=-73.3913,-10.8298,-44.4888,20.546300000000002&bboxSR=4326&imageSR=4326&size=1536,1536&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "VC": {
+    "bounds": [
+      -73.2676,
+      1.1559000000000008,
+      -49.1235,
+      25.3831
+    ],
+    "url": "/images/earth/countries/VC.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=-73.2676,1.1559000000000008,-49.1235,25.3831&bboxSR=4326&imageSR=4326&size=1536,1536&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "UZ": {
+    "bounds": [
+      43.9888,
+      25.1702,
+      85.1604,
+      57.5608
+    ],
+    "url": "/images/earth/countries/UZ.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=43.9888,25.1702,85.1604,57.5608&bboxSR=4326&imageSR=4326&size=1536,1208&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "PH": {
+    "bounds": [
+      107.7519,
+      0.5394000000000005,
+      136.2015,
+      30.6373
+    ],
+    "url": "/images/earth/countries/PH.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=107.7519,0.5394000000000005,136.2015,30.6373&bboxSR=4326&imageSR=4326&size=1536,1536&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "US": {
+    "bounds": [
+      -147.8384,
+      2.0198999999999963,
+      -43.873999999999995,
+      72.4783
+    ],
+    "url": "/images/earth/countries/US.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=-147.8384,2.0198999999999963,-43.873999999999995,72.4783&bboxSR=4326&imageSR=4326&size=1536,1041&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "MY": {
+    "bounds": [
+      97.5157,
+      -11.1549,
+      131.2831,
+      19.0197
+    ],
+    "url": "/images/earth/countries/MY.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=97.5157,-11.1549,131.2831,19.0197&bboxSR=4326&imageSR=4326&size=1536,1373&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "SG": {
+    "bounds": [
+      91.6404,
+      -10.7323,
+      116.0173,
+      13.4627
+    ],
+    "url": "/images/earth/countries/SG.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=91.6404,-10.7323,116.0173,13.4627&bboxSR=4326&imageSR=4326&size=1536,1525&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "BY": {
+    "bounds": [
+      11.174499999999998,
+      39.2389,
+      44.7322,
+      68.1459
+    ],
+    "url": "/images/earth/countries/BY.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=11.174499999999998,39.2389,44.7322,68.1459&bboxSR=4326&imageSR=4326&size=1536,1323&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "AM": {
+    "bounds": [
+      31.4467,
+      26.8739,
+      58.6196,
+      53.3047
+    ],
+    "url": "/images/earth/countries/AM.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=31.4467,26.8739,58.6196,53.3047&bboxSR=4326&imageSR=4326&size=1536,1494&adjustAspectRatio=false&format=jpg&f=image"
+  }
+}

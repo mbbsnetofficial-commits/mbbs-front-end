@@ -166,6 +166,118 @@ describe('Destinations explorer', () => {
     fixture.detectChanges();
     expect(component.activeUniversity()).toBeNull();
   });
+  it('uses verified Turkey campus coordinates when API records do not provide exact coordinates', () => {
+    fixture.componentRef.setInput('customCountries', [
+      {
+        _id: 'TR',
+        country_code: 'TR',
+        name: 'Turkey',
+        slug: 'turkey',
+        status: 'ACTIVE',
+        display_order: 0,
+      },
+    ]);
+    component.internalUniversities.set([
+      {
+        _id: 'tr1',
+        country_id: 'TR',
+        name: 'Ankara University',
+        city: 'Ankara',
+        status: 'ACTIVE',
+        official_website: 'https://www.ankara.edu.tr',
+      },
+      {
+        _id: 'tr2',
+        country_id: 'TR',
+        name: 'Koç University',
+        city: 'Istanbul',
+        status: 'ACTIVE',
+      },
+      {
+        _id: 'tr3',
+        country_id: 'TR',
+        name: 'Hacettepe University',
+        status: 'ACTIVE',
+      },
+      {
+        _id: 'tr4',
+        country_id: 'TR',
+        name: 'Istanbul University-Cerrahpaşa',
+        status: 'ACTIVE',
+      },
+      {
+        _id: 'tr5',
+        country_id: 'TR',
+        name: 'Acıbadem Mehmet Ali Aydınlar University',
+        status: 'ACTIVE',
+      },
+    ]);
+    component.selectDestination('TR');
+    fixture.detectChanges();
+    expect(component.activeCountryUniversities().map((u) => u.id)).toEqual([
+      'tr1',
+      'tr2',
+      'tr3',
+      'tr4',
+      'tr5',
+    ]);
+    expect(component.activeCountryUniversities()[0]).toMatchObject({
+      city: 'Ankara',
+      coordinateSource: 'verified',
+      lat: 39.93000831907095,
+      lng: 32.85866413122493,
+    });
+    expect(component.unmappedCount()).toBe(0);
+  });
+  it('keeps API coordinates ahead of verified fallback and focuses selected university coordinates', () => {
+    fixture.componentRef.setInput('customCountries', [
+      {
+        _id: 'TR',
+        country_code: 'TR',
+        name: 'Turkey',
+        slug: 'turkey',
+        status: 'ACTIVE',
+        display_order: 0,
+      },
+    ]);
+    component.internalUniversities.set([
+      {
+        _id: 'tr1',
+        country_id: 'TR',
+        name: 'Ankara University',
+        city: 'Ankara',
+        status: 'ACTIVE',
+        latitude: 39.95,
+        longitude: 32.84,
+      },
+    ]);
+    const focusLocation = vi.fn();
+    (
+      component as unknown as {
+        globe: {
+          focusLocation: typeof focusLocation;
+          setAnchors: ReturnType<typeof vi.fn>;
+          dispose: ReturnType<typeof vi.fn>;
+        };
+      }
+    ).globe = {
+      focusLocation,
+      setAnchors: vi.fn(),
+      dispose: vi.fn(),
+    };
+    component.selectDestination('TR');
+    component.selectUniversity('tr1');
+    fixture.detectChanges();
+    expect(component.activeCountryUniversities()[0]).toMatchObject({
+      coordinateSource: 'api',
+      lat: 39.95,
+      lng: 32.84,
+    });
+    expect(focusLocation).toHaveBeenCalledWith({ lat: 39.95, lng: 32.84 });
+    expect(fixture.nativeElement.querySelector('.coordinate-source').textContent).toContain(
+      'MBBS.NET API coordinates',
+    );
+  });
   it('supports marker hover/click and clears details between countries and on reset', () => {
     component.selectDestination('GE');
     component.hoveredUniversityId.set('ge1');

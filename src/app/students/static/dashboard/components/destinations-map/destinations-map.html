@@ -150,10 +150,36 @@
       >
         ×
       </button>
+      @if (activeUniversityMedia(); as mediaUrl) {
+        <div class="university-media">
+          <img
+            [src]="mediaUrl"
+            [alt]="university.name + ' campus image'"
+            (error)="onUniversityMediaError(mediaUrl)"
+          />
+        </div>
+      } @else {
+        <div class="university-media university-media-fallback" aria-hidden="true">
+          {{ (university.short_name || university.name).slice(0, 2) }}
+        </div>
+      }
       <h3>{{ university.name }}</h3>
       <p>{{ activeUniversitySubtitle() }}</p>
+      @if (activeUniversityMarker()?.locationLabel; as locationLabel) {
+        <p class="campus-location">{{ locationLabel }}</p>
+      } @else if (selectedUniversityId() && !activeUniversityMarker()) {
+        <p class="campus-location">Exact campus coordinates are not available yet.</p>
+      }
       @if (university.type) {
         <span class="university-type">{{ university.type }}</span>
+      }
+      @if (activeUniversityMarker()?.sourceLabel; as sourceLabel) {
+        <p class="coordinate-source">
+          {{ sourceLabel }}
+          @if (activeUniversityMarker()?.sourceUrl; as sourceUrl) {
+            <a [href]="sourceUrl" target="_blank" rel="noopener noreferrer">Source</a>
+          }
+        </p>
       }
       <div class="university-links">
         @if (officialWebsite(university.official_website); as website) {

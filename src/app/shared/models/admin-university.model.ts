@@ -21,6 +21,8 @@ export interface AdminUniversity {
   }>;
   official_website?: string;
   description?: string;
+  image_url?: string | null;
+  logo_url?: string | null;
   city?: string;
   latitude?: number;
   longitude?: number;
