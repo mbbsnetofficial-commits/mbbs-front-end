@@ -208,7 +208,7 @@ button {
   background: #101511f5;
   border: 1px solid #ffffff24;
   h3 {
-    margin: 0 15px 8px 0;
+    margin: 13px 15px 8px 0;
     font-size: 16px;
     line-height: 1.4;
     font-weight: 500;
@@ -218,6 +218,43 @@ button {
     font-size: 12px;
     line-height: 1.5;
     margin: 0 0 10px;
+  }
+}
+.university-media {
+  width: 104px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #f3f1ea;
+  border: 1px solid #ffffff12;
+  margin-bottom: 12px;
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: 10px;
+    background: #f3f1ea;
+  }
+}
+.university-media-fallback {
+  background: #0b0d0d;
+  color: #e2fe54;
+  font-size: 18px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.campus-location {
+  color: #d5dccf !important;
+}
+.coordinate-source {
+  margin-top: 10px !important;
+  color: #8d9789 !important;
+  font-size: 10px !important;
+  a {
+    color: #bacc75;
+    margin-left: 6px;
+    text-decoration: none;
   }
 }
 .university-type {

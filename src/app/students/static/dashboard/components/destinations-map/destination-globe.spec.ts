@@ -7,6 +7,7 @@ import { countryFrame, earthPosition } from './globe-geography';
 // Keep actual Three geometry, camera, scene and OrbitControls. Only the GPU driver is mocked.
 class RendererDriverStub {
   domElement = document.createElement('canvas');
+  capabilities = { maxTextureSize: 4096, getMaxAnisotropy: () => 1 };
   setClearColor() {}
   setPixelRatio() {}
   getPixelRatio() {
@@ -30,6 +31,7 @@ describe('Destination globe interaction and scene geography', () => {
   let host: HTMLDivElement;
   let globe: DestinationGlobe;
   let state: RendererState;
+  let terrain: ReturnType<typeof vi.fn>;
   beforeEach(() => {
     vi.stubGlobal(
       'ResizeObserver',
@@ -42,6 +44,11 @@ describe('Destination globe interaction and scene geography', () => {
     vi.stubGlobal('requestAnimationFrame', () => 1);
     vi.stubGlobal('cancelAnimationFrame', () => {});
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('Offline imagery')));
+    vi.stubGlobal(
+      'createImageBitmap',
+      vi.fn(async () => ({ close: vi.fn() })),
+    );
+    terrain = vi.fn();
     host = document.createElement('div');
     Object.defineProperties(host, { clientWidth: { value: 1440 }, clientHeight: { value: 819 } });
     document.body.append(host);
@@ -51,7 +58,7 @@ describe('Destination globe interaction and scene geography', () => {
         project: vi.fn(),
         select: vi.fn(),
         moving: vi.fn(),
-        terrain: vi.fn(),
+        terrain: terrain as (state: 'loading' | 'ready' | 'unavailable') => void,
         lost: vi.fn(),
       },
       () => new RendererDriverStub() as unknown as THREE.WebGLRenderer,
@@ -129,6 +136,25 @@ describe('Destination globe interaction and scene geography', () => {
       ).toBeLessThan(0.00001);
     },
   );
+  it('uses cached country terrain before falling back to live imagery', async () => {
+    const fetch = vi.fn(async (url: string) => {
+      if (url.endsWith('/manifest.json')) {
+        return new Response(JSON.stringify({ TR: { url: '/images/earth/countries/TR.jpg' } }));
+      }
+      if (url === '/images/earth/countries/TR.jpg') {
+        return new Response(new Blob(['cached terrain'], { type: 'image/jpeg' }));
+      }
+      throw new Error('unexpected live imagery request');
+    });
+    vi.stubGlobal('fetch', fetch);
+    await globe.focus('TR');
+    expect(fetch).toHaveBeenCalledWith('/images/earth/countries/manifest.json', expect.any(Object));
+    expect(fetch).toHaveBeenCalledWith('/images/earth/countries/TR.jpg', expect.any(Object));
+    expect(fetch.mock.calls.some(([url]) => String(url).includes('server.arcgisonline.com'))).toBe(
+      false,
+    );
+    expect(terrain).toHaveBeenLastCalledWith('ready');
+  });
   it('keeps sunlight fixed during manual rotation and restores world framing', () => {
     const sun = state.uniforms.sun.value.clone();
     const distance = state.camera.position.length();

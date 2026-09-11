@@ -21,6 +21,7 @@ import {
 import { CseService } from '../../../../../shared/services/cse.service';
 import { lookupCountryCoordinate } from './destinations-geo.data';
 import { exactCoordinates } from './globe-geography';
+import { verifiedUniversityLocation } from './verified-university-locations.data';
 import type { DestinationGlobe, GlobeAnchor, ScreenAnchor } from './destination-globe';
 
 export interface DestinationMarker {
@@ -42,6 +43,12 @@ export interface UniversityMarker {
   lat: number;
   lng: number;
   website?: string;
+  locationLabel?: string;
+  sourceLabel?: string;
+  sourceUrl?: string;
+  imageUrl?: string | null;
+  logoUrl?: string | null;
+  coordinateSource: 'api' | 'verified';
 }
 
 @Component({
@@ -70,6 +77,7 @@ export class DestinationsMap {
   readonly isZooming = signal(false);
   readonly selectedUniversityId = signal('');
   readonly hoveredUniversityId = signal('');
+  readonly failedMediaUrls = signal<ReadonlySet<string>>(new Set());
   readonly projectedAnchors = signal<ScreenAnchor[]>([]);
   private globe?: DestinationGlobe;
   private starting = false;
@@ -125,17 +133,25 @@ export class DestinationsMap {
     const country = this.selectedCountry();
     return (
       country?.universities.flatMap((u) => {
-        const geo = exactCoordinates(u.latitude ?? u.lat, u.longitude ?? u.lng);
+        const apiGeo = exactCoordinates(u.latitude ?? u.lat, u.longitude ?? u.lng);
+        const verified = apiGeo ? null : verifiedUniversityLocation(country.countryCode, u.name);
+        const geo = apiGeo ?? verified;
         if (!geo) return [];
         return [
           {
             id: u._id,
             name: u.name,
             countryName: country.countryName,
-            city: u.city || u.locations?.[0]?.cities?.[0],
+            city: u.city || u.locations?.[0]?.cities?.[0] || verified?.city,
             type: u.type,
             ...geo,
             website: u.official_website,
+            locationLabel: verified?.locationLabel,
+            sourceLabel: apiGeo ? 'MBBS.NET API coordinates' : verified?.sourceLabel,
+            sourceUrl: apiGeo ? undefined : verified?.sourceUrl,
+            imageUrl: u.image_url ?? verified?.imageUrl ?? null,
+            logoUrl: u.logo_url ?? verified?.logoUrl ?? null,
+            coordinateSource: apiGeo ? 'api' : 'verified',
           },
         ];
       }) ?? []
@@ -150,11 +166,29 @@ export class DestinationsMap {
         (u) => u._id === (this.selectedUniversityId() || this.hoveredUniversityId()),
       ) ?? null,
   );
+  readonly activeUniversityMarker = computed(
+    () =>
+      this.activeCountryUniversities().find(
+        (u) => u.id === (this.selectedUniversityId() || this.hoveredUniversityId()),
+      ) ?? null,
+  );
   readonly activeUniversitySubtitle = computed(() => {
     const u = this.activeUniversity();
-    return [u?.city || u?.locations?.[0]?.cities?.[0], this.selectedCountry()?.countryName]
+    const marker = this.activeUniversityMarker();
+    return [
+      u?.city || u?.locations?.[0]?.cities?.[0] || marker?.city,
+      this.selectedCountry()?.countryName,
+    ]
       .filter(Boolean)
       .join(', ');
+  });
+  readonly activeUniversityMedia = computed(() => {
+    const u = this.activeUniversity();
+    const marker = this.activeUniversityMarker();
+    const failed = this.failedMediaUrls();
+    return [u?.image_url, marker?.imageUrl, u?.logo_url, marker?.logoUrl].find(
+      (url): url is string => !!url && /^https?:\/\//i.test(url) && !failed.has(url),
+    );
   });
   readonly visibleAnchors = computed(() =>
     this.isCountryView() && this.isZooming() ? [] : this.projectedAnchors(),
@@ -313,7 +347,10 @@ export class DestinationsMap {
     else this.selectUniversity(anchor.id);
   }
   selectUniversity(id: string): void {
-    this.selectedUniversityId.set(this.selectedUniversityId() === id ? '' : id);
+    const nextId = this.selectedUniversityId() === id ? '' : id;
+    this.selectedUniversityId.set(nextId);
+    const marker = this.activeCountryUniversities().find((u) => u.id === nextId);
+    if (marker) this.globe?.focusLocation({ lat: marker.lat, lng: marker.lng });
   }
   clearUniversitySelection(): void {
     this.selectedUniversityId.set('');
@@ -327,5 +364,8 @@ export class DestinationsMap {
   }
   officialWebsite(url?: string): string | null {
     return url && /^https?:\/\//i.test(url) ? url : null;
+  }
+  onUniversityMediaError(url: string): void {
+    this.failedMediaUrls.update((urls) => new Set(urls).add(url));
   }
 }

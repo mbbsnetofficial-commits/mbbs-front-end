@@ -28,6 +28,9 @@ interface Flight {
   sunFrom: THREE.Vector3;
   sunTo: THREE.Vector3;
 }
+interface CountryTextureManifest {
+  [code: string]: { url: string };
+}
 
 /** Owns GPU resources and interaction. Angular owns API data, accessible controls and details. */
 export class DestinationGlobe {
@@ -55,6 +58,7 @@ export class DestinationGlobe {
   private disposed = false;
   private flight?: Flight;
   private generation = 0;
+  private countryTextureManifest?: Promise<CountryTextureManifest>;
   private width = 1;
   private height = 1;
   private worldDistance = 4;
@@ -340,10 +344,7 @@ export class DestinationGlobe {
     try {
       let texture = this.textures.get(code);
       if (!texture) {
-        texture = await this.loadTexture(
-          satelliteUrl(frame.bounds, this.width < 700 ? 1536 : 2048),
-          this.terrainRequest.signal,
-        );
+        texture = await this.loadCountryTexture(code, frame);
         if (this.disposed || token !== this.generation) {
           this.releaseTexture(texture);
           return;
@@ -376,6 +377,19 @@ export class DestinationGlobe {
     this.callbacks.terrain(detailReady ? 'ready' : 'unavailable');
   }
 
+  focusLocation(point: GeoPoint): void {
+    this.flight = undefined;
+    const distance = THREE.MathUtils.clamp(this.camera.position.length() * 0.82, 1.2, 1.62);
+    this.callbacks.moving(true);
+    this.fly(
+      point,
+      distance,
+      760,
+      () => this.callbacks.moving(false),
+      new THREE.Vector3(...earthPosition(Math.min(80, point.lat + 18), point.lng - 28)),
+    );
+  }
+
   reset(): void {
     this.terrainRequest?.abort();
     ++this.generation;
@@ -399,6 +413,34 @@ export class DestinationGlobe {
     this.callbacks.moving(false);
     if (this.country)
       this.callbacks.terrain(this.uniforms.detailMix.value > 0 ? 'ready' : 'unavailable');
+  }
+
+  private async loadCountryTexture(
+    code: string,
+    frame: ReturnType<typeof countryFrame>,
+  ): Promise<THREE.Texture> {
+    const manifest = await this.getCountryTextureManifest();
+    const localUrl = manifest[code]?.url;
+    if (localUrl) {
+      try {
+        return await this.loadTexture(localUrl, this.terrainRequest?.signal);
+      } catch {
+        // Fall through to live imagery if a cached file is missing or corrupt.
+      }
+    }
+    return this.loadTexture(
+      satelliteUrl(frame.bounds, this.width < 700 ? 1536 : 2048),
+      this.terrainRequest?.signal,
+    );
+  }
+
+  private getCountryTextureManifest(): Promise<CountryTextureManifest> {
+    this.countryTextureManifest ??= fetch('/images/earth/countries/manifest.json', {
+      signal: this.requests.signal,
+    })
+      .then((res) => (res.ok ? res.json() : {}))
+      .catch(() => ({}));
+    return this.countryTextureManifest;
   }
 
   zoom(direction: number): void {
