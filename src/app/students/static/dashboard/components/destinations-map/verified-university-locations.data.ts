@@ -16,11 +16,12 @@ const entries: Array<[string, VerifiedUniversityLocation]> = [
     {
       countryCode: 'TR',
       city: 'Istanbul',
-      lat: 40.9253,
-      lng: 29.1544,
+      lat: 40.97836,
+      lng: 29.11033,
       locationLabel: 'Kerem Aydinlar Campus, Atasehir, Istanbul',
-      sourceLabel: 'Official campus address; coordinates verified from map listing',
-      sourceUrl: 'https://prod.acibadem.edu.tr/kayit/iletisim/ulasim',
+      sourceLabel:
+        'Kerem Aydinlar campus address checked against official page; OpenStreetMap campus location',
+      sourceUrl: 'https://mapcarta.com/W254031521',
       logoUrl: 'https://www.acibadem.edu.tr/sites/default/files/2025-04/acu_logo.svg',
     },
   ],

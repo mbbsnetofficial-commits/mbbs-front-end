@@ -126,8 +126,8 @@
         <p class="location-note">
           {{
             activeCountryUniversities().length
-              ? 'Some campus locations are not available yet.'
-              : 'Campus coordinates not yet available.'
+              ? 'Some campus locations require verification.'
+              : 'Campus locations require verification.'
           }}
         </p>
       }
@@ -141,7 +141,12 @@
   }
 
   @if (activeUniversity(); as university) {
-    <aside class="university-detail-card" aria-label="University information">
+    <aside
+      class="university-detail-card"
+      aria-label="University information"
+      [attr.data-geographic-status]="activeUniversityAudit()?.verification"
+      [attr.data-university-id]="university._id"
+    >
       <button
         type="button"
         class="card-close"
@@ -168,7 +173,9 @@
       @if (activeUniversityMarker()?.locationLabel; as locationLabel) {
         <p class="campus-location">{{ locationLabel }}</p>
       } @else if (selectedUniversityId() && !activeUniversityMarker()) {
-        <p class="campus-location">Exact campus coordinates are not available yet.</p>
+        <p class="campus-location">
+          Campus location requires verification. No geographic marker is shown.
+        </p>
       }
       @if (university.type) {
         <span class="university-type">{{ university.type.replaceAll('_', ' ') }}</span>

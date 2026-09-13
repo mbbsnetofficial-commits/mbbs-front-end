@@ -151,6 +151,24 @@ describe('Destinations explorer', () => {
       'Some campus locations',
     );
   });
+  it('validates complete coordinate pairs without mixing primary and alias fields', () => {
+    component.internalUniversities.set([
+      { ...universities[0], latitude: 999, longitude: 44, lat: 41.745, lng: 44.775 },
+      {
+        ...universities[0],
+        _id: 'partial',
+        latitude: 41,
+        longitude: undefined,
+        lat: undefined,
+        lng: 44,
+      },
+    ]);
+    component.selectDestination('GE');
+    expect(component.activeCountryUniversities()).toHaveLength(1);
+    expect(component.activeCountryUniversities()[0]).toMatchObject({ lat: 41.745, lng: 44.775 });
+    expect(component.selectedCountry()?.universities).toHaveLength(2);
+  });
+
   it('shows API university details, location, type and official website on directory selection', () => {
     component.selectDestination('GE');
     fixture.detectChanges();
@@ -214,20 +232,15 @@ describe('Destinations explorer', () => {
     ]);
     component.selectDestination('TR');
     fixture.detectChanges();
-    expect(component.activeCountryUniversities().map((u) => u.id)).toEqual([
-      'tr1',
-      'tr2',
-      'tr3',
-      'tr4',
-      'tr5',
-    ]);
+    expect(component.activeCountryUniversities().map((u) => u.id)).toEqual(['tr1', 'tr3']);
     expect(component.activeCountryUniversities()[0]).toMatchObject({
       city: 'Ankara',
       coordinateSource: 'verified',
       lat: 39.93000831907095,
       lng: 32.85866413122493,
     });
-    expect(component.unmappedCount()).toBe(0);
+    expect(component.unmappedCount()).toBe(3);
+    expect(component.selectedCountry()?.universities).toHaveLength(5);
   });
   it('keeps API coordinates ahead of verified fallback and focuses selected university coordinates', () => {
     fixture.componentRef.setInput('customCountries', [
@@ -277,6 +290,13 @@ describe('Destinations explorer', () => {
     expect(fixture.nativeElement.querySelector('.coordinate-source').textContent).toContain(
       'MBBS.NET API coordinates',
     );
+    const verifiedLogo = component.activeUniversityMedia();
+    expect(verifiedLogo).toContain('medicine.ankara.edu.tr');
+    component.onUniversityMediaError(verifiedLogo!);
+    fixture.detectChanges();
+    expect(component.activeUniversityMedia()).toBeUndefined();
+    expect(fixture.nativeElement.querySelector('.university-media-fallback')).toBeTruthy();
+    expect(component.activeUniversityMarker()?.coordinateSource).toBe('api');
   });
   it('supports marker hover/click and clears details between countries and on reset', () => {
     component.selectDestination('GE');
@@ -311,6 +331,32 @@ describe('Destinations explorer', () => {
     component.internalUniversities.set(universities);
     expect(component.selectedCountry()?.universityCount).toBe(3);
     expect(group.universities.length).toBe(1);
+  });
+  it('cannot leak a university through an incorrectly labelled parent group', () => {
+    component.internalUniversities.set([]);
+    fixture.componentRef.setInput('groupedUniversities', [
+      {
+        countryId: 'HU',
+        countryCode: 'HU',
+        countryName: 'Hungary',
+        displayOrder: 0,
+        universities: [universities[0]],
+      },
+    ]);
+    component.selectDestination('HU');
+    fixture.detectChanges();
+    expect(component.selectedCountry()?.universities).toEqual([]);
+    component.selectUniversity('ge1');
+    expect(component.selectedUniversityId()).toBe('');
+    component.selectDestination('GE');
+    expect(component.selectedCountry()?.universities.map((u) => u._id)).toEqual(['ge1']);
+  });
+  it('excludes a coordinate mismatch from directory and marker datasets together', () => {
+    component.internalUniversities.set([{ ...universities[0], country_id: 'HU' }]);
+    component.selectDestination('HU');
+    expect(component.selectedCountry()?.universities).toEqual([]);
+    expect(component.activeCountryUniversities()).toEqual([]);
+    expect(component.geographicAudit()[0].status).toBe('COUNTRY_DATA_MISMATCH');
   });
   it('preserves registration route and destination query parameter', () => {
     component.selectDestination('GE');

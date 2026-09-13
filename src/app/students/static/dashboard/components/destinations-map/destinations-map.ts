@@ -20,7 +20,7 @@ import {
 } from '../../../../../shared/models/admin-university.model';
 import { CseService } from '../../../../../shared/services/cse.service';
 import { lookupCountryCoordinate } from './destinations-geo.data';
-import { exactCoordinates } from './globe-geography';
+import { auditUniversities, countryId } from './university-geographic-audit';
 import { verifiedUniversityLocation } from './verified-university-locations.data';
 import type { DestinationGlobe, GlobeAnchor, ScreenAnchor } from './destination-globe';
 
@@ -91,25 +91,28 @@ export class DestinationsMap {
       .slice()
       .sort((a, b) => a.display_order - b.display_order),
   );
+  readonly geographicAudit = computed(() => {
+    const api = this.internalUniversities();
+    const apiIds = new Set(api.map((u) => countryId(u._id)));
+    // Parent groups are presentation metadata, never evidence of country membership.
+    // Prefer the API snapshot and validate every remaining parent's record independently.
+    const parent = this.groupedUniversities()
+      .flatMap((g) => g.universities)
+      .filter((u) => !apiIds.has(countryId(u._id)));
+    return auditUniversities([...api, ...parent], this.customCountries() ?? this.apiCountries());
+  });
   readonly activeCountryMarkers = computed<DestinationMarker[]>(() =>
     this.activeCountries().flatMap((c) => {
       const geo = lookupCountryCoordinate(c.country_code, c.slug);
       if (!geo) return [];
-      const group = this.groupedUniversities().find((g) => g.countryId === c._id);
-      // Merge by id without mutating the parent's grouped arrays. Never create placeholder records.
-      const records = new Map<string, AdminUniversity>();
-      for (const u of [
-        ...(group?.universities ?? []),
-        ...this.internalUniversities().filter((u) => String(u.country_id) === String(c._id)),
-      ]) {
-        if (u.status !== 'INACTIVE') records.set(u._id, u);
-      }
-      const universities = [...records.values()];
+      const universities = this.geographicAudit()
+        .filter((row) => row.directoryEligible && countryId(row.country?._id) === countryId(c._id))
+        .map((row) => row.university);
       return [
         {
           id: c._id,
           countryName: c.name,
-          countryCode: c.country_code.toUpperCase(),
+          countryCode: c.country_code.trim().toUpperCase(),
           slug: c.slug,
           lat: geo.lat,
           lng: geo.lng,
@@ -132,11 +135,17 @@ export class DestinationsMap {
   readonly activeCountryUniversities = computed<UniversityMarker[]>(() => {
     const country = this.selectedCountry();
     return (
-      country?.universities.flatMap((u) => {
-        const apiGeo = exactCoordinates(u.latitude ?? u.lat, u.longitude ?? u.lng);
+      this.geographicAudit().flatMap((row) => {
+        if (
+          !country ||
+          !row.markerEligible ||
+          countryId(row.country?._id) !== countryId(country.id)
+        )
+          return [];
+        const u = row.university;
+        const apiGeo = row.coordinateSource === 'api';
         const verified = apiGeo ? null : verifiedUniversityLocation(country.countryCode, u.name);
-        const geo = apiGeo ?? verified;
-        if (!geo) return [];
+        const geo = row.coordinates!;
         return [
           {
             id: u._id,
@@ -151,7 +160,7 @@ export class DestinationsMap {
             sourceUrl: apiGeo ? undefined : verified?.sourceUrl,
             imageUrl: u.image_url ?? verified?.imageUrl ?? null,
             logoUrl: u.logo_url ?? verified?.logoUrl ?? null,
-            coordinateSource: apiGeo ? 'api' : 'verified',
+            coordinateSource: row.coordinateSource!,
           },
         ];
       }) ?? []
@@ -172,6 +181,9 @@ export class DestinationsMap {
         (u) => u.id === (this.selectedUniversityId() || this.hoveredUniversityId()),
       ) ?? null,
   );
+  readonly activeUniversityAudit = computed(() =>
+    this.geographicAudit().find((row) => row.university._id === this.activeUniversity()?._id),
+  );
   readonly activeUniversitySubtitle = computed(() => {
     const u = this.activeUniversity();
     const marker = this.activeUniversityMarker();
@@ -184,9 +196,10 @@ export class DestinationsMap {
   });
   readonly activeUniversityMedia = computed(() => {
     const u = this.activeUniversity();
-    const marker = this.activeUniversityMarker();
+    const country = this.selectedCountry();
+    const verified = u && country ? verifiedUniversityLocation(country.countryCode, u.name) : null;
     const failed = this.failedMediaUrls();
-    return [u?.image_url, marker?.imageUrl, u?.logo_url, marker?.logoUrl].find(
+    return [u?.image_url, verified?.imageUrl, u?.logo_url, verified?.logoUrl].find(
       (url): url is string => !!url && /^https?:\/\//i.test(url) && !failed.has(url),
     );
   });
@@ -215,6 +228,12 @@ export class DestinationsMap {
         },
         error: () => this.universitiesLoading.set(false),
       });
+    effect(() => {
+      const selected = this.selectedUniversityId();
+      if (selected && !this.selectedCountry()?.universities.some((u) => u._id === selected)) {
+        this.clearUniversitySelection();
+      }
+    });
     effect(() => {
       const anchors: GlobeAnchor[] = this.isCountryView()
         ? this.activeCountryUniversities().map((u) => ({
@@ -354,6 +373,7 @@ export class DestinationsMap {
     else this.selectUniversity(anchor.id);
   }
   selectUniversity(id: string): void {
+    if (id && !this.selectedCountry()?.universities.some((u) => u._id === id)) return;
     const nextId = this.selectedUniversityId() === id ? '' : id;
     this.selectedUniversityId.set(nextId);
     const marker = this.activeCountryUniversities().find((u) => u.id === nextId);
