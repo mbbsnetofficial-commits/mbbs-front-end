@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
 export type IconName =
   | 'activity'
-  | 'alert-circle'
   | 'arrow-right'
   | 'authors'
   | 'bell'
