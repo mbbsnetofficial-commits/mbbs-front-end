@@ -1,6 +1,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, catchError, map, of, tap, throwError } from 'rxjs';
+import { extractApiErrorMessage } from '../../../../shared/utils/error.utils';
 import { environment } from '../../../../../environments/environment';
 import { ADMISSIONS_API } from '../constants/admissions-api.constants';
 import {
@@ -519,8 +520,10 @@ export class StudentProfileService {
         return mapped;
       }),
       catchError((err: HttpErrorResponse) => {
-        const message =
-          err.error?.message || err.message || 'Failed to load student profile';
+        const message = extractApiErrorMessage(
+          err,
+          'Failed to load student profile'
+        );
         this.error.set(message);
         this.loading.set(false);
         return throwError(() => err);
@@ -540,8 +543,10 @@ export class StudentProfileService {
         return mapped;
       }),
       catchError((err: HttpErrorResponse) => {
-        const message =
-          err.error?.message || err.message || 'Failed to update student profile';
+        const message = extractApiErrorMessage(
+          err,
+          'Failed to update student profile'
+        );
         this.error.set(message);
         this.loading.set(false);
         return throwError(() => err);
@@ -790,8 +795,10 @@ export class StudentProfileService {
           return mapped;
         }),
         catchError((err: HttpErrorResponse) => {
-          const message =
-            err.error?.message || err.message || 'Failed to create student profile';
+          const message = extractApiErrorMessage(
+            err,
+            'Failed to create student profile'
+          );
           this.error.set(message);
           this.loading.set(false);
           return throwError(() => err);

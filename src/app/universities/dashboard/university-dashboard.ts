@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { Icon, IconName } from '../../shared/ui/icon/icon';
+import { extractApiErrorMessage } from '../../shared/utils/error.utils';
 import { UniversityHeaderComponent } from '../shared/components/university-header/university-header';
 import { UniversityAuthService } from '../auth/services/university-auth.service';
 import { UniversityInvitesService } from '../invites/services/university-invites.service';
@@ -147,11 +148,10 @@ export class UniversityDashboardComponent implements OnInit {
         }
       },
       error: (err) => {
-        const errorMsg =
-          err?.error?.message ||
-          err?.error?.error ||
-          err?.message ||
-          'Failed to cancel invitation. Please try again.';
+        const errorMsg = extractApiErrorMessage(
+          err,
+          'Failed to cancel invitation. Please try again.'
+        );
         this.cancelErrorMessage.set(errorMsg);
       },
     });

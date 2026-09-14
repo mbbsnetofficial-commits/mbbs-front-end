@@ -92,6 +92,51 @@ describe('UniversityLoginComponent', () => {
     expect(component.errorMessage()).toBe('Invalid university email or password.');
   });
 
+  it('should display clean message when backend returns nested error structure { error: { code, message } } without [object Object]', () => {
+    (authServiceMock.login as any).mockReturnValue(
+      throwError(() => ({
+        error: {
+          code: 'INVALID_CREDENTIALS',
+          message: 'Invalid email or password.',
+        },
+        status: 401,
+      }))
+    );
+
+    component.email = 'admissions@tsmu.edu';
+    component.password = 'WrongPass';
+    component.onSubmit();
+
+    expect(component.errorMessage()).toBe('Invalid email or password.');
+    expect(component.errorMessage()).not.toBe('[object Object]');
+  });
+
+  it('should render compact inline alert without "Authentication Error" heading in DOM', () => {
+    (authServiceMock.login as any).mockReturnValue(
+      throwError(() => ({
+        error: {
+          code: 'INVALID_CREDENTIALS',
+          message: 'Invalid email or password.',
+        },
+        status: 401,
+      }))
+    );
+
+    component.email = 'admissions@tsmu.edu';
+    component.password = 'WrongPass';
+    component.onSubmit();
+    fixture.detectChanges();
+
+    const compiled = fixture.nativeElement as HTMLElement;
+    const alert = compiled.querySelector('.auth-error-alert');
+    expect(alert).toBeTruthy();
+    expect(alert?.getAttribute('role')).toBe('alert');
+    expect(compiled.querySelector('.auth-error-text')?.textContent?.trim()).toBe(
+      'Invalid email or password.'
+    );
+    expect(compiled.textContent).not.toContain('Authentication Error');
+  });
+
   it('should render "Back to MBBS.NET" link navigating to /', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const backLink = compiled.querySelector('a.back-link');

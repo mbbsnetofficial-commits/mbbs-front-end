@@ -10,6 +10,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Icon } from '../../../../shared/ui/icon/icon';
+import { extractApiErrorMessage, getApiErrorCode } from '../../../../shared/utils/error.utils';
 import { UniversityAuthService } from '../../../auth/services/university-auth.service';
 import { UniversityHeaderComponent } from '../../../shared/components/university-header/university-header';
 import {
@@ -147,23 +148,20 @@ export class UniversityProfileComponent implements OnInit {
         },
         error: (err) => {
           this.changingPassword.set(false);
-          const rawCode = err?.error?.error?.code || err?.error?.code;
-          let msg =
-            err?.error?.message ||
-            err?.error?.error?.message ||
-            err?.error?.error ||
-            err?.message;
+          const rawCode = getApiErrorCode(err);
+          let msg = extractApiErrorMessage(
+            err,
+            'Failed to change password. Please check your credentials and try again.'
+          );
 
-          if (rawCode === 'INVALID_CURRENT_PASSWORD' || msg?.toLowerCase().includes('current password is incorrect')) {
+          if (rawCode === 'INVALID_CURRENT_PASSWORD' || msg.toLowerCase().includes('current password is incorrect')) {
             msg = 'The current password you entered is incorrect. Please check and try again.';
-          } else if (rawCode === 'CREDENTIAL_NOT_FOUND' || msg?.toLowerCase().includes('credential record not found')) {
+          } else if (rawCode === 'CREDENTIAL_NOT_FOUND' || msg.toLowerCase().includes('credential record not found')) {
             msg = 'Institutional account credential record could not be found. Please contact portal administration.';
-          } else if (rawCode === 'SAME_PASSWORD' || msg?.toLowerCase().includes('different from')) {
+          } else if (rawCode === 'SAME_PASSWORD' || msg.toLowerCase().includes('different from')) {
             msg = 'New password must be different from your current password.';
-          } else if (rawCode === 'WEAK_PASSWORD' || msg?.toLowerCase().includes('password must')) {
+          } else if (rawCode === 'WEAK_PASSWORD' || msg.toLowerCase().includes('password must')) {
             msg = 'New password must be at least 8 characters with uppercase, lowercase, number, and special character.';
-          } else if (!msg || typeof msg !== 'string') {
-            msg = 'Failed to change password. Please check your credentials and try again.';
           }
 
           this.passwordErrorMessage.set(msg);
@@ -449,23 +447,20 @@ export class UniversityProfileComponent implements OnInit {
         }
       },
       error: (err) => {
-        const rawCode = err?.error?.error?.code || err?.error?.code;
-        let msg =
-          err?.error?.message ||
-          err?.error?.error?.message ||
-          err?.error?.error ||
-          err?.message;
+        const rawCode = getApiErrorCode(err);
+        let msg = extractApiErrorMessage(
+          err,
+          'Failed to update organization profile. Please try again.'
+        );
 
-        if (rawCode === 'INVALID_CURRENT_PASSWORD' || msg?.toLowerCase().includes('current password is incorrect')) {
+        if (rawCode === 'INVALID_CURRENT_PASSWORD' || msg.toLowerCase().includes('current password is incorrect')) {
           msg = 'The current password you entered is incorrect. Please check and try again.';
-        } else if (rawCode === 'CREDENTIAL_NOT_FOUND' || msg?.toLowerCase().includes('credential record not found')) {
+        } else if (rawCode === 'CREDENTIAL_NOT_FOUND' || msg.toLowerCase().includes('credential record not found')) {
           msg = 'Institutional account credential record could not be found. Please contact portal administration.';
-        } else if (rawCode === 'SAME_PASSWORD' || msg?.toLowerCase().includes('different from')) {
+        } else if (rawCode === 'SAME_PASSWORD' || msg.toLowerCase().includes('different from')) {
           msg = 'New password must be different from your current password.';
-        } else if (rawCode === 'WEAK_PASSWORD' || msg?.toLowerCase().includes('password must')) {
+        } else if (rawCode === 'WEAK_PASSWORD' || msg.toLowerCase().includes('password must')) {
           msg = 'New password must be at least 8 characters with uppercase, lowercase, number, and special character.';
-        } else if (!msg || typeof msg !== 'string') {
-          msg = 'Failed to update organization profile. Please try again.';
         }
 
         this.formValidationErrorMessage.set(msg);

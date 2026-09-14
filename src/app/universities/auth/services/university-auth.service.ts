@@ -1,6 +1,7 @@
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, catchError, of, tap, throwError } from 'rxjs';
+import { extractApiErrorMessage } from '../../../shared/utils/error.utils';
 import { environment } from '../../../../environments/environment';
 import {
   UNIVERSITY_AUTH_API,
@@ -155,25 +156,9 @@ export class UniversityAuthService {
   }
 
   private extractErrorMessage(err: HttpErrorResponse): string {
-    const errorBody = err.error;
-    if (typeof errorBody === 'string') return errorBody;
-    if (errorBody?.message) return errorBody.message;
-    if (errorBody?.error?.message) return errorBody.error.message;
-    if (errorBody?.error) return errorBody.error;
-
-    switch (err.status) {
-      case 400:
-        return 'Invalid request data. Please check the entered information.';
-      case 401:
-        return 'Invalid university credentials or session expired.';
-      case 403:
-        return 'Access denied. Your university account may be suspended or disabled.';
-      case 404:
-        return 'University resource or account not found.';
-      case 500:
-        return 'Internal server error. Please try again later.';
-      default:
-        return err.message || 'An unexpected error occurred.';
-    }
+    return extractApiErrorMessage(
+      err,
+      'Invalid university credentials or session expired.'
+    );
   }
 }

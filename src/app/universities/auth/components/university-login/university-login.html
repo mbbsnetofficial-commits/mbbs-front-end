@@ -28,12 +28,9 @@
       </div>
 
       @if (errorMessage()) {
-        <div class="alert-banner error" role="alert">
-          <app-icon name="close" [size]="18" />
-          <div class="alert-text">
-            <strong>Authentication Error</strong>
-            <p>{{ errorMessage() }}</p>
-          </div>
+        <div class="auth-error-alert" role="alert">
+          <app-icon name="alert-circle" [size]="16" class="auth-error-icon" />
+          <span class="auth-error-text">{{ errorMessage() }}</span>
         </div>
       }
 

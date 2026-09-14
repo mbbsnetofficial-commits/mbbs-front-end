@@ -9,6 +9,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Icon } from '../../../../shared/ui/icon/icon';
+import { extractApiErrorMessage } from '../../../../shared/utils/error.utils';
 import { UniversityAuthService } from '../../services/university-auth.service';
 
 @Component({
@@ -83,11 +84,10 @@ export class ResetPasswordComponent implements OnInit {
           }
         },
         error: (err) => {
-          const errorMsg =
-            err.error?.message ||
-            err.error?.error ||
-            err.message ||
-            'Password reset failed. Please ensure your token is valid.';
+          const errorMsg = extractApiErrorMessage(
+            err,
+            'Password reset failed. Please ensure your token is valid.'
+          );
           this.errorMessage.set(errorMsg);
         },
       });

@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 
 import { AuthShell } from '../shared/auth-shell/auth-shell';
 import { Icon } from '../../../../shared/ui/icon/icon';
+import { extractApiErrorMessage } from '../../../../shared/utils/error.utils';
 import { TokenService } from '../../services/token.service';
 import { AuthService } from '../../services/auth.service';
 import { AuthOtpPurpose } from '../../models/auth.model';
@@ -166,7 +167,10 @@ export class Otp implements OnInit, OnDestroy {
         if (retryAfter) {
           this.startResendTimer(retryAfter);
         }
-        const msg = err?.error?.message || err?.message || 'Unable to resend verification code. Please wait a moment.';
+        const msg = extractApiErrorMessage(
+          err,
+          'Unable to resend verification code. Please wait a moment.'
+        );
         this.errorMessage.set(msg);
       }
     });
@@ -224,7 +228,10 @@ export class Otp implements OnInit, OnDestroy {
       },
       error: (err) => {
         this.isSubmitting.set(false);
-        const msg = err?.error?.message || err?.message || 'Verification code is incorrect or has expired.';
+        const msg = extractApiErrorMessage(
+          err,
+          'Verification code is incorrect or has expired.'
+        );
         this.errorMessage.set(msg);
       }
     });

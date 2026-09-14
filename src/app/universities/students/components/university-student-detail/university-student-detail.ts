@@ -9,6 +9,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Icon } from '../../../../shared/ui/icon/icon';
+import { extractApiErrorMessage, getApiErrorCode } from '../../../../shared/utils/error.utils';
 import { UniversityHeaderComponent } from '../../../shared/components/university-header/university-header';
 import { UniversityInvitesService } from '../../../invites/services/university-invites.service';
 import { UniversityStudentsService } from '../../services/university-students.service';
@@ -244,20 +245,17 @@ export class UniversityStudentDetailComponent implements OnInit {
         },
         error: (err) => {
           this.resendingOffer.set(false);
-          const errorCode = err?.error?.error?.code || err?.error?.code;
-          const rawMsg =
-            err?.error?.message ||
-            err?.error?.error?.message ||
-            err?.error?.error ||
-            err?.message ||
-            'Failed to dispatch admission offer. Please try again.';
+          const errorCode = getApiErrorCode(err);
+          const rawMsg = extractApiErrorMessage(
+            err,
+            'Failed to dispatch admission offer. Please try again.'
+          );
 
           const isDuplicate =
             !resend &&
             (err.status === 409 ||
               errorCode === 'ACTIVE_INVITE_EXISTS' ||
-              (typeof rawMsg === 'string' &&
-                rawMsg.toLowerCase().includes('active invitation already exists')));
+              rawMsg.toLowerCase().includes('active invitation already exists'));
 
           if (isDuplicate) {
             // Do NOT display error in modal form; open dedicated pop-up modal

@@ -5,6 +5,7 @@ import {
 } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable, catchError, tap, throwError } from 'rxjs';
+import { extractApiErrorMessage } from '../../../shared/utils/error.utils';
 import { environment } from '../../../../environments/environment';
 import { STUDENT_NOTIFICATIONS_API } from '../constants/student-notifications.constants';
 import {
@@ -82,10 +83,10 @@ export class StudentNotificationsService {
           this.loading.set(false);
         }),
         catchError((err: HttpErrorResponse) => {
-          const errorMsg =
-            err.error?.message ||
-            err.error?.error ||
-            'Failed to load notifications.';
+          const errorMsg = extractApiErrorMessage(
+            err,
+            'Failed to load notifications.'
+          );
           this.error.set(errorMsg);
           this.loading.set(false);
           return throwError(() => err);
@@ -112,10 +113,10 @@ export class StudentNotificationsService {
           this.countLoading.set(false);
         }),
         catchError((err: HttpErrorResponse) => {
-          const errorMsg =
-            err.error?.message ||
-            err.error?.error ||
-            'Failed to load unread count.';
+          const errorMsg = extractApiErrorMessage(
+            err,
+            'Failed to load unread count.'
+          );
           this.countError.set(errorMsg);
           this.countLoading.set(false);
           return throwError(() => err);

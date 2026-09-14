@@ -5,6 +5,7 @@ import {
 } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable, catchError, tap, throwError } from 'rxjs';
+import { extractApiErrorMessage } from '../../../shared/utils/error.utils';
 import { environment } from '../../../../environments/environment';
 import { UniversityAuthService } from '../../auth/services/university-auth.service';
 import { UNIVERSITY_PROFILE_API } from '../constants/university-profile.constants';
@@ -227,36 +228,9 @@ export class UniversityProfileService {
     err: HttpErrorResponse,
     action: 'get' | 'update' = 'get'
   ): string {
-    const errorBody = err.error;
-    if (errorBody?.message) return errorBody.message;
-    if (errorBody?.error?.message) return errorBody.error.message;
-    if (typeof errorBody?.error === 'string') return errorBody.error;
-    if (
-      typeof errorBody === 'string' &&
-      errorBody.trim().length > 0 &&
-      errorBody !== err.statusText
-    ) {
-      return errorBody;
-    }
-
-    switch (err.status) {
-      case 400:
-        return 'Bad request. Please verify all profile fields.';
-      case 401:
-        return 'Session expired or unauthorized. Please sign in again.';
-      case 403:
-        return 'Access denied. You do not have permission to view or edit the organization profile.';
-      case 404:
-        return 'Organization profile not found.';
-      case 409:
-        return 'Conflict: An organization profile update conflict occurred.';
-      case 500:
-        return 'Internal server error while processing profile request. Please try again.';
-      default:
-        return (
-          err.message ||
-          'An unexpected error occurred while communicating with organization profile backend.'
-        );
-    }
+    return extractApiErrorMessage(
+      err,
+      'An unexpected error occurred while communicating with organization profile backend.'
+    );
   }
 }

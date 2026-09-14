@@ -158,39 +158,32 @@
   max-width: 380px;
 }
 
-.alert-banner {
+.auth-error-alert {
   display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 12px 14px;
-  border-radius: 10px;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: #fef3f2;
+  border: 1px solid #fee4e2;
+  border-radius: 8px;
   margin-bottom: 20px;
-  font-size: 13px;
+  box-sizing: border-box;
 
-  &.error {
-    background: #fff1f1;
-    border: 1px solid #fecdca;
-    color: #d64545;
-
-    app-icon {
-      color: #d64545;
-      flex-shrink: 0;
-      margin-top: 1px;
-    }
+  .auth-error-icon {
+    color: #d92d20;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
 
-  .alert-text {
-    strong {
-      display: block;
-      margin-bottom: 2px;
-      font-weight: 600;
-      color: #912018;
-    }
-    p {
-      margin: 0;
-      line-height: 1.45;
-      color: #b42318;
-    }
+  .auth-error-text {
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.4;
+    color: #b42318;
+    margin: 0;
+    word-break: break-word;
   }
 }
 

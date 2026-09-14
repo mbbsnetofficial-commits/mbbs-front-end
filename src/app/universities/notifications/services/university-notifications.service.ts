@@ -6,6 +6,7 @@ import {
 } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable, catchError, tap, throwError } from 'rxjs';
+import { extractApiErrorMessage } from '../../../shared/utils/error.utils';
 import { environment } from '../../../../environments/environment';
 import { UniversityAuthService } from '../../auth/services/university-auth.service';
 import { UNIVERSITY_NOTIFICATIONS_API } from '../constants/university-notifications.constants';
@@ -207,40 +208,17 @@ export class UniversityNotificationsService {
     err: HttpErrorResponse,
     action: 'list' | 'count' | 'mark-read' | 'mark-all' = 'list'
   ): string {
-    const errorBody = err.error;
-    if (errorBody?.message) return errorBody.message;
-    if (errorBody?.error?.message) return errorBody.error.message;
-    if (typeof errorBody?.error === 'string') return errorBody.error;
-    if (
-      typeof errorBody === 'string' &&
-      errorBody.trim().length > 0 &&
-      errorBody !== err.statusText
-    ) {
-      return errorBody;
+    if (err.status === 404) {
+      return action === 'count'
+        ? 'Notification unread count resource not found.'
+        : action === 'mark-read'
+          ? 'Notification not found or already processed.'
+          : 'The notifications resource was not found.';
     }
 
-    switch (err.status) {
-      case 400:
-        return 'Bad request. Invalid notification request.';
-      case 401:
-        return 'Session expired or unauthorized. Please sign in again.';
-      case 403:
-        return 'Access denied. You do not have permission to modify organization notifications.';
-      case 404:
-        return action === 'count'
-          ? 'Notification unread count resource not found.'
-          : action === 'mark-read'
-            ? 'Notification not found or already processed.'
-            : 'The notifications resource was not found.';
-      case 409:
-        return 'Conflict updating notification status.';
-      case 500:
-        return 'Internal server error while processing notifications. Please try again.';
-      default:
-        return (
-          err.message ||
-          'An unexpected error occurred while communicating with notifications backend.'
-        );
-    }
+    return extractApiErrorMessage(
+      err,
+      'An unexpected error occurred while communicating with notifications backend.'
+    );
   }
 }

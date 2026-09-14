@@ -1,6 +1,7 @@
 import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable, catchError, map, of, tap, throwError } from 'rxjs';
+import { extractApiErrorMessage } from '../../../../shared/utils/error.utils';
 import { environment } from '../../../../../environments/environment';
 import { ADMISSIONS_API } from '../constants/admissions-api.constants';
 import {
@@ -248,8 +249,10 @@ export class InvitesService {
         return counts;
       }),
       catchError((err: HttpErrorResponse) => {
-        const message =
-          err.error?.message || err.message || 'Failed to load invite summary';
+        const message = extractApiErrorMessage(
+          err,
+          'Failed to load invite summary'
+        );
         this.summaryError.set(message);
         this.summaryLoading.set(false);
         return throwError(() => err);
@@ -281,8 +284,10 @@ export class InvitesService {
         return mapped;
       }),
       catchError((err: HttpErrorResponse) => {
-        const message =
-          err.error?.message || err.message || 'Failed to load invitations';
+        const message = extractApiErrorMessage(
+          err,
+          'Failed to load invitations'
+        );
         this.error.set(message);
         this.loading.set(false);
         this.invitesState.set([]);

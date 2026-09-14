@@ -10,6 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { Icon } from '../../../../shared/ui/icon/icon';
+import { extractApiErrorMessage } from '../../../../shared/utils/error.utils';
 import { UniversityHeaderComponent } from '../../../shared/components/university-header/university-header';
 import {
   OrganizationInviteItem,
@@ -125,11 +126,10 @@ export class UniversityInvitesComponent implements OnInit {
         }
       },
       error: (err) => {
-        const msg =
-          err?.error?.message ||
-          err?.error?.error ||
-          err?.message ||
-          'Failed to cancel invitation. Please try again.';
+        const msg = extractApiErrorMessage(
+          err,
+          'Failed to cancel invitation. Please try again.'
+        );
         this.cancelErrorMessage.set(msg);
       },
     });

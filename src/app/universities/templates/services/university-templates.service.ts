@@ -6,6 +6,7 @@ import {
 } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable, catchError, tap, throwError } from 'rxjs';
+import { extractApiErrorMessage } from '../../../shared/utils/error.utils';
 import { environment } from '../../../../environments/environment';
 import { UniversityAuthService } from '../../auth/services/university-auth.service';
 import { UNIVERSITY_TEMPLATES_API } from '../constants/university-templates.constants';
@@ -226,42 +227,19 @@ export class UniversityTemplatesService {
     err: HttpErrorResponse,
     action: 'list' | 'get' | 'create' | 'update' | 'delete' = 'list'
   ): string {
-    const errorBody = err.error;
-    if (errorBody?.message) return errorBody.message;
-    if (errorBody?.error?.message) return errorBody.error.message;
-    if (typeof errorBody?.error === 'string') return errorBody.error;
-    if (
-      typeof errorBody === 'string' &&
-      errorBody.trim().length > 0 &&
-      errorBody !== err.statusText
-    ) {
-      return errorBody;
+    if (err.status === 404) {
+      return action === 'delete'
+        ? 'Template not found or already deleted.'
+        : action === 'get'
+          ? 'Template details not found.'
+          : action === 'update'
+            ? 'Template not found or has already been removed.'
+            : 'The requested templates resource was not found.';
     }
 
-    switch (err.status) {
-      case 400:
-        return 'Bad request. Please verify template fields.';
-      case 401:
-        return 'Session expired or unauthorized. Please sign in again.';
-      case 403:
-        return 'Access denied. You do not have permission to manage organization templates.';
-      case 404:
-        return action === 'delete'
-          ? 'Template not found or already deleted.'
-          : action === 'get'
-            ? 'Template details not found.'
-            : action === 'update'
-              ? 'Template not found or has already been removed.'
-              : 'The requested templates resource was not found.';
-      case 409:
-        return 'Conflict: A template with this name already exists.';
-      case 500:
-        return 'Internal server error while processing template request. Please try again.';
-      default:
-        return (
-          err.message ||
-          'An unexpected error occurred while communicating with templates backend.'
-        );
-    }
+    return extractApiErrorMessage(
+      err,
+      'An unexpected error occurred while communicating with templates backend.'
+    );
   }
 }

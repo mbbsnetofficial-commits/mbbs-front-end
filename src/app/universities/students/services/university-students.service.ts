@@ -6,6 +6,7 @@ import {
 } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
 import { Observable, catchError, tap, throwError } from 'rxjs';
+import { extractApiErrorMessage } from '../../../shared/utils/error.utils';
 import { environment } from '../../../../environments/environment';
 import { UniversityAuthService } from '../../auth/services/university-auth.service';
 import { UNIVERSITY_STUDENTS_API } from '../constants/university-students.constants';
@@ -162,42 +163,9 @@ export class UniversityStudentsService {
   }
 
   private extractErrorMessage(err: HttpErrorResponse, isDetail = false): string {
-    const errorBody = err.error;
-    if (errorBody?.message) return errorBody.message;
-    if (errorBody?.error?.message) return errorBody.error.message;
-    if (typeof errorBody?.error === 'string') return errorBody.error;
-    if (
-      typeof errorBody === 'string' &&
-      errorBody.trim().length > 0 &&
-      errorBody !== err.statusText
-    ) {
-      return errorBody;
-    }
-
-    switch (err.status) {
-      case 400:
-        return isDetail
-          ? 'Bad request. Invalid student identifier.'
-          : 'Bad request. Invalid student search filters provided.';
-      case 401:
-        return 'Session expired or unauthorized. Please sign in again.';
-      case 403:
-        return isDetail
-          ? 'You are not authorized to view this student.'
-          : 'Access denied. You do not have permission to view student candidates.';
-      case 404:
-        return isDetail
-          ? 'Student profile not found.'
-          : 'Student discovery endpoint not found.';
-      case 500:
-        return isDetail
-          ? 'Internal server error while loading student profile. Please try again.'
-          : 'Internal server error while searching students. Please try again.';
-      default:
-        return (
-          err.message ||
-          'An unexpected error occurred while fetching student data.'
-        );
-    }
+    return extractApiErrorMessage(
+      err,
+      'An unexpected error occurred while fetching student data.'
+    );
   }
 }

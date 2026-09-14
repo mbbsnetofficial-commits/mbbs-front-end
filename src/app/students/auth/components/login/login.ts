@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 
 import { AuthShell } from '../shared/auth-shell/auth-shell';
 import { Icon } from '../../../../shared/ui/icon/icon';
+import { extractApiErrorMessage } from '../../../../shared/utils/error.utils';
 import { AuthService } from '../../services/auth.service';
 
 function tenDigitPhoneValidator(control: AbstractControl): ValidationErrors | null {
@@ -75,7 +76,10 @@ export class Login {
       },
       error: (err) => {
         this.isSubmitting.set(false);
-        const msg = err?.error?.message || err?.message || 'Unable to send verification code. Please check your number and try again.';
+        const msg = extractApiErrorMessage(
+          err,
+          'Unable to send verification code. Please check your number and try again.'
+        );
         this.errorMessage.set(msg);
       }
     });

@@ -9,6 +9,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Icon } from '../../../../shared/ui/icon/icon';
+import { extractApiErrorMessage } from '../../../../shared/utils/error.utils';
 import { UniversityHeaderComponent } from '../../../shared/components/university-header/university-header';
 import { UniversityTemplate } from '../../models/university-template.model';
 import { UniversityTemplatesService } from '../../services/university-templates.service';
@@ -179,11 +180,10 @@ export class UniversityTemplatesComponent implements OnInit {
             }
           },
           error: (err) => {
-            const msg =
-              err?.error?.message ||
-              err?.error?.error ||
-              err?.message ||
-              'Failed to create template. Please try again.';
+            const msg = extractApiErrorMessage(
+              err,
+              'Failed to create template. Please try again.'
+            );
             this.modalErrorMessage.set(msg);
           },
         });
@@ -205,11 +205,10 @@ export class UniversityTemplatesComponent implements OnInit {
             }
           },
           error: (err) => {
-            const msg =
-              err?.error?.message ||
-              err?.error?.error ||
-              err?.message ||
-              'Failed to update template. Please try again.';
+            const msg = extractApiErrorMessage(
+              err,
+              'Failed to update template. Please try again.'
+            );
             this.modalErrorMessage.set(msg);
           },
         });
@@ -245,11 +244,10 @@ export class UniversityTemplatesComponent implements OnInit {
         }
       },
       error: (err) => {
-        const msg =
-          err?.error?.message ||
-          err?.error?.error ||
-          err?.message ||
-          'Failed to delete template. Please try again.';
+        const msg = extractApiErrorMessage(
+          err,
+          'Failed to delete template. Please try again.'
+        );
         this.deleteErrorMessage.set(msg);
       },
     });

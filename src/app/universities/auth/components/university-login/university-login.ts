@@ -8,6 +8,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { Icon } from '../../../../shared/ui/icon/icon';
+import { extractApiErrorMessage } from '../../../../shared/utils/error.utils';
 import { UniversityAuthService } from '../../services/university-auth.service';
 
 @Component({
@@ -56,11 +57,10 @@ export class UniversityLoginComponent {
           }
         },
         error: (err) => {
-          const errorMsg =
-            err.error?.message ||
-            err.error?.error ||
-            err.message ||
-            'Login failed. Please verify your credentials.';
+          const errorMsg = extractApiErrorMessage(
+            err,
+            'Login failed. Please verify your credentials.'
+          );
           this.errorMessage.set(errorMsg);
         },
       });
