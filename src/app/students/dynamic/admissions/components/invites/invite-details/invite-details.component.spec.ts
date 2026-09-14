@@ -1,11 +1,20 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import '@angular/compiler';
+import { getTestBed, ComponentFixture, TestBed } from '@angular/core/testing';
+import { BrowserTestingModule, platformBrowserTesting } from '@angular/platform-browser/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { of } from 'rxjs';
+import { describe, beforeEach, afterEach, it, expect } from 'vitest';
 import { InviteDetailsComponent } from './invite-details.component';
 import { InvitesService } from '../../../services/invites.service';
 import { environment } from '../../../../../../../environments/environment';
+
+try {
+  getTestBed().initTestEnvironment(BrowserTestingModule, platformBrowserTesting());
+} catch {
+  // already initialized
+}
 
 describe('InviteDetailsComponent', () => {
   let component: InviteDetailsComponent;
@@ -44,6 +53,7 @@ describe('InviteDetailsComponent', () => {
   ];
 
   beforeEach(async () => {
+    TestBed.resetTestingModule();
     await TestBed.configureTestingModule({
       imports: [InviteDetailsComponent],
       providers: [
@@ -280,6 +290,7 @@ describe('InviteDetailsComponent', () => {
     expect(declineReq.request.body).toEqual({
       reason: 'NOT_INTERESTED',
       note: 'Pursuing domestic options',
+      comment: 'Pursuing domestic options',
     });
     declineReq.flush({
       success: true,
@@ -313,6 +324,106 @@ describe('InviteDetailsComponent', () => {
     expect(component.actionSuccess()).toBeTruthy();
     expect(component.invite()?.status).toBe('DECLINED');
     expect(component.history().length).toBe(2);
+  });
+
+  it('should support bi-directional state transition: re-accepting a previously declined offer', () => {
+    // Put component into DECLINED state
+    component.invite.update((inv) => inv ? { ...inv, status: 'DECLINED' } : inv);
+    expect(component.invite()?.status).toBe('DECLINED');
+
+    component.onAcceptInvite();
+    expect(component.accepting()).toBe(true);
+
+    const acceptReq = httpTesting.expectOne(
+      `${environment.admissionsApiBaseUrl}/student/invites/inv-kazan-2026/accept`
+    );
+    expect(acceptReq.request.method).toBe('POST');
+    expect(acceptReq.request.body).toEqual({});
+    acceptReq.flush({
+      success: true,
+      data: {
+        ...mockDetailInvite,
+        status: 'ACCEPTED',
+        respondedAt: '2026-08-22T10:00:00.000Z',
+      },
+    });
+
+    const summaryRefresh = httpTesting.expectOne(
+      `${environment.admissionsApiBaseUrl}/student/invites/summary`
+    );
+    summaryRefresh.flush({
+      success: true,
+      data: { total: 1, pending: 0, viewed: 0, accepted: 1, declined: 0, expired: 0, cancelled: 0 },
+    });
+
+    const historyReload = httpTesting.expectOne(
+      `${environment.admissionsApiBaseUrl}/student/invites/inv-kazan-2026/history`
+    );
+    historyReload.flush({
+      success: true,
+      data: [
+        ...mockHistoryItems,
+        { action: 'ACCEPTED', title: 'Invitation Re-Accepted', createdAt: '2026-08-22T10:00:00.000Z' },
+      ],
+    });
+
+    expect(component.accepting()).toBe(false);
+    expect(component.actionSuccess()).toContain('re-accepted');
+    expect(component.invite()?.status).toBe('ACCEPTED');
+  });
+
+  it('should support bi-directional state transition: declining a previously accepted offer', () => {
+    // Put component into ACCEPTED state
+    component.invite.update((inv) => inv ? { ...inv, status: 'ACCEPTED' } : inv);
+    expect(component.invite()?.status).toBe('ACCEPTED');
+
+    component.onDeclineInvite({
+      reason: 'INTAKE',
+      comment: 'Deferring enrollment to next cohort',
+      note: 'Deferring enrollment to next cohort',
+    });
+    expect(component.declining()).toBe(true);
+
+    const declineReq = httpTesting.expectOne(
+      `${environment.admissionsApiBaseUrl}/student/invites/inv-kazan-2026/decline`
+    );
+    expect(declineReq.request.method).toBe('POST');
+    expect(declineReq.request.body).toEqual({
+      reason: 'INTAKE',
+      comment: 'Deferring enrollment to next cohort',
+      note: 'Deferring enrollment to next cohort',
+    });
+    declineReq.flush({
+      success: true,
+      data: {
+        ...mockDetailInvite,
+        status: 'DECLINED',
+        respondedAt: '2026-08-22T11:00:00.000Z',
+      },
+    });
+
+    const summaryRefresh = httpTesting.expectOne(
+      `${environment.admissionsApiBaseUrl}/student/invites/summary`
+    );
+    summaryRefresh.flush({
+      success: true,
+      data: { total: 1, pending: 0, viewed: 0, accepted: 0, declined: 1, expired: 0, cancelled: 0 },
+    });
+
+    const historyReload = httpTesting.expectOne(
+      `${environment.admissionsApiBaseUrl}/student/invites/inv-kazan-2026/history`
+    );
+    historyReload.flush({
+      success: true,
+      data: [
+        ...mockHistoryItems,
+        { action: 'DECLINED', title: 'Offer Changed to Declined', createdAt: '2026-08-22T11:00:00.000Z' },
+      ],
+    });
+
+    expect(component.declining()).toBe(false);
+    expect(component.actionSuccess()).toContain('Your decision has been updated to Declined.');
+    expect(component.invite()?.status).toBe('DECLINED');
   });
 
   it('should prevent duplicate clicks while decline API request is in-flight', () => {

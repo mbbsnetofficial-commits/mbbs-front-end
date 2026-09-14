@@ -1,8 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, catchError, forkJoin, map, of, shareReplay } from 'rxjs';
+import { Observable, catchError, forkJoin, map, of, shareReplay, timeout } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AdminCountry, AdminUniversity, GroupedCountryUniversities } from '../models/admin-university.model';
+import { INDIA_FALLBACK_COUNTRY, INDIA_FALLBACK_UNIVERSITIES } from '../../students/static/dashboard/components/destinations-map/india-destination.data';
 
 @Injectable({
   providedIn: 'root'
@@ -21,25 +22,30 @@ export class CseService {
 
     const url = `${this.baseUrl}/cse/admin/countries`;
     this.adminCountriesResponseCache$ = this.http.get<any>(url).pipe(
+      timeout(4000),
       map(res => {
+        let list: AdminCountry[] = [];
         if (res && Array.isArray(res.data)) {
+          list = res.data;
+        } else if (Array.isArray(res)) {
+          list = res;
+        }
+        if (list.length > 0) {
+          const hasIndia = list.some(c => c && (c.country_code?.toUpperCase() === 'IN' || c._id === 'c_in'));
+          const data = hasIndia ? list : [...list, INDIA_FALLBACK_COUNTRY];
           return {
             status: res.status || 'success',
-            count: typeof res.count === 'number' ? res.count : res.data.length,
-            data: res.data
-          };
-        } else if (Array.isArray(res)) {
-          return {
-            status: 'success',
-            count: res.length,
-            data: res
+            count: data.length,
+            data
           };
         }
-        return { status: 'empty', count: 0, data: [] };
+        const fallback = this.getFallbackAdminCountries();
+        return { status: 'fallback', count: fallback.length, data: fallback };
       }),
       catchError(err => {
         console.warn('API /cse/admin/countries error, falling back:', err);
-        return of({ status: 'error', count: 0, data: [] });
+        const fallback = this.getFallbackAdminCountries();
+        return of({ status: 'fallback', count: fallback.length, data: fallback });
       }),
       shareReplay(1)
     );
@@ -54,17 +60,23 @@ export class CseService {
   getAdminUniversities(): Observable<AdminUniversity[]> {
     const url = `${this.baseUrl}/cse/admin/universities`;
     return this.http.get<any>(url).pipe(
+      timeout(4000),
       map(res => {
+        let list: AdminUniversity[] = [];
         if (res && Array.isArray(res.data)) {
-          return res.data;
+          list = res.data;
         } else if (Array.isArray(res)) {
-          return res;
+          list = res;
         }
-        return [];
+        if (list.length > 0) {
+          const hasIndia = list.some(u => u && (String(u.country_id) === 'c_in' || u._id?.startsWith('u_in')));
+          return hasIndia ? list : [...list, ...INDIA_FALLBACK_UNIVERSITIES];
+        }
+        return this.getFallbackAdminUniversities();
       }),
       catchError(err => {
         console.warn('API /cse/admin/universities error, falling back:', err);
-        return of([]);
+        return of(this.getFallbackAdminUniversities());
       })
     );
   }
@@ -100,6 +112,17 @@ export class CseService {
           }
         }
 
+        const hasIndiaGroup = grouped.some(g => g.countryCode?.toUpperCase() === 'IN' || g.countryId === 'c_in');
+        if (!hasIndiaGroup) {
+          grouped.push({
+            countryId: INDIA_FALLBACK_COUNTRY._id,
+            countryName: INDIA_FALLBACK_COUNTRY.name,
+            countryCode: INDIA_FALLBACK_COUNTRY.country_code,
+            displayOrder: INDIA_FALLBACK_COUNTRY.display_order,
+            universities: INDIA_FALLBACK_UNIVERSITIES,
+          });
+        }
+
         if (grouped.length === 0) {
           return this.getMockGroupedUniversities();
         }
@@ -111,6 +134,21 @@ export class CseService {
     );
 
     return this.groupedUniversitiesCache$;
+  }
+
+  getFallbackAdminCountries(): AdminCountry[] {
+    return this.getMockGroupedUniversities().map(g => ({
+      _id: g.countryId,
+      name: g.countryName,
+      slug: g.countryName.toLowerCase().replace(/\s+/g, '-'),
+      country_code: g.countryCode,
+      status: 'ACTIVE',
+      display_order: g.displayOrder,
+    }));
+  }
+
+  getFallbackAdminUniversities(): AdminUniversity[] {
+    return this.getMockGroupedUniversities().flatMap(g => g.universities);
   }
 
   getMockGroupedUniversities(): GroupedCountryUniversities[] {
@@ -183,7 +221,14 @@ export class CseService {
           { _id: 'u_uz2', country_id: 'c_uz', name: 'Samarkand State Medical University', status: 'ACTIVE' },
           { _id: 'u_uz3', country_id: 'c_uz', name: 'Bukhara State Medical Institute', status: 'ACTIVE' },
         ]
-      }
+      },
+      {
+        countryId: INDIA_FALLBACK_COUNTRY._id,
+        countryName: INDIA_FALLBACK_COUNTRY.name,
+        countryCode: INDIA_FALLBACK_COUNTRY.country_code,
+        displayOrder: INDIA_FALLBACK_COUNTRY.display_order,
+        universities: INDIA_FALLBACK_UNIVERSITIES,
+      },
     ];
   }
 }

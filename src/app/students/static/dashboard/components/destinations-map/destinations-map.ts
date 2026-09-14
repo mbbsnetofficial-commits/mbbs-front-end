@@ -19,9 +19,10 @@ import {
   GroupedCountryUniversities,
 } from '../../../../../shared/models/admin-university.model';
 import { CseService } from '../../../../../shared/services/cse.service';
-import { lookupCountryCoordinate } from './destinations-geo.data';
+import { lookupCountryCoordinate, resolveUniversityCoordinates } from './destinations-geo.data';
 import { exactCoordinates } from './globe-geography';
 import { verifiedUniversityLocation } from './verified-university-locations.data';
+import { INDIA_FALLBACK_COUNTRY, INDIA_FALLBACK_UNIVERSITIES } from './india-destination.data';
 import type { DestinationGlobe, GlobeAnchor, ScreenAnchor } from './destination-globe';
 
 export interface DestinationMarker {
@@ -38,6 +39,7 @@ export interface UniversityMarker {
   id: string;
   name: string;
   countryName: string;
+  countryCode?: string;
   city?: string;
   type?: string;
   lat: number;
@@ -46,9 +48,14 @@ export interface UniversityMarker {
   locationLabel?: string;
   sourceLabel?: string;
   sourceUrl?: string;
+  coordinateType?: 'campus' | 'city' | 'city-fallback' | 'regional';
+  rankingSource?: string | null;
+  rankingCategory?: string | null;
+  rankingYear?: number | null;
+  rankingRank?: number | null;
   imageUrl?: string | null;
   logoUrl?: string | null;
-  coordinateSource: 'api' | 'verified';
+  coordinateSource: 'api' | 'verified' | 'city';
 }
 
 @Component({
@@ -62,6 +69,7 @@ export interface UniversityMarker {
 export class DestinationsMap {
   private readonly cseService = inject(CseService);
   private readonly destroyRef = inject(DestroyRef);
+  private isDestroyed = false;
   private readonly section = viewChild<ElementRef<HTMLElement>>('mapSection');
   private readonly stage = viewChild<ElementRef<HTMLElement>>('globeHost');
   readonly customCountries = input<AdminCountry[] | null>(null);
@@ -85,22 +93,34 @@ export class DestinationsMap {
   private nearObserver?: IntersectionObserver;
   private visibilityObserver?: IntersectionObserver;
 
-  readonly activeCountries = computed(() =>
-    (this.customCountries() ?? this.apiCountries())
+  readonly activeCountries = computed(() => {
+    const list = (this.customCountries() ?? this.apiCountries())
       .filter((c) => c.status === 'ACTIVE')
-      .slice()
-      .sort((a, b) => a.display_order - b.display_order),
-  );
+      .slice();
+    if (
+      this.customCountries() == null &&
+      list.length > 0 &&
+      !list.some((c) => c.country_code?.toUpperCase() === 'IN' || c._id === 'c_in')
+    ) {
+      list.push(INDIA_FALLBACK_COUNTRY);
+    }
+    return list.sort((a, b) => a.display_order - b.display_order);
+  });
   readonly activeCountryMarkers = computed<DestinationMarker[]>(() =>
     this.activeCountries().flatMap((c) => {
       const geo = lookupCountryCoordinate(c.country_code, c.slug);
       if (!geo) return [];
-      const group = this.groupedUniversities().find((g) => g.countryId === c._id);
+      const group = this.groupedUniversities().find(
+        (g) =>
+          g.countryId === c._id ||
+          (c.country_code?.toUpperCase() === 'IN' && g.countryCode?.toUpperCase() === 'IN'),
+      );
       // Merge by id without mutating the parent's grouped arrays. Never create placeholder records.
       const records = new Map<string, AdminUniversity>();
       for (const u of [
         ...(group?.universities ?? []),
         ...this.internalUniversities().filter((u) => String(u.country_id) === String(c._id)),
+        ...(c.country_code?.toUpperCase() === 'IN' ? INDIA_FALLBACK_UNIVERSITIES : []),
       ]) {
         if (u.status !== 'INACTIVE') records.set(u._id, u);
       }
@@ -133,25 +153,56 @@ export class DestinationsMap {
     const country = this.selectedCountry();
     return (
       country?.universities.flatMap((u) => {
+        // Priority 1: Real university latitude/longitude from API
         const apiGeo = exactCoordinates(u.latitude ?? u.lat, u.longitude ?? u.lng);
+        // Priority 2: Verified university-specific campus coordinates
         const verified = apiGeo ? null : verifiedUniversityLocation(country.countryCode, u.name);
-        const geo = apiGeo ?? verified;
+        // Priority 3: Verified city coordinates (only if absolutely necessary)
+        const cityName = u.locations?.[0]?.cities?.[0] || u.city;
+        const stateName = u.locations?.[0]?.state || u.state;
+        const cityResolved =
+          !apiGeo && !verified
+            ? resolveUniversityCoordinates(cityName, stateName, country.countryCode)
+            : null;
+        const cityGeo = cityResolved ? exactCoordinates(cityResolved[1], cityResolved[0]) : null;
+
+        const geo = apiGeo ?? verified ?? cityGeo;
         if (!geo) return [];
+
+        const coordinateSource: 'api' | 'verified' | 'city' = apiGeo
+          ? 'api'
+          : verified
+            ? 'verified'
+            : 'city';
+
+        const sourceLabel = apiGeo
+          ? 'MBBS.NET API coordinates'
+          : verified
+            ? verified.sourceLabel
+            : `Verified city coordinates (${cityName || stateName || country.countryName})`;
+
         return [
           {
             id: u._id,
             name: u.name,
+            countryCode: country.countryCode,
             countryName: country.countryName,
-            city: u.city || u.locations?.[0]?.cities?.[0] || verified?.city,
+            city: u.city || u.locations?.[0]?.cities?.[0] || verified?.city || cityName,
             type: u.type,
-            ...geo,
+            lat: geo.lat,
+            lng: geo.lng,
             website: u.official_website,
             locationLabel: verified?.locationLabel,
-            sourceLabel: apiGeo ? 'MBBS.NET API coordinates' : verified?.sourceLabel,
+            sourceLabel,
             sourceUrl: apiGeo ? undefined : verified?.sourceUrl,
+            coordinateType: verified?.coordinateType ?? 'campus',
+            rankingSource: verified?.rankingSource ?? null,
+            rankingCategory: verified?.rankingCategory ?? null,
+            rankingYear: verified?.rankingYear ?? null,
+            rankingRank: verified?.rankingRank ?? null,
             imageUrl: u.image_url ?? verified?.imageUrl ?? null,
             logoUrl: u.logo_url ?? verified?.logoUrl ?? null,
-            coordinateSource: apiGeo ? 'api' : 'verified',
+            coordinateSource,
           },
         ];
       }) ?? []
@@ -256,6 +307,7 @@ export class DestinationsMap {
       this.visibilityObserver.observe(section);
     });
     this.destroyRef.onDestroy(() => {
+      this.isDestroyed = true;
       this.nearObserver?.disconnect();
       this.visibilityObserver?.disconnect();
       this.globe?.dispose();
@@ -269,7 +321,7 @@ export class DestinationsMap {
     try {
       if (typeof WebGL2RenderingContext === 'undefined') throw new Error('WebGL unavailable');
       const { DestinationGlobe } = await import('./destination-globe');
-      if (this.destroyRef.destroyed || initialization !== this.initialization) return;
+      if (this.isDestroyed || initialization !== this.initialization) return;
       this.globe = new DestinationGlobe(this.stage()!.nativeElement, {
         project: (anchors) => this.projectedAnchors.set(anchors),
         select: (code) => this.selectDestination(code),
@@ -278,12 +330,12 @@ export class DestinationsMap {
         lost: () => this.showUnavailable(),
       });
       await this.globe.initialize();
-      if (this.destroyRef.destroyed || initialization !== this.initialization) return;
+      if (this.isDestroyed || initialization !== this.initialization) return;
       this.renderState.set('ready');
       this.syncAnchors();
       if (this.activeCountryCode()) void this.globe.focus(this.activeCountryCode());
     } catch {
-      if (!this.destroyRef.destroyed && initialization === this.initialization)
+      if (!this.isDestroyed && initialization === this.initialization)
         this.showUnavailable();
     }
   }

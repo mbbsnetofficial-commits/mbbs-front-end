@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { DeclineReason, Invite } from '../../../models/invite.model';
@@ -18,10 +18,14 @@ export class InviteActionsComponent {
   readonly declining = input<boolean>(false);
 
   readonly acceptClicked = output<void>();
-  readonly declineSubmitted = output<{ reason: DeclineReason; note: string }>();
+  readonly declineSubmitted = output<{ reason: DeclineReason; note: string; comment?: string }>();
 
   readonly showAcceptModal = signal(false);
   readonly showDeclineModal = signal(false);
+
+  readonly isAccepted = computed(() => this.invite().status === 'ACCEPTED');
+  readonly isDeclined = computed(() => this.invite().status === 'DECLINED');
+  readonly isExpired = computed(() => this.invite().status === 'EXPIRED' || this.invite().status === 'CANCELLED');
 
   selectedReason: DeclineReason = 'NOT_INTERESTED';
   declineNote: string = '';
@@ -62,9 +66,11 @@ export class InviteActionsComponent {
   confirmDecline(): void {
     if (this.accepting() || this.declining()) return;
     this.showDeclineModal.set(false);
+    const comment = this.declineNote.trim();
     this.declineSubmitted.emit({
       reason: this.selectedReason,
-      note: this.declineNote.trim(),
+      note: comment,
+      comment,
     });
   }
 }

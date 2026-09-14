@@ -1,0 +1,102 @@
+<section
+  class="landing-faq-section"
+  id="faq"
+  aria-labelledby="faq-heading"
+  [class.is-revealed]="isRevealed()"
+>
+  <!-- Subtle ambient aesthetic glow -->
+  <div class="faq-ambient-glow" aria-hidden="true"></div>
+
+  <div class="faq-container">
+    <div class="faq-editorial-grid">
+      <!-- LEFT COLUMN: Eyebrow, Heading, Context & Advisory Assist Card -->
+      <aside class="faq-left-column">
+        <div class="faq-eyebrow-wrap">
+          <span class="faq-badge-dot" aria-hidden="true"></span>
+          <span class="faq-eyebrow">FAQ</span>
+          <span class="faq-eyebrow-sep" aria-hidden="true">&bull;</span>
+          <span class="faq-eyebrow-sub" aria-hidden="true">Admissions Guide</span>
+        </div>
+
+        <h2 id="faq-heading" class="faq-heading">
+          Questions before you begin?
+        </h2>
+
+        <p class="faq-copy">
+          Everything you need to know about studying medicine abroad, choosing the right destination, and starting your journey with MBBS.NET.
+        </p>
+
+        <!-- Sleek Interactive Advisory Card -->
+        <div class="faq-support-card">
+          <div class="faq-support-glow" aria-hidden="true"></div>
+          <div class="faq-support-top">
+            <div class="faq-status-pill">
+              <span class="faq-status-dot" aria-hidden="true"></span>
+              <span class="faq-status-text">Advisors Online</span>
+            </div>
+          </div>
+          <h3 class="faq-support-title">Have a specific question?</h3>
+          <p class="faq-support-desc">
+            Get personalized advice on university shortlists, NEET cutoffs, and budget planning.
+          </p>
+          <a href="#contact" class="faq-support-btn">
+            <span>Talk to an Admissions Advisor</span>
+            <span class="faq-support-arrow" aria-hidden="true">&rarr;</span>
+          </a>
+        </div>
+      </aside>
+
+      <!-- RIGHT COLUMN: Modern Card Accordion -->
+      <div class="faq-right-column">
+        <div class="faq-accordion" role="list">
+          @for (item of faqs; track item.id; let idx = $index) {
+          <div
+            class="faq-item faq-card"
+            [class.is-open]="isOpen(item.id)"
+            role="listitem"
+          >
+            <button
+              type="button"
+              class="faq-trigger"
+              [id]="'faq-trigger-' + item.id"
+              [attr.aria-expanded]="isOpen(item.id)"
+              [attr.aria-controls]="'faq-panel-' + item.id"
+              (click)="toggleItem(item.id)"
+              (keydown)="onTriggerKeyDown($event, idx)"
+            >
+              <div class="faq-trigger-content">
+                <div class="faq-meta-row">
+                  <span class="faq-num" aria-hidden="true">{{ item.num }}</span>
+                  @if (item.tag) {
+                  <span class="faq-tag" aria-hidden="true">{{ item.tag }}</span>
+                  }
+                </div>
+                <h3 class="faq-question">{{ item.question }}</h3>
+              </div>
+              <span class="faq-icon" aria-hidden="true">
+                <span class="faq-icon-line faq-icon-h"></span>
+                <span
+                  class="faq-icon-line faq-icon-v"
+                  [class.is-hidden]="isOpen(item.id)"
+                ></span>
+              </span>
+            </button>
+
+            <div
+              class="faq-panel"
+              [id]="'faq-panel-' + item.id"
+              role="region"
+              [attr.aria-labelledby]="'faq-trigger-' + item.id"
+              [class.is-expanded]="isOpen(item.id)"
+            >
+              <div class="faq-answer-inner">
+                <p class="faq-answer-text">{{ item.answer }}</p>
+              </div>
+            </div>
+          </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

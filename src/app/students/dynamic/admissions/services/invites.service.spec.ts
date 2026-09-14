@@ -1,7 +1,10 @@
-import { TestBed } from '@angular/core/testing';
+import '@angular/compiler';
+import { getTestBed, TestBed } from '@angular/core/testing';
+import { BrowserTestingModule, platformBrowserTesting } from '@angular/platform-browser/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { firstValueFrom } from 'rxjs';
+import { describe, beforeEach, afterEach, it, expect } from 'vitest';
 import {
   InvitesService,
   BackendInviteSummaryResponse,
@@ -10,6 +13,12 @@ import {
   BackendInviteViewResponse,
 } from './invites.service';
 import { environment } from '../../../../../environments/environment';
+
+try {
+  getTestBed().initTestEnvironment(BrowserTestingModule, platformBrowserTesting());
+} catch {
+  // already initialized
+}
 
 describe('InvitesService', () => {
   let service: InvitesService;
@@ -85,6 +94,7 @@ describe('InvitesService', () => {
   };
 
   beforeEach(() => {
+    TestBed.resetTestingModule();
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(),
@@ -511,6 +521,90 @@ describe('InvitesService', () => {
       const itemInState = service.invites().find((i) => i.id === 'inv-kazan-real-101');
       expect(itemInState?.status).toBe('DECLINED');
       expect(itemInState?.declineReason).toBe('TUITION');
+    });
+
+    it('should call POST /student/invites/:inviteId/decline with { reason, comment } body payload', async () => {
+      const declineResponse = {
+        success: true,
+        message: 'Invitation declined successfully',
+        data: {
+          ...mockListResponse.data.items[0],
+          status: 'DECLINED' as const,
+          respondedAt: '2026-08-21T11:00:00.000Z',
+        },
+      };
+
+      const promise = firstValueFrom(
+        service.declineInvite('inv-kazan-real-101', {
+          reason: 'NOT_INTERESTED',
+          comment: 'Pursuing admissions closer to home',
+        })
+      );
+      const req = httpTesting.expectOne(
+        `${environment.admissionsApiBaseUrl}/student/invites/inv-kazan-real-101/decline`
+      );
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual({
+        reason: 'NOT_INTERESTED',
+        comment: 'Pursuing admissions closer to home',
+      });
+      req.flush(declineResponse);
+
+      const summaryRefresh = httpTesting.expectOne(
+        `${environment.admissionsApiBaseUrl}/student/invites/summary`
+      );
+      summaryRefresh.flush({
+        success: true,
+        data: { ...mockSummaryResponse.data, pending: 3, declined: 2 },
+      });
+
+      const res = await promise;
+      expect(res).toBeDefined();
+      expect(res?.status).toBe('DECLINED');
+      const itemInState = service.invites().find((i) => i.id === 'inv-kazan-real-101');
+      expect(itemInState?.status).toBe('DECLINED');
+    });
+
+    it('should support bi-directional transition: declining a previously accepted offer', async () => {
+      const changeToDeclineResponse = {
+        success: true,
+        message: 'Offer status changed to declined',
+        data: {
+          ...mockListResponse.data.items[0],
+          status: 'DECLINED' as const,
+          respondedAt: '2026-08-21T12:00:00.000Z',
+        },
+      };
+
+      const promise = firstValueFrom(
+        service.declineInvite('inv-kazan-real-101', {
+          reason: 'OTHER',
+          comment: 'Decided on another institution',
+        })
+      );
+      const req = httpTesting.expectOne(
+        `${environment.admissionsApiBaseUrl}/student/invites/inv-kazan-real-101/decline`
+      );
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual({
+        reason: 'OTHER',
+        comment: 'Decided on another institution',
+      });
+      req.flush(changeToDeclineResponse);
+
+      const summaryRefresh = httpTesting.expectOne(
+        `${environment.admissionsApiBaseUrl}/student/invites/summary`
+      );
+      summaryRefresh.flush({
+        success: true,
+        data: { ...mockSummaryResponse.data, accepted: 1, declined: 2 },
+      });
+
+      const res = await promise;
+      expect(res).toBeDefined();
+      expect(res?.status).toBe('DECLINED');
+      const itemInState = service.invites().find((i) => i.id === 'inv-kazan-real-101');
+      expect(itemInState?.status).toBe('DECLINED');
     });
 
     it('should call POST /student/invites/:inviteId/decline with empty body {} when no payload provided', async () => {

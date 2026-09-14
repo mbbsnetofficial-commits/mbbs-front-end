@@ -15,6 +15,7 @@ import { Icon } from '../../../shared/ui/icon/icon';
 import { CseService } from '../../../shared/services/cse.service';
 import { GroupedCountryUniversities } from '../../../shared/models/admin-university.model';
 import { DestinationsMap } from './components/destinations-map/destinations-map';
+import { LandingFaq } from './components/landing-faq/landing-faq';
 
 export interface MegaMenuLink {
   label: string;
@@ -33,7 +34,7 @@ export interface MegaMenuSection {
 
 @Component({
   selector: 'app-dashboard',
-  imports: [RouterLink, Icon, DestinationsMap],
+  imports: [RouterLink, Icon, DestinationsMap, LandingFaq],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

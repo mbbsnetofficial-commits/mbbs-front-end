@@ -17,6 +17,22 @@ export type DeclineReason =
   | 'NOT_INTERESTED'
   | 'OTHER';
 
+export interface ApiResponse<T = any> {
+  success: boolean;
+  message?: string;
+  data?: T;
+  code?: string;
+  status?: string;
+  respondedAt?: string;
+  [key: string]: any;
+}
+
+export interface DeclineInvitePayload {
+  reason?: string;
+  comment?: string;
+  note?: string;
+}
+
 export interface ProgramDetails {
   programName: string;
   degree: string;

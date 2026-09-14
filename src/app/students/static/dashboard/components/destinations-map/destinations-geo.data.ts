@@ -1235,6 +1235,11 @@ export const NATURAL_EARTH_COUNTRIES: CountryVector[] = [
     "code": "MO",
     "name": "Macao S.A.R",
     "d": "M795 196.7 L795.1 196.9 L795 196.7 Z"
+  },
+  {
+    "code": "IN",
+    "name": "India",
+    "d": "M685.9 151.1 L692.4 155.7 L696.2 155.7 L699.2 163.4 L701.5 168 L704.6 171 L706.2 172.6 L708.4 177.2 L714.1 180.3 L718.4 182.4 L726.3 183.4 L726 179.4 L727.4 178.7 L728.2 181.2 L730.7 182.4 L735 181.8 L735.7 179.4 L740.4 177.2 L746.6 176.3 L749 178.1 L746.8 183.4 L744.9 186.4 L741.6 189.5 L739.5 191.7 L739.1 197.2 L731.5 198.5 L727.7 198.8 L725.7 203.4 L719.8 208 L716.4 212.6 L711.1 216.3 L711 223.4 L711 231.1 L710 236.4 L705.5 240.1 L702.7 237.3 L701.1 232.7 L698.1 228.1 L696.4 223.4 L694.1 217.3 L691.5 212.6 L690.3 206.5 L689.5 201.9 L688.6 198.8 L685 200.9 L679.3 196.6 L677.4 192.6 L682.2 189.5 L682.8 184.9 L680.8 180.3 L682.8 177.2 L687.1 172.6 L688.8 168 L687.8 163.4 L685.6 158.8 Z"
   }
 ];
 
@@ -3875,6 +3880,22 @@ export function findCountryVector(code?: string, slug?: string, name?: string): 
  * Mapped to standard real-world city positions.
  */
 export const CITY_COORDINATES_MAP: Record<string, [number, number]> = {
+  // India
+  newdelhi: [77.2090, 28.6139],
+  delhi: [77.2090, 28.6139],
+  chandigarh: [76.7794, 30.7333],
+  vellore: [79.1325, 12.9165],
+  bengaluru: [77.5946, 12.9716],
+  bangalore: [77.5946, 12.9716],
+  puducherry: [79.8083, 11.9416],
+  pondicherry: [79.8083, 11.9416],
+  kochi: [76.2673, 9.9312],
+  cochin: [76.2673, 9.9312],
+  lucknow: [80.9462, 26.8467],
+  varanasi: [82.9739, 25.3176],
+  manipal: [74.7865, 13.3533],
+  udupi: [74.7421, 13.3409],
+
   // Kazakhstan
   almaty: [76.8897, 43.2389],
   astana: [71.4491, 51.1694],
@@ -4222,16 +4243,48 @@ export const CITY_COORDINATES_MAP: Record<string, [number, number]> = {
   kingstown: [-61.2248, 13.1587],
   stgeorges: [-61.7457, 12.0529],
   staugustine: [-61.3995, 10.6416],
-  victoria: [55.4544, -4.6191]
+  victoria: [14.2417, 36.0444],
+  'mt:victoria': [14.2417, 36.0444],
+
+  // Missing University Hubs & Regional Centers
+  foca: [18.7783, 43.5056],
+  paris: [2.3522, 48.8566],
+  marseille: [5.3698, 43.2965],
+  nantes: [-1.5536, 47.2184],
+  lekremlinbicetre: [2.3619, 48.8144],
+  lyon: [4.8357, 45.7640],
+  bordeaux: [-0.5792, 44.8378],
+  lille: [3.0573, 50.6292],
+  montpellier: [3.8767, 43.6108],
+  strasbourg: [7.7521, 48.5734],
+  orbassano: [7.5375, 45.0069],
+  venice: [12.3155, 45.4408],
+  odz: [19.4560, 51.7592],
+  wrocaw: [17.0385, 51.1079],
+  kingston: [-76.7936, 17.9712],
+  georgetown: [-58.1551, 6.8013],
+  cleveland: [-81.6944, 41.4993],
+  kansascity: [-94.5786, 39.0997],
+  hempstead: [-73.6187, 40.7062],
+  storrs: [-72.2495, 41.8084],
+  universitypark: [-77.8599, 40.8007],
+  rochester: [-77.6109, 43.1566],
+  cincinnati: [-84.5120, 39.1031],
+  providence: [-71.4128, 41.8240]
 };
 
 /**
  * Normalizes a city or region name string for dictionary lookup.
- * Strips accents, punctuation, parentheticals, and whitespace.
+ * Strips accents, non-decomposable ligatures, punctuation, parentheticals, and whitespace.
  */
 export function normalizeCityKey(cityOrState: string): string {
   if (!cityOrState) return '';
   return cityOrState
+    .replace(/ø/gi, 'o')
+    .replace(/ł/gi, 'l')
+    .replace(/ß/gi, 'ss')
+    .replace(/æ/gi, 'ae')
+    .replace(/œ/gi, 'oe')
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '') // remove diacritics
     .toLowerCase()
@@ -4241,15 +4294,21 @@ export function normalizeCityKey(cityOrState: string): string {
 
 /**
  * Resolves authentic geographic coordinates [lng, lat] for a given city or state name.
+ * Accepts optional countryCode for disambiguated country-specific resolution.
  * Returns null if the location cannot be accurately resolved.
- * (Ensures rule 8: Never place unmapped universities randomly or at country center).
+ * (Ensures rule: Never place unmapped universities randomly or at country center).
  */
 export function resolveUniversityCoordinates(
   cityName?: string,
-  stateName?: string
+  stateName?: string,
+  countryCode?: string
 ): [number, number] | null {
+  const prefix = countryCode ? `${countryCode.toLowerCase()}:` : '';
   if (cityName) {
     const key = normalizeCityKey(cityName);
+    if (prefix && CITY_COORDINATES_MAP[prefix + key]) {
+      return CITY_COORDINATES_MAP[prefix + key];
+    }
     if (CITY_COORDINATES_MAP[key]) {
       return CITY_COORDINATES_MAP[key];
     }
@@ -4257,6 +4316,9 @@ export function resolveUniversityCoordinates(
 
   if (stateName) {
     const key = normalizeCityKey(stateName);
+    if (prefix && CITY_COORDINATES_MAP[prefix + key]) {
+      return CITY_COORDINATES_MAP[prefix + key];
+    }
     if (CITY_COORDINATES_MAP[key]) {
       return CITY_COORDINATES_MAP[key];
     }

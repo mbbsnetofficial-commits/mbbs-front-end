@@ -24,6 +24,7 @@ export interface AdminUniversity {
   image_url?: string | null;
   logo_url?: string | null;
   city?: string;
+  state?: string;
   latitude?: number;
   longitude?: number;
   lat?: number;

@@ -14,6 +14,31 @@
         <p>Your response has been confirmed with {{ invite().university.name }}. The admissions team will contact you with subsequent onboarding procedures.</p>
       </div>
     </div>
+
+    <!-- Bi-directional Offer State Transition: Change to Decline -->
+    <div class="state-transition-box transition-to-decline">
+      <div class="transition-icon-circle icon-circle-red">
+        <app-icon name="close" [size]="16" [strokeWidth]="2.5" />
+      </div>
+      <div class="transition-info">
+        <h4 class="transition-heading">Need to change your decision?</h4>
+        <p class="transition-copy">If your circumstances have changed or you've committed to another university, you can decline this previously accepted offer.</p>
+      </div>
+      <button
+        type="button"
+        class="btn-transition-action btn-change-decline"
+        [disabled]="accepting() || declining()"
+        (click)="openDeclineModal()"
+      >
+        @if (declining()) {
+          <span class="btn-spinner btn-spinner-dark" aria-hidden="true"></span>
+          <span>Declining...</span>
+        } @else {
+          <app-icon name="close" [size]="14" />
+          <span>Decline Previously Accepted Offer</span>
+        }
+      </button>
+    </div>
   } @else if (invite().status === 'DECLINED') {
     <div class="response-status-banner status-declined-banner">
       <div class="status-banner-icon-box">
@@ -23,6 +48,32 @@
         <strong>You have declined this opportunity</strong>
         <p>This decision is recorded. You can still review details and explore other matching opportunities in your inbox.</p>
       </div>
+    </div>
+
+    <!-- Bi-directional Offer State Transition: Re-accept Offer -->
+    <div class="state-transition-box transition-to-accept">
+      <div class="transition-icon-circle icon-circle-green">
+        <app-icon name="check" [size]="16" [strokeWidth]="2.5" />
+      </div>
+      <div class="transition-info">
+        <h4 class="transition-heading">Reconsidering this opportunity?</h4>
+        <p class="transition-copy">You can re-accept this admission offer to reinstate your application and proceed with {{ invite().university.name }}.</p>
+      </div>
+      <button
+        type="button"
+        class="btn-transition-action btn-reaccept"
+        [disabled]="accepting() || declining()"
+        (click)="openAcceptModal()"
+      >
+        @if (accepting()) {
+          <span class="btn-spinner" aria-hidden="true"></span>
+          <span>Accepting...</span>
+        } @else {
+          <app-icon name="sparkles" [size]="15" />
+          <span>Re-accept Invitation</span>
+          <app-icon name="arrow-right" [size]="14" />
+        }
+      </button>
     </div>
   } @else if (invite().status === 'EXPIRED') {
     <div class="response-status-banner status-expired-banner">
@@ -72,7 +123,7 @@
               <line x1="12" y1="8" x2="12.01" y2="8"></line>
             </svg>
           </span>
-          <span>You can still review additional details after accepting.</span>
+          <span>You can change or update your decision later if your plans change.</span>
         </div>
       </div>
 
@@ -110,7 +161,7 @@
               <line x1="12" y1="8" x2="12.01" y2="8"></line>
             </svg>
           </span>
-          <span>You can focus on other opportunities. This action can't be undone.</span>
+          <span>You can still reconsider and re-accept later if you change your mind.</span>
         </div>
       </div>
     </div>
@@ -134,8 +185,14 @@
           <app-icon name="sparkles" [size]="24" />
         </div>
         <div>
-          <h3>Accept University Invitation?</h3>
-          <p class="modal-sub">You are about to accept the invitation from <strong>{{ invite().university.name }}</strong>.</p>
+          <h3>{{ isDeclined() ? 'Re-accept University Invitation?' : 'Accept University Invitation?' }}</h3>
+          <p class="modal-sub">
+            @if (isDeclined()) {
+              You are re-accepting the invitation from <strong>{{ invite().university.name }}</strong>. Your status will be updated to Accepted.
+            } @else {
+              You are about to accept the invitation from <strong>{{ invite().university.name }}</strong>.
+            }
+          </p>
         </div>
       </header>
 
@@ -144,7 +201,13 @@
           <app-icon name="check" [size]="18" />
           <div>
             <strong>What happens next?</strong>
-            <p>Your acceptance will be recorded and the university admissions team will be notified of your interest.</p>
+            <p>
+              @if (isDeclined()) {
+                Your acceptance will be re-confirmed and the university admissions team will be notified of your renewed interest.
+              } @else {
+                Your acceptance will be recorded and the university admissions team will be notified of your interest.
+              }
+            </p>
           </div>
         </div>
       </div>
@@ -158,7 +221,7 @@
             <span class="btn-spinner" aria-hidden="true"></span>
             <span>Processing...</span>
           } @else {
-            <span>Confirm & Accept</span>
+            <span>{{ isDeclined() ? 'Confirm & Re-accept' : 'Confirm & Accept' }}</span>
             <app-icon name="arrow-right" [size]="16" />
           }
         </button>
@@ -176,8 +239,14 @@
           <app-icon name="close" [size]="24" />
         </div>
         <div>
-          <h3>Decline University Opportunity?</h3>
-          <p class="modal-sub">Let <strong>{{ invite().university.name }}</strong> know why this program does not align with your MBBS goals.</p>
+          <h3>{{ isAccepted() ? 'Decline Previously Accepted Offer?' : 'Decline University Opportunity?' }}</h3>
+          <p class="modal-sub">
+            @if (isAccepted()) {
+              You are changing your decision for <strong>{{ invite().university.name }}</strong> from Accepted to Declined.
+            } @else {
+              Let <strong>{{ invite().university.name }}</strong> know why this program does not align with your MBBS goals.
+            }
+          </p>
         </div>
       </header>
 
@@ -190,9 +259,10 @@
             }
           </select>
 
-          <label for="decline-note" class="input-label">Additional Feedback (Optional)</label>
+          <label for="decline-note" class="input-label">Reason / Comments (Optional)</label>
           <textarea
             id="decline-note"
+            name="comment"
             [(ngModel)]="declineNote"
             rows="3"
             placeholder="Share any specific requirements or notes..."
@@ -210,7 +280,7 @@
             <span class="btn-spinner" aria-hidden="true"></span>
             <span>Declining...</span>
           } @else {
-            <span>Decline Invitation</span>
+            <span>{{ isAccepted() ? 'Change to Declined' : 'Decline Invitation' }}</span>
           }
         </button>
       </footer>

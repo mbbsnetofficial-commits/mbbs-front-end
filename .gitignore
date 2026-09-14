@@ -38,6 +38,10 @@ yarn-error.log
 testem.log
 /typings
 __screenshots__/
+faq_verification_screenshots/
+verification_screenshots/
+scratch_*.js
+run_browser_*.js
 
 # System files
 .DS_Store

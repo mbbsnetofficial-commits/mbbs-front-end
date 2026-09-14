@@ -258,11 +258,18 @@ export class InviteDetailsComponent {
     this.actionError.set(null);
     this.actionSuccess.set(null);
 
+    const isReAccept = current.status === 'DECLINED';
+
     this.invitesService.acceptInvite(current.id).subscribe({
-      next: (updated) => {
+      next: (res: any) => {
         this.accepting.set(false);
-        this.actionSuccess.set('You have successfully accepted the university invitation!');
-        if (updated) {
+        this.actionSuccess.set(
+          isReAccept
+            ? 'You have successfully re-accepted the university invitation!'
+            : 'You have successfully accepted the university invitation!'
+        );
+        const updated = (res?.data || res) as Invite;
+        if (updated && updated.id) {
           this.invite.set(updated);
         } else {
           this.invite.update((inv) =>
@@ -287,7 +294,7 @@ export class InviteDetailsComponent {
     });
   }
 
-  onDeclineInvite(payload: { reason: DeclineReason; note: string }): void {
+  onDeclineInvite(payload: { reason: DeclineReason; note?: string; comment?: string }): void {
     const current = this.invite();
     if (!current || this.declining() || this.accepting()) return;
 
@@ -295,40 +302,50 @@ export class InviteDetailsComponent {
     this.actionError.set(null);
     this.actionSuccess.set(null);
 
-    this.invitesService.declineInvite(current.id, payload).subscribe({
-      next: (updated) => {
-        this.declining.set(false);
-        this.actionSuccess.set('You have declined this university invitation.');
-        if (updated) {
-          this.invite.set(updated);
-        } else {
-          this.invite.update((inv) =>
-            inv
-              ? {
-                  ...inv,
-                  status: 'DECLINED',
-                  declineReason: payload.reason,
-                  declineNote: payload.note,
-                  respondedAt: new Date().toISOString(),
-                }
-              : inv
+    const isReversal = current.status === 'ACCEPTED';
+    const comment = payload.comment || payload.note || '';
+
+    this.invitesService
+      .declineInvite(current.id, { reason: payload.reason, comment, note: comment })
+      .subscribe({
+        next: (res: any) => {
+          this.declining.set(false);
+          this.actionSuccess.set(
+            isReversal
+              ? 'Your decision has been updated to Declined.'
+              : 'You have declined this university invitation.'
           );
-        }
-        this.loadInviteHistory(current.id);
-      },
-      error: (err) => {
-        this.declining.set(false);
-        const errorMsg =
-          err?.error?.message ||
-          (err?.status === 409
-            ? 'Unable to decline this invitation: the offer is no longer in a valid state.'
-            : err?.status === 404
-            ? 'Invitation not found.'
-            : err?.status === 403
-            ? 'You are not authorized to decline this invitation.'
-            : 'Failed to decline invitation. Please try again.');
-        this.actionError.set(errorMsg);
-      },
-    });
+          const updated = (res?.data || res) as Invite;
+          if (updated && updated.id) {
+            this.invite.set(updated);
+          } else {
+            this.invite.update((inv) =>
+              inv
+                ? {
+                    ...inv,
+                    status: 'DECLINED',
+                    declineReason: payload.reason,
+                    declineNote: comment,
+                    respondedAt: new Date().toISOString(),
+                  }
+                : inv
+            );
+          }
+          this.loadInviteHistory(current.id);
+        },
+        error: (err) => {
+          this.declining.set(false);
+          const errorMsg =
+            err?.error?.message ||
+            (err?.status === 409
+              ? 'Unable to decline this invitation: the offer is no longer in a valid state.'
+              : err?.status === 404
+              ? 'Invitation not found.'
+              : err?.status === 403
+              ? 'You are not authorized to decline this invitation.'
+              : 'Failed to decline invitation. Please try again.');
+          this.actionError.set(errorMsg);
+        },
+      });
   }
 }

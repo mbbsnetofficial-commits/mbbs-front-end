@@ -180,4 +180,12 @@ describe('Destination globe interaction and scene geography', () => {
     expect(geometry).toHaveBeenCalledTimes(1);
     expect(material).toHaveBeenCalledTimes(1);
   });
+  it('does not capture wheel events or change camera distance so page scrolls normally', () => {
+    const canvas = host.querySelector('canvas')!;
+    const initialDistance = state.camera.position.length();
+    const wheelEvent = new WheelEvent('wheel', { deltaY: 100, cancelable: true, bubbles: true });
+    canvas.dispatchEvent(wheelEvent);
+    expect(wheelEvent.defaultPrevented).toBe(false);
+    expect(state.camera.position.length()).toBeCloseTo(initialDistance, 5);
+  });
 });

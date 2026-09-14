@@ -13,6 +13,15 @@ import {
   focusDistance,
   satelliteUrl,
 } from './globe-geography';
+import { resolveUniversityCoordinates } from './destinations-geo.data';
+import {
+  INDIA_FALLBACK_COUNTRY,
+  INDIA_FALLBACK_UNIVERSITIES,
+} from './india-destination.data';
+import {
+  VERIFIED_UNIVERSITY_LOCATIONS,
+  verifiedUniversityLocation,
+} from './verified-university-locations.data';
 
 const countries: AdminCountry[] = [
   ['KZ', 'Kazakhstan'],
@@ -44,7 +53,6 @@ const universities: AdminUniversity[] = [
     _id: 'ge2',
     country_id: 'GE',
     name: 'University without coordinates',
-    city: 'Tbilisi',
     status: 'ACTIVE',
   },
   {
@@ -85,6 +93,11 @@ describe('Destinations explorer', () => {
   let fixture: ComponentFixture<DestinationsMap>;
   let component: DestinationsMap;
   beforeEach(async () => {
+    (DestinationsMap as any).ɵcmp.inputs = {
+      customCountries: ['customCountries', 1, null],
+      groupedUniversities: ['groupedUniversities', 1, null],
+      loading: ['loading', 1, null],
+    };
     await TestBed.configureTestingModule({
       imports: [DestinationsMap],
       providers: [
@@ -104,11 +117,12 @@ describe('Destinations explorer', () => {
   });
 
   it('keeps API ordering, counts, country names, and university records', () => {
-    expect(component.activeCountryMarkers().map((c) => c.countryName)).toEqual(
-      countries.map((c) => c.name),
-    );
-    expect(component.totalDestinationsCount()).toBe(5);
-    expect(component.totalUniversitiesCount()).toBe(5);
+    expect(component.activeCountryMarkers().map((c) => c.countryName)).toEqual([
+      ...countries.map((c) => c.name),
+      'India',
+    ]);
+    expect(component.totalDestinationsCount()).toBe(6);
+    expect(component.totalUniversitiesCount()).toBe(15);
     component.selectDestination('GE');
     expect(component.selectedCountry()?.universityCount).toBe(3);
   });
@@ -352,6 +366,88 @@ describe('Destinations explorer', () => {
     expect(component.activeCountryMarkers()).toEqual([]);
     expect(fixture.nativeElement.querySelector('select').disabled).toBe(true);
   });
+  it('enforces 3-tier coordinate priority: API > verified campus > verified city', () => {
+    // 1. API coordinates override verified campus and city
+    fixture.componentRef.setInput('customCountries', [
+      {
+        _id: 'TR',
+        country_code: 'TR',
+        name: 'Turkey',
+        slug: 'turkey',
+        status: 'ACTIVE',
+        display_order: 0,
+      },
+    ]);
+    component.internalUniversities.set([
+      {
+        _id: 'tr_priority_1',
+        country_id: 'TR',
+        name: 'Hacettepe University',
+        city: 'Ankara',
+        status: 'ACTIVE',
+        latitude: 39.99,
+        longitude: 32.99,
+      },
+      {
+        _id: 'tr_priority_2',
+        country_id: 'TR',
+        name: 'Hacettepe University',
+        city: 'Ankara',
+        status: 'ACTIVE',
+      },
+      {
+        _id: 'tr_priority_3',
+        country_id: 'TR',
+        name: 'Unverified Medicine College',
+        city: 'Bordeaux',
+        status: 'ACTIVE',
+      },
+    ]);
+    component.selectDestination('TR');
+    fixture.detectChanges();
+
+    const unis = component.activeCountryUniversities();
+    expect(unis.length).toBe(3);
+
+    // University 1: has API coords -> uses API (not verified or city)
+    expect(unis[0].coordinateSource).toBe('api');
+    expect(unis[0].lat).toBe(39.99);
+    expect(unis[0].lng).toBe(32.99);
+
+    // University 2: no API coords, matching verified campus -> uses verified campus
+    expect(unis[1].coordinateSource).toBe('verified');
+    expect(unis[1].lat).toBeCloseTo(39.93179, 4);
+    expect(unis[1].lng).toBeCloseTo(32.86268, 4);
+
+    // University 3: no API coords, unverified name, known city -> uses verified city coords
+    expect(unis[2].coordinateSource).toBe('city');
+    expect(unis[2].lat).toBeCloseTo(44.8378, 3);
+    expect(unis[2].lng).toBeCloseTo(-0.5792, 3);
+  });
+  it('clears old markers, selected university, and detail card immediately when switching countries', () => {
+    component.selectDestination('Georgia');
+    fixture.detectChanges();
+    component.selectUniversity('ge1');
+    fixture.detectChanges();
+
+    expect(component.selectedUniversityId()).toBe('ge1');
+    expect(component.activeUniversityMarker()?.id).toBe('ge1');
+    expect(fixture.nativeElement.querySelector('.university-detail-card')).toBeTruthy();
+
+    // Switch from Georgia to Hungary
+    component.selectDestination('HU');
+    fixture.detectChanges();
+
+    // Old university selection and card must be completely cleared
+    expect(component.selectedUniversityId()).toBe('');
+    expect(component.activeUniversity()).toBeNull();
+    expect(component.activeUniversityMarker()).toBeNull();
+    expect(fixture.nativeElement.querySelector('.university-detail-card')).toBeNull();
+
+    // Markers must now belong only to Hungary
+    expect(component.activeCountryUniversities().every((u) => u.countryName === 'Hungary')).toBe(true);
+    expect(component.activeCountryUniversities().some((u) => u.id === 'ge1')).toBe(false);
+  });
 });
 
 describe('Earth geographic correctness', () => {
@@ -381,7 +477,7 @@ describe('Earth geographic correctness', () => {
     expect(exactCoordinates(' 43.2389 ', '+76.8897')).toEqual({ lat: 43.2389, lng: 76.8897 });
     expect(exactCoordinates('-33.8886', '151.1873')).toEqual({ lat: -33.8886, lng: 151.1873 });
   });
-  it.each(['KZ', 'RU', 'GE', 'HU', 'AU'])(
+  it.each(['KZ', 'RU', 'GE', 'HU', 'AU', 'IN'])(
     'frames the real %s mainland and generates geographic terrain bounds',
     (code) => {
       const frame = countryFrame(code);
@@ -402,4 +498,270 @@ describe('Earth geographic correctness', () => {
   it('uses the short angular path across the antimeridian', () => {
     expect(angularDistance({ lat: 0, lng: 179 }, { lat: 0, lng: -179 })).toBeCloseTo(Math.PI / 90);
   });
+  it('correctly maps Malta Victoria to Gozo and not Seychelles', () => {
+    const maltaCoords = resolveUniversityCoordinates('Victoria', undefined, 'MT');
+    expect(maltaCoords).not.toBeNull();
+    // Malta coordinates: lat ~36.04, lng ~14.24 (NOT Seychelles lat -4.6, lng 55.4)
+    expect(maltaCoords![0]).toBeCloseTo(14.2417, 3); // longitude
+    expect(maltaCoords![1]).toBeCloseTo(36.0444, 3); // latitude
+    expect(maltaCoords![1]).toBeGreaterThan(30);     // Must be in Mediterranean, Northern Hemisphere
+  });
 });
+
+describe('India (IN) Destination Integration (Tests A through O)', () => {
+  let fixture: ComponentFixture<DestinationsMap>;
+  let component: DestinationsMap;
+
+  beforeEach(async () => {
+    (DestinationsMap as any).ɵcmp.inputs = {
+      customCountries: ['customCountries', 1, null],
+      groupedUniversities: ['groupedUniversities', 1, null],
+      loading: ['loading', 1, null],
+    };
+    await TestBed.configureTestingModule({
+      imports: [DestinationsMap],
+      providers: [
+        provideRouter([]),
+        {
+          provide: CseService,
+          useValue: {
+            getAdminCountriesResponse: vi.fn(() => of({ data: countries, count: 5 })),
+            getAdminUniversities: vi.fn(() => of(universities)),
+          },
+        },
+      ],
+    }).compileComponents();
+    fixture = TestBed.createComponent(DestinationsMap);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('A. India exists with countryCode = IN', () => {
+    const indiaMarker = component.activeCountryMarkers().find((c) => c.countryCode === 'IN');
+    expect(indiaMarker).toBeDefined();
+    expect(indiaMarker?.countryCode).toBe('IN');
+    expect(indiaMarker?.countryName).toBe('India');
+
+    const indiaCountry = component.activeCountries().find((c) => c.country_code === 'IN');
+    expect(indiaCountry).toBeDefined();
+    expect(indiaCountry?.name).toBe('India');
+  });
+
+  it('B. India has exactly 10 institutions', () => {
+    component.selectDestination('IN');
+    fixture.detectChanges();
+    expect(component.activeCountryUniversities().length).toBe(10);
+    expect(INDIA_FALLBACK_UNIVERSITIES.length).toBe(10);
+  });
+
+  it('C. All 10 institutions belong to IN', () => {
+    component.selectDestination('IN');
+    fixture.detectChanges();
+    const unis = component.activeCountryUniversities();
+    expect(unis.length).toBe(10);
+    expect(unis.every((u) => u.countryCode === 'IN')).toBe(true);
+    expect(unis.every((u) => u.countryName === 'India')).toBe(true);
+  });
+
+  it('D. All 10 have valid latitude/longitude', () => {
+    component.selectDestination('IN');
+    fixture.detectChanges();
+    const unis = component.activeCountryUniversities();
+    expect(unis.length).toBe(10);
+    for (const u of unis) {
+      expect(typeof u.lat).toBe('number');
+      expect(typeof u.lng).toBe('number');
+      expect(isFinite(u.lat)).toBe(true);
+      expect(isFinite(u.lng)).toBe(true);
+      expect(isNaN(u.lat)).toBe(false);
+      expect(isNaN(u.lng)).toBe(false);
+    }
+  });
+
+  it('E. All 10 use campus-level verified coordinates and NIRF ranking metadata', () => {
+    component.selectDestination('IN');
+    fixture.detectChanges();
+    const unis = component.activeCountryUniversities();
+    expect(unis.length).toBe(10);
+    for (const u of unis) {
+      expect(u.coordinateSource).toBe('verified');
+      const verified = verifiedUniversityLocation('IN', u.name);
+      expect(verified).toBeDefined();
+      expect(verified?.coordinateType).toBe('campus');
+      expect(verified?.rankingSource).toBe('NIRF');
+      expect(verified?.rankingCategory).toBe('Medical');
+      expect(verified?.rankingYear).toBe(2024);
+      expect(verified?.sourceUrl).toMatch(/^https?:\/\//);
+    }
+  });
+
+  it('F. Coordinates are inside India expected geographic bounds', () => {
+    component.selectDestination('IN');
+    fixture.detectChanges();
+    const unis = component.activeCountryUniversities();
+    expect(unis.length).toBe(10);
+    for (const u of unis) {
+      expect(u.lat).toBeGreaterThanOrEqual(6.0);
+      expect(u.lat).toBeLessThanOrEqual(38.0);
+      expect(u.lng).toBeGreaterThanOrEqual(68.0);
+      expect(u.lng).toBeLessThanOrEqual(98.0);
+    }
+  });
+
+  it('G. India country selection works', () => {
+    component.selectDestination('IN');
+    fixture.detectChanges();
+    expect(component.activeCountryCode()).toBe('IN');
+    expect(component.selectedCountry()?.countryName).toBe('India');
+    expect(component.isWorldView()).toBe(false);
+    expect(component.isCountryView()).toBe(true);
+
+    const titleEl = fixture.nativeElement.querySelector('.explorer-country-title');
+    expect(titleEl?.textContent).toContain('India');
+  });
+
+  it('H. India university filtering works', () => {
+    component.selectDestination('IN');
+    fixture.detectChanges();
+    const unis = component.activeCountryUniversities();
+    expect(unis.length).toBe(10);
+    expect(unis.some((u) => ['ge1', 'ge2', 'ge3', 'kz1', 'hu1'].includes(u.id))).toBe(false);
+    expect(unis.every((u) => u.countryCode === 'IN')).toBe(true);
+  });
+
+  it('I. Selecting AIIMS New Delhi focuses on its campus coordinates', () => {
+    component.selectDestination('IN');
+    fixture.detectChanges();
+    const aiims = component.activeCountryUniversities().find((u) => u.name.includes('AIIMS'))!;
+    expect(aiims).toBeDefined();
+    expect(aiims.lat).toBeCloseTo(28.5672, 3);
+    expect(aiims.lng).toBeCloseTo(77.21, 3);
+
+    component.selectUniversity(aiims.id);
+    fixture.detectChanges();
+
+    expect(component.activeUniversityMarker()?.id).toBe(aiims.id);
+    expect(component.activeUniversityMarker()?.lat).toBeCloseTo(28.5672, 3);
+    expect(component.activeUniversityMarker()?.lng).toBeCloseTo(77.21, 3);
+    expect(component.activeUniversity()?.name).toContain('AIIMS New Delhi');
+
+    const card = fixture.nativeElement.querySelector('.university-detail-card');
+    expect(card).not.toBeNull();
+    expect(card.textContent).toContain('AIIMS New Delhi');
+    expect(card.textContent).toContain('New Delhi');
+  });
+
+  it('J. Selecting KMC Manipal focuses on its campus coordinates', () => {
+    component.selectDestination('IN');
+    fixture.detectChanges();
+    const kmc = component.activeCountryUniversities().find((u) => u.name.includes('Kasturba'))!;
+    expect(kmc).toBeDefined();
+    expect(kmc.lat).toBeCloseTo(13.3533, 3);
+    expect(kmc.lng).toBeCloseTo(74.7865, 3);
+
+    component.selectUniversity(kmc.id);
+    fixture.detectChanges();
+
+    expect(component.activeUniversityMarker()?.id).toBe(kmc.id);
+    expect(component.activeUniversityMarker()?.lat).toBeCloseTo(13.3533, 3);
+    expect(component.activeUniversityMarker()?.lng).toBeCloseTo(74.7865, 3);
+    expect(component.activeUniversity()?.name).toContain('Kasturba Medical College');
+  });
+
+  it('K. Both SGPGI and KGMU exist independently in Lucknow', () => {
+    component.selectDestination('IN');
+    fixture.detectChanges();
+    const sgpgi = component.activeCountryUniversities().find((u) => u.name.includes('SGPGI'))!;
+    const kgmu = component.activeCountryUniversities().find((u) => u.name.includes('King George'))!;
+
+    expect(sgpgi).toBeDefined();
+    expect(kgmu).toBeDefined();
+    expect(sgpgi.id).not.toBe(kgmu.id);
+    expect(sgpgi.city).toBe('Lucknow');
+    expect(kgmu.city).toBe('Lucknow');
+
+    expect(sgpgi.lat).not.toBe(kgmu.lat);
+    expect(sgpgi.lng).not.toBe(kgmu.lng);
+    const latDiff = Math.abs(sgpgi.lat - kgmu.lat);
+    expect(latDiff).toBeGreaterThan(0.1);
+  });
+
+  it('L. WORLD MAP clears Indian markers/state', () => {
+    component.selectDestination('IN');
+    fixture.detectChanges();
+    const aiims = component.activeCountryUniversities().find((u) => u.name.includes('AIIMS'))!;
+    component.selectUniversity(aiims.id);
+    fixture.detectChanges();
+
+    expect(component.activeUniversity()).not.toBeNull();
+    expect(component.activeUniversityMarker()).not.toBeNull();
+
+    component.resetToWorldView();
+    fixture.detectChanges();
+
+    expect(component.activeCountryCode()).toBe('');
+    expect(component.selectedCountry()).toBeNull();
+    expect(component.activeUniversity()).toBeNull();
+    expect(component.activeUniversityMarker()).toBeNull();
+    expect(component.isWorldView()).toBe(true);
+    expect(fixture.nativeElement.querySelector('.university-detail-card')).toBeNull();
+  });
+
+  it('M. API data without India triggers the India fallback', () => {
+    expect(countries.some((c) => c.country_code === 'IN')).toBe(false);
+    expect(component.activeCountries().some((c) => c.country_code === 'IN')).toBe(true);
+    expect(component.activeCountryMarkers().some((c) => c.countryCode === 'IN')).toBe(true);
+  });
+
+  it('N. API data containing India does NOT create duplicate India', () => {
+    const apiWithIndia: AdminCountry[] = [
+      ...countries,
+      {
+        _id: 'IN-API',
+        country_code: 'IN',
+        name: 'India',
+        slug: 'india',
+        status: 'ACTIVE',
+        display_order: 99,
+      },
+    ];
+    fixture.componentRef.setInput('customCountries', apiWithIndia);
+    fixture.detectChanges();
+
+    const inMarkers = component.activeCountryMarkers().filter((c) => c.countryCode === 'IN');
+    expect(inMarkers.length).toBe(1);
+
+    const inCountries = component.activeCountries().filter((c) => c.country_code === 'IN');
+    expect(inCountries.length).toBe(1);
+  });
+
+  it('O. Repeated country switching does not duplicate institutions', () => {
+    component.selectDestination('IN');
+    fixture.detectChanges();
+    expect(component.activeCountryUniversities().length).toBe(10);
+
+    component.resetToWorldView();
+    fixture.detectChanges();
+    expect(component.isWorldView()).toBe(true);
+
+    component.selectDestination('GE');
+    fixture.detectChanges();
+    expect(component.activeCountryUniversities().length).toBe(2);
+
+    component.selectDestination('IN');
+    fixture.detectChanges();
+    expect(component.activeCountryUniversities().length).toBe(10);
+
+    component.resetToWorldView();
+    fixture.detectChanges();
+
+    component.selectDestination('IN');
+    fixture.detectChanges();
+    const unis = component.activeCountryUniversities();
+    expect(unis.length).toBe(10);
+
+    const uniqueIds = new Set(unis.map((u) => u.id));
+    expect(uniqueIds.size).toBe(10);
+  });
+});
+

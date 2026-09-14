@@ -1,9 +1,18 @@
 import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Injectable, inject, signal } from '@angular/core';
-import { Observable, catchError, map, of, throwError } from 'rxjs';
+import { Observable, catchError, map, of, tap, throwError } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
 import { ADMISSIONS_API } from '../constants/admissions-api.constants';
-import { DeclineReason, Invite, InviteHistoryItem, InviteStatus, InviteSummaryCounts, PaginationInfo } from '../models/invite.model';
+import {
+  ApiResponse,
+  DeclineInvitePayload,
+  DeclineReason,
+  Invite,
+  InviteHistoryItem,
+  InviteStatus,
+  InviteSummaryCounts,
+  PaginationInfo,
+} from '../models/invite.model';
 
 export interface BackendInviteSummaryResponse {
   success: boolean;
@@ -133,6 +142,7 @@ export interface BackendInviteHistoryResponse {
 @Injectable({ providedIn: 'root' })
 export class InvitesService {
   private readonly http = inject(HttpClient);
+  readonly apiUrl = environment.admissionsApiBaseUrl;
   private readonly invitesUrl = `${environment.admissionsApiBaseUrl}${ADMISSIONS_API.INVITES}`;
   private readonly summaryUrl = `${environment.admissionsApiBaseUrl}${ADMISSIONS_API.INVITE_SUMMARY}`;
 
@@ -345,14 +355,14 @@ export class InvitesService {
     return this.markInviteAsViewed(inviteId);
   }
 
-  acceptInvite(inviteId: string): Observable<Invite | undefined> {
+  acceptInvite(inviteId: string): Observable<ApiResponse<Invite>> {
     if (!inviteId) {
-      return of(undefined);
+      return of({ success: false, message: 'Invalid invite ID' });
     }
     return this.http
-      .post<BackendInviteAcceptResponse>(`${this.invitesUrl}/${inviteId}/accept`, {})
+      .post<ApiResponse<BackendInviteItem>>(`${this.apiUrl}/student/invites/${inviteId}/accept`, {})
       .pipe(
-        map((res) => {
+        tap((res) => {
           this.invitesState.update((prev) =>
             prev.map((item) => {
               if (item.id === inviteId) {
@@ -366,11 +376,21 @@ export class InvitesService {
             })
           );
           this.loadSummary().subscribe({ error: () => {} });
+        }),
+        map((res) => {
+          const mappedInvite = res?.data
+            ? this.mapBackendInviteToInvite(res.data)
+            : this.invitesState().find((i) => i.id === inviteId);
 
-          if (res?.data) {
-            return this.mapBackendInviteToInvite(res.data);
-          }
-          return this.invitesState().find((i) => i.id === inviteId);
+          const result = {
+            success: res?.success ?? true,
+            message: res?.message || 'Invitation accepted successfully',
+            data: mappedInvite,
+            // Expose properties at root for seamless backward compatibility
+            status: mappedInvite?.status ?? 'ACCEPTED',
+            respondedAt: mappedInvite?.respondedAt ?? new Date().toISOString(),
+          };
+          return result as unknown as ApiResponse<Invite>;
         }),
         catchError((err: HttpErrorResponse) => {
           return throwError(() => err);
@@ -380,27 +400,34 @@ export class InvitesService {
 
   declineInvite(
     inviteId: string,
-    payload?: { reason?: DeclineReason; note?: string }
-  ): Observable<Invite | undefined> {
+    payload?: DeclineInvitePayload
+  ): Observable<ApiResponse<Invite>> {
     if (!inviteId) {
-      return of(undefined);
+      return of({ success: false, message: 'Invalid invite ID' });
     }
-    const body = payload?.reason
-      ? { reason: payload.reason, ...(payload.note ? { note: payload.note } : {}) }
-      : {};
+    const body: { reason?: string; comment?: string; note?: string } = {};
+    if (payload?.reason) {
+      body.reason = payload.reason;
+    }
+    if (payload?.comment !== undefined) {
+      body.comment = payload.comment;
+    }
+    if (payload?.note !== undefined) {
+      body.note = payload.note;
+    }
 
     return this.http
-      .post<BackendInviteDeclineResponse>(`${this.invitesUrl}/${inviteId}/decline`, body)
+      .post<ApiResponse<BackendInviteItem>>(`${this.apiUrl}/student/invites/${inviteId}/decline`, body)
       .pipe(
-        map((res) => {
+        tap((res) => {
           this.invitesState.update((prev) =>
             prev.map((item) => {
               if (item.id === inviteId) {
                 return {
                   ...item,
                   status: 'DECLINED',
-                  declineReason: payload?.reason,
-                  declineNote: payload?.note,
+                  declineReason: (payload?.reason as DeclineReason) || item.declineReason,
+                  declineNote: payload?.comment || payload?.note || item.declineNote,
                   respondedAt: res?.data?.respondedAt || new Date().toISOString(),
                 };
               }
@@ -408,11 +435,21 @@ export class InvitesService {
             })
           );
           this.loadSummary().subscribe({ error: () => {} });
+        }),
+        map((res) => {
+          const mappedInvite = res?.data
+            ? this.mapBackendInviteToInvite(res.data)
+            : this.invitesState().find((i) => i.id === inviteId);
 
-          if (res?.data) {
-            return this.mapBackendInviteToInvite(res.data);
-          }
-          return this.invitesState().find((i) => i.id === inviteId);
+          const result = {
+            success: res?.success ?? true,
+            message: res?.message || 'Invitation declined successfully',
+            data: mappedInvite,
+            status: mappedInvite?.status ?? 'DECLINED',
+            declineReason: (payload?.reason as DeclineReason) || mappedInvite?.declineReason,
+            respondedAt: mappedInvite?.respondedAt ?? new Date().toISOString(),
+          };
+          return result as unknown as ApiResponse<Invite>;
         }),
         catchError((err: HttpErrorResponse) => {
           return throwError(() => err);

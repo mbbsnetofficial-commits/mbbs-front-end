@@ -61,9 +61,25 @@ export class InviteCard {
     }
   });
 
+  readonly actionButtonText = computed<string>(() => {
+    const s = this.invite().status;
+    switch (s) {
+      case 'ACCEPTED':
+        return 'Manage Offer';
+      case 'DECLINED':
+        return 'Reconsider Offer';
+      case 'PENDING':
+      case 'NEW':
+      case 'VIEWED':
+        return 'Review Offer';
+      default:
+        return 'View Opportunity';
+    }
+  });
+
   isActionable(): boolean {
     const s = this.invite().status;
-    return s === 'PENDING' || s === 'NEW' || s === 'VIEWED';
+    return s === 'PENDING' || s === 'NEW' || s === 'VIEWED' || s === 'ACCEPTED' || s === 'DECLINED';
   }
 
   onLogoError(): void {

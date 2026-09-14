@@ -498,5 +498,15 @@
     ],
     "url": "/images/earth/countries/AM.jpg",
     "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=31.4467,26.8739,58.6196,53.3047&bboxSR=4326&imageSR=4326&size=1536,1494&adjustAspectRatio=false&format=jpg&f=image"
+  },
+  "IN": {
+    "bounds": [
+      65,
+      5,
+      100,
+      38
+    ],
+    "url": "/images/earth/countries/IN.jpg",
+    "source": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export?bbox=65.0,5.0,100.0,38.0&bboxSR=4326&imageSR=4326&size=1536,1448&adjustAspectRatio=false&format=jpg&f=image"
   }
 }
