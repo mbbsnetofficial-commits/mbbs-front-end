@@ -8,6 +8,16 @@ export const universityRoutes: Routes = [
     redirectTo: 'dashboard',
   },
   {
+    path: 'login',
+    redirectTo: 'auth/login',
+    pathMatch: 'full',
+  },
+  {
+    path: 'reset-password',
+    redirectTo: 'auth/reset-password',
+    pathMatch: 'full',
+  },
+  {
     path: 'auth/login',
     title: 'University Sign In | MBBS.NET',
     loadComponent: () =>

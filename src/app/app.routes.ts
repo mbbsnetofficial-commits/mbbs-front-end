@@ -24,6 +24,31 @@ export const routes: Routes = [
     loadChildren: () => import('./students/auth/auth.routes').then((m) => m.authRoutes),
   },
   {
+    path: 'login',
+    redirectTo: '/auth/login',
+    pathMatch: 'full',
+  },
+  {
+    path: 'signin',
+    redirectTo: '/auth/login',
+    pathMatch: 'full',
+  },
+  {
+    path: 'register',
+    redirectTo: '/auth/register',
+    pathMatch: 'full',
+  },
+  {
+    path: 'signup',
+    redirectTo: '/auth/register',
+    pathMatch: 'full',
+  },
+  {
+    path: 'otp',
+    redirectTo: '/auth/otp',
+    pathMatch: 'full',
+  },
+  {
     path: 'student/invites',
     redirectTo: '/dynamic/invites',
   },

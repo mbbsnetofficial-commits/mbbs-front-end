@@ -33,4 +33,19 @@ describe('App Routes', () => {
     await router.navigateByUrl('/this-route-does-not-exist-at-all');
     expect(router.url).toBe('/this-route-does-not-exist-at-all');
   });
+
+  it('should redirect /login to /auth/login', async () => {
+    await router.navigateByUrl('/login');
+    expect(router.url).toBe('/auth/login');
+  });
+
+  it('should redirect /register to /auth/register', async () => {
+    await router.navigateByUrl('/register');
+    expect(router.url).toBe('/auth/register');
+  });
+
+  it('should redirect /otp to /auth/otp', async () => {
+    await router.navigateByUrl('/otp');
+    expect(router.url).toBe('/auth/otp');
+  });
 });
