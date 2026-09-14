@@ -159,7 +159,7 @@ export function extractApiErrorMessage(
   }
 
   // 3. Fallback based on HTTP status code (if present)
-  if (typeof anyErr.status === 'number' && anyErr.status > 0) {
+  if (typeof anyErr.status === 'number' && anyErr.status >= 0) {
     const statusText = getStatusFallback(anyErr.status, '');
     if (statusText) {
       return statusText;
@@ -218,6 +218,8 @@ function cleanErrorMessage(msg: string, fallback: string): string {
 
 function getStatusFallback(status: number, fallback: string): string {
   switch (status) {
+    case 0:
+      return 'Unable to connect to the server. Please check your network connection or try again shortly.';
     case 400:
       return 'Invalid request data. Please check your entered information.';
     case 401:

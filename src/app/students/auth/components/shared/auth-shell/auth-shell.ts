@@ -1,12 +1,10 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-import { Icon } from '../../../../../shared/ui/icon/icon';
-
 @Component({
   selector: 'app-auth-shell',
   standalone: true,
-  imports: [Icon, RouterLink],
+  imports: [RouterLink],
   templateUrl: './auth-shell.html',
   styleUrl: './auth-shell.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
