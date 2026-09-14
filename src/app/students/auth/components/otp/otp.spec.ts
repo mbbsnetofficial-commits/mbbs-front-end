@@ -113,7 +113,19 @@ describe('Otp', () => {
     expect(component['errorMessage']()).toBe('Incorrect verification code. Please try again.');
   });
 
-  it('should resend OTP when requested', () => {
+  it('should initialize resend timer to 60 seconds (1 minute) and format as 01:00', () => {
+    expect(component['timerSeconds']()).toBe(60);
+    expect(component['formattedTimer']()).toBe('01:00');
+  });
+
+  it('should not inflate resend timer to 5 minutes even if pendingOtpExpiresIn is 5', () => {
+    sessionStorage.setItem('pendingOtpExpiresIn', '5');
+    component.ngOnInit();
+    expect(component['timerSeconds']()).toBe(60);
+    expect(component['formattedTimer']()).toBe('01:00');
+  });
+
+  it('should resend OTP when requested and reset timer to 60 seconds', () => {
     component['timerSeconds'].set(0);
     const resendSpy = vi.spyOn(authService, 'resendOtp').mockReturnValue(
       of({
@@ -130,5 +142,24 @@ describe('Otp', () => {
       purpose: 'login'
     });
     expect(component['successMessage']()).toBe("We've resent a verification code to your WhatsApp.");
+    expect(component['timerSeconds']()).toBe(60);
+  });
+
+  it('should set timer to retry_after_seconds when resend is rate-limited', () => {
+    component['timerSeconds'].set(0);
+    vi.spyOn(authService, 'resendOtp').mockReturnValue(
+      throwError(() => ({
+        error: {
+          message: 'Please wait 15 seconds before requesting another code.',
+          retry_after_seconds: 15
+        }
+      }))
+    );
+
+    component['resendCode']();
+
+    expect(component['timerSeconds']()).toBe(15);
+    expect(component['formattedTimer']()).toBe('00:15');
+    expect(component['errorMessage']()).toContain('15 seconds');
   });
 });

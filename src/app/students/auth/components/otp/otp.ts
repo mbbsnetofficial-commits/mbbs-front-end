@@ -8,6 +8,7 @@ import { extractApiErrorMessage } from '../../../../shared/utils/error.utils';
 import { TokenService } from '../../services/token.service';
 import { AuthService } from '../../services/auth.service';
 import { AuthOtpPurpose } from '../../models/auth.model';
+import { extractOtpResendCooldown } from '../../utils/auth.utils';
 
 @Component({
   selector: 'app-otp',
@@ -61,9 +62,19 @@ export class Otp implements OnInit, OnDestroy {
   });
 
   ngOnInit(): void {
+    const storedCooldown = sessionStorage.getItem('pendingResendCooldown');
     const storedExpiry = sessionStorage.getItem('pendingOtpExpiresIn');
-    const expiryMins = storedExpiry ? parseInt(storedExpiry, 10) : 1;
-    this.startResendTimer(expiryMins * 60);
+
+    let initialSeconds = 60;
+    if (storedCooldown && !isNaN(Number(storedCooldown))) {
+      const parsed = Number(storedCooldown);
+      initialSeconds = parsed > 0 ? Math.min(parsed, 60) : 60;
+    } else if (storedExpiry && !isNaN(Number(storedExpiry))) {
+      const mins = Number(storedExpiry);
+      initialSeconds = mins <= 1 ? mins * 60 : 60;
+    }
+
+    this.startResendTimer(initialSeconds);
   }
 
   ngOnDestroy(): void {
@@ -159,7 +170,8 @@ export class Otp implements OnInit, OnDestroy {
       next: (res) => {
         this.isResending.set(false);
         this.successMessage.set(res.message || 'Verification code resent successfully.');
-        this.startResendTimer(60);
+        const cooldown = extractOtpResendCooldown(res);
+        this.startResendTimer(cooldown);
       },
       error: (err) => {
         this.isResending.set(false);
@@ -223,6 +235,7 @@ export class Otp implements OnInit, OnDestroy {
         sessionStorage.removeItem('pendingFullName');
         sessionStorage.removeItem('pendingAuthPurpose');
         sessionStorage.removeItem('pendingOtpExpiresIn');
+        sessionStorage.removeItem('pendingResendCooldown');
 
         this.router.navigate(['/dynamic/neet']);
       },

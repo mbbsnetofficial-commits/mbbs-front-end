@@ -12,7 +12,10 @@ export interface RegisterResponse {
   data: {
     phoneNumber: string;
     expiresInMinutes: number;
+    retry_after_seconds?: number;
+    resendCooldown?: number;
   };
+  retry_after_seconds?: number;
 }
 
 export interface VerifyRegisterOtpRequest {
@@ -30,7 +33,10 @@ export interface LoginOtpResponse {
   data: {
     phoneNumber: string;
     expiresInMinutes: number;
+    retry_after_seconds?: number;
+    resendCooldown?: number;
   };
+  retry_after_seconds?: number;
 }
 
 export interface VerifyLoginOtpRequest {

@@ -62,6 +62,8 @@ describe('Register', () => {
     });
     expect(sessionStorage.getItem('pendingVerificationPhone')).toBe('+919876543210');
     expect(sessionStorage.getItem('pendingAuthPurpose')).toBe('register');
+    expect(sessionStorage.getItem('pendingResendCooldown')).toBe('60');
+    expect(sessionStorage.getItem('pendingOtpExpiresIn')).toBe('1');
     expect(routerSpy).toHaveBeenCalledWith(['/auth/otp']);
   });
 

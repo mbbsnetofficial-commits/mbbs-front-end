@@ -6,6 +6,7 @@ import { AuthShell } from '../shared/auth-shell/auth-shell';
 import { Icon } from '../../../../shared/ui/icon/icon';
 import { extractApiErrorMessage } from '../../../../shared/utils/error.utils';
 import { AuthService } from '../../services/auth.service';
+import { extractOtpResendCooldown } from '../../utils/auth.utils';
 
 function tenDigitPhoneValidator(control: AbstractControl): ValidationErrors | null {
   const digits = (control.value || '').replace(/\D/g, '');
@@ -66,11 +67,13 @@ export class Login {
     this.authService.requestLoginOtp({ phoneNumber: e164Phone }).subscribe({
       next: (res) => {
         this.isSubmitting.set(false);
+        const resendCooldown = extractOtpResendCooldown(res);
         sessionStorage.setItem('pendingVerificationPhone', e164Phone);
         sessionStorage.setItem('pendingFormattedPhone', displayPhone);
         sessionStorage.setItem('pendingFullName', 'Student');
         sessionStorage.setItem('pendingAuthPurpose', 'login');
-        sessionStorage.setItem('pendingOtpExpiresIn', String(res?.data?.expiresInMinutes || 5));
+        sessionStorage.setItem('pendingResendCooldown', String(resendCooldown));
+        sessionStorage.setItem('pendingOtpExpiresIn', '1');
 
         this.router.navigate(['/auth/otp']);
       },
