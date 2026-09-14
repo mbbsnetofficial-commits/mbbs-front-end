@@ -53,6 +53,10 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: '',
+    title: '404 - Page Not Found | MBBS.NET',
+    loadComponent: () =>
+      import('./shared/components/not-found/not-found').then(
+        (m) => m.NotFoundComponent
+      ),
   },
 ];

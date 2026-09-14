@@ -1,0 +1,150 @@
+<div class="not-found-page" role="main">
+  <!-- Interactive Particle Background Canvas -->
+  <canvas #particleCanvas class="particle-canvas" aria-hidden="true"></canvas>
+
+  <!-- Ambient Light Gradients -->
+  <div class="ambient-glow glow-top" aria-hidden="true"></div>
+  <div class="ambient-glow glow-bottom" aria-hidden="true"></div>
+
+  <!-- Animated Parallax Walking Characters Layer -->
+  <div class="characters-track" aria-hidden="true">
+    <div class="walk-lane lane-slow">
+      <!-- Character 1: Medical student with stethoscope & folder -->
+      <svg class="walker walker-doctor" viewBox="0 0 64 96" fill="currentColor">
+        <!-- Head -->
+        <circle cx="32" cy="14" r="8" />
+        <!-- Body / Lab Coat -->
+        <path d="M22 26 C22 24, 42 24, 42 26 L45 56 L39 56 L39 74 L35 74 L35 56 L29 56 L29 74 L25 74 L25 56 L19 56 Z" />
+        <!-- Stethoscope accent -->
+        <path d="M28 26 C28 34, 36 34, 36 26" stroke="#93c5fd" stroke-width="1.8" fill="none" stroke-linecap="round" />
+        <!-- Left Leg in stride -->
+        <path d="M25 72 L21 90 L26 91 L30 74 Z" />
+        <!-- Right Leg in stride -->
+        <path d="M35 72 L41 89 L46 89 L39 74 Z" />
+        <!-- Clipboard in hand -->
+        <rect x="42" y="38" width="8" height="12" rx="1.5" fill="#c7ff1a" opacity="0.85" />
+      </svg>
+    </div>
+
+    <div class="walk-lane lane-medium">
+      <!-- Character 2: Medical student with backpack walking -->
+      <svg class="walker walker-student" viewBox="0 0 64 96" fill="currentColor">
+        <!-- Head -->
+        <circle cx="28" cy="14" r="8" />
+        <!-- Backpack -->
+        <rect x="14" y="28" width="9" height="18" rx="3" fill="#64748b" opacity="0.75" />
+        <!-- Torso -->
+        <path d="M23 26 C23 24, 38 24, 38 26 L39 58 L22 58 Z" />
+        <!-- Legs in motion -->
+        <path d="M24 58 L19 88 L25 89 L29 60 Z" />
+        <path d="M33 58 L39 87 L45 86 L37 60 Z" />
+        <!-- Arms holding journal -->
+        <path d="M29 32 L36 44 L32 46 Z" />
+        <polygon points="34,42 41,40 43,47 36,49" fill="#38bdf8" opacity="0.8" />
+      </svg>
+    </div>
+
+    <div class="walk-lane lane-fast">
+      <!-- Character 3: Strolling resident doctor -->
+      <svg class="walker walker-resident" viewBox="0 0 64 96" fill="currentColor">
+        <!-- Head -->
+        <circle cx="34" cy="13" r="7.5" />
+        <!-- Open coat silhouette -->
+        <path d="M24 24 C24 22, 44 22, 44 24 L48 57 L41 57 L41 73 L37 73 L37 57 L31 57 L31 73 L27 73 L27 57 L20 57 Z" />
+        <!-- Legs walking briskly -->
+        <path d="M27 70 L21 88 L27 89 L32 72 Z" />
+        <path d="M37 70 L44 87 L50 86 L41 72 Z" />
+      </svg>
+    </div>
+
+    <!-- Horizon Guide Line -->
+    <div class="horizon-line"></div>
+  </div>
+
+  <!-- Top Brand Navigation Bar -->
+  <header class="top-nav">
+    <a routerLink="/" class="brand-link" aria-label="MBBS.NET Home">
+      <span class="brand-mark">
+        <img src="/images/app-logo.png" alt="MBBS Logo" class="brand-logo-img" />
+      </span>
+      <img src="/images/mbbs-logo.png" alt="MBBS" class="brand-name-img" />
+    </a>
+  </header>
+
+  <!-- Central 404 Hero Card -->
+  <div class="not-found-content">
+    <div class="eyebrow-badge">
+      <span class="badge-dot"></span>
+      <span class="badge-text">404 ERROR</span>
+    </div>
+
+    <h1 class="num-404" aria-label="Error 404">404</h1>
+
+    <h2 class="error-heading">Looks like you've taken a wrong turn.</h2>
+
+    <p class="error-desc">
+      The page you're looking for doesn't exist or may have moved. Let's get you back on track.
+    </p>
+
+    <div class="action-buttons">
+      <button
+        type="button"
+        class="btn-action btn-back"
+        (click)="goBack()"
+        aria-label="Go Back to previous page"
+      >
+        <svg
+          class="btn-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M19 12H5M12 19l-7-7 7-7" />
+        </svg>
+        <span>Go Back</span>
+      </button>
+
+      <button
+        type="button"
+        class="btn-action btn-home"
+        (click)="goHome()"
+        aria-label="Go Home to MBBS.NET"
+      >
+        <svg
+          class="btn-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+          <polyline points="9 22 9 12 15 12 15 22" />
+        </svg>
+        <span>Go Home</span>
+      </button>
+    </div>
+
+    <div class="reassurance-note">
+      <svg
+        class="note-icon"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+      </svg>
+      <span>Your medical journey is still on track.</span>
+    </div>
+  </div>
+</div>
