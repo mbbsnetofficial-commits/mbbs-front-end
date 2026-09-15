@@ -7,6 +7,7 @@ import { Icon, IconName } from '../../../../../../shared/ui/icon/icon';
 import { ImageFallbackDirective } from '../../../../../../shared/ui/media/image-fallback.directive';
 import { DeclineReason, Invite, InviteHistoryItem, InviteStatus } from '../../../models/invite.model';
 import { StudentProfileService } from '../../../services/student-profile.service';
+import { LogoLoader } from '../../../../../../shared/ui/logo-loader/logo-loader.component';
 
 const STATUS_CONFIG: Record<InviteStatus, { label: string; badgeClass: string; icon: IconName }> = {
   NEW: { label: 'New Offer', badgeClass: 'status-new', icon: 'sparkles' },
@@ -29,6 +30,7 @@ const STATUS_CONFIG: Record<InviteStatus, { label: string; badgeClass: string; i
     ImageFallbackDirective,
     CurrencyPipe,
     DatePipe,
+    LogoLoader,
   ],
   templateUrl: './invite-details.component.html',
   styleUrl: './invite-details.component.scss',

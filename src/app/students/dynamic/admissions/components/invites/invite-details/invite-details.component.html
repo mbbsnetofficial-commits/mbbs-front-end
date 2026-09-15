@@ -1,8 +1,7 @@
 <div class="invite-details-page">
   @if (loading()) {
     <div class="loading-wrap" aria-live="polite">
-      <div class="spinner"></div>
-      <p>Loading invitation details...</p>
+      <app-logo-loader [message]="'Loading invitation details...'"></app-logo-loader>
     </div>
   } @else if (invite(); as item) {
 

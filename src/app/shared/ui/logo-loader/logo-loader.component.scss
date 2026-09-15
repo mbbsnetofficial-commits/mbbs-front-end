@@ -16,6 +16,16 @@
     background: #ffffff;
     min-height: 100vh;
   }
+
+  &.overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(255, 255, 255, 0.86);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    min-height: 100vh;
+  }
 }
 
 .logo-loader-frame {
@@ -28,7 +38,8 @@
 .logo-halo {
   position: absolute;
   inset: 0;
-  background: rgba(212, 248, 60, 0.45);
+  background: rgba(227, 254, 84, 0.55);
+  filter: blur(12px);
   animation: logoHaloPulse 1.8s cubic-bezier(0.16, 1, 0.3, 1) infinite;
   pointer-events: none;
 }
@@ -37,53 +48,97 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: logoBreathing 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation: logoCardiacBreath 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
 .logo-img {
   display: block;
   object-fit: contain;
-  border-radius: inherit;
+  border-radius: 22%;
+  box-shadow: 0 10px 25px -5px rgba(6, 30, 25, 0.12), 0 0 0 1px rgba(6, 30, 25, 0.04);
+}
+
+.logo-loader-track {
+  height: 3px;
+  background: #e6e8ec;
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+  margin-top: 16px;
+}
+
+.logo-loader-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 45%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #d4f83c, #061e19);
+  animation: logoEcgScan 1.3s cubic-bezier(0.65, 0, 0.35, 1) infinite;
 }
 
 .logo-loader-message {
   margin-top: 1rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #526171;
-  letter-spacing: 0.01em;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: #061e19;
   text-align: center;
 }
 
-@keyframes logoBreathing {
+@keyframes logoCardiacBreath {
   0%, 100% {
-    transform: scale(0.94);
-    opacity: 0.85;
+    transform: scale(0.95);
+    opacity: 0.90;
   }
-  50% {
-    transform: scale(1.05);
+  14% {
+    transform: scale(1.06);
     opacity: 1;
+  }
+  28% {
+    transform: scale(0.98);
+    opacity: 0.94;
+  }
+  42% {
+    transform: scale(1.08);
+    opacity: 1;
+    filter: drop-shadow(0 0 16px rgba(227, 254, 84, 0.55));
+  }
+  70% {
+    transform: scale(0.95);
+    opacity: 0.90;
   }
 }
 
 @keyframes logoHaloPulse {
   0% {
-    transform: scale(0.96);
-    opacity: 0.5;
+    transform: scale(0.92);
+    opacity: 0.65;
   }
   50% {
-    transform: scale(1.28);
-    opacity: 0.15;
+    transform: scale(1.4);
+    opacity: 0.2;
   }
   100% {
-    transform: scale(1.36);
+    transform: scale(1.65);
     opacity: 0;
+  }
+}
+
+@keyframes logoEcgScan {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(250%);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .logo-halo,
-  .logo-wrapper {
+  .logo-wrapper,
+  .logo-loader-bar {
     animation: none;
   }
 }

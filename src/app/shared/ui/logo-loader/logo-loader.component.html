@@ -1,6 +1,7 @@
 <div
   class="logo-loader-container"
   [class.fullscreen]="fullScreen()"
+  [class.overlay]="overlay()"
   role="progressbar"
   [attr.aria-label]="message() || 'Loading MBBS.NET'"
 >
@@ -12,14 +13,21 @@
     ></div>
     <div class="logo-wrapper">
       <img
-        src="/images/app-logo.png"
+        [src]="currentSrc()"
         alt="MBBS.NET Logo"
         class="logo-img"
         [style.width.px]="size()"
         [style.height.px]="size()"
+        (error)="onImageError()"
       />
     </div>
   </div>
+
+  @if (showProgress() && size() >= 44) {
+    <div class="logo-loader-track" aria-hidden="true" [style.width.px]="size() * 1.5">
+      <div class="logo-loader-bar"></div>
+    </div>
+  }
 
   @if (message()) {
     <p class="logo-loader-message">{{ message() }}</p>

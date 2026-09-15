@@ -41,4 +41,19 @@ describe('LogoLoader', () => {
     const container = fixture.nativeElement.querySelector('.logo-loader-container');
     expect(container.classList.contains('fullscreen')).toBe(true);
   });
+
+  it('should apply overlay class when overlay input is true', () => {
+    fixture.componentRef.setInput('overlay', true);
+    fixture.detectChanges();
+    const container = fixture.nativeElement.querySelector('.logo-loader-container');
+    expect(container.classList.contains('overlay')).toBe(true);
+  });
+
+  it('should switch to fallback image on image load error', () => {
+    fixture.detectChanges();
+    component.onImageError();
+    fixture.detectChanges();
+    const img: HTMLImageElement = fixture.nativeElement.querySelector('.logo-img');
+    expect(img.getAttribute('src')).toBe('/Asset 1@4x.png');
+  });
 });
