@@ -165,6 +165,12 @@ export class DynamicLayouts implements OnDestroy {
       route: '/blogs',
       icon: 'bookmark',
     },
+    {
+      label: 'Delete Account',
+      description: 'Permanent account deletion and data closure',
+      route: '/delete-account',
+      icon: 'trash',
+    },
   ];
 
   private readonly routeSubscription: Subscription;

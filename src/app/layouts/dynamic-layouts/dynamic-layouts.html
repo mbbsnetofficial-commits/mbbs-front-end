@@ -287,6 +287,19 @@
             <small>Ask admissions questions</small>
           </div>
         </a>
+
+        <a
+          routerLink="/delete-account"
+          class="popover-menu-item danger-item"
+          (click)="closeOverlays()"
+        >
+          <span class="item-icon danger-icon"><app-icon name="trash" [size]="15" /></span>
+          <div class="item-text">
+            <strong class="danger-text">Delete Account</strong>
+            <small>Permanent data erasure & closure</small>
+          </div>
+          <app-icon name="arrow-right" [size]="14" class="chevron-icon" />
+        </a>
       </nav>
 
       <!-- Popover Footer: Logout Action -->

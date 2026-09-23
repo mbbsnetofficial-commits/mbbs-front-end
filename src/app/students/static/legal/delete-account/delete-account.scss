@@ -604,6 +604,89 @@
   }
 }
 
+/* Authenticated Session Box */
+.authenticated-session-box {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 18px;
+
+  .session-badge-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: #dcfce7;
+    color: #16a34a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .session-details {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+
+    .session-header-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .session-label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #166534;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+
+      .session-verified-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 1px 6px;
+        border-radius: 4px;
+        background: #dcfce7;
+        color: #15803d;
+        font-size: 0.68rem;
+        font-weight: 700;
+      }
+    }
+
+    .session-name {
+      font-size: 0.9375rem;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .session-meta {
+      font-size: 0.8125rem;
+      color: #475569;
+
+      code {
+        background: #e2e8f0;
+        padding: 1px 6px;
+        border-radius: 4px;
+        font-family: inherit;
+        font-size: 0.8125rem;
+        color: #0f172a;
+      }
+    }
+
+    .session-hint {
+      margin: 4px 0 0;
+      font-size: 0.775rem;
+      color: #15803d;
+    }
+  }
+}
+
 /* Success Banner */
 .success-banner {
   background: #f0fdf4;
@@ -678,18 +761,45 @@
       }
     }
 
-    .btn-secondary {
-      background: #ffffff;
-      border: 1px solid #cbd5e1;
-      padding: 6px 14px;
-      border-radius: 6px;
-      font-size: 0.8125rem;
-      font-weight: 500;
-      color: #334155;
-      cursor: pointer;
+    .success-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
 
-      &:hover {
-        background: #f8fafc;
+      .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #16a34a;
+        color: #ffffff;
+        border: none;
+        padding: 6px 14px;
+        border-radius: 6px;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.15s ease;
+
+        &:hover {
+          background: #15803d;
+        }
+      }
+
+      .btn-secondary {
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        padding: 6px 14px;
+        border-radius: 6px;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: #334155;
+        cursor: pointer;
+
+        &:hover {
+          background: #f8fafc;
+        }
       }
     }
   }

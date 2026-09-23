@@ -640,6 +640,86 @@
           </div>
         </div>
       </section>
+
+      <!-- Section 6: Account Security & Data Erasure (Danger Zone) -->
+      <section class="section-card danger-zone-card" id="danger-zone-section">
+        <div class="section-header">
+          <div class="title-wrap">
+            <div class="icon-wrap danger-icon-wrap">
+              <app-icon name="trash" [size]="20" />
+            </div>
+            <div>
+              <h2>Account Security & Data Erasure</h2>
+              <p>Indian DPDP Act 2023 compliance, privacy rights, and permanent account closure</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="danger-zone-body">
+          <div class="danger-callout">
+            <div class="danger-callout-icon">
+              <app-icon name="close" [size]="18" />
+            </div>
+            <div class="danger-callout-content">
+              <strong>Need to close your MBBS.NET account?</strong>
+              <p>
+                Deleting your account is permanent. All recorded test attempts, mock scorecards,
+                university invitations, personalized analytics, and uploaded verification documents
+                will be permanently purged from active databases.
+              </p>
+            </div>
+          </div>
+
+          <div class="process-overview-card">
+            <h4 class="process-title">What happens during account deletion:</h4>
+            <div class="process-steps-grid">
+              <div class="process-step-item">
+                <div class="step-badge">1</div>
+                <div class="step-text">
+                  <strong>Submit Request</strong>
+                  <p>Confirm your registered identifier and reason on the deletion page.</p>
+                </div>
+              </div>
+
+              <div class="process-step-item">
+                <div class="step-badge">2</div>
+                <div class="step-text">
+                  <strong>Instant Unlisting</strong>
+                  <p>Your profile and scores are immediately hidden from university partners.</p>
+                </div>
+              </div>
+
+              <div class="process-step-item">
+                <div class="step-badge">3</div>
+                <div class="step-text">
+                  <strong>7-Day Grace Window</strong>
+                  <p>Change your mind? Cancel anytime within 7 days by contacting support.</p>
+                </div>
+              </div>
+
+              <div class="process-step-item">
+                <div class="step-badge">4</div>
+                <div class="step-text">
+                  <strong>Cryptographic Purge</strong>
+                  <p>Permanent, irreversible wipe of all records under DPDP Act 2023.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="danger-action-footer">
+            <div class="danger-meta">
+              <span class="danger-tag">Irreversible Action</span>
+              <span class="danger-hint">You will be redirected to the dedicated verification portal</span>
+            </div>
+            <a routerLink="/delete-account" class="btn-danger-redirect">
+              <app-icon name="trash" [size]="16" />
+              <span>Go to Account Deletion Page</span>
+              <app-icon name="arrow-right" [size]="14" />
+            </a>
+          </div>
+        </div>
+      </section>
   </main>
 
   <!-- Toast Message -->

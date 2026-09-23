@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideRouter } from '@angular/router';
 import { StudentProfileComponent } from './student-profile.component';
 import { StudentProfileService } from '../../../services/student-profile.service';
 import { environment } from '../../../../../../../environments/environment';
@@ -92,6 +93,7 @@ describe('StudentProfileComponent', () => {
     await TestBed.configureTestingModule({
       imports: [StudentProfileComponent],
       providers: [
+        provideRouter([]),
         provideHttpClient(),
         provideHttpClientTesting(),
         StudentProfileService,
@@ -310,6 +312,16 @@ describe('StudentProfileComponent', () => {
       expect(component.getAge('2005-01-15')).toBeGreaterThanOrEqual(21);
       expect(component.getAge('')).toBeNull();
       expect(component.getAge(null)).toBeNull();
+    });
+
+    it('should render account security and danger zone section with link to delete account', () => {
+      const compiled = fixture.nativeElement as HTMLElement;
+      expect(compiled.textContent).toContain('Account Security & Data Erasure');
+      expect(compiled.textContent).toContain('Need to close your MBBS.NET account?');
+
+      const deleteLink = compiled.querySelector('a[href="/delete-account"]');
+      expect(deleteLink).toBeTruthy();
+      expect(deleteLink?.textContent).toContain('Go to Account Deletion Page');
     });
   });
 });

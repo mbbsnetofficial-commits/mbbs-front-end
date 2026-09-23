@@ -1005,6 +1005,40 @@
           border-color: #bfdbfe;
         }
       }
+
+      &.danger-item {
+        margin-top: 4px;
+        border-top: 1px solid #f1f5f9;
+        border-radius: 8px;
+        padding-top: 8px;
+
+        .danger-icon {
+          background: #fef2f2;
+          color: #ef4444;
+        }
+
+        strong.danger-text {
+          color: #b91c1c;
+        }
+
+        small {
+          color: #94a3b8;
+        }
+
+        &:hover {
+          background: #fff5f5;
+
+          .danger-icon {
+            background: #fee2e2;
+            color: #dc2626;
+          }
+
+          .chevron-icon {
+            color: #dc2626;
+            transform: translateX(2px);
+          }
+        }
+      }
     }
   }
 

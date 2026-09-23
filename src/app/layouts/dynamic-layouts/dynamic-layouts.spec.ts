@@ -42,4 +42,15 @@ describe('DynamicLayouts', () => {
     expect((component as any).notificationIcon('system')).toBe('bell');
     expect((component as any).notificationIcon(undefined)).toBe('bell');
   });
+
+  it('should include delete account link in profile popover and destinations', () => {
+    (component as any).toggleProfile();
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+    const deleteLink = compiled.querySelector('a[href="/delete-account"]');
+    expect(deleteLink).toBeTruthy();
+
+    const dest = (component as any).destinations.find((d: any) => d.route === '/delete-account');
+    expect(dest).toBeTruthy();
+  });
 });

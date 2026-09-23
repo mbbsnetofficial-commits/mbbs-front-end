@@ -49,6 +49,7 @@ const EDUCATION_BOARDS = [
   imports: [
     CommonModule,
     FormsModule,
+    RouterLink,
     ProfileHeaderComponent,
     Icon,
     CurrencyPipe,

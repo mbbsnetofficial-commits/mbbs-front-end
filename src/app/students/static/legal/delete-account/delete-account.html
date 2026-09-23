@@ -8,7 +8,11 @@
           <span>Back</span>
         </button>
         <div class="breadcrumbs">
-          <a routerLink="/" class="crumb-link">Home</a>
+          @if (isLoggedIn()) {
+            <a routerLink="/dynamic/profile" class="crumb-link">Student Profile</a>
+          } @else {
+            <a routerLink="/" class="crumb-link">Home</a>
+          }
           <span class="crumb-separator">/</span>
           <span class="crumb-current">Delete Account</span>
         </div>
@@ -196,12 +200,43 @@
                     <span>If you change your mind within 7 days, email <code>support&#64;mbbs.net</code> with your Reference ID.</span>
                   </div>
                 </div>
-                <button type="button" class="btn-secondary" (click)="resetForm()">
-                  Submit Another Request
-                </button>
+                <div class="success-actions">
+                  @if (isLoggedIn()) {
+                    <a routerLink="/dynamic/profile" class="btn-primary">
+                      <app-icon name="arrow-right" [size]="14" />
+                      <span>Return to Student Profile</span>
+                    </a>
+                  }
+                  <button type="button" class="btn-secondary" (click)="resetForm()">
+                    Submit Another Request
+                  </button>
+                </div>
               </div>
             </div>
           } @else {
+            @if (isLoggedIn() && currentUser) {
+              <div class="authenticated-session-box">
+                <div class="session-badge-icon">
+                  <app-icon name="profile" [size]="18" />
+                </div>
+                <div class="session-details">
+                  <div class="session-header-line">
+                    <span class="session-label">Authenticated Session Detected</span>
+                    <span class="session-verified-tag">
+                      <app-icon name="check" [size]="12" /> Active Student
+                    </span>
+                  </div>
+                  <strong class="session-name">{{ currentUser.fullName || currentUser.firstName || 'Student Account' }}</strong>
+                  <span class="session-meta">
+                    Account: <code>{{ currentUser.email || currentUser.phoneNumber || currentUser.phone || 'Your MBBS.NET Account' }}</code>
+                  </span>
+                  <p class="session-hint">
+                    Your registered identifier has been automatically populated in the form below.
+                  </p>
+                </div>
+              </div>
+            }
+
             <form (ngSubmit)="submitDeletionRequest()" class="deletion-form" novalidate>
               @if (submissionError()) {
                 <div class="form-error-banner">

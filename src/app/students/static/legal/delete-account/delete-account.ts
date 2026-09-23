@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { Icon } from '../../../../shared/ui/icon/icon';
+import { TokenService } from '../../../auth/services/token.service';
 
 export interface DeletionReasonOption {
   key: string;
@@ -26,9 +27,13 @@ export interface DeletionFaq {
 export class DeleteAccountComponent {
   private readonly location = inject(Location);
   private readonly router = inject(Router);
+  private readonly tokenService = inject(TokenService);
 
   readonly version = '2.1';
   readonly effectiveDate = 'September 2026';
+
+  readonly currentUser = this.safeCurrentUser();
+  readonly isLoggedIn = signal<boolean>(this.tokenService.isLoggedIn());
 
   // Form State
   readonly accountIdentifier = signal<string>('');
@@ -77,9 +82,32 @@ export class DeleteAccountComponent {
     },
   ]);
 
+  constructor() {
+    if (this.currentUser) {
+      const emailOrPhone =
+        this.currentUser.email ||
+        this.currentUser.phoneNumber ||
+        this.currentUser.phone ||
+        '';
+      if (emailOrPhone) {
+        this.accountIdentifier.set(emailOrPhone);
+      }
+    }
+  }
+
+  private safeCurrentUser() {
+    try {
+      return this.tokenService.getCurrentUser();
+    } catch {
+      return null;
+    }
+  }
+
   goBack(): void {
     if (typeof window !== 'undefined' && window.history.length > 1) {
       this.location.back();
+    } else if (this.isLoggedIn()) {
+      this.router.navigate(['/dynamic/profile']);
     } else {
       this.router.navigate(['/']);
     }
