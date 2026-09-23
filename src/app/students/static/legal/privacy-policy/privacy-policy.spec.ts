@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { vi } from 'vitest';
 import { PrivacyPolicyComponent } from './privacy-policy';
 
 describe('PrivacyPolicyComponent', () => {
@@ -61,5 +62,16 @@ describe('PrivacyPolicyComponent', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const deleteLink = compiled.querySelector('a[href="/delete-account"]');
     expect(deleteLink).toBeTruthy();
+  });
+
+  it('should render back button and call goBack on click', () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+    const backBtn = compiled.querySelector('.back-btn') as HTMLButtonElement;
+    expect(backBtn).toBeTruthy();
+    expect(backBtn.textContent).toContain('Back');
+
+    const goBackSpy = vi.spyOn(component, 'goBack');
+    backBtn.click();
+    expect(goBackSpy).toHaveBeenCalled();
   });
 });

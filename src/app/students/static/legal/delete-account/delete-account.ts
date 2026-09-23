@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Location } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Icon } from '../../../../shared/ui/icon/icon';
 
 export interface DeletionReasonOption {
@@ -17,12 +18,15 @@ export interface DeletionFaq {
 @Component({
   selector: 'app-delete-account',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, Icon, FormsModule],
+  imports: [RouterLink, Icon, FormsModule],
   templateUrl: './delete-account.html',
   styleUrl: './delete-account.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DeleteAccountComponent {
+  private readonly location = inject(Location);
+  private readonly router = inject(Router);
+
   readonly version = '2.1';
   readonly effectiveDate = 'September 2026';
 
@@ -72,6 +76,14 @@ export class DeleteAccountComponent {
       isOpen: false,
     },
   ]);
+
+  goBack(): void {
+    if (typeof window !== 'undefined' && window.history.length > 1) {
+      this.location.back();
+    } else {
+      this.router.navigate(['/']);
+    }
+  }
 
   toggleFaq(index: number): void {
     this.faqs.update((items) =>

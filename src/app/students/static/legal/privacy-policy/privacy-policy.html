@@ -1,39 +1,24 @@
 <div class="legal-page">
-  <!-- Top Navigation Sub-bar -->
-  <nav class="legal-nav-bar" aria-label="Legal documents navigation">
+  <!-- Top Navigation Bar with Back Button & Breadcrumbs (No tabs) -->
+  <nav class="legal-nav-bar" aria-label="Page navigation">
     <div class="nav-container">
-      <div class="breadcrumbs">
-        <a routerLink="/" class="crumb-link">Home</a>
-        <span class="crumb-separator">/</span>
-        <span class="crumb-current">Privacy Policy</span>
+      <div class="nav-left">
+        <button type="button" class="back-btn" (click)="goBack()" aria-label="Go back">
+          <span class="back-arrow-icon"><app-icon name="arrow-right" [size]="15" /></span>
+          <span>Back</span>
+        </button>
+        <div class="breadcrumbs">
+          <a routerLink="/" class="crumb-link">Home</a>
+          <span class="crumb-separator">/</span>
+          <span class="crumb-current">Privacy Policy</span>
+        </div>
       </div>
 
-      <div class="legal-tabs">
-        <a
-          routerLink="/terms-and-conditions"
-          routerLinkActive="active"
-          class="tab-btn"
-        >
-          <app-icon name="bookmark" [size]="15" />
-          <span>Terms of Service</span>
-        </a>
-        <a
-          routerLink="/privacy-policy"
-          routerLinkActive="active"
-          class="tab-btn"
-          aria-current="page"
-        >
-          <app-icon name="check" [size]="15" />
-          <span>Privacy Policy</span>
-        </a>
-        <a
-          routerLink="/delete-account"
-          routerLinkActive="active"
-          class="tab-btn delete-tab"
-        >
-          <app-icon name="close" [size]="15" />
-          <span>Delete Account</span>
-        </a>
+      <div class="nav-right">
+        <button type="button" class="print-nav-btn" (click)="printPage()" title="Print Privacy Policy">
+          <app-icon name="share" [size]="15" />
+          <span>Print / PDF</span>
+        </button>
       </div>
     </div>
   </nav>
@@ -73,12 +58,6 @@
           <span class="meta-label">Platform URL</span>
           <span class="meta-value">{{ platformUrl }}</span>
         </div>
-        <div class="hero-actions">
-          <button type="button" class="print-btn" (click)="printPage()" title="Print Policy">
-            <app-icon name="share" [size]="16" />
-            <span>Print / Save PDF</span>
-          </button>
-        </div>
       </div>
     </div>
   </header>
@@ -88,7 +67,7 @@
     <aside class="legal-sidebar" aria-label="Table of Contents">
       <div class="sidebar-card">
         <div class="sidebar-search">
-          <span class="search-icon"><app-icon name="search" [size]="16" /></span>
+          <span class="search-icon"><app-icon name="search" [size]="15" /></span>
           <input
             type="text"
             placeholder="Search 22 policy sections..."
@@ -120,11 +99,11 @@
 
         <div class="sidebar-callout">
           <span class="callout-icon">
-            <app-icon name="sparkles" [size]="18" />
+            <app-icon name="sparkles" [size]="16" />
           </span>
           <div>
             <strong>Privacy Grievance Officer</strong>
-            <p>Direct escalations for student data access, correction, or deletion.</p>
+            <p>Direct inquiries for student data access, correction, or deletion.</p>
             <a href="mailto:privacy@mbbs.net" class="sidebar-email">privacy&#64;mbbs.net</a>
           </div>
         </div>
@@ -208,7 +187,7 @@
             <li>Other voluntary educational information</li>
           </ul>
           <div class="alert-box alert-info">
-            <app-icon name="check" [size]="18" />
+            <app-icon name="check" [size]="17" />
             <p>
               This information is used strictly to provide personalized educational features, tailored
               practice tracks, and university recommendations.
@@ -307,7 +286,7 @@
             </li>
           </ul>
           <div class="alert-box alert-warning">
-            <app-icon name="close" [size]="18" />
+            <app-icon name="close" [size]="17" />
             <p>
               <strong>Prohibited Content Policy:</strong> Users must not send unlawful, abusive,
               threatening, fraudulent, harassing, defamatory, or discriminatory messages.
@@ -332,7 +311,7 @@
             <li>AI services may be supported by trusted third-party technology providers.</li>
           </ul>
           <div class="alert-box alert-warning">
-            <app-icon name="close" [size]="18" />
+            <app-icon name="close" [size]="17" />
             <p>
               <strong>Caution:</strong> Do not submit sensitive personal data (such as passwords,
               payment cards, or government IDs) into the AI assistant. AI answers are provided for
@@ -452,7 +431,7 @@
         </div>
         <div class="section-body">
           <div class="alert-box alert-info">
-            <app-icon name="check" [size]="18" />
+            <app-icon name="check" [size]="17" />
             <p>
               <strong>Zero Standalone Sale:</strong> We do not sell student personal information under any circumstances.
             </p>
@@ -495,22 +474,22 @@
           </p>
           <div class="security-grid">
             <div class="security-card">
-              <span class="security-icon"><app-icon name="check" [size]="18" /></span>
+              <span class="security-icon"><app-icon name="check" [size]="17" /></span>
               <strong>TLS 1.3 Encryption</strong>
               <p>All data transmitted between your device and our servers is strictly encrypted.</p>
             </div>
             <div class="security-card">
-              <span class="security-icon"><app-icon name="bookmark" [size]="18" /></span>
+              <span class="security-icon"><app-icon name="bookmark" [size]="17" /></span>
               <strong>Hardware Keystore Tokens</strong>
               <p>Cryptographic tokens protect authentication sessions and API requests.</p>
             </div>
             <div class="security-card">
-              <span class="security-icon"><app-icon name="settings" [size]="18" /></span>
+              <span class="security-icon"><app-icon name="settings" [size]="17" /></span>
               <strong>Role-Based Access Control</strong>
               <p>Strict access controls limit production database visibility to authorized personnel.</p>
             </div>
             <div class="security-card">
-              <span class="security-icon"><app-icon name="activity" [size]="18" /></span>
+              <span class="security-icon"><app-icon name="activity" [size]="17" /></span>
               <strong>Continuous Auditing</strong>
               <p>Automated telemetry, vulnerability scanning, and daily offsite backups.</p>
             </div>
@@ -540,7 +519,7 @@
             <div class="box-actions">
               <a routerLink="/delete-account" class="btn-delete-page">
                 <span>View Deletion Procedure & Form</span>
-                <app-icon name="arrow-right" [size]="16" />
+                <app-icon name="arrow-right" [size]="15" />
               </a>
               <span class="or-email">or email <a href="mailto:support@mbbs.net">support&#64;mbbs.net</a></span>
             </div>
@@ -632,28 +611,6 @@
           </div>
         </div>
       </section>
-
-      <!-- Cross-Links Card -->
-      <div class="related-policies-card">
-        <h3>Related Documentation</h3>
-        <p>Explore our complete legal and compliance resources:</p>
-        <div class="links-row">
-          <a routerLink="/terms-and-conditions" class="related-link">
-            <app-icon name="bookmark" [size]="16" />
-            <div>
-              <strong>Terms of Service</strong>
-              <span>Rules and conditions governing the use of the MBBS.NET platform.</span>
-            </div>
-          </a>
-          <a routerLink="/delete-account" class="related-link">
-            <app-icon name="close" [size]="16" />
-            <div>
-              <strong>Account & Data Deletion</strong>
-              <span>Detailed workflow, consequences, and request submission form.</span>
-            </div>
-          </a>
-        </div>
-      </div>
     </main>
   </div>
 </div>

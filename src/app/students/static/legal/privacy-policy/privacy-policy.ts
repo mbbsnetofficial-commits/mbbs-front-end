@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { Location } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Icon } from '../../../../shared/ui/icon/icon';
 
 export interface PrivacySection {
@@ -13,12 +14,15 @@ export interface PrivacySection {
 @Component({
   selector: 'app-privacy-policy',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, Icon, FormsModule],
+  imports: [RouterLink, Icon, FormsModule],
   templateUrl: './privacy-policy.html',
   styleUrl: './privacy-policy.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PrivacyPolicyComponent {
+  private readonly location = inject(Location);
+  private readonly router = inject(Router);
+
   readonly version = '2.1';
   readonly effectiveDate = 'September 2026';
   readonly operator = 'Preston Consultancy Edtech Private Limited';
@@ -63,6 +67,14 @@ export class PrivacyPolicyComponent {
         s.number.includes(q)
     );
   });
+
+  goBack(): void {
+    if (typeof window !== 'undefined' && window.history.length > 1) {
+      this.location.back();
+    } else {
+      this.router.navigate(['/']);
+    }
+  }
 
   scrollToSection(id: string): void {
     this.activeSection.set(id);

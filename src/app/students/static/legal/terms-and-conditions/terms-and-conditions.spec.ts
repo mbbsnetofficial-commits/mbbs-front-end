@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { vi } from 'vitest';
 import { TermsAndConditionsComponent } from './terms-and-conditions';
 
 describe('TermsAndConditionsComponent', () => {
@@ -59,5 +60,16 @@ describe('TermsAndConditionsComponent', () => {
   it('should update activeSection when scrollToSection is called', () => {
     component.scrollToSection('intellectual-property');
     expect(component.activeSection()).toBe('intellectual-property');
+  });
+
+  it('should render back button and call goBack on click', () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+    const backBtn = compiled.querySelector('.back-btn') as HTMLButtonElement;
+    expect(backBtn).toBeTruthy();
+    expect(backBtn.textContent).toContain('Back');
+
+    const goBackSpy = vi.spyOn(component, 'goBack');
+    backBtn.click();
+    expect(goBackSpy).toHaveBeenCalled();
   });
 });

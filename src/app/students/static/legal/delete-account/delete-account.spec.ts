@@ -80,4 +80,15 @@ describe('DeleteAccountComponent', () => {
     expect(link).toContain('mailto:support@mbbs.net');
     expect(link).toContain('Account%20Deletion%20Request%20-%20MBBS.NET');
   });
+
+  it('should render back button and call goBack on click', () => {
+    const compiled = fixture.nativeElement as HTMLElement;
+    const backBtn = compiled.querySelector('.back-btn') as HTMLButtonElement;
+    expect(backBtn).toBeTruthy();
+    expect(backBtn.textContent).toContain('Back');
+
+    const goBackSpy = vi.spyOn(component, 'goBack');
+    backBtn.click();
+    expect(goBackSpy).toHaveBeenCalled();
+  });
 });

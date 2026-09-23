@@ -1,39 +1,24 @@
 <div class="legal-page">
-  <!-- Top Navigation Sub-bar -->
-  <nav class="legal-nav-bar" aria-label="Legal documents navigation">
+  <!-- Top Navigation Bar with Back Button & Breadcrumbs (No tabs) -->
+  <nav class="legal-nav-bar" aria-label="Page navigation">
     <div class="nav-container">
-      <div class="breadcrumbs">
-        <a routerLink="/" class="crumb-link">Home</a>
-        <span class="crumb-separator">/</span>
-        <span class="crumb-current">Delete Account</span>
+      <div class="nav-left">
+        <button type="button" class="back-btn" (click)="goBack()" aria-label="Go back">
+          <span class="back-arrow-icon"><app-icon name="arrow-right" [size]="15" /></span>
+          <span>Back</span>
+        </button>
+        <div class="breadcrumbs">
+          <a routerLink="/" class="crumb-link">Home</a>
+          <span class="crumb-separator">/</span>
+          <span class="crumb-current">Delete Account</span>
+        </div>
       </div>
 
-      <div class="legal-tabs">
-        <a
-          routerLink="/terms-and-conditions"
-          routerLinkActive="active"
-          class="tab-btn"
-        >
-          <app-icon name="bookmark" [size]="15" />
-          <span>Terms of Service</span>
-        </a>
-        <a
-          routerLink="/privacy-policy"
-          routerLinkActive="active"
-          class="tab-btn"
-        >
-          <app-icon name="check" [size]="15" />
-          <span>Privacy Policy</span>
-        </a>
-        <a
-          routerLink="/delete-account"
-          routerLinkActive="active"
-          class="tab-btn delete-tab"
-          aria-current="page"
-        >
-          <app-icon name="close" [size]="15" />
-          <span>Delete Account</span>
-        </a>
+      <div class="nav-right">
+        <button type="button" class="print-nav-btn" (click)="printPage()" title="Print Deletion Instructions">
+          <app-icon name="share" [size]="15" />
+          <span>Print / PDF</span>
+        </button>
       </div>
     </div>
   </nav>
@@ -43,7 +28,7 @@
     <div class="hero-container">
       <div class="hero-pill-badge">
         <span class="badge-dot warning-dot"></span>
-        <span>DPDP Act 2023 • Data Erasure & Account Termination</span>
+        <span>DPDP Act 2023 • Data Erasure & Termination</span>
       </div>
 
       <h1 class="hero-title">Account & Data Deletion</h1>
@@ -56,24 +41,18 @@
 
       <div class="metadata-bar">
         <div class="meta-item">
-          <span class="meta-label">Standard SLA</span>
-          <span class="meta-value">24–48 Hours Review</span>
+          <span class="meta-label">Review Window</span>
+          <span class="meta-value">24–48 Hours</span>
         </div>
         <div class="meta-divider"></div>
         <div class="meta-item">
           <span class="meta-label">Data Purge Window</span>
-          <span class="meta-value">7 Days Complete Removal</span>
+          <span class="meta-value">7 Days Permanent Removal</span>
         </div>
         <div class="meta-divider"></div>
         <div class="meta-item">
           <span class="meta-label">Official Support</span>
           <span class="meta-value">support&#64;mbbs.net</span>
-        </div>
-        <div class="hero-actions">
-          <button type="button" class="print-btn" (click)="printPage()" title="Print Deletion Instructions">
-            <app-icon name="share" [size]="16" />
-            <span>Print Guide</span>
-          </button>
         </div>
       </div>
     </div>
@@ -82,22 +61,22 @@
   <!-- Main Body Content -->
   <div class="legal-body-container">
     <!-- Left Navigation / Quick Overview -->
-    <aside class="legal-sidebar" aria-label="Deletion steps navigation">
+    <aside class="legal-sidebar" aria-label="Deletion steps overview">
       <div class="sidebar-card">
-        <h3 class="sidebar-heading">Deletion Process</h3>
+        <h3 class="sidebar-heading">Process Stages</h3>
         <ul class="steps-nav">
           <li class="step-nav-item active">
             <span class="step-idx">1</span>
             <div class="step-meta">
-              <strong>Understand Impact</strong>
+              <strong>Impact Review</strong>
               <span>What data is purged</span>
             </div>
           </li>
           <li class="step-nav-item">
             <span class="step-idx">2</span>
             <div class="step-meta">
-              <strong>Choose Method</strong>
-              <span>Web form, Email, or In-App</span>
+              <strong>Select Method</strong>
+              <span>Online form, Email, or In-App</span>
             </div>
           </li>
           <li class="step-nav-item">
@@ -111,16 +90,16 @@
             <span class="step-idx">4</span>
             <div class="step-meta">
               <strong>Permanent Purge</strong>
-              <span>Complete cryptographic wipe</span>
+              <span>Cryptographic wipe</span>
             </div>
           </li>
         </ul>
 
         <div class="sidebar-callout help-callout">
-          <span class="callout-icon"><app-icon name="sparkles" [size]="18" /></span>
+          <span class="callout-icon"><app-icon name="sparkles" [size]="16" /></span>
           <div>
-            <strong>Need Help Deciding?</strong>
-            <p>If you only need to pause notifications or update your details, contact our support team first.</p>
+            <strong>Need Assistance?</strong>
+            <p>If you only wish to mute alerts or update your records, talk to our team first.</p>
             <a href="mailto:support@mbbs.net" class="sidebar-email">support&#64;mbbs.net</a>
           </div>
         </div>
@@ -148,12 +127,12 @@
                 <h4>Personal & Academic Data</h4>
               </div>
               <ul class="impact-list">
-                <li><app-icon name="close" [size]="14" /> <span>Student profile, full name, WhatsApp number, email, date of birth</span></li>
-                <li><app-icon name="close" [size]="14" /> <span>All mock test attempts, scores, and accuracy percentages</span></li>
-                <li><app-icon name="close" [size]="14" /> <span>NEET, UCAT, GAMSAT, MCAT, and ISAT preparation history</span></li>
-                <li><app-icon name="close" [size]="14" /> <span>Chapter mastery analytics, strengths, and weak-area reports</span></li>
-                <li><app-icon name="close" [size]="14" /> <span>University invitation letters, bookmarks, and in-app chat history</span></li>
-                <li><app-icon name="close" [size]="14" /> <span>AI tutor interaction history and personalized recommendations</span></li>
+                <li><app-icon name="close" [size]="13" /> <span>Student profile, full name, WhatsApp number, email, date of birth</span></li>
+                <li><app-icon name="close" [size]="13" /> <span>All mock test attempts, scores, and accuracy percentages</span></li>
+                <li><app-icon name="close" [size]="13" /> <span>NEET, UCAT, GAMSAT, MCAT, and ISAT preparation history</span></li>
+                <li><app-icon name="close" [size]="13" /> <span>Chapter mastery analytics, strengths, and weak-area reports</span></li>
+                <li><app-icon name="close" [size]="13" /> <span>University invitation letters, bookmarks, and in-app chat history</span></li>
+                <li><app-icon name="close" [size]="13" /> <span>AI tutor interaction history and personalized recommendations</span></li>
               </ul>
             </div>
 
@@ -163,19 +142,18 @@
                 <h4>Statutory Legal Records</h4>
               </div>
               <ul class="impact-list">
-                <li><app-icon name="check" [size]="14" /> <span>Anonymized audit timestamps for fraud prevention & DPDP compliance</span></li>
-                <li><app-icon name="check" [size]="14" /> <span>Encrypted transaction reference numbers (if financial transactions occurred)</span></li>
-                <li><app-icon name="check" [size]="14" /> <span>All retained records are stripped of personal identifiers and stored in cold storage</span></li>
+                <li><app-icon name="check" [size]="13" /> <span>Anonymized audit timestamps for fraud prevention & DPDP compliance</span></li>
+                <li><app-icon name="check" [size]="13" /> <span>Encrypted transaction reference numbers (if financial transactions occurred)</span></li>
+                <li><app-icon name="check" [size]="13" /> <span>All retained records are stripped of personal identifiers in cold storage</span></li>
               </ul>
             </div>
           </div>
 
           <div class="alert-box alert-warning">
-            <app-icon name="close" [size]="18" />
+            <app-icon name="close" [size]="17" />
             <p>
               <strong>Important Warning:</strong> Once the deletion process completes, your test
-              analytics, ranking badges, and saved university opportunities cannot be recovered under
-              any circumstances.
+              analytics, ranking badges, and saved university opportunities cannot be recovered.
             </p>
           </div>
         </div>
@@ -185,7 +163,7 @@
       <section class="policy-section form-section">
         <div class="section-header">
           <span class="section-badge">02</span>
-          <h2>Method A: Submit an Online Deletion Request</h2>
+          <h2>Method A: Online Deletion Request Form</h2>
         </div>
         <div class="section-body">
           <p>
@@ -196,7 +174,7 @@
           @if (submissionSuccess()) {
             <div class="success-banner">
               <div class="success-icon">
-                <app-icon name="check" [size]="28" />
+                <app-icon name="check" [size]="24" />
               </div>
               <div class="success-content">
                 <h3>Deletion Request Submitted Successfully</h3>
@@ -227,7 +205,7 @@
             <form (ngSubmit)="submitDeletionRequest()" class="deletion-form" novalidate>
               @if (submissionError()) {
                 <div class="form-error-banner">
-                  <app-icon name="close" [size]="16" />
+                  <app-icon name="close" [size]="15" />
                   <span>{{ submissionError() }}</span>
                 </div>
               }
@@ -313,7 +291,7 @@
                     <span class="spinner"></span>
                     <span>Processing Request...</span>
                   } @else {
-                    <app-icon name="close" [size]="16" />
+                    <app-icon name="close" [size]="15" />
                     <span>Submit Account Deletion Request</span>
                   }
                 </button>
@@ -327,18 +305,17 @@
       <section class="policy-section">
         <div class="section-header">
           <span class="section-badge">03</span>
-          <h2>Method B: Direct Support Email Dispatch</h2>
+          <h2>Method B: Support Email Dispatch</h2>
         </div>
         <div class="section-body">
           <p>
-            Prefer to write directly? You can send a deletion request from your registered email to our
-            dedicated privacy desk. We verify your ownership and process the deletion within 24–48
-            hours.
+            You can also submit your deletion request directly by writing to our dedicated privacy
+            desk from your registered email:
           </p>
 
           <div class="email-dispatch-card">
             <div class="dispatch-info">
-              <span class="dispatch-icon"><app-icon name="chat" [size]="22" /></span>
+              <span class="dispatch-icon"><app-icon name="chat" [size]="20" /></span>
               <div>
                 <strong>Support Desk Address</strong>
                 <code>support&#64;mbbs.net</code>
@@ -346,8 +323,8 @@
               </div>
             </div>
             <a [href]="getMailtoLink()" class="btn-mailto">
-              <app-icon name="arrow-right" [size]="16" />
-              <span>Send Pre-Filled Deletion Email</span>
+              <app-icon name="arrow-right" [size]="15" />
+              <span>Send Pre-Filled Email</span>
             </a>
           </div>
         </div>
@@ -361,30 +338,30 @@
         </div>
         <div class="section-body">
           <p>
-            If you have the MBBS.NET mobile application installed on your phone, you can trigger
-            instant deletion natively:
+            If you have the MBBS.NET mobile application installed on your phone, you can initiate
+            deletion natively:
           </p>
 
           <div class="app-steps-grid">
             <div class="app-step-card">
               <span class="step-num">Step 1</span>
               <h4>Open Profile</h4>
-              <p>Launch the MBBS.NET app and tap the <strong>Profile</strong> tab in the bottom navigation bar.</p>
+              <p>Launch the MBBS.NET app and tap the <strong>Profile</strong> tab in the bottom bar.</p>
             </div>
             <div class="app-step-card">
               <span class="step-num">Step 2</span>
               <h4>Go to Settings</h4>
-              <p>Tap the <strong>Settings</strong> gear icon and select <strong>Account & Security</strong>.</p>
+              <p>Tap the <strong>Settings</strong> gear icon and choose <strong>Account & Security</strong>.</p>
             </div>
             <div class="app-step-card">
               <span class="step-num">Step 3</span>
-              <h4>Select Delete Account</h4>
-              <p>Scroll to the bottom and tap <strong>Delete Account & Data</strong>.</p>
+              <h4>Delete Account</h4>
+              <p>Scroll to the bottom and select <strong>Delete Account & Data</strong>.</p>
             </div>
             <div class="app-step-card">
               <span class="step-num">Step 4</span>
               <h4>Verify OTP</h4>
-              <p>Authenticate with your WhatsApp verification code to authorize permanent removal.</p>
+              <p>Enter your WhatsApp verification code to authorize permanent removal.</p>
             </div>
           </div>
         </div>
@@ -447,7 +424,7 @@
                 >
                   <span class="faq-q">{{ faq.question }}</span>
                   <span class="faq-icon">
-                    <app-icon [name]="faq.isOpen ? 'close' : 'plus'" [size]="16" />
+                    <app-icon [name]="faq.isOpen ? 'close' : 'plus'" [size]="15" />
                   </span>
                 </button>
                 @if (faq.isOpen) {
@@ -460,28 +437,6 @@
           </div>
         </div>
       </section>
-
-      <!-- Related Legal Links -->
-      <div class="related-policies-card">
-        <h3>Related Documentation</h3>
-        <p>Review the complete terms and privacy principles governing MBBS.NET:</p>
-        <div class="links-row">
-          <a routerLink="/terms-and-conditions" class="related-link">
-            <app-icon name="bookmark" [size]="16" />
-            <div>
-              <strong>Terms of Service</strong>
-              <span>Rules and conditions governing the use of the platform.</span>
-            </div>
-          </a>
-          <a routerLink="/privacy-policy" class="related-link">
-            <app-icon name="check" [size]="16" />
-            <div>
-              <strong>Privacy & Data Policy</strong>
-              <span>Complete 22-section policy operated by Preston Consultancy Edtech.</span>
-            </div>
-          </a>
-        </div>
-      </div>
     </main>
   </div>
 </div>

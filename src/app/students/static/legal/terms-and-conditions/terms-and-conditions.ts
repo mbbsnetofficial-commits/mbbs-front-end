@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Location } from '@angular/common';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { Icon } from '../../../../shared/ui/icon/icon';
 
 export interface TermsSection {
@@ -12,12 +13,15 @@ export interface TermsSection {
 @Component({
   selector: 'app-terms-and-conditions',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, Icon],
+  imports: [RouterLink, Icon],
   templateUrl: './terms-and-conditions.html',
   styleUrl: './terms-and-conditions.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TermsAndConditionsComponent {
+  private readonly location = inject(Location);
+  private readonly router = inject(Router);
+
   readonly version = '2.1';
   readonly effectiveDate = 'September 2026';
   readonly activeSection = signal<string>('acceptance');
@@ -30,6 +34,14 @@ export class TermsAndConditionsComponent {
     { id: 'admissions-disclaimer', number: '5', title: 'Admissions & University Disclaimer' },
     { id: 'contact-notices', number: '6', title: 'Contact & Legal Notices' },
   ];
+
+  goBack(): void {
+    if (typeof window !== 'undefined' && window.history.length > 1) {
+      this.location.back();
+    } else {
+      this.router.navigate(['/']);
+    }
+  }
 
   scrollToSection(id: string): void {
     this.activeSection.set(id);
