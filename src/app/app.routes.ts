@@ -20,6 +20,80 @@ export const routes: Routes = [
       import('./students/static/static.routes').then((m) => m.staticRoutes),
   },
   {
+    path: 'terms-and-conditions',
+    loadComponent: () =>
+      import('./layouts/static-layout/static-layout').then(
+        ({ StaticLayout }) => StaticLayout
+      ),
+    children: [
+      {
+        path: '',
+        pathMatch: 'full',
+        title: 'Terms of Service | MBBS.NET',
+        loadComponent: () =>
+          import(
+            './students/static/legal/terms-and-conditions/terms-and-conditions'
+          ).then((m) => m.TermsAndConditionsComponent),
+      },
+    ],
+  },
+  {
+    path: 'terms-and-condition',
+    redirectTo: '/terms-and-conditions',
+    pathMatch: 'full',
+  },
+  {
+    path: 'terms',
+    redirectTo: '/terms-and-conditions',
+    pathMatch: 'full',
+  },
+  {
+    path: 'privacy-policy',
+    loadComponent: () =>
+      import('./layouts/static-layout/static-layout').then(
+        ({ StaticLayout }) => StaticLayout
+      ),
+    children: [
+      {
+        path: '',
+        pathMatch: 'full',
+        title: 'Privacy & Data Policy | MBBS.NET',
+        loadComponent: () =>
+          import('./students/static/legal/privacy-policy/privacy-policy').then(
+            (m) => m.PrivacyPolicyComponent
+          ),
+      },
+    ],
+  },
+  {
+    path: 'privacy',
+    redirectTo: '/privacy-policy',
+    pathMatch: 'full',
+  },
+  {
+    path: 'delete-account',
+    loadComponent: () =>
+      import('./layouts/static-layout/static-layout').then(
+        ({ StaticLayout }) => StaticLayout
+      ),
+    children: [
+      {
+        path: '',
+        pathMatch: 'full',
+        title: 'Account & Data Deletion | MBBS.NET',
+        loadComponent: () =>
+          import('./students/static/legal/delete-account/delete-account').then(
+            (m) => m.DeleteAccountComponent
+          ),
+      },
+    ],
+  },
+  {
+    path: 'account-deletion',
+    redirectTo: '/delete-account',
+    pathMatch: 'full',
+  },
+  {
     path: 'auth',
     loadChildren: () => import('./students/auth/auth.routes').then((m) => m.authRoutes),
   },

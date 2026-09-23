@@ -1,0 +1,487 @@
+<div class="legal-page">
+  <!-- Top Navigation Sub-bar -->
+  <nav class="legal-nav-bar" aria-label="Legal documents navigation">
+    <div class="nav-container">
+      <div class="breadcrumbs">
+        <a routerLink="/" class="crumb-link">Home</a>
+        <span class="crumb-separator">/</span>
+        <span class="crumb-current">Delete Account</span>
+      </div>
+
+      <div class="legal-tabs">
+        <a
+          routerLink="/terms-and-conditions"
+          routerLinkActive="active"
+          class="tab-btn"
+        >
+          <app-icon name="bookmark" [size]="15" />
+          <span>Terms of Service</span>
+        </a>
+        <a
+          routerLink="/privacy-policy"
+          routerLinkActive="active"
+          class="tab-btn"
+        >
+          <app-icon name="check" [size]="15" />
+          <span>Privacy Policy</span>
+        </a>
+        <a
+          routerLink="/delete-account"
+          routerLinkActive="active"
+          class="tab-btn delete-tab"
+          aria-current="page"
+        >
+          <app-icon name="close" [size]="15" />
+          <span>Delete Account</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Document Header Hero -->
+  <header class="legal-hero">
+    <div class="hero-container">
+      <div class="hero-pill-badge">
+        <span class="badge-dot warning-dot"></span>
+        <span>DPDP Act 2023 • Data Erasure & Account Termination</span>
+      </div>
+
+      <h1 class="hero-title">Account & Data Deletion</h1>
+
+      <p class="hero-subtitle">
+        In accordance with Section 18 of the MBBS.NET Privacy & Data Policy and Indian DPDP
+        regulations, students have the full right to permanently delete their account and personal
+        records from our systems.
+      </p>
+
+      <div class="metadata-bar">
+        <div class="meta-item">
+          <span class="meta-label">Standard SLA</span>
+          <span class="meta-value">24–48 Hours Review</span>
+        </div>
+        <div class="meta-divider"></div>
+        <div class="meta-item">
+          <span class="meta-label">Data Purge Window</span>
+          <span class="meta-value">7 Days Complete Removal</span>
+        </div>
+        <div class="meta-divider"></div>
+        <div class="meta-item">
+          <span class="meta-label">Official Support</span>
+          <span class="meta-value">support&#64;mbbs.net</span>
+        </div>
+        <div class="hero-actions">
+          <button type="button" class="print-btn" (click)="printPage()" title="Print Deletion Instructions">
+            <app-icon name="share" [size]="16" />
+            <span>Print Guide</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Body Content -->
+  <div class="legal-body-container">
+    <!-- Left Navigation / Quick Overview -->
+    <aside class="legal-sidebar" aria-label="Deletion steps navigation">
+      <div class="sidebar-card">
+        <h3 class="sidebar-heading">Deletion Process</h3>
+        <ul class="steps-nav">
+          <li class="step-nav-item active">
+            <span class="step-idx">1</span>
+            <div class="step-meta">
+              <strong>Understand Impact</strong>
+              <span>What data is purged</span>
+            </div>
+          </li>
+          <li class="step-nav-item">
+            <span class="step-idx">2</span>
+            <div class="step-meta">
+              <strong>Choose Method</strong>
+              <span>Web form, Email, or In-App</span>
+            </div>
+          </li>
+          <li class="step-nav-item">
+            <span class="step-idx">3</span>
+            <div class="step-meta">
+              <strong>Grace Period</strong>
+              <span>7 days to cancel</span>
+            </div>
+          </li>
+          <li class="step-nav-item">
+            <span class="step-idx">4</span>
+            <div class="step-meta">
+              <strong>Permanent Purge</strong>
+              <span>Complete cryptographic wipe</span>
+            </div>
+          </li>
+        </ul>
+
+        <div class="sidebar-callout help-callout">
+          <span class="callout-icon"><app-icon name="sparkles" [size]="18" /></span>
+          <div>
+            <strong>Need Help Deciding?</strong>
+            <p>If you only need to pause notifications or update your details, contact our support team first.</p>
+            <a href="mailto:support@mbbs.net" class="sidebar-email">support&#64;mbbs.net</a>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="legal-content">
+      <!-- Section 1: What Gets Deleted -->
+      <section class="policy-section">
+        <div class="section-header">
+          <span class="section-badge danger-badge">01</span>
+          <h2>What Happens When You Delete Your Account</h2>
+        </div>
+        <div class="section-body">
+          <p>
+            Deleting your MBBS.NET account is a permanent, non-reversible action. Please review what is
+            purged from our active systems:
+          </p>
+
+          <div class="data-impact-grid">
+            <div class="impact-card card-deleted">
+              <div class="impact-header">
+                <span class="impact-badge delete-badge">Permanently Purged</span>
+                <h4>Personal & Academic Data</h4>
+              </div>
+              <ul class="impact-list">
+                <li><app-icon name="close" [size]="14" /> <span>Student profile, full name, WhatsApp number, email, date of birth</span></li>
+                <li><app-icon name="close" [size]="14" /> <span>All mock test attempts, scores, and accuracy percentages</span></li>
+                <li><app-icon name="close" [size]="14" /> <span>NEET, UCAT, GAMSAT, MCAT, and ISAT preparation history</span></li>
+                <li><app-icon name="close" [size]="14" /> <span>Chapter mastery analytics, strengths, and weak-area reports</span></li>
+                <li><app-icon name="close" [size]="14" /> <span>University invitation letters, bookmarks, and in-app chat history</span></li>
+                <li><app-icon name="close" [size]="14" /> <span>AI tutor interaction history and personalized recommendations</span></li>
+              </ul>
+            </div>
+
+            <div class="impact-card card-retained">
+              <div class="impact-header">
+                <span class="impact-badge legal-badge">Minimal Retention</span>
+                <h4>Statutory Legal Records</h4>
+              </div>
+              <ul class="impact-list">
+                <li><app-icon name="check" [size]="14" /> <span>Anonymized audit timestamps for fraud prevention & DPDP compliance</span></li>
+                <li><app-icon name="check" [size]="14" /> <span>Encrypted transaction reference numbers (if financial transactions occurred)</span></li>
+                <li><app-icon name="check" [size]="14" /> <span>All retained records are stripped of personal identifiers and stored in cold storage</span></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="alert-box alert-warning">
+            <app-icon name="close" [size]="18" />
+            <p>
+              <strong>Important Warning:</strong> Once the deletion process completes, your test
+              analytics, ranking badges, and saved university opportunities cannot be recovered under
+              any circumstances.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 2: Self-Service Deletion Request Form -->
+      <section class="policy-section form-section">
+        <div class="section-header">
+          <span class="section-badge">02</span>
+          <h2>Method A: Submit an Online Deletion Request</h2>
+        </div>
+        <div class="section-body">
+          <p>
+            You can initiate account deletion right here. Our automated privacy compliance desk will
+            register your request and dispatch a verification confirmation.
+          </p>
+
+          @if (submissionSuccess()) {
+            <div class="success-banner">
+              <div class="success-icon">
+                <app-icon name="check" [size]="28" />
+              </div>
+              <div class="success-content">
+                <h3>Deletion Request Submitted Successfully</h3>
+                <p>
+                  Your request has been queued under Reference ID:
+                  <strong class="ref-code">{{ referenceId() }}</strong>
+                </p>
+                <div class="success-steps">
+                  <div class="s-step">
+                    <span class="dot"></span>
+                    <span>A confirmation notification has been queued for your registered account.</span>
+                  </div>
+                  <div class="s-step">
+                    <span class="dot"></span>
+                    <span>Your account will be unlisted immediately and purged within 7 business days.</span>
+                  </div>
+                  <div class="s-step">
+                    <span class="dot"></span>
+                    <span>If you change your mind within 7 days, email <code>support&#64;mbbs.net</code> with your Reference ID.</span>
+                  </div>
+                </div>
+                <button type="button" class="btn-secondary" (click)="resetForm()">
+                  Submit Another Request
+                </button>
+              </div>
+            </div>
+          } @else {
+            <form (ngSubmit)="submitDeletionRequest()" class="deletion-form" novalidate>
+              @if (submissionError()) {
+                <div class="form-error-banner">
+                  <app-icon name="close" [size]="16" />
+                  <span>{{ submissionError() }}</span>
+                </div>
+              }
+
+              <!-- Identifier Input -->
+              <div class="form-group">
+                <label for="accountIdentifier">
+                  <span>Registered WhatsApp Phone Number or Email</span>
+                  <span class="req">*</span>
+                </label>
+                <input
+                  id="accountIdentifier"
+                  type="text"
+                  placeholder="e.g. +91 98765 43210 or student@example.com"
+                  [ngModel]="accountIdentifier()"
+                  (ngModelChange)="accountIdentifier.set($event)"
+                  name="accountIdentifier"
+                  required
+                />
+                <span class="field-hint">Enter the WhatsApp number or email address linked to your MBBS.NET profile.</span>
+              </div>
+
+              <!-- Reason Dropdown -->
+              <div class="form-group">
+                <label for="deletionReason">
+                  <span>Primary Reason for Deletion</span>
+                  <span class="req">*</span>
+                </label>
+                <select
+                  id="deletionReason"
+                  [ngModel]="selectedReason()"
+                  (ngModelChange)="selectedReason.set($event)"
+                  name="deletionReason"
+                >
+                  @for (reason of reasons; track reason.key) {
+                    <option [value]="reason.key">{{ reason.label }}</option>
+                  }
+                </select>
+              </div>
+
+              <!-- Additional Notes -->
+              <div class="form-group">
+                <label for="additionalNotes">
+                  <span>Additional Feedback or Comments (Optional)</span>
+                </label>
+                <textarea
+                  id="additionalNotes"
+                  rows="3"
+                  placeholder="Tell us how we could have served your medical preparation journey better..."
+                  [ngModel]="additionalNotes()"
+                  (ngModelChange)="additionalNotes.set($event)"
+                  name="additionalNotes"
+                ></textarea>
+              </div>
+
+              <!-- Confirmation Checkbox -->
+              <div class="form-checkbox">
+                <label class="checkbox-container">
+                  <input
+                    type="checkbox"
+                    [checked]="confirmUnderstood()"
+                    (change)="confirmUnderstood.set(!confirmUnderstood())"
+                    name="confirmUnderstood"
+                    required
+                  />
+                  <span class="checkmark"></span>
+                  <span class="checkbox-label">
+                    I understand that deleting my account permanently erases all test scorecards,
+                    chapter analytics, scholarship opportunities, and student profile data, and this
+                    action is irreversible.
+                  </span>
+                </label>
+              </div>
+
+              <!-- Submit Button -->
+              <div class="form-actions">
+                <button
+                  type="submit"
+                  class="btn-delete-submit"
+                  [disabled]="isSubmitting()"
+                >
+                  @if (isSubmitting()) {
+                    <span class="spinner"></span>
+                    <span>Processing Request...</span>
+                  } @else {
+                    <app-icon name="close" [size]="16" />
+                    <span>Submit Account Deletion Request</span>
+                  }
+                </button>
+              </div>
+            </form>
+          }
+        </div>
+      </section>
+
+      <!-- Section 3: Alternative Method - Email -->
+      <section class="policy-section">
+        <div class="section-header">
+          <span class="section-badge">03</span>
+          <h2>Method B: Direct Support Email Dispatch</h2>
+        </div>
+        <div class="section-body">
+          <p>
+            Prefer to write directly? You can send a deletion request from your registered email to our
+            dedicated privacy desk. We verify your ownership and process the deletion within 24–48
+            hours.
+          </p>
+
+          <div class="email-dispatch-card">
+            <div class="dispatch-info">
+              <span class="dispatch-icon"><app-icon name="chat" [size]="22" /></span>
+              <div>
+                <strong>Support Desk Address</strong>
+                <code>support&#64;mbbs.net</code>
+                <span class="copy-note">Monitored 7 days a week for privacy compliance.</span>
+              </div>
+            </div>
+            <a [href]="getMailtoLink()" class="btn-mailto">
+              <app-icon name="arrow-right" [size]="16" />
+              <span>Send Pre-Filled Deletion Email</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 4: Mobile App Walkthrough -->
+      <section class="policy-section">
+        <div class="section-header">
+          <span class="section-badge">04</span>
+          <h2>Method C: In-App Deletion (iOS & Android)</h2>
+        </div>
+        <div class="section-body">
+          <p>
+            If you have the MBBS.NET mobile application installed on your phone, you can trigger
+            instant deletion natively:
+          </p>
+
+          <div class="app-steps-grid">
+            <div class="app-step-card">
+              <span class="step-num">Step 1</span>
+              <h4>Open Profile</h4>
+              <p>Launch the MBBS.NET app and tap the <strong>Profile</strong> tab in the bottom navigation bar.</p>
+            </div>
+            <div class="app-step-card">
+              <span class="step-num">Step 2</span>
+              <h4>Go to Settings</h4>
+              <p>Tap the <strong>Settings</strong> gear icon and select <strong>Account & Security</strong>.</p>
+            </div>
+            <div class="app-step-card">
+              <span class="step-num">Step 3</span>
+              <h4>Select Delete Account</h4>
+              <p>Scroll to the bottom and tap <strong>Delete Account & Data</strong>.</p>
+            </div>
+            <div class="app-step-card">
+              <span class="step-num">Step 4</span>
+              <h4>Verify OTP</h4>
+              <p>Authenticate with your WhatsApp verification code to authorize permanent removal.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Timeline & Grace Period -->
+      <section class="policy-section">
+        <div class="section-header">
+          <span class="section-badge">05</span>
+          <h2>Deletion Timeline & 7-Day Grace Period</h2>
+        </div>
+        <div class="section-body">
+          <div class="timeline-container">
+            <div class="timeline-step">
+              <div class="timeline-marker">
+                <span class="dot"></span>
+              </div>
+              <div class="timeline-content">
+                <strong>Hour 0: Instant Deactivation</strong>
+                <p>All active sessions are terminated, your profile is hidden from universities, and public access is disabled immediately.</p>
+              </div>
+            </div>
+            <div class="timeline-step">
+              <div class="timeline-marker">
+                <span class="dot"></span>
+              </div>
+              <div class="timeline-content">
+                <strong>Days 1 – 7: Grace Period</strong>
+                <p>If you change your mind, contact <code>support&#64;mbbs.net</code> to cancel the request and restore your full account history.</p>
+              </div>
+            </div>
+            <div class="timeline-step">
+              <div class="timeline-marker">
+                <span class="dot finished"></span>
+              </div>
+              <div class="timeline-content">
+                <strong>Day 7: Permanent Cryptographic Purge</strong>
+                <p>All personal identifiers, test logs, and score records are wiped from active database clusters with zero recovery possibility.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6: Frequently Asked Questions -->
+      <section class="policy-section">
+        <div class="section-header">
+          <span class="section-badge">06</span>
+          <h2>Frequently Asked Questions</h2>
+        </div>
+        <div class="section-body">
+          <div class="faq-accordion">
+            @for (faq of faqs(); track faq.question; let i = $index) {
+              <div class="faq-item" [class.open]="faq.isOpen">
+                <button
+                  type="button"
+                  class="faq-trigger"
+                  (click)="toggleFaq(i)"
+                  [attr.aria-expanded]="faq.isOpen"
+                >
+                  <span class="faq-q">{{ faq.question }}</span>
+                  <span class="faq-icon">
+                    <app-icon [name]="faq.isOpen ? 'close' : 'plus'" [size]="16" />
+                  </span>
+                </button>
+                @if (faq.isOpen) {
+                  <div class="faq-content">
+                    <p>{{ faq.answer }}</p>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- Related Legal Links -->
+      <div class="related-policies-card">
+        <h3>Related Documentation</h3>
+        <p>Review the complete terms and privacy principles governing MBBS.NET:</p>
+        <div class="links-row">
+          <a routerLink="/terms-and-conditions" class="related-link">
+            <app-icon name="bookmark" [size]="16" />
+            <div>
+              <strong>Terms of Service</strong>
+              <span>Rules and conditions governing the use of the platform.</span>
+            </div>
+          </a>
+          <a routerLink="/privacy-policy" class="related-link">
+            <app-icon name="check" [size]="16" />
+            <div>
+              <strong>Privacy & Data Policy</strong>
+              <span>Complete 22-section policy operated by Preston Consultancy Edtech.</span>
+            </div>
+          </a>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>

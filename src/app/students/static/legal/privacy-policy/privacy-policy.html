@@ -1,0 +1,659 @@
+<div class="legal-page">
+  <!-- Top Navigation Sub-bar -->
+  <nav class="legal-nav-bar" aria-label="Legal documents navigation">
+    <div class="nav-container">
+      <div class="breadcrumbs">
+        <a routerLink="/" class="crumb-link">Home</a>
+        <span class="crumb-separator">/</span>
+        <span class="crumb-current">Privacy Policy</span>
+      </div>
+
+      <div class="legal-tabs">
+        <a
+          routerLink="/terms-and-conditions"
+          routerLinkActive="active"
+          class="tab-btn"
+        >
+          <app-icon name="bookmark" [size]="15" />
+          <span>Terms of Service</span>
+        </a>
+        <a
+          routerLink="/privacy-policy"
+          routerLinkActive="active"
+          class="tab-btn"
+          aria-current="page"
+        >
+          <app-icon name="check" [size]="15" />
+          <span>Privacy Policy</span>
+        </a>
+        <a
+          routerLink="/delete-account"
+          routerLinkActive="active"
+          class="tab-btn delete-tab"
+        >
+          <app-icon name="close" [size]="15" />
+          <span>Delete Account</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Document Header Hero -->
+  <header class="legal-hero">
+    <div class="hero-container">
+      <div class="hero-pill-badge">
+        <span class="badge-dot"></span>
+        <span>DPDP Act 2023 & Rules 2025 Compliant</span>
+      </div>
+
+      <h1 class="hero-title">Privacy & Data Policy</h1>
+
+      <p class="hero-subtitle">
+        Operated by <strong>{{ operator }}</strong>. Clear, transparent principles on how we collect,
+        safeguard, and process your student educational and personal records across {{ platform }}.
+      </p>
+
+      <div class="metadata-bar">
+        <div class="meta-item">
+          <span class="meta-label">Operator</span>
+          <span class="meta-value">{{ operator }}</span>
+        </div>
+        <div class="meta-divider"></div>
+        <div class="meta-item">
+          <span class="meta-label">Version</span>
+          <span class="meta-value">{{ version }}</span>
+        </div>
+        <div class="meta-divider"></div>
+        <div class="meta-item">
+          <span class="meta-label">Effective Date</span>
+          <span class="meta-value">{{ effectiveDate }}</span>
+        </div>
+        <div class="meta-divider"></div>
+        <div class="meta-item">
+          <span class="meta-label">Platform URL</span>
+          <span class="meta-value">{{ platformUrl }}</span>
+        </div>
+        <div class="hero-actions">
+          <button type="button" class="print-btn" (click)="printPage()" title="Print Policy">
+            <app-icon name="share" [size]="16" />
+            <span>Print / Save PDF</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Layout with Sidebar -->
+  <div class="legal-body-container">
+    <aside class="legal-sidebar" aria-label="Table of Contents">
+      <div class="sidebar-card">
+        <div class="sidebar-search">
+          <span class="search-icon"><app-icon name="search" [size]="16" /></span>
+          <input
+            type="text"
+            placeholder="Search 22 policy sections..."
+            [ngModel]="searchQuery()"
+            (ngModelChange)="searchQuery.set($event)"
+            aria-label="Search policy sections"
+          />
+          @if (searchQuery()) {
+            <button type="button" class="clear-search" (click)="searchQuery.set('')">×</button>
+          }
+        </div>
+
+        <h3 class="sidebar-heading">Sections ({{ filteredSections().length }})</h3>
+        <ul class="toc-list">
+          @for (sec of filteredSections(); track sec.id) {
+            <li>
+              <button
+                type="button"
+                class="toc-link"
+                [class.active]="activeSection() === sec.id"
+                (click)="scrollToSection(sec.id)"
+              >
+                <span class="toc-num">{{ sec.number }}</span>
+                <span class="toc-text">{{ sec.title }}</span>
+              </button>
+            </li>
+          }
+        </ul>
+
+        <div class="sidebar-callout">
+          <span class="callout-icon">
+            <app-icon name="sparkles" [size]="18" />
+          </span>
+          <div>
+            <strong>Privacy Grievance Officer</strong>
+            <p>Direct escalations for student data access, correction, or deletion.</p>
+            <a href="mailto:privacy@mbbs.net" class="sidebar-email">privacy&#64;mbbs.net</a>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="legal-content">
+      <!-- Section 1 -->
+      <section id="who-we-are" class="policy-section">
+        <div class="section-header">
+          <span class="section-badge">01</span>
+          <h2>1. Who We Are</h2>
+        </div>
+        <div class="section-body">
+          <p>
+            <strong>{{ operator }}</strong> operates the MBBS.net platform (<code>{{ platformUrl }}</code>).
+            MBBS.net is an education technology platform designed to help students explore medical
+            education opportunities, prepare for entrance examinations, discover universities, receive
+            university recommendations, interact with participating institutions, and use
+            technology-enabled educational services.
+          </p>
+          <p><strong>Our Services include:</strong></p>
+          <ul class="bullet-list-styled">
+            <li>Medical entrance examination preparation</li>
+            <li>Practice questions and mock tests</li>
+            <li>Previous-year question resources</li>
+            <li>Learning and performance reports</li>
+            <li>University discovery & recommendation services</li>
+            <li>Student profiles & University invitations</li>
+            <li>Student-university communication</li>
+            <li>Notifications and reminders</li>
+            <li>AI-powered educational assistance</li>
+            <li>Other education-related technology services</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Section 2 -->
+      <section id="information-we-collect" class="policy-section">
+        <div class="section-header">
+          <span class="section-badge">02</span>
+          <h2>2. Information We Collect</h2>
+        </div>
+        <div class="section-body">
+          <p>
+            We collect information that is reasonably necessary to provide, maintain, secure, and improve
+            our Services.
+          </p>
+          <h3>2.1 Information You Provide Directly</h3>
+          <p>When you create an account or use our Services, we may collect:</p>
+          <ul class="bullet-list-styled">
+            <li>Full name</li>
+            <li>Email address</li>
+            <li>Mobile phone number</li>
+            <li>Date of birth or age where required</li>
+            <li>Country of residence & preferred country of study</li>
+            <li>Password or authentication credentials</li>
+            <li>Profile information & profile photograph (optional)</li>
+            <li>Communication and account preferences</li>
+            <li>Information provided during customer-support interactions</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Section 3 -->
+      <section id="educational-academic-info" class="policy-section">
+        <div class="section-header">
+          <span class="section-badge">03</span>
+          <h2>3. Educational and Academic Information</h2>
+        </div>
+        <div class="section-body">
+          <p>When you use our education and university-related Services, we may collect:</p>
+          <ul class="bullet-list-styled">
+            <li>School or college information</li>
+            <li>Educational qualifications & academic performance</li>
+            <li>Examination scores & entrance examination details</li>
+            <li>Subjects studied & course preferences</li>
+            <li>Intended study destination & university preferences</li>
+            <li>English-language examination information</li>
+            <li>Eligibility and application-related information</li>
+            <li>Other voluntary educational information</li>
+          </ul>
+          <div class="alert-box alert-info">
+            <app-icon name="check" [size]="18" />
+            <p>
+              This information is used strictly to provide personalized educational features, tailored
+              practice tracks, and university recommendations.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 4 -->
+      <section id="examination-learning-data" class="policy-section">
+        <div class="section-header">
+          <span class="section-badge">04</span>
+          <h2>4. Examination and Learning Data</h2>
+        </div>
+        <div class="section-body">
+          <p>When using examination preparation features, we collect:</p>
+          <ul class="bullet-list-styled">
+            <li>Tests started and completed</li>
+            <li>Questions attempted & answers submitted (correct and incorrect)</li>
+            <li>Scores & time spent on questions/tests</li>
+            <li>Topic performance, test history, and learning progress</li>
+            <li>Mock examination results & previous-year question activity</li>
+            <li>Performance analytics</li>
+          </ul>
+          <p class="highlight-note">
+            Used to generate test results, performance reports, topic analysis, personalized
+            recommendations, and platform improvements.
+          </p>
+        </div>
+      </section>
+
+      <!-- Section 5 -->
+      <section id="university-finder-recommendation" class="policy-section">
+        <div class="section-header">
+          <span class="section-badge">05</span>
+          <h2>5. University Finder and Recommendation Information</h2>
+        </div>
+        <div class="section-body">
+          <p>If you use the university discovery and recommendation service, we collect:</p>
+          <ul class="bullet-list-styled">
+            <li>
+              Academic qualifications, examination information, preferred countries, course preferences,
+              English proficiency, and eligibility criteria.
+            </li>
+          </ul>
+          <div class="disclaimer-card">
+            <h4>Informational Notice</h4>
+            <p>
+              University recommendations are informational only and do not constitute a guarantee of
+              admission, eligibility, scholarship, visa approval, licensing, or employment.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6 -->
+      <section id="student-profiles-invites" class="policy-section">
+        <div class="section-header">
+          <span class="section-badge">06</span>
+          <h2>6. Student Profiles and University Invitations</h2>
+        </div>
+        <div class="section-body">
+          <p>
+            Where you use features enabling participating institutions to discover or communicate with
+            you, we may process:
+          </p>
+          <ul class="bullet-list-styled">
+            <li>Name, contact details, academic info, exam scores, course and university preferences.</li>
+            <li>Relevant profile information shared with participating universities.</li>
+          </ul>
+          <div class="disclaimer-card">
+            <h4>Admissions Decision Notice</h4>
+            <p>
+              University invitations do not constitute guaranteed admission; all formal admission
+              decisions remain solely with the relevant institution.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 7 -->
+      <section id="chat-communication-data" class="policy-section">
+        <div class="section-header">
+          <span class="section-badge">07</span>
+          <h2>7. Chat and Communication Data</h2>
+        </div>
+        <div class="section-body">
+          <p>
+            When using in-app messaging or communication features between users or universities, we
+            process:
+          </p>
+          <ul class="bullet-list-styled">
+            <li>
+              Messages, conversations, sender/recipient information, timestamps, delivery and read
+              status, and account identifiers.
+            </li>
+          </ul>
+          <div class="alert-box alert-warning">
+            <app-icon name="close" [size]="18" />
+            <p>
+              <strong>Prohibited Content Policy:</strong> Users must not send unlawful, abusive,
+              threatening, fraudulent, harassing, defamatory, or discriminatory messages.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 8 -->
+      <section id="ai-chatbot-features" class="policy-section">
+        <div class="section-header">
+          <span class="section-badge">08</span>
+          <h2>8. AI and Chatbot Features</h2>
+        </div>
+        <div class="section-body">
+          <p>
+            When using AI features (such as educational chatbots, question explanations, and revision
+            summaries), we process:
+          </p>
+          <ul class="bullet-list-styled">
+            <li>Prompts, questions, conversation logs, and educational context.</li>
+            <li>AI services may be supported by trusted third-party technology providers.</li>
+          </ul>
+          <div class="alert-box alert-warning">
+            <app-icon name="close" [size]="18" />
+            <p>
+              <strong>Caution:</strong> Do not submit sensitive personal data (such as passwords,
+              payment cards, or government IDs) into the AI assistant. AI answers are provided for
+              study support and should not replace professional medical, legal, immigration, or
+              financial advice.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 9 -->
+      <section id="device-technical-info" class="policy-section">
+        <div class="section-header">
+          <span class="section-badge">09</span>
+          <h2>9. Device and Technical Information</h2>
+        </div>
+        <div class="section-body">
+          <p>We automatically collect technical telemetry when you access the platform:</p>
+          <ul class="bullet-list-styled">
+            <li>
+              IP address, device type and model, operating system, app version, browser type, device
+              identifiers, network information, language preference, time zone, crash logs, diagnostic
+              logs, and security audit data.
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Section 10 -->
+      <section id="location-info" class="policy-section">
+        <div class="section-header">
+          <span class="section-badge">10</span>
+          <h2>10. Location Information</h2>
+        </div>
+        <div class="section-body">
+          <p>
+            Precise GPS location is not required for ordinary use unless explicitly requested with your
+            permission.
+          </p>
+          <p>
+            General approximate location (such as country or city) is derived from IP addresses or
+            voluntarily provided profile data to show region-relevant entrance exam structures and
+            currency defaults.
+          </p>
+        </div>
+      </section>
+
+      <!-- Section 11 -->
+      <section id="push-notifications" class="policy-section">
+        <div class="section-header">
+          <span class="section-badge">11</span>
+          <h2>11. Push Notifications</h2>
+        </div>
+        <div class="section-body">
+          <p>
+            Notifications are sent for account activity, test reminders, learning alerts, university
+            invitations, messages, and platform updates via Apple Push Notification service (APNs) and
+            Firebase Cloud Messaging (FCM). You can toggle these preferences in your device settings.
+          </p>
+        </div>
+      </section>
+
+      <!-- Section 12 -->
+      <section id="otp-sms-whatsapp" class="policy-section">
+        <div class="section-header">
+          <span class="section-badge">12</span>
+          <h2>12. OTP, SMS, Email and WhatsApp Communications</h2>
+        </div>
+        <div class="section-body">
+          <p>
+            Third-party communication providers are used to deliver one-time verification passwords
+            (OTPs), university invite alerts, and critical account security messages (including
+            authorized WhatsApp Business API providers and SMS gateways).
+          </p>
+        </div>
+      </section>
+
+      <!-- Section 13 -->
+      <section id="cookies-technologies" class="policy-section">
+        <div class="section-header">
+          <span class="section-badge">13</span>
+          <h2>13. Cookies and Similar Technologies</h2>
+        </div>
+        <div class="section-body">
+          <p>
+            Cookies, local storage, SDKs, and session logs are used to keep you securely signed in,
+            remember exam interface preferences, maintain application security, prevent fraud, and
+            analyze platform performance.
+          </p>
+        </div>
+      </section>
+
+      <!-- Section 14 -->
+      <section id="how-we-use-info" class="policy-section">
+        <div class="section-header">
+          <span class="section-badge">14</span>
+          <h2>14. How We Use Personal Information</h2>
+        </div>
+        <div class="section-body">
+          <p>We process personal data for legitimate educational and operational purposes:</p>
+          <ul class="bullet-list-styled">
+            <li><strong>Providing Services:</strong> Account authentication, test processing, results generation, analytics, university matches, communication, and customer support.</li>
+            <li><strong>Personalization:</strong> Tailoring learning materials and recommendations.</li>
+            <li><strong>Security:</strong> Account protection, fraud detection, infrastructure security, and terms enforcement.</li>
+            <li><strong>Communications:</strong> OTPs, test reminders, system notifications, support replies.</li>
+            <li><strong>Product Improvement:</strong> Diagnostic debugging, feature optimization, content updates.</li>
+            <li><strong>Legal Compliance:</strong> Complying with applicable laws, resolving disputes, and enforcing legal rights.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Section 15 -->
+      <section id="how-we-share-info" class="policy-section">
+        <div class="section-header">
+          <span class="section-badge">15</span>
+          <h2>15. How We Share Personal Information</h2>
+        </div>
+        <div class="section-body">
+          <div class="alert-box alert-info">
+            <app-icon name="check" [size]="18" />
+            <p>
+              <strong>Zero Standalone Sale:</strong> We do not sell student personal information under any circumstances.
+            </p>
+          </div>
+          <p>Information is only shared under the following conditions:</p>
+          <ul class="bullet-list-styled">
+            <li><strong>Participating Universities:</strong> Shared only for requested educational opportunities and admissions inquiries you have engaged with.</li>
+            <li><strong>Service Providers:</strong> Cloud hosting, databases, authentication, AI, notifications, messaging (SMS/WhatsApp/Email), payment processing, analytics, and security.</li>
+            <li><strong>Legal Requirements:</strong> When required by valid legal process, court orders, or government authorities.</li>
+            <li><strong>Corporate Transactions:</strong> In the event of a merger, acquisition, restructuring, or asset sale with equivalent data safeguards.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Section 16 -->
+      <section id="international-data-processing" class="policy-section">
+        <div class="section-header">
+          <span class="section-badge">16</span>
+          <h2>16. International Data Processing</h2>
+        </div>
+        <div class="section-body">
+          <p>
+            Data may be processed or stored in secure server infrastructure outside your home country
+            (such as cloud regions supporting high-availability services) with appropriate legal
+            safeguards and encryption in transit.
+          </p>
+        </div>
+      </section>
+
+      <!-- Section 17 -->
+      <section id="data-security" class="policy-section">
+        <div class="section-header">
+          <span class="section-badge">17</span>
+          <h2>17. Data Security</h2>
+        </div>
+        <div class="section-body">
+          <p>
+            We implement comprehensive technical and organizational measures to safeguard your
+            information:
+          </p>
+          <div class="security-grid">
+            <div class="security-card">
+              <span class="security-icon"><app-icon name="check" [size]="18" /></span>
+              <strong>TLS 1.3 Encryption</strong>
+              <p>All data transmitted between your device and our servers is strictly encrypted.</p>
+            </div>
+            <div class="security-card">
+              <span class="security-icon"><app-icon name="bookmark" [size]="18" /></span>
+              <strong>Hardware Keystore Tokens</strong>
+              <p>Cryptographic tokens protect authentication sessions and API requests.</p>
+            </div>
+            <div class="security-card">
+              <span class="security-icon"><app-icon name="settings" [size]="18" /></span>
+              <strong>Role-Based Access Control</strong>
+              <p>Strict access controls limit production database visibility to authorized personnel.</p>
+            </div>
+            <div class="security-card">
+              <span class="security-icon"><app-icon name="activity" [size]="18" /></span>
+              <strong>Continuous Auditing</strong>
+              <p>Automated telemetry, vulnerability scanning, and daily offsite backups.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 18 -->
+      <section id="data-retention-deletion" class="policy-section highlight-deletion">
+        <div class="section-header">
+          <span class="section-badge">18</span>
+          <h2>18. Data Retention & Account Deletion</h2>
+        </div>
+        <div class="section-body">
+          <p>
+            Data is retained only as long as necessary for educational records, service provision, and
+            legal compliance.
+          </p>
+          <div class="deletion-action-box">
+            <div class="box-text">
+              <strong>Right to Permanent Account Deletion</strong>
+              <p>
+                You can request permanent account deletion at any time. Account deletion removes access to
+                test histories, recommendations, and student profiles.
+              </p>
+            </div>
+            <div class="box-actions">
+              <a routerLink="/delete-account" class="btn-delete-page">
+                <span>View Deletion Procedure & Form</span>
+                <app-icon name="arrow-right" [size]="16" />
+              </a>
+              <span class="or-email">or email <a href="mailto:support@mbbs.net">support&#64;mbbs.net</a></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 19 -->
+      <section id="your-privacy-rights" class="policy-section">
+        <div class="section-header">
+          <span class="section-badge">19</span>
+          <h2>19. Your Privacy Rights</h2>
+        </div>
+        <div class="section-body">
+          <p>
+            Subject to applicable law, you have rights regarding your personal information, including:
+          </p>
+          <ul class="bullet-list-styled">
+            <li>Right to access and review information held about you.</li>
+            <li>Right to request correction or updating of inaccurate data.</li>
+            <li>Right to request erasure and permanent account deletion.</li>
+            <li>Right to withdraw consent previously provided for optional features.</li>
+            <li>Right to file grievances with our Grievance Officer or relevant data protection authorities.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Section 20 -->
+      <section id="children-minor-privacy" class="policy-section">
+        <div class="section-header">
+          <span class="section-badge">20</span>
+          <h2>20. Children's & Minor Users' Privacy</h2>
+        </div>
+        <div class="section-body">
+          <p>
+            MBBS.net complies with applicable guardian consent requirements for minor students preparing
+            for medical entrance examinations. Parents or guardians may review or request deletion of
+            their ward’s personal data by contacting our team.
+          </p>
+        </div>
+      </section>
+
+      <!-- Section 21 -->
+      <section id="governing-privacy-laws" class="policy-section">
+        <div class="section-header">
+          <span class="section-badge">21</span>
+          <h2>21. Governing Privacy Laws</h2>
+        </div>
+        <div class="section-body">
+          <p>
+            MBBS.net operates in compliance with applicable data protection legislation, including:
+          </p>
+          <ul class="bullet-list-styled">
+            <li><strong>Digital Personal Data Protection Act, 2023 (DPDP)</strong> in India</li>
+            <li><strong>Digital Personal Data Protection Rules, 2025</strong> in India</li>
+            <li>Applicable cross-border data protection frameworks and student privacy standards</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Section 22 -->
+      <section id="contact-grievance-officer" class="policy-section">
+        <div class="section-header">
+          <span class="section-badge">22</span>
+          <h2>22. Contact & Grievance Officer</h2>
+        </div>
+        <div class="section-body">
+          <p>
+            For privacy inquiries, rights requests, or grievance redressal, contact our designated
+            officers:
+          </p>
+          <div class="officer-card">
+            <div class="officer-detail">
+              <span class="label">Operating Entity:</span>
+              <span class="val">{{ operator }}</span>
+            </div>
+            <div class="officer-detail">
+              <span class="label">Official Website:</span>
+              <a [href]="platformUrl" target="_blank" rel="noopener noreferrer" class="val link">{{ platformUrl }}</a>
+            </div>
+            <div class="officer-detail">
+              <span class="label">Privacy Officer:</span>
+              <a href="mailto:privacy@mbbs.net" class="val link">privacy&#64;mbbs.net</a>
+            </div>
+            <div class="officer-detail">
+              <span class="label">General Support:</span>
+              <a href="mailto:support@mbbs.net" class="val link">support&#64;mbbs.net</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Cross-Links Card -->
+      <div class="related-policies-card">
+        <h3>Related Documentation</h3>
+        <p>Explore our complete legal and compliance resources:</p>
+        <div class="links-row">
+          <a routerLink="/terms-and-conditions" class="related-link">
+            <app-icon name="bookmark" [size]="16" />
+            <div>
+              <strong>Terms of Service</strong>
+              <span>Rules and conditions governing the use of the MBBS.NET platform.</span>
+            </div>
+          </a>
+          <a routerLink="/delete-account" class="related-link">
+            <app-icon name="close" [size]="16" />
+            <div>
+              <strong>Account & Data Deletion</strong>
+              <span>Detailed workflow, consequences, and request submission form.</span>
+            </div>
+          </a>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>

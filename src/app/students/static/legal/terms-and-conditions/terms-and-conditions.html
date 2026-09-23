@@ -1,0 +1,296 @@
+<div class="legal-page">
+  <!-- Top Navigation Sub-bar -->
+  <nav class="legal-nav-bar" aria-label="Legal documents navigation">
+    <div class="nav-container">
+      <div class="breadcrumbs">
+        <a routerLink="/" class="crumb-link">Home</a>
+        <span class="crumb-separator">/</span>
+        <span class="crumb-current">Terms of Service</span>
+      </div>
+
+      <div class="legal-tabs">
+        <a
+          routerLink="/terms-and-conditions"
+          routerLinkActive="active"
+          class="tab-btn"
+          aria-current="page"
+        >
+          <app-icon name="bookmark" [size]="15" />
+          <span>Terms of Service</span>
+        </a>
+        <a
+          routerLink="/privacy-policy"
+          routerLinkActive="active"
+          class="tab-btn"
+        >
+          <app-icon name="check" [size]="15" />
+          <span>Privacy Policy</span>
+        </a>
+        <a
+          routerLink="/delete-account"
+          routerLinkActive="active"
+          class="tab-btn delete-tab"
+        >
+          <app-icon name="close" [size]="15" />
+          <span>Delete Account</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Document Header Hero -->
+  <header class="legal-hero">
+    <div class="hero-container">
+      <div class="hero-pill-badge">
+        <span class="badge-dot"></span>
+        <span>MBBS.NET Official Documentation</span>
+      </div>
+
+      <h1 class="hero-title">Terms of Service</h1>
+
+      <p class="hero-subtitle">
+        These Terms of Service govern your access to and use of the MBBS.NET mobile application,
+        test evaluation engine, and educational services.
+      </p>
+
+      <div class="metadata-bar">
+        <div class="meta-item">
+          <span class="meta-label">Version</span>
+          <span class="meta-value">{{ version }}</span>
+        </div>
+        <div class="meta-divider"></div>
+        <div class="meta-item">
+          <span class="meta-label">Effective Date</span>
+          <span class="meta-value">{{ effectiveDate }}</span>
+        </div>
+        <div class="meta-divider"></div>
+        <div class="meta-item">
+          <span class="meta-label">Applicable To</span>
+          <span class="meta-value">All Students & Registered Users</span>
+        </div>
+        <div class="hero-actions">
+          <button type="button" class="print-btn" (click)="printPage()" title="Print Terms">
+            <app-icon name="share" [size]="16" />
+            <span>Print / Save PDF</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Layout with Sidebar -->
+  <div class="legal-body-container">
+    <aside class="legal-sidebar" aria-label="Table of Contents">
+      <div class="sidebar-card">
+        <h3 class="sidebar-heading">Table of Contents</h3>
+        <ul class="toc-list">
+          @for (sec of sections; track sec.id) {
+            <li>
+              <button
+                type="button"
+                class="toc-link"
+                [class.active]="activeSection() === sec.id"
+                (click)="scrollToSection(sec.id)"
+              >
+                <span class="toc-num">{{ sec.number }}</span>
+                <span class="toc-text">{{ sec.title }}</span>
+              </button>
+            </li>
+          }
+        </ul>
+
+        <div class="sidebar-callout">
+          <span class="callout-icon">
+            <app-icon name="sparkles" [size]="18" />
+          </span>
+          <div>
+            <strong>Need Assistance?</strong>
+            <p>Our legal and compliance team is available to clarify any terms.</p>
+            <a href="mailto:legal@mbbs.net" class="sidebar-email">legal&#64;mbbs.net</a>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="legal-content">
+      <!-- Section 1 -->
+      <section id="acceptance" class="policy-section">
+        <div class="section-header">
+          <span class="section-badge">01</span>
+          <h2>1. Acceptance of Terms</h2>
+        </div>
+        <div class="section-body">
+          <p>
+            By accessing, downloading, or using <strong>MBBS.NET</strong>, you agree to comply with and be
+            bound by these Terms of Service. If you do not agree to these terms in their entirety, you
+            must not access or use the application or any associated digital services.
+          </p>
+          <div class="alert-box alert-info">
+            <app-icon name="check" [size]="18" />
+            <p>
+              Your continued use of the platform after any revisions signifies your acceptance of the updated terms.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 2 -->
+      <section id="educational-services" class="policy-section">
+        <div class="section-header">
+          <span class="section-badge">02</span>
+          <h2>2. Educational Services Scope</h2>
+        </div>
+        <div class="section-body">
+          <p>
+            MBBS.NET provides digital entrance examination preparation, simulated test series, custom
+            test generation, chapter analytics, and educational resources for medical entrance exams
+            including:
+          </p>
+          <ul class="bullet-list exam-grid">
+            <li>
+              <span class="exam-tag">NEET UG</span>
+              <span>National Eligibility cum Entrance Test (Undergraduate)</span>
+            </li>
+            <li>
+              <span class="exam-tag">UCAT</span>
+              <span>University Clinical Aptitude Test</span>
+            </li>
+            <li>
+              <span class="exam-tag">GAMSAT</span>
+              <span>Graduate Medical School Admissions Test</span>
+            </li>
+            <li>
+              <span class="exam-tag">MCAT</span>
+              <span>Medical College Admission Test</span>
+            </li>
+            <li>
+              <span class="exam-tag">ISAT</span>
+              <span>International Student Admissions Test</span>
+            </li>
+          </ul>
+          <p class="highlight-note">
+            All test simulations and question banks are designed strictly for educational,
+            self-evaluation, and preparatory purposes.
+          </p>
+        </div>
+      </section>
+
+      <!-- Section 3 -->
+      <section id="student-accounts" class="policy-section">
+        <div class="section-header">
+          <span class="section-badge">03</span>
+          <h2>3. Student Accounts & Authentication</h2>
+        </div>
+        <div class="section-body">
+          <p>
+            To access full functionality, students authenticate using a verified WhatsApp phone number.
+            You are solely responsible for maintaining the confidentiality of your account
+            authentication codes and all activities conducted through your device.
+          </p>
+          <p>
+            You agree to notify MBBS.NET immediately of any unauthorized use of your account or any
+            other breach of security. MBBS.NET will not be liable for any loss or damage arising from
+            your failure to protect your authentication credentials.
+          </p>
+        </div>
+      </section>
+
+      <!-- Section 4 -->
+      <section id="intellectual-property" class="policy-section">
+        <div class="section-header">
+          <span class="section-badge">04</span>
+          <h2>4. Intellectual Property Rights</h2>
+        </div>
+        <div class="section-body">
+          <p>
+            All proprietary questions, solutions, performance algorithms, question banks, user
+            interfaces, logos, and software code are the exclusive intellectual property of MBBS.NET.
+          </p>
+          <div class="alert-box alert-warning">
+            <app-icon name="close" [size]="18" />
+            <p>
+              <strong>Strict Prohibition:</strong> You may not copy, reverse-engineer, scrape,
+              distribute, reproduce, or resell any part of the content without prior written permission.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5 -->
+      <section id="admissions-disclaimer" class="policy-section">
+        <div class="section-header">
+          <span class="section-badge">05</span>
+          <h2>5. Admissions & University Disclaimer</h2>
+        </div>
+        <div class="section-body">
+          <p>
+            MBBS.NET is an independent digital preparation platform. While institutional profiles and
+            admissions invitations may appear within the platform, official medical college admissions,
+            seat allotments, and visa clearances remain strictly under the jurisdiction of the designated
+            regulatory authorities (such as NTA/NMC) and respective universities.
+          </p>
+          <div class="disclaimer-card">
+            <h4>Regulatory Jurisdiction Notice</h4>
+            <p>
+              MBBS.NET does not guarantee admission, seat allotment, government quota allotment, or
+              visa clearance. Institutional invitation letters are non-binding opportunities extended
+              directly by universities and are subject to their independent criteria and government
+              regulations.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 6 -->
+      <section id="contact-notices" class="policy-section">
+        <div class="section-header">
+          <span class="section-badge">06</span>
+          <h2>6. Contact & Legal Notices</h2>
+        </div>
+        <div class="section-body">
+          <p>
+            For any questions, legal notices, or feedback regarding these terms, contact our legal team:
+          </p>
+          <div class="contact-channels">
+            <div class="channel-card">
+              <span class="channel-icon"><app-icon name="bookmark" [size]="20" /></span>
+              <div class="channel-details">
+                <strong>Legal Notices & Compliance</strong>
+                <a href="mailto:legal@mbbs.net">legal&#64;mbbs.net</a>
+              </div>
+            </div>
+            <div class="channel-card">
+              <span class="channel-icon"><app-icon name="chat" [size]="20" /></span>
+              <div class="channel-details">
+                <strong>General Student Support</strong>
+                <a href="mailto:support@mbbs.net">support&#64;mbbs.net</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Cross-Links Card -->
+      <div class="related-policies-card">
+        <h3>Related Documentation</h3>
+        <p>Explore our complete legal and compliance resources:</p>
+        <div class="links-row">
+          <a routerLink="/privacy-policy" class="related-link">
+            <app-icon name="check" [size]="16" />
+            <div>
+              <strong>Privacy & Data Policy</strong>
+              <span>How your personal, academic, and test data is processed.</span>
+            </div>
+          </a>
+          <a routerLink="/delete-account" class="related-link">
+            <app-icon name="close" [size]="16" />
+            <div>
+              <strong>Account & Data Deletion</strong>
+              <span>Clear instructions and request process for data erasure.</span>
+            </div>
+          </a>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>

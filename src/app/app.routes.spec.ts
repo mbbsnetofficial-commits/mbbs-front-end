@@ -48,4 +48,22 @@ describe('App Routes', () => {
     await router.navigateByUrl('/otp');
     expect(router.url).toBe('/auth/otp');
   });
+
+  it('should redirect /terms and /terms-and-condition to /terms-and-conditions', async () => {
+    await router.navigateByUrl('/terms');
+    expect(router.url).toBe('/terms-and-conditions');
+
+    await router.navigateByUrl('/terms-and-condition');
+    expect(router.url).toBe('/terms-and-conditions');
+  });
+
+  it('should redirect /privacy to /privacy-policy', async () => {
+    await router.navigateByUrl('/privacy');
+    expect(router.url).toBe('/privacy-policy');
+  });
+
+  it('should redirect /account-deletion to /delete-account', async () => {
+    await router.navigateByUrl('/account-deletion');
+    expect(router.url).toBe('/delete-account');
+  });
 });

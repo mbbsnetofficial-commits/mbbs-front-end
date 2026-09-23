@@ -66,7 +66,7 @@
 
     <label class="terms">
       <input type="checkbox" formControlName="termsAccepted">
-      <span>I agree to the <a href="#terms">Terms of Service</a> and <a href="#privacy">Privacy Policy</a>.</span>
+      <span>I agree to the <a routerLink="/terms-and-conditions">Terms of Service</a> and <a routerLink="/privacy-policy">Privacy Policy</a>.</span>
     </label>
     @if (registerForm.controls.termsAccepted.invalid && registerForm.controls.termsAccepted.touched) {
       <p class="field-error terms-error">Accept the terms to create your account.</p>
