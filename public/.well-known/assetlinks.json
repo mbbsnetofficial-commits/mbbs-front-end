@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.mbbs.Mbbs",
+      "sha256_cert_fingerprints": [
+        "51:6D:F0:48:A4:B7:0B:7C:61:DA:31:18:D2:74:D2:10:A4:54:88:99:F7:7B:23:3F:96:6A:F6:34:49:F0:52:88"
+      ]
+    }
+  }
+]

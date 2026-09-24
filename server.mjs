@@ -38,6 +38,20 @@ createServer((request, response) => {
 
   const pathname = decodeURIComponent(new URL(request.url ?? '/', 'http://localhost').pathname);
 
+  if (pathname === '/.well-known/assetlinks.json') {
+    const assetlinksFile = join(publicDir, '.well-known', 'assetlinks.json');
+    if (existsSync(assetlinksFile) && statSync(assetlinksFile).isFile()) {
+      const stat = statSync(assetlinksFile);
+      response.writeHead(200, {
+        'Content-Type': 'application/json',
+        'Content-Length': stat.size,
+        'Cache-Control': 'no-cache',
+      });
+      createReadStream(assetlinksFile).pipe(response);
+      return;
+    }
+  }
+
   const requestedFile = resolve(publicDir, `.${normalize(pathname)}`);
   const isInsidePublicDir =
     requestedFile === publicDir || requestedFile.startsWith(`${publicDir}\\`) || requestedFile.startsWith(`${publicDir}/`);
